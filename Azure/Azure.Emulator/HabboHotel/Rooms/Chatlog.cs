@@ -1,0 +1,77 @@
+#region
+
+using System;
+using Azure.Messages;
+using Azure.Util;
+
+#endregion
+
+namespace Azure.HabboHotel.Rooms
+{
+    /// <summary>
+    /// Class Chatlog.
+    /// </summary>
+    internal class Chatlog
+    {
+        /// <summary>
+        /// The user identifier
+        /// </summary>
+        internal uint UserId;
+
+        /// <summary>
+        /// The message
+        /// </summary>
+        internal string Message;
+
+        /// <summary>
+        /// The timestamp
+        /// </summary>
+        internal DateTime TimeStamp;
+
+        /// <summary>
+        /// The is saved
+        /// </summary>
+        internal bool IsSaved, GlobalMessage;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Chatlog"/> class.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="msg">The MSG.</param>
+        /// <param name="time">The time.</param>
+        /// <param name="globalMessage"></param>
+        /// <param name="fromDatabase">if set to <c>true</c> [from database].</param>
+        internal Chatlog(uint user, string msg, DateTime time, bool globalMessage, bool fromDatabase = false)
+        {
+            UserId = user;
+            Message = msg;
+            TimeStamp = time;
+            GlobalMessage = true;
+            IsSaved = fromDatabase;
+        }
+
+        /// <summary>
+        /// Saves the specified room identifier.
+        /// </summary>
+        /// <param name="queryChunk"></param>
+        /// <param name="id">Auto increment</param>
+        internal void Save(QueryChunk queryChunk, uint id)
+        {
+            if (IsSaved) return;
+            queryChunk.AddQuery("INSERT INTO users_chatlogs (user_id, room_id, timestamp, message) VALUES (@user" + id + ", @room, @time" + id + ", @message" + id + ")");
+            queryChunk.AddParameter("user" + id, UserId);
+            queryChunk.AddParameter("time" + id, Azure.DateTimeToUnix(TimeStamp));
+            queryChunk.AddParameter("message" + id, Message);
+        }
+
+        internal void Serialize(ref ServerMessage message)
+        {
+            var habbo = Azure.GetHabboById(UserId);
+            message.AppendInteger(Azure.DifferenceInMilliSeconds(TimeStamp, DateTime.Now));
+            message.AppendInteger(UserId);
+            message.AppendString(habbo == null ? "*User not found*" : habbo.UserName);
+            message.AppendString(Message);
+            message.AppendBool(GlobalMessage);
+        }
+    }
+}

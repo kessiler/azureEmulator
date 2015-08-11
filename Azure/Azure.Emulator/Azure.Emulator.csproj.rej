@@ -1,0 +1,17 @@
+diff a/Azure/Azure.Emulator/Azure.Emulator.csproj b/Azure/Azure.Emulator/Azure.Emulator.csproj	(rejected hunks)
+@@ -105,9 +105,15 @@
+       <HintPath>..\bin\$(Configuration)\$(Platform)\Lib\Database\Ingres.Stereo.dll</HintPath>
+       <Private>False</Private>
+     </Reference>
++<<<<<<< HEAD
+     <Reference Include="Ionic.Zlib, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+       <SpecificVersion>False</SpecificVersion>
+       <HintPath>Building\Ionic.Zlib.dll</HintPath>
++=======
++    <Reference Include="Ionic.Zip">
++      <HintPath>..\bin\Debug\x64\Lib\Extensions\Updater\Ionic.Zip.dll</HintPath>
++      <Private>False</Private>
++>>>>>>> 554c00de39b424432c5ba51ecbea84a14c0f3fab
+     </Reference>
+     <Reference Include="MySql.Data">
+       <HintPath>..\bin\$(Configuration)\$(Platform)\Lib\Database\MySql.Data.dll</HintPath>
