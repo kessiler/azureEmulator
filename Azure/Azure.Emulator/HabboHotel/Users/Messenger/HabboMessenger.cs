@@ -203,27 +203,32 @@ namespace Azure.HabboHotel.Users.Messenger
         /// <param name="friendId">The friend identifier.</param>
         internal void DestroyFriendship(uint friendId)
         {
+            Habbo habbo = GetClient().GetHabbo();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM messenger_friendships WHERE (user_one_id = ", _userId, " AND user_two_id = ", friendId, ") OR (user_two_id = ", _userId, " AND user_one_id = ", friendId, ")"));
 
-                queryReactor.RunFastQuery(string.Concat("SELECT id FROM users_relationships WHERE user_id=", GetClient().GetHabbo().Id, " AND target = ", friendId, " LIMIT 1"));
+                queryReactor.RunFastQuery(string.Concat("SELECT id FROM users_relationships WHERE user_id=", habbo.Id, " AND target = ", friendId, " LIMIT 1"));
                 int Id = queryReactor.GetInteger();
 
-                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_relationships WHERE (user_id = ", GetClient().GetHabbo().Id, " AND target = ", friendId, ")"));
+                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_relationships WHERE (user_id = ", habbo.Id, " AND target = ", friendId, ")"));
 
-                if (GetClient().GetHabbo().Relationships.ContainsKey(Id))
-                    GetClient().GetHabbo().Relationships.Remove(Id);
+                if (Id != null)
+                {
+                    if (habbo.Relationships.ContainsKey(Id))
+                        habbo.Relationships.Remove(Id);
+                }
 
             }
 
             OnDestroyFriendship(friendId);
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
-            if (clientByUserId != null && clientByUserId.GetHabbo().GetMessenger() != null)
-                clientByUserId.GetHabbo().GetMessenger().OnDestroyFriendship(_userId);
-
-            if (clientByUserId.GetHabbo().Relationships.ContainsKey((int)friendId))
-                clientByUserId.GetHabbo().Relationships.Remove((int)friendId);
+            var clientRelationship = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
+            if (clientRelationship != null && clientRelationship.GetHabbo().GetMessenger() != null)
+            {
+                clientRelationship.GetHabbo().GetMessenger().OnDestroyFriendship(_userId);
+                if (clientRelationship.GetHabbo().Relationships.ContainsKey((int)friendId))
+                    clientRelationship.GetHabbo().Relationships.Remove((int)friendId);
+            }
         }
 
         /// <summary>
