@@ -103,9 +103,6 @@
     <Compile Include="BytesDownloadedEventHandler.cs" />
     <Compile Include="WebData.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
