@@ -174,9 +174,9 @@ namespace Azure.Connection.Connection
         private void NewConnectionRequest(IAsyncResult iAr)
         {
             if (_connectionListener == null || !_acceptConnections) return;
-            Socket socket = ((Socket)iAr.AsyncState).EndAccept(iAr);
             try
             {
+                Socket socket = ((Socket)iAr.AsyncState).EndAccept(iAr);
                 if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
                 {
                     socket.NoDelay = _disableNagleAlgorithm;
