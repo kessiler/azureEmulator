@@ -410,7 +410,9 @@ namespace Azure.HabboHotel.Rooms
 
                 Tags = new List<string>();
 
-                if (row.IsNull("tags") || !string.IsNullOrEmpty(row["tags"].ToString()))
+                //if (row.IsNull("tags") || !string.IsNullOrEmpty(row["tags"].ToString()))
+                // @issue 96
+                if (row.IsNull("tags") || string.IsNullOrEmpty(row["tags"].ToString()))
                     return;
 
                 foreach (var item in row["tags"].ToString().Split(','))

@@ -67,6 +67,8 @@ namespace Azure.HabboHotel.RoomBots
             _speechInterval = speechInterval < 2 ? 2000 : speechInterval * 1000;
 
             // Get random speach
+            // @issue #80
+            //if (roomBot != null && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any()) _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
             if (roomBot != null && roomBot.AutomaticChat && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any()) _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
             _actionCount = Random.Next(10, 30 + virtualId);
         }
@@ -77,6 +79,8 @@ namespace Azure.HabboHotel.RoomBots
         internal override void Modified()
         {
             if (GetBotData() == null) return;
+            // @issue #80
+            //if (GetBotData().RandomSpeech == null || !GetBotData().RandomSpeech.Any())
             if (!GetBotData().AutomaticChat || GetBotData().RandomSpeech == null || !GetBotData().RandomSpeech.Any())
             {
                 StopTimerTick();
@@ -396,14 +400,10 @@ namespace Azure.HabboHotel.RoomBots
             _chatTimer = null;
         }
 
-        /// <summary>
-        /// Chats the timer tick.
-        /// </summary>
-        /// <param name="o">The o.</param>
-        private void ChatTimerTick(object o)
+        internal override void OnChatTick()
         {
             if (GetBotData() == null || GetRoomUser() == null || GetBotData().WasPicked || GetBotData().RandomSpeech == null ||
-                !GetBotData().RandomSpeech.Any())
+                 !GetBotData().RandomSpeech.Any())
             {
                 StopTimerTick();
                 return;
@@ -468,6 +468,8 @@ namespace Azure.HabboHotel.RoomBots
                         randomSpeech = randomSpeech.Replace("%owner%", GetRoom().RoomData.Owner);
                     }
                 }
+
+
                 if (GetBotData() != null) randomSpeech = randomSpeech.Replace("%name%", GetBotData().Name);
 
                 GetRoomUser().Chat(null, randomSpeech, false, 0, 0);
@@ -476,6 +478,15 @@ namespace Azure.HabboHotel.RoomBots
             {
                 Writer.Writer.LogException(e.ToString());
             }
+        }
+
+        /// <summary>
+        /// Chats the timer tick.
+        /// </summary>
+        /// <param name="o">The o.</param>
+        private void ChatTimerTick(object o)
+        {
+            OnChatTick();
         }
     }
 }

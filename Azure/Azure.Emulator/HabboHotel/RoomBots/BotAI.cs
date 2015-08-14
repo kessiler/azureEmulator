@@ -137,6 +137,8 @@ namespace Azure.HabboHotel.RoomBots
         /// </summary>
         internal abstract void OnTimerTick();
 
+        internal abstract void OnChatTick();
+
         /// <summary>
         /// Modifieds this instance.
         /// </summary>

@@ -70,6 +70,10 @@ namespace Azure.HabboHotel.RoomBots
         {
         }
 
+        internal override void OnChatTick()
+        {
+        }
+
         /// <summary>
         /// Modifieds this instance.
         /// </summary>

@@ -910,73 +910,61 @@ namespace Azure.HabboHotel.Catalogs
                                     list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0, 1534, "0", 0u, true, false, 0, 0, string.Empty));
                                     break;
                                 }
-                            default:
-                                switch (interactionType)
-                                {
-                                    case Interaction.MusicDisc:
-                                        goto IL_1067;
-                                    case Interaction.PuzzleBox:
-                                        goto IL_10C3;
-                                    case Interaction.RoomBg:
-                                        goto IL_FF7;
-                                    default:
-                                        switch (interactionType)
-                                        {
-                                            case Interaction.GuildItem:
-                                            case Interaction.GuildGate:
-                                            case Interaction.GroupForumTerminal:
-                                                list.Add(session.GetHabbo()
-                                                    .GetInventoryComponent()
-                                                    .AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData),
-                                                        true, false, 0, 0, string.Empty));
-                                                break;
-
-                                            case Interaction.GuildForum:
-                                                uint groupId;
-                                                uint.TryParse(extraData, out groupId);
-                                                var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
-                                                if (group != null)
-                                                {
-                                                    if (group.CreatorId == session.GetHabbo().Id)
-                                                    {
-                                                        session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                                                        session.GetMessageHandler()
-                                                            .GetResponse()
-                                                            .AppendString("forums.delivered");
-                                                        session.GetMessageHandler().GetResponse().AppendInteger(2);
-                                                        session.GetMessageHandler()
-                                                            .GetResponse()
-                                                            .AppendString("groupId");
-                                                        session.GetMessageHandler()
-                                                            .GetResponse()
-                                                            .AppendString(extraData);
-                                                        session.GetMessageHandler()
-                                                            .GetResponse()
-                                                            .AppendString("groupName");
-                                                        session.GetMessageHandler()
-                                                            .GetResponse()
-                                                            .AppendString(group.Name);
-                                                        session.GetMessageHandler().SendResponse();
-                                                        if (!group.HasForum)
-                                                        {
-                                                            group.HasForum = true;
-                                                            group.UpdateForum();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
-                                                    }
-                                                }
-                                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
-                                                break;
-
-                                            default:
-                                                goto IL_10C3;
-                                        }
-                                        break;
-                                }
+                            case Interaction.MusicDisc:
+                                goto IL_1067;
+                            case Interaction.PuzzleBox:
+                                goto IL_10C3;
+                            case Interaction.RoomBg:
+                                goto IL_FF7;
+                            case Interaction.GuildItem:
+                            case Interaction.GuildGate:
+                            case Interaction.GroupForumTerminal:
+                                list.Add(session.GetHabbo()
+                                    .GetInventoryComponent()
+                                    .AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData),
+                                        true, false, 0, 0, string.Empty));
                                 break;
+                            case Interaction.GuildForum:
+                                uint groupId;
+                                uint.TryParse(extraData, out groupId);
+                                var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                                if (group != null)
+                                {
+                                    if (group.CreatorId == session.GetHabbo().Id)
+                                    {
+                                        session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                                        session.GetMessageHandler()
+                                            .GetResponse()
+                                            .AppendString("forums.delivered");
+                                        session.GetMessageHandler().GetResponse().AppendInteger(2);
+                                        session.GetMessageHandler()
+                                            .GetResponse()
+                                            .AppendString("groupId");
+                                        session.GetMessageHandler()
+                                            .GetResponse()
+                                            .AppendString(extraData);
+                                        session.GetMessageHandler()
+                                            .GetResponse()
+                                            .AppendString("groupName");
+                                        session.GetMessageHandler()
+                                            .GetResponse()
+                                            .AppendString(group.Name);
+                                        session.GetMessageHandler().SendResponse();
+                                        if (!group.HasForum)
+                                        {
+                                            group.HasForum = true;
+                                            group.UpdateForum();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
+                                    }
+                                }
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
+                                break;
+                            default:
+                                goto IL_10C3;
                         }
                     IL_10EE:
                         i++;

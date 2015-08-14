@@ -546,6 +546,11 @@ namespace Azure.HabboHotel.Rooms
                         else
                             current.BotAI.OnUserSay(user, message);
                     }
+                    // @issue #80
+                    else if (!current.IsPet && !current.BotAI.GetBotData().AutomaticChat)
+                    {
+                        current.BotAI.OnChatTick();
+                    }
                     else if (current.IsPet && message.StartsWith(current.PetData.Name) && current.PetData.Type != 16)
                     {
                         message = message.Substring(current.PetData.Name.Length);
