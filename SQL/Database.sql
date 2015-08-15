@@ -13393,7 +13393,7 @@ UPDATE groups_members SET date_join = UNIX_TIMESTAMP();
 -- ----------------------------
 DROP EVENT IF EXISTS `daily_pet_respect_points`;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` EVENT `daily_pet_respect_points` ON SCHEDULE EVERY 24 HOUR STARTS '2015-02-10 00:00:00' ON COMPLETION NOT PRESERVE ENABLE DO update users_stats set daily_pet_respect_points = 5 where daily_pet_respect_points = 0
+CREATE EVENT `daily_pet_respect_points` ON SCHEDULE EVERY 24 HOUR STARTS '2015-02-10 00:00:00' ON COMPLETION NOT PRESERVE ENABLE DO update users_stats set daily_pet_respect_points = 5 where daily_pet_respect_points = 0
 ;;
 DELIMITER ;
 
@@ -13402,6 +13402,6 @@ DELIMITER ;
 -- ----------------------------
 DROP EVENT IF EXISTS `daily_respect_points`;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` EVENT `daily_respect_points` ON SCHEDULE EVERY 24 HOUR STARTS '2015-01-12 21:39:07' ON COMPLETION NOT PRESERVE ENABLE DO update users_stats set daily_respect_points = 5 where daily_respect_points = 0
+CREATE EVENT `daily_respect_points` ON SCHEDULE EVERY 24 HOUR STARTS '2015-01-12 21:39:07' ON COMPLETION NOT PRESERVE ENABLE DO update users_stats set daily_respect_points = 5 where daily_respect_points = 0
 ;;
 DELIMITER ;
