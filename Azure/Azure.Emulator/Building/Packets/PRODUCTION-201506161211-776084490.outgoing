@@ -1,5 +1,4 @@
 [INIT]
-ReleaseVersion=1094
 InitCryptoMessageComposer=2172
 SecretKeyMessageComposer=690
 AuthenticationOKMessageComposer=3151
@@ -11,7 +10,6 @@ LandingWidgetMessageComposer=986
 LandingCommunityChallengeMessageComposer=739
 LandingPromosMessageComposer=2682
 LandingRewardMessageComposer=2812
-BadgeCampaignMessageComposer=3294
 SendCampaignBadgeMessageComposer=1811
 HotelViewCountdownMessageComposer=2315
 HotelViewDailyquestMessageComposer=1678
@@ -55,7 +53,6 @@ NavigatorMetaDataComposer=3706
 NavigatorSavedSearchesComposer=396
 SearchResultSetComposer=1071
 NavigatorCategorys=1836
-NewNavigatorOfficialRooms=972
 NewNavigatorSizeMessageComposer=329
 TargetedOfferMessageComposer=1245
 
@@ -105,7 +102,6 @@ StopAvatarEffectMessageComposer=2554
 [Rooms]
 InitialRoomInfoMessageComposer=3415
 PrepareRoomMessageComposer=3447
-EnableRoomInfoMessageComposer=2306
 HeightMapMessageComposer=3677
 FloorMapMessageComposer=2759
 HasOwnerRightsMessageComposer=2599
@@ -210,7 +206,7 @@ PetTrainerPanelMessageComposer=1484
 AddPetExperienceMessageComposer=114
 CheckPetNameMessageComposer=498
 SerializePetMessageComposer=1995
-RespectPetMessageComposer=3985
+RespectPetMessageComposer=3989
 PetRespectNotificationMessageComposer=2621
 NotifyNewPetLevelMessageComposer=2951
 SendMonsterplantIdMessageComposer=2035
@@ -223,7 +219,6 @@ GeneralErrorHabboMessageComposer=2964
 
 [ModTools]
 LoadModerationToolMessageComposer=434
-ModerationAlertMessageComposer=1440
 ModerationActionResultMessageComposer=2426
 ModerationToolIssueChatlogMessageComposer=3173
 ModerationRoomToolMessageComposer=2985
@@ -274,7 +269,6 @@ TalentsTrackMessageComposer=769
 ConsoleChatErrorMessageComposer=2637
 ConsoleChatMessageComposer=1587
 ConsoleInvitationMessageComposer=490
-ConsoleMessengerActionMessageComposer=2537
 ConsoleSearchFriendMessageComposer=2431
 ConsoleSendFriendRequestMessageComposer=634
 LoadFriendsMessageComposer=1204
@@ -332,7 +326,6 @@ NuxListGiftsMessageComposer=524
 LatencyTestResponseMessageComposer=3846
 PingMessageComposer=3548
 SetCameraPriceMessageComposer=230
-SetCameraPreviewMessageComposer=2373
 GenericErrorMessageComposer=1494
 InternalLinkMessageComposer=202
 CameraStorageUrlMessageComposer=2373
