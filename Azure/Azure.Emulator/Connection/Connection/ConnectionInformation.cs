@@ -110,7 +110,7 @@ namespace Azure.Connection.Connection
             _isConnected = true;
             try
             {
-                _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket, _dataSocket);
+                _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(IncomingDataPacket), _dataSocket);
             }
             catch
             {
@@ -189,7 +189,7 @@ namespace Azure.Connection.Connection
         /// <param name="iAr">The i ar.</param>
         private void IncomingDataPacket(IAsyncResult iAr)
         {
-            //if (_dataSocket == null) return;
+            if (_dataSocket == null) return;
             int length;
             try
             {
@@ -220,7 +220,7 @@ namespace Azure.Connection.Connection
                 {
                     try
                     {
-                        _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket,
+                        _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(IncomingDataPacket),
                             _dataSocket);
                     }
                     catch
@@ -257,7 +257,7 @@ namespace Azure.Connection.Connection
                 if (!_isConnected || DisableSend || _dataSocket == null || !_dataSocket.Connected) return;
                 if (ARC4ClientSide != null) ARC4ClientSide.Parse(ref packet);
 
-                _dataSocket.BeginSend(packet, 0, packet.Length, SocketFlags.None, SentData, null);
+                _dataSocket.BeginSend(packet, 0, packet.Length, SocketFlags.None, new AsyncCallback(SentData), null);
             }
             catch
             {
