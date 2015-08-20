@@ -29,7 +29,7 @@ namespace Azure.Configuration
         {
             if (!File.Exists(filePath))
             {
-                if (!mayNotExist) throw new ArgumentException(string.Format("Configuration file are not found:'{0}'.", filePath));
+                if (!mayNotExist) throw new ArgumentException(string.Format("Configuration file not found in '{0}'.", filePath));
             }
             else
             {
