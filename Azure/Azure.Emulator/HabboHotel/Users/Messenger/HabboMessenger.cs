@@ -213,7 +213,7 @@ namespace Azure.HabboHotel.Users.Messenger
 
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM users_relationships WHERE (user_id = ", habbo.Id, " AND target = ", friendId, ")"));
 
-                if (Id != null)
+                if (Id > 0)
                 {
                     if (habbo.Relationships.ContainsKey(Id))
                         habbo.Relationships.Remove(Id);
