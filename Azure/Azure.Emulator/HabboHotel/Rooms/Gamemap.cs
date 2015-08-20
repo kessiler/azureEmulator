@@ -1290,91 +1290,97 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool ConstructMapForItem(RoomItem item, Point coord)
         {
-            if (coord.X > (Model.MapSizeX - 1))
+            try
             {
-                Model.AddX();
-                GenerateMaps(true);
-                return false;
-            }
-            if (coord.Y > (Model.MapSizeY - 1))
-            {
-                Model.AddY();
-                GenerateMaps(true);
-                return false;
-            }
-            if (Model.SqState[coord.X][coord.Y] == SquareState.Blocked)
-            {
-                Model.OpenSquare(coord.X, coord.Y, item.Z);
-                Model.SetUpdateState();
-            }
-
-            if (ItemHeightMap[coord.X, coord.Y] <= item.TotalHeight)
-            {
-                ItemHeightMap[coord.X, coord.Y] = item.TotalHeight - Model.SqFloorHeight[item.X][item.Y];
-
-                EffectMap[coord.X, coord.Y] = 0;
-
-                Interaction interactionType = item.GetBaseItem().InteractionType;
-
-                switch (interactionType)
+                if (coord.X > (Model.MapSizeX - 1))
                 {
-                    case Interaction.IceSkates:
-                        EffectMap[coord.X, coord.Y] = 3;
-                        break;
+                    Model.AddX();
+                    GenerateMaps(true);
+                    return false;
+                }
+                if (coord.Y > (Model.MapSizeY - 1))
+                {
+                    Model.AddY();
+                    GenerateMaps(true);
+                    return false;
+                }
+                if (Model.SqState[coord.X][coord.Y] == SquareState.Blocked)
+                {
+                    Model.OpenSquare(coord.X, coord.Y, item.Z);
+                    Model.SetUpdateState();
+                }
 
-                    case Interaction.Normslaskates:
-                        EffectMap[coord.X, coord.Y] = 2;
-                        break;
+                if (ItemHeightMap[coord.X, coord.Y] <= item.TotalHeight)
+                {
+                    ItemHeightMap[coord.X, coord.Y] = item.TotalHeight - Model.SqFloorHeight[item.X][item.Y];
 
-                    case Interaction.LowPool:
-                        EffectMap[coord.X, coord.Y] = 4;
-                        break;
+                    EffectMap[coord.X, coord.Y] = 0;
 
-                    case Interaction.HaloweenPool:
-                        EffectMap[coord.X, coord.Y] = 5;
-                        break;
+                    Interaction interactionType = item.GetBaseItem().InteractionType;
 
-                    case Interaction.SnowBoardSlope:
-                        EffectMap[coord.X, coord.Y] = 7;
-                        break;
+                    switch (interactionType)
+                    {
+                        case Interaction.IceSkates:
+                            EffectMap[coord.X, coord.Y] = 3;
+                            break;
 
-                    case Interaction.Pool:
-                        EffectMap[coord.X, coord.Y] = 1;
-                        break;
+                        case Interaction.Normslaskates:
+                            EffectMap[coord.X, coord.Y] = 2;
+                            break;
 
-                    case Interaction.PressurePadBed:
-                    case Interaction.Bed:
-                    case Interaction.Guillotine:
-                    case Interaction.BedTent:
+                        case Interaction.LowPool:
+                            EffectMap[coord.X, coord.Y] = 4;
+                            break;
+
+                        case Interaction.HaloweenPool:
+                            EffectMap[coord.X, coord.Y] = 5;
+                            break;
+
+                        case Interaction.SnowBoardSlope:
+                            EffectMap[coord.X, coord.Y] = 7;
+                            break;
+
+                        case Interaction.Pool:
+                            EffectMap[coord.X, coord.Y] = 1;
+                            break;
+
+                        case Interaction.PressurePadBed:
+                        case Interaction.Bed:
+                        case Interaction.Guillotine:
+                        case Interaction.BedTent:
+                            GameMap[coord.X, coord.Y] = 3;
+                            break;
+                    }
+
+
+                    if (item.GetBaseItem().Walkable)
+                    {
+                        if (GameMap[coord.X, coord.Y] != 3)
+                            GameMap[coord.X, coord.Y] = 1;
+                    }
+                    else if (item.Z <= Model.SqFloorHeight[item.X][item.Y] + 0.1 &&
+                             item.GetBaseItem().InteractionType == Interaction.Gate && item.ExtraData == "1")
+                    {
+                        if (GameMap[coord.X, coord.Y] != 3)
+                            GameMap[coord.X, coord.Y] = 1;
+                    }
+                    else if (item.GetBaseItem().IsSeat)
                         GameMap[coord.X, coord.Y] = 3;
-                        break;
+                    else if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.Guillotine || item.GetBaseItem().InteractionType == Interaction.BedTent)
+                    {
+                        //if (coord.X == item.X && coord.Y == item.Y)
+                        GameMap[coord.X, coord.Y] = 3;
+                    }
+                    else if (GameMap[coord.X, coord.Y] != 3)
+                        GameMap[coord.X, coord.Y] = 0;
                 }
-
-
-                if (item.GetBaseItem().Walkable)
-                {
-                    if (GameMap[coord.X, coord.Y] != 3)
-                        GameMap[coord.X, coord.Y] = 1;
-                }
-                else if (item.Z <= Model.SqFloorHeight[item.X][item.Y] + 0.1 &&
-                         item.GetBaseItem().InteractionType == Interaction.Gate && item.ExtraData == "1")
-                {
-                    if (GameMap[coord.X, coord.Y] != 3)
-                        GameMap[coord.X, coord.Y] = 1;
-                }
-                else if (item.GetBaseItem().IsSeat)
+                if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.Guillotine || item.GetBaseItem().InteractionType == Interaction.BedTent)
                     GameMap[coord.X, coord.Y] = 3;
-                else if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.Guillotine || item.GetBaseItem().InteractionType == Interaction.BedTent)
-                {
-                    //if (coord.X == item.X && coord.Y == item.Y)
-                    GameMap[coord.X, coord.Y] = 3;
-                }
-                else if (GameMap[coord.X, coord.Y] != 3)
-                    GameMap[coord.X, coord.Y] = 0;
+            } 
+            catch (Exception ex)
+            {
+                Logging.LogException(string.Concat("Error during map generation for room ", UserRoom.RoomId, ". Exception: ", ex.ToString()));
             }
-            if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.Guillotine || item.GetBaseItem().InteractionType == Interaction.BedTent)
-                GameMap[coord.X, coord.Y] = 3;
-
             return true;
         }
 
