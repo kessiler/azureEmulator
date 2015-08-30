@@ -950,8 +950,8 @@ namespace Azure.HabboHotel.Rooms
                     user.UpdateNeeded = true;
                 }
                 if (!cycleGameItems) return;
-                if (UserRoom.GotSoccer()) UserRoom.GetSoccer().OnUserWalk(user);
-                if (UserRoom.GotBanzai()) UserRoom.GetBanzai().OnUserWalk(user);
+                UserRoom.GetSoccer().OnUserWalk(user);
+                UserRoom.GetBanzai().OnUserWalk(user);
                 UserRoom.GetFreeze().OnUserWalk(user);
             }
             catch (Exception e)

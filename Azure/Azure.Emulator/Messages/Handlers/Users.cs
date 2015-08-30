@@ -1192,20 +1192,23 @@ namespace Azure.Messages.Handlers
         internal void FindMoreFriends()
         {
             var allRooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
-            Random rnd = new Random();
-            var randomRoom = allRooms[rnd.Next(allRooms.Length)].Key;
-            var success = new ServerMessage(LibraryParser.OutgoingRequest("FindMoreFriendsSuccessMessageComposer"));
-            if (randomRoom == null)
+            if (allRooms != null)
             {
-                success.AppendBool(false);
+                Random rnd = new Random();
+                var randomRoom = allRooms[rnd.Next(allRooms.Length)].Key;
+                var success = new ServerMessage(LibraryParser.OutgoingRequest("FindMoreFriendsSuccessMessageComposer"));
+                if (randomRoom == null)
+                {
+                    success.AppendBool(false);
+                    Session.SendMessage(success);
+                    return;
+                }
+                success.AppendBool(true);
                 Session.SendMessage(success);
-                return;
+                var roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
+                roomFwd.AppendInteger(randomRoom.Id);
+                Session.SendMessage(roomFwd);
             }
-            success.AppendBool(true);
-            Session.SendMessage(success);
-            var roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
-            roomFwd.AppendInteger(randomRoom.Id);
-            Session.SendMessage(roomFwd);
         }
         internal void HotelViewRequestBadge()
         {

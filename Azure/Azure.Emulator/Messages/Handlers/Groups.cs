@@ -1294,44 +1294,47 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
             var room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
-            if (room.RoomData == null || room.RoomData.Group == null)
+            if (room == null || room.RoomData == null || room.RoomData.Group == null)
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("command_group_has_no_room"));
             }
-            foreach (var user in group.Members.Values)
+            else
             {
-                var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(user.Id);
-                if (clientByUserId == null) continue;
-                clientByUserId.GetHabbo().UserGroups.Remove(user);
-                if (clientByUserId.GetHabbo().FavouriteGroup == group.Id) clientByUserId.GetHabbo().FavouriteGroup = 0;
+                foreach (var user in group.Members.Values)
+                {
+                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(user.Id);
+                    if (clientByUserId == null) continue;
+                    clientByUserId.GetHabbo().UserGroups.Remove(user);
+                    if (clientByUserId.GetHabbo().FavouriteGroup == group.Id) clientByUserId.GetHabbo().FavouriteGroup = 0;
+                }
+                room.RoomData.Group = null;
+                room.RoomData.GroupId = 0;
+                Azure.GetGame().GetGroupManager().DeleteGroup(group.Id);
+                var deleteGroup = new ServerMessage(LibraryParser.OutgoingRequest("GroupDeletedMessageComposer"));
+                deleteGroup.AppendInteger(groupId);
+                room.SendMessage(deleteGroup);
+                var roomItemList = room.GetRoomItemHandler().RemoveAllFurniture(Session);
+                room.GetRoomItemHandler().RemoveItemsByOwner(ref roomItemList, ref Session);
+                var roomData = room.RoomData;
+                var roomId = room.RoomData.Id;
+                Azure.GetGame().GetRoomManager().UnloadRoom(room, "Delete room");
+                Azure.GetGame().GetRoomManager().QueueVoteRemove(roomData);
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_data WHERE id = {0}", roomId));
+                    queryReactor.RunFastQuery(string.Format("DELETE FROM users_favorites WHERE room_id = {0}", roomId));
+                    queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE room_id = {0}", roomId));
+                    queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_rights WHERE room_id = {0}", roomId));
+                    queryReactor.RunFastQuery(string.Format("UPDATE users SET home_room = '0' WHERE home_room = {0}",
+                        roomId));
+                }
+                var roomData2 = (
+                    from p in Session.GetHabbo().UsersRooms
+                    where p.Id == roomId
+                    select p).SingleOrDefault<RoomData>();
+                if (roomData2 != null)
+                    Session.GetHabbo().UsersRooms.Remove(roomData2);
             }
-            room.RoomData.Group = null;
-            room.RoomData.GroupId = 0;
-            Azure.GetGame().GetGroupManager().DeleteGroup(group.Id);
-            var deleteGroup = new ServerMessage(LibraryParser.OutgoingRequest("GroupDeletedMessageComposer"));
-            deleteGroup.AppendInteger(groupId);
-            room.SendMessage(deleteGroup);
-            var roomItemList = room.GetRoomItemHandler().RemoveAllFurniture(Session);
-            room.GetRoomItemHandler().RemoveItemsByOwner(ref roomItemList, ref Session);
-            var roomData = room.RoomData;
-            var roomId = room.RoomData.Id;
-            Azure.GetGame().GetRoomManager().UnloadRoom(room, "Delete room");
-            Azure.GetGame().GetRoomManager().QueueVoteRemove(roomData);
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_data WHERE id = {0}", roomId));
-                queryReactor.RunFastQuery(string.Format("DELETE FROM users_favorites WHERE room_id = {0}", roomId));
-                queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE room_id = {0}", roomId));
-                queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_rights WHERE room_id = {0}", roomId));
-                queryReactor.RunFastQuery(string.Format("UPDATE users SET home_room = '0' WHERE home_room = {0}",
-                    roomId));
-            }
-            var roomData2 = (
-                from p in Session.GetHabbo().UsersRooms
-                where p.Id == roomId
-                select p).SingleOrDefault<RoomData>();
-            if (roomData2 != null)
-                Session.GetHabbo().UsersRooms.Remove(roomData2);
         }
     }
 }

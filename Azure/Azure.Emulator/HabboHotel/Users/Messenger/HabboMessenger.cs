@@ -593,7 +593,7 @@ namespace Azure.HabboHotel.Users.Messenger
             var searchResult = SearchResultFactory.GetSearchResult(query);
             var list = new List<SearchResult>();
             var list2 = new List<SearchResult>();
-            foreach (var current in searchResult.Where(current => current.UserId != GetClient().GetHabbo().Id))
+            foreach (var current in searchResult)
                 if (FriendshipExists(current.UserId))
                     list.Add(current);
                 else
