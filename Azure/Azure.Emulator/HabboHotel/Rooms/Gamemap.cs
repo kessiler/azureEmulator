@@ -858,10 +858,14 @@ namespace Azure.HabboHotel.Rooms
             if (!CanWalk(NextPosition.X, NextPosition.Y, HasOverride))
                 return false;
 
-            if ((RoomUsersInTile != null) && (!RoomUsersInTile.IsWalking) && (endOfPath))
-                return false;
-
             if (((GameMap[NextPosition.X, NextPosition.Y] == 3) && (!endOfPath)) || (GameMap[NextPosition.X, NextPosition.Y] == 0) || ((GameMap[NextPosition.X, NextPosition.Y] == 2) && (!endOfPath)))
+            {
+                RoomUser.Path.Clear();
+                RoomUser.PathRecalcNeeded = false;
+                return false;
+            }
+
+            if ((RoomUsersInTile != null) && (!RoomUsersInTile.IsWalking) && (endOfPath))
                 return false;
 
             if (RoomItemsInTile.All(item => item.GetBaseItem().Walkable))

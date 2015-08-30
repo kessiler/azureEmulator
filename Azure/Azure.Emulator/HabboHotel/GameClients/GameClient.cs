@@ -249,13 +249,13 @@ namespace Azure.HabboHotel.GameClients
                 queuedServerMessage.AppendResponse(serverMessage);
                 queuedServerMessage.AppendResponse(new ServerMessage(LibraryParser.OutgoingRequest("AuthenticationOKMessageComposer")));
                 // @issue #99
-                /*if (_habbo != null)
+                if (_habbo != null)
                 {
                     var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("HomeRoomMessageComposer"));
                     serverMessage2.AppendInteger(_habbo.HomeRoom);
                     serverMessage2.AppendInteger(_habbo.HomeRoom);
                     queuedServerMessage.AppendResponse(serverMessage2);
-                }*/
+                }
                 serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("MinimailCountMessageComposer"));
                 serverMessage.AppendInteger(_habbo.MinimailUnreadMessages);
                 queuedServerMessage.AppendResponse(serverMessage);

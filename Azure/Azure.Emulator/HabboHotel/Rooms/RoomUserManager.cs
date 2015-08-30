@@ -706,9 +706,9 @@ namespace Azure.HabboHotel.Rooms
                     while (enumerator.MoveNext())
                     {
                         var item = enumerator.Current;
-                        item.UserWalksOnFurni(user);
                         if (cycleGameItems)
                         {
+                            item.UserWalksOnFurni(user);
                             Azure.GetGame()
                                 .GetQuestManager()
                                 .ProgressUserQuest(user.GetClient(), QuestType.StandOn, item.GetBaseItem().ItemId);
@@ -717,6 +717,7 @@ namespace Azure.HabboHotel.Rooms
                         if (item.GetBaseItem().IsSeat)
                         {
                             if (!user.Statusses.ContainsKey("sit"))
+                            {
                                 if (item.GetBaseItem().StackMultipler && !string.IsNullOrWhiteSpace(item.ExtraData))
                                     if (item.ExtraData != "0")
                                     {
@@ -729,10 +730,11 @@ namespace Azure.HabboHotel.Rooms
                                     {
                                         user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
                                     }
-                            else
+                                else
                                 {
                                     user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
                                 }
+                            }
 
                             if (Math.Abs(user.Z - item.Z) > 0 || user.RotBody != item.Rot)
                             {
@@ -762,9 +764,9 @@ namespace Azure.HabboHotel.Rooms
                                 {
                                     if (!user.Statusses.ContainsKey("lay"))
                                         user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
-                                    else 
-                                    if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
-                                        user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
+                                    else
+                                        if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
+                                            user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
 
                                     user.Z = item.Z;
                                     user.RotHead = item.Rot;
@@ -804,33 +806,33 @@ namespace Azure.HabboHotel.Rooms
                             case Interaction.BanzaiGateYellow:
                             case Interaction.BanzaiGateGreen:
                                 {
-                                        int Effect = (int)item.Team + 32;
-                                        var teamManagerForBanzai =
-                                            user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForBanzai();
-                                        var avatarEffectsInventoryComponent =
-                                            user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
-                                        if (user.Team == Team.none)
-                                        {
-                                            if (!teamManagerForBanzai.CanEnterOnTeam(item.Team)) break;
-                                            if (user.Team != Team.none) teamManagerForBanzai.OnUserLeave(user);
-                                            user.Team = item.Team;
-                                            teamManagerForBanzai.AddUser(user);
-                                            if (avatarEffectsInventoryComponent.CurrentEffect != Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(Effect);
-                                            break;
-                                        }
-                                        if (user.Team != Team.none && user.Team != item.Team)
-                                        {
-                                            teamManagerForBanzai.OnUserLeave(user);
-                                            user.Team = Team.none;
-                                            avatarEffectsInventoryComponent.ActivateCustomEffect(0);
-                                            break;
-                                        }
-                                        teamManagerForBanzai.OnUserLeave(user);
-
-                                        if (avatarEffectsInventoryComponent.CurrentEffect == Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(0);
-                                        user.Team = Team.none;
+                                    int Effect = (int)item.Team + 32;
+                                    var teamManagerForBanzai =
+                                        user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForBanzai();
+                                    var avatarEffectsInventoryComponent =
+                                        user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
+                                    if (user.Team == Team.none)
+                                    {
+                                        if (!teamManagerForBanzai.CanEnterOnTeam(item.Team)) break;
+                                        if (user.Team != Team.none) teamManagerForBanzai.OnUserLeave(user);
+                                        user.Team = item.Team;
+                                        teamManagerForBanzai.AddUser(user);
+                                        if (avatarEffectsInventoryComponent.CurrentEffect != Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(Effect);
                                         break;
                                     }
+                                    if (user.Team != Team.none && user.Team != item.Team)
+                                    {
+                                        teamManagerForBanzai.OnUserLeave(user);
+                                        user.Team = Team.none;
+                                        avatarEffectsInventoryComponent.ActivateCustomEffect(0);
+                                        break;
+                                    }
+                                    teamManagerForBanzai.OnUserLeave(user);
+
+                                    if (avatarEffectsInventoryComponent.CurrentEffect == Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(0);
+                                    user.Team = Team.none;
+                                    break;
+                                }
 
                             case Interaction.Jump:
                                 break;
@@ -935,7 +937,7 @@ namespace Azure.HabboHotel.Rooms
                                 }
                         }
 
-                            if (item.GetBaseItem().InteractionType == Interaction.BedTent)
+                        if (item.GetBaseItem().InteractionType == Interaction.BedTent)
                             user.OnCampingTent = true;
 
                         user.LastItem = item.Id;
@@ -983,18 +985,12 @@ namespace Azure.HabboHotel.Rooms
                 SleepEffectMessage.AppendInteger(RoomUsers.VirtualId);
                 SleepEffectMessage.AppendBool(true);
                 UserRoom.SendMessage(SleepEffectMessage);
-
-                SleepEffectMessage = null;
             }
 
-            if ((!RoomUsers.IsOwner()) && (RoomUsers.UserTimeInCurrentRoom >= 300) && (!RoomUsers.IsBot) && (!RoomUsers.IsPet))
+            if ((!RoomUsers.IsOwner()) && (RoomUsers.IdleTime >= 300) && (!RoomUsers.IsBot) && (!RoomUsers.IsPet))
             {
                 GameClient OwnerAchievementMessage = Azure.GetGame().GetClientManager().GetClientByUserId((uint)UserRoom.RoomData.OwnerId);
                 Azure.GetGame().GetAchievementManager().ProgressUserAchievement(OwnerAchievementMessage, "ACH_RoomDecoHosting", 1, false);
-
-                RoomUsers.UserTimeInCurrentRoom = 0;
-
-                OwnerAchievementMessage = null;
             }
         }
 
@@ -1167,7 +1163,7 @@ namespace Azure.HabboHotel.Rooms
                     CheckUserSittableLayable(RoomUsers);
 
                     // Add Status of Walking
-                    RoomUsers.AddStatus("mv", + RoomUsers.SetX + "," + RoomUsers.SetY + "," + TextHandling.GetString(RoomUsers.SetZ));
+                    RoomUsers.AddStatus("mv", +RoomUsers.SetX + "," + RoomUsers.SetY + "," + TextHandling.GetString(RoomUsers.SetZ));
                 }
 
                 // Check if User is Ridding in Horse, if if Let's Update Ride Data.
@@ -1208,7 +1204,7 @@ namespace Azure.HabboHotel.Rooms
                     CheckUserSittableLayable(RoomUsers);
 
                     // Add Status of Walking
-                    RoomUsers.AddStatus("mv", + RoomUsers.SetX + "," + RoomUsers.SetY + "," + TextHandling.GetString(RoomUsers.SetZ));
+                    RoomUsers.AddStatus("mv", +RoomUsers.SetX + "," + RoomUsers.SetY + "," + TextHandling.GetString(RoomUsers.SetZ));
                 }
 
                 // Region Update User Effect And Status
@@ -1304,10 +1300,12 @@ namespace Azure.HabboHotel.Rooms
         {
             // Region Check User Elegibility
             if (!IsValid(RoomUsers))
+            {
                 if (RoomUsers.GetClient() != null)
                     RemoveUserFromRoom(RoomUsers.GetClient(), false, false);
                 else
                     RemoveRoomUser(RoomUsers);
+            }
 
             // Region Check User Remove Unlocking
             lock (RemoveUsers)
@@ -1319,12 +1317,8 @@ namespace Azure.HabboHotel.Rooms
                 }
             }
 
-            // Region Variable Registering
-            bool invalidStep = false;
-
             // Region Idle and Room Tiem Check
             RoomUsers.IdleTime++;
-            RoomUsers.UserTimeInCurrentRoom++;
 
             // Region User Achievement of Room
             UserRoomTimeCycles(RoomUsers);
@@ -1343,6 +1337,8 @@ namespace Azure.HabboHotel.Rooms
             if (UserRoom.GotFreeze())
                 Freeze.CycleUser(RoomUsers);
 
+            // Region Variable Registering
+            bool invalidStep = false;
             // Region Check User Tile Selection
             if (RoomUsers.SetStep)
             {
@@ -1463,8 +1459,6 @@ namespace Azure.HabboHotel.Rooms
                     ServerMessage TonerComposingMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateRoomItemMessageComposer"));
                     TonerItem.Serialize(TonerComposingMessage);
                     UserRoom.SendMessage(TonerComposingMessage);
-
-                    TonerComposingMessage = null;
                 }
             }
 
@@ -1489,8 +1483,8 @@ namespace Azure.HabboHotel.Rooms
                 {
                     GameClient UserRemovableClient = Azure.GetGame().GetClientManager().GetClientByUserId(UserToRemove.HabboId);
 
-                        // Remove User from Room..
-                        if (UserRemovableClient != null)
+                    // Remove User from Room..
+                    if (UserRemovableClient != null)
                         RemoveUserFromRoom(UserRemovableClient, true, false);
                     else
                         RemoveRoomUser(UserToRemove);
@@ -1719,22 +1713,22 @@ namespace Azure.HabboHotel.Rooms
                 var list = UserList.Values.Where(current => current.IsBot && !current.IsPet && current.BotAI != null);
                 var list2 = new List<RoomUser>();
 
-                    var UserOnCurrentItem = UserRoom.GetGameMap().GetCoordinatedItems(new Point(user.X, user.Y));
-                    foreach (var RoomItem in UserOnCurrentItem.ToArray())
-                    {
+                var UserOnCurrentItem = UserRoom.GetGameMap().GetCoordinatedItems(new Point(user.X, user.Y));
+                foreach (var RoomItem in UserOnCurrentItem.ToArray())
+                {
                     switch (RoomItem.GetBaseItem().InteractionType)
-                        {
-                            case Interaction.RunWaySage:
-                            case Interaction.ChairState:
-                            case Interaction.Shower:
-                            case Interaction.PressurePad:
-                            case Interaction.PressurePadBed:
-                            case Interaction.Guillotine:
-                                RoomItem.ExtraData = "0";
-                                RoomItem.UpdateState();
-                                break;
-                        }
+                    {
+                        case Interaction.RunWaySage:
+                        case Interaction.ChairState:
+                        case Interaction.Shower:
+                        case Interaction.PressurePad:
+                        case Interaction.PressurePadBed:
+                        case Interaction.Guillotine:
+                            RoomItem.ExtraData = "0";
+                            RoomItem.UpdateState();
+                            break;
                     }
+                }
 
                 foreach (var bot in list)
                 {

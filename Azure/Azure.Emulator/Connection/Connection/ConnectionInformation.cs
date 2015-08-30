@@ -110,7 +110,7 @@ namespace Azure.Connection.Connection
             _isConnected = true;
             try
             {
-                _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(IncomingDataPacket), _dataSocket);
+                _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket, _dataSocket);
             }
             catch
             {
@@ -220,7 +220,7 @@ namespace Azure.Connection.Connection
                 {
                     try
                     {
-                        _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(IncomingDataPacket),
+                        _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket,
                             _dataSocket);
                     }
                     catch
