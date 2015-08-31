@@ -175,8 +175,8 @@ namespace Azure.HabboHotel.Groups
                 {
                     dictionary.Add((uint)dataRow[0],
                         new GroupUser((uint)dataRow[0], groupId, int.Parse(dataRow[1].ToString()), (int)dataRow[2]));
-                    // all staffs are group admin... 
-                    if ((int.Parse(dataRow[1].ToString()) >= 1) || (Azure.GetHabboById(uint.Parse(dataRow[0].ToString())).Rank >= 5))
+                    // all staffs are group admin... (thanks claudio, recursive..)
+                    if ((int.Parse(dataRow[1].ToString()) >= 1) /*|| (Azure.GetHabboById(uint.Parse(dataRow[0].ToString())).Rank >= 5)*/)
                         dictionary2.Add((uint)dataRow[0],
                             new GroupUser((uint)dataRow[0], groupId, int.Parse(dataRow[1].ToString()), (int)dataRow[2]));
                 }
