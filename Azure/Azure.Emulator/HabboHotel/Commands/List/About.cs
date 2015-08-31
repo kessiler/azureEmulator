@@ -1,11 +1,8 @@
-﻿#region
-
+﻿using System;
 using System.Text;
 using Azure.HabboHotel.GameClients;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.List
 {
@@ -33,18 +30,20 @@ namespace Azure.HabboHotel.Commands.List
             message.AppendString("Azure");
             message.AppendInteger(4);
             message.AppendString("title");
-            message.AppendString("Azure Emulator Information");
+            message.AppendString("ManiaEVO 1.2");
             message.AppendString("message");
             var info = new StringBuilder();
-            info.Append("<h5><b>Azure Emulator 2.0 Beta</b><h5></br></br>");
+            info.Append("<h5><b>ManiaEVO 1.2 - Base: Azure</b><h5></br></br>");
             info.Append("<br />");
             info.AppendFormat(
-            "<b>[Developers]</b> <br />- Jamal <br />- Claudio<br />- Boris <br />- Lucca <br />- Antoine <br />- Diesel <br />- Jaden<br />- IhToN<br /> <br /> ");
-            info.AppendFormat("<b>[Hotel Statistics]</b> <br />");
+            "<b><br />Desenvolvedores:</b> <br />iPlezier <br />Claudi0<br />Kessiler <br /><br /> ");
+            info.AppendFormat(
+            "<b>Créditos:</b> <br />Jamal, Claudio, Boris, Lucca, Antoine, IhToN<br /> <br /> ");
+            info.AppendFormat("<b>Estatisticas:</b> <br />");
             var userCount = Azure.GetGame().GetClientManager().Clients.Count;
             var roomsCount = Azure.GetGame().GetRoomManager().LoadedRooms.Count;
-            info.AppendFormat("<b>Users:</b> {0} in {1}{2}.<br /><br /><br />", userCount, roomsCount,
-                (roomsCount == 1) ? " Room" : " Rooms");
+            info.AppendFormat("<b>Usuários:</b> {0} em {1}{2}.<br /><br /><br />", userCount, roomsCount,
+                (roomsCount == 1) ? " Quarto" : " Quartos");
             message.AppendString(info.ToString());
             message.AppendString("linkUrl");
             message.AppendString("event:");
