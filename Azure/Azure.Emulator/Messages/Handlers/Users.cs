@@ -530,7 +530,7 @@ namespace Azure.Messages.Handlers
 
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook, 0u);
             Session.GetHabbo().Look = text2;
-            Session.GetHabbo().Gender = text.ToLower();
+            Session.GetHabbo().Gender = text.ToLower() == "f" ? "f" : "m";
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("UPDATE users SET look = @look, gender = @gender WHERE id = {0}",
@@ -650,7 +650,7 @@ namespace Azure.Messages.Handlers
         {
             var num = Request.GetUInteger();
             var text = Request.GetString();
-            var text2 = Request.GetString();
+            var text2 = Request.GetString().ToUpper() == "F" ? "F" : "M";
 
             text = Azure.FilterFigure(text);
 
@@ -658,19 +658,19 @@ namespace Azure.Messages.Handlers
             {
                 queryReactor.SetQuery(string.Concat("SELECT null FROM users_wardrobe WHERE user_id = ", Session.GetHabbo().Id, " AND slot_id = ", num));
                 queryReactor.AddParameter("look", text);
-                queryReactor.AddParameter("gender", text2.ToUpper());
+                queryReactor.AddParameter("gender", text2);
                 if (queryReactor.GetRow() != null)
                 {
                     queryReactor.SetQuery(string.Concat("UPDATE users_wardrobe SET look = @look, gender = @gender WHERE user_id = ", Session.GetHabbo().Id, " AND slot_id = ", num, ";"));
                     queryReactor.AddParameter("look", text);
-                    queryReactor.AddParameter("gender", text2.ToUpper());
+                    queryReactor.AddParameter("gender", text2);
                     queryReactor.RunQuery();
                 }
                 else
                 {
                     queryReactor.SetQuery(string.Concat("INSERT INTO users_wardrobe (user_id,slot_id,look,gender) VALUES (", Session.GetHabbo().Id, ",", num, ",@look,@gender)"));
                     queryReactor.AddParameter("look", text);
-                    queryReactor.AddParameter("gender", text2.ToUpper());
+                    queryReactor.AddParameter("gender", text2);
                     queryReactor.RunQuery();
                 }
             }

@@ -520,7 +520,7 @@ namespace Azure.HabboHotel.Users
             TradeLocked = tradeLocked;
             NavigatorLogs = naviLogs;
             TradeLockExpire = tradeLockExpire;
-            Gender = gender.ToLower();
+            Gender = gender.ToLower() == "F" ? "F" : "M";
             Credits = credits;
             ActivityPoints = activityPoints;
             Diamonds = diamonds;

@@ -30,7 +30,7 @@ namespace Azure.HabboHotel.Items.Interactor
                 return;
             }
             string[] array = item.ExtraData.Split(Convert.ToChar(5));
-            session.GetHabbo().Gender = array[0].ToUpper();
+            session.GetHabbo().Gender = (array[0].ToUpper() == "F" ? "F": "M");
             var dictionary = new Dictionary<string, string>();
             dictionary.Clear();
             string[] array2 = array[1].Split('.');
