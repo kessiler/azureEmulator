@@ -86,7 +86,7 @@ namespace Azure.Connection.Net
             {
                 Logging.HandleException(exception, string.Format("packet handling ----> {0}", messageId));
 
-                _con.Dispose();
+                //_con.Dispose();
             }
         }
 
