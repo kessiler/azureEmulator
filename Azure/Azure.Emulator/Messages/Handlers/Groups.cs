@@ -854,9 +854,10 @@ namespace Azure.Messages.Handlers
         {
             uint GroupId = Request.GetUInteger();
             Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Group == null || !Group.HasForum)
-                return;
-            Session.SendMessage(Group.ForumDataMessage(Session.GetHabbo().Id));
+            if (Group != null && Group.HasForum)
+            {
+                Session.SendMessage(Group.ForumDataMessage(Session.GetHabbo().Id));
+            }
         }
 
         /// <summary>
@@ -866,85 +867,57 @@ namespace Azure.Messages.Handlers
         {
             int SelectType = Request.GetInteger();
             int StartIndex = Request.GetInteger();
-            int EndIndex = Request.GetInteger();
             var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumListingsMessageComposer"));
             Message.AppendInteger(SelectType);
-            if (SelectType < 0 || SelectType > 2)
-            {
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Session.SendMessage(Message);
-                return;
-            }
             var GroupList = new List<Guild>();
-            var FinalGroupList = new List<Guild>();
+            int totalPerPage = 20;
             switch (SelectType)
             {
                 case 0:
                 case 1:
                     using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        dbClient.SetQuery("SELECT id FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0 ORDER BY forum_Messages_count DESC LIMIT 75;");
+                        dbClient.SetQuery("SELECT count(id) FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0");
+                        int qtdForums = dbClient.GetInteger();
+                        dbClient.SetQuery("SELECT id FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0 ORDER BY forum_Messages_count DESC LIMIT @startIndex, @totalPerPage;");
+                        dbClient.AddParameter("startIndex", StartIndex);
+                        dbClient.AddParameter("totalPerPage", totalPerPage);
                         DataTable Table = dbClient.GetTable();
-                        if (Table == null)
-                            return;
-                        Message.AppendInteger(Table.Rows.Count);
+                        Message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
                         Message.AppendInteger(StartIndex);
-                        int b = (Table.Rows.Count <= 20) ? Table.Rows.Count : 20;
-                        var Groups = new List<Guild>();
-                        int i = 1;
-                        while (i <= b)
-                        {
-                            DataRow Row = Table.Rows[i - 1];
-                            if (Row == null)
-                            {
-                                b--;
-                                continue;
-                            }
-                            uint GroupId = uint.Parse(Row["id"].ToString());
+                        foreach(DataRow rowGroupData in Table.Rows) {
+                            uint GroupId = uint.Parse(rowGroupData["id"].ToString());
                             Guild Guild = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-                            if (Guild == null || !Guild.HasForum)
-                            {
-                                b--;
-                                continue;
-                            }
-                            Groups.Add(Guild);
-                            i++;
+                            GroupList.Add(Guild);
                         }
-                        Message.AppendInteger(b);
-                        foreach (Guild Group in Groups)
+                        Message.AppendInteger(Table.Rows.Count);
+                        foreach (Guild Group in GroupList) 
                             Group.SerializeForumRoot(Message);
                         Session.SendMessage(Message);
                     }
                     break;
 
                 case 2:
-                    foreach (GroupUser GU in Session.GetHabbo().UserGroups)
+                    foreach (GroupUser groupUser in Session.GetHabbo().UserGroups)
                     {
-                        Guild AGroup = Azure.GetGame().GetGroupManager().GetGroup(GU.GroupId);
-                        if (AGroup == null)
-                            continue;
-                        if (AGroup.HasForum)
+                        Guild AGroup = Azure.GetGame().GetGroupManager().GetGroup(groupUser.GroupId);
+                        if (AGroup != null && AGroup.HasForum)
+                        {
                             GroupList.Add(AGroup);
+                        }
                     }
-                    try
-                    {
-                        FinalGroupList = GroupList.OrderByDescending(x => x.ForumMessagesCount).Skip(StartIndex).Take(20).ToList();
-                        Message.AppendInteger(GroupList.Count);
-                        Message.AppendInteger(StartIndex);
-                        Message.AppendInteger(FinalGroupList.Count);
-                    }
-                    catch
-                    {
-                        Message.AppendInteger(0);
-                        Message.AppendInteger(0);
-                        Message.AppendInteger(0);
-                        Session.SendMessage(Message);
-                        return;
-                    }
-                    foreach (Guild Group in FinalGroupList)
+                    Message.AppendInteger(GroupList.Count == 0 ? 1 : GroupList.Count);
+                    GroupList = GroupList.OrderByDescending(x => x.ForumMessagesCount).Skip(StartIndex).Take(20).ToList();
+                    Message.AppendInteger(StartIndex);
+                    Message.AppendInteger(GroupList.Count);
+                    foreach (Guild Group in GroupList)
                         Group.SerializeForumRoot(Message);
+                    Session.SendMessage(Message);
+                    break;
+                default:
+                    Message.AppendInteger(1);
+                    Message.AppendInteger(StartIndex);
+                    Message.AppendInteger(0);
                     Session.SendMessage(Message);
                     break;
             }
