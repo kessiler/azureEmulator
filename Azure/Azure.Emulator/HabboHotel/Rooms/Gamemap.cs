@@ -581,7 +581,7 @@ namespace Azure.HabboHotel.Rooms
         internal List<RoomItem> GetCoordinatedItems(Point coord)
         {
             var point = new Point(coord.X, coord.Y);
-            if (CoordinatedItems.Contains(point))
+            if (CoordinatedItems.Contains(point) && CoordinatedItems[point] != null)
                 return (List<RoomItem>)CoordinatedItems[point];
             return new List<RoomItem>();
         }
