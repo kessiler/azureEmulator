@@ -189,48 +189,51 @@ namespace Azure.Connection.Connection
         /// <param name="iAr">The i ar.</param>
         private void IncomingDataPacket(IAsyncResult iAr)
         {
-            if (_dataSocket == null) return;
-            int length;
-            try
+            lock (this)
             {
-                length = _dataSocket.EndReceive(iAr);
-            }
-            catch
-            {
-                Disconnect();
-                return;
-            }
-            if (length != 0)
-            {
+                if (_dataSocket == null) return;
+                int length;
                 try
                 {
-                    if (!DisableReceive)
-                    {
-                        byte[] array = new byte[length];
-                        Array.Copy(_buffer, array, length);
-
-                        HandlePacketData(array);
-                    }
+                    length = _dataSocket.EndReceive(iAr);
                 }
                 catch
                 {
                     Disconnect();
+                    return;
                 }
-                finally
+                if (length != 0)
                 {
                     try
                     {
-                        _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket,
-                            _dataSocket);
+                        if (!DisableReceive)
+                        {
+                            byte[] array = new byte[length];
+                            Array.Copy(_buffer, array, length);
+
+                            HandlePacketData(array);
+                        }
                     }
                     catch
                     {
                         Disconnect();
                     }
+                    finally
+                    {
+                        try
+                        {
+                            _dataSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, IncomingDataPacket,
+                                _dataSocket);
+                        }
+                        catch
+                        {
+                            Disconnect();
+                        }
+                    }
+                    return;
                 }
-                return;
+                Disconnect();
             }
-            Disconnect();
         }
 
         /// <summary>

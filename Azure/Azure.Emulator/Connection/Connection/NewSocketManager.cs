@@ -182,6 +182,7 @@ namespace Azure.Connection.Connection
                     socket.NoDelay = _disableNagleAlgorithm;
                     string ip = socket.RemoteEndPoint.ToString().Split(':')[0];
                     _acceptedConnections++;
+                    Out.WriteLine("Request connection with ip: " + ip, "Azure.Socket", ConsoleColor.DarkYellow);
                     var connectionInformation = new ConnectionInformation(socket, _acceptedConnections,
                         _parser.Clone() as IDataParser, ip);
                     ReportUserLogin(ip);

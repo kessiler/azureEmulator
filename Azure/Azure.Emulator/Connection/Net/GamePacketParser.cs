@@ -64,10 +64,10 @@ namespace Azure.Connection.Net
 
             try
             {
-                lock (data)
+                for (pos = 0; pos < data.Length; )
                 {
-
-                    for (pos = 0; pos < data.Length; )
+                    int dataSize = pos + 4; //prevent index outside
+                    if (dataSize < data.Length)
                     {
                         int length = HabboEncoding.DecodeInt32(new[] { data[pos++], data[pos++], data[pos++], data[pos++] });
 
