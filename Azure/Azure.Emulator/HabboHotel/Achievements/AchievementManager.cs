@@ -177,34 +177,42 @@ namespace Azure.HabboHotel.Achievements
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool ProgressUserAchievement(GameClient Session, string AchievementGroup, int ProgressAmount, bool FromZero = false)
         {
-            if (!Achievements.ContainsKey(AchievementGroup) || Session == null)
-                return false;
-            Achievement achievement = null;
-            achievement = Achievements[AchievementGroup];
-            UserAchievement userAchievement = Session.GetHabbo().GetAchievementData(AchievementGroup);
-            if (userAchievement == null)
+            if (Achievements.ContainsKey(AchievementGroup) && Session != null)
             {
-                userAchievement = new UserAchievement(AchievementGroup, 0, 0);
-                Session.GetHabbo().Achievements.Add(AchievementGroup, userAchievement);
-            }
-            int count = achievement.Levels.Count;
-            if (userAchievement != null && userAchievement.Level == count)
-                return false;
+                Achievement achievement = Achievements[AchievementGroup];
+                Users.Habbo user = Session.GetHabbo();
+                UserAchievement userAchievement = user.GetAchievementData(AchievementGroup);
+                if (userAchievement == null)
+                {
+                    userAchievement = new UserAchievement(AchievementGroup, 0, 0);
+                    user.Achievements.Add(AchievementGroup, userAchievement);
+                }
+                int count = achievement.Levels.Count;
+                if (userAchievement != null && userAchievement.Level == count) {
+                    return false;
+                }
 
-            {
                 int num = (userAchievement != null) ? (userAchievement.Level + 1) : 1;
                 if (num > count)
+                {
                     num = count;
+                }
                 AchievementLevel targetLevelData = achievement.Levels[num];
                 int num2 = 0;
                 if (FromZero)
+                {
                     num2 = ProgressAmount;
+                }
                 else
+                {
                     num2 = ((userAchievement != null) ? (userAchievement.Progress + ProgressAmount) : ProgressAmount);
+                }
                 int num3 = (userAchievement != null) ? userAchievement.Level : 0;
                 int num4 = num3 + 1;
                 if (num4 > count)
+                {
                     num4 = count;
+                }
                 if (num2 >= targetLevelData.Requirement)
                 {
                     num3++;
@@ -212,17 +220,21 @@ namespace Azure.HabboHotel.Achievements
                     int argE60 = num2 - targetLevelData.Requirement;
                     num2 = 0;
                     if (num == 1)
-                        Session.GetHabbo().GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
+                    {
+                        user.GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
+                    }
                     else
                     {
-                        Session.GetHabbo().GetBadgeComponent().RemoveBadge(Convert.ToString(string.Format("{0}{1}", AchievementGroup, num - 1)), Session);
-                        Session.GetHabbo().GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
+                        user.GetBadgeComponent().RemoveBadge(Convert.ToString(string.Format("{0}{1}", AchievementGroup, num - 1)), Session);
+                        user.GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
                     }
                     if (num4 > count)
+                    {
                         num4 = count;
-                    Session.GetHabbo().ActivityPoints += targetLevelData.RewardPixels;
-                    Session.GetHabbo().NotifyNewPixels(targetLevelData.RewardPixels);
-                    Session.GetHabbo().UpdateActivityPointsBalance();
+                    }
+                    user.ActivityPoints += targetLevelData.RewardPixels;
+                    user.NotifyNewPixels(targetLevelData.RewardPixels);
+                    user.UpdateActivityPointsBalance();
                     Session.SendMessage(AchievementUnlockedComposer.Compose(achievement, num, targetLevelData.RewardPoints, targetLevelData.RewardPixels));
                     using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
@@ -232,16 +244,18 @@ namespace Azure.HabboHotel.Achievements
                     }
                     userAchievement.Level = num3;
                     userAchievement.Progress = num2;
-                    Session.GetHabbo().AchievementPoints += targetLevelData.RewardPoints;
-                    Session.GetHabbo().NotifyNewPixels(targetLevelData.RewardPixels);
-                    Session.GetHabbo().ActivityPoints += targetLevelData.RewardPixels;
-                    Session.GetHabbo().UpdateActivityPointsBalance();
-                    Session.SendMessage(AchievementScoreUpdateComposer.Compose(Session.GetHabbo().AchievementPoints));
+                    user.AchievementPoints += targetLevelData.RewardPoints;
+                    user.NotifyNewPixels(targetLevelData.RewardPixels);
+                    user.ActivityPoints += targetLevelData.RewardPixels;
+                    user.UpdateActivityPointsBalance();
+                    Session.SendMessage(AchievementScoreUpdateComposer.Compose(user.AchievementPoints));
                     AchievementLevel targetLevelData2 = achievement.Levels[num4];
-                    Session.SendMessage(AchievementProgressComposer.Compose(achievement, num4, targetLevelData2, count, Session.GetHabbo().GetAchievementData(AchievementGroup)));
+                    Session.SendMessage(AchievementProgressComposer.Compose(achievement, num4, targetLevelData2, count, user.GetAchievementData(AchievementGroup)));
                     Talent talent = null;
                     if (Azure.GetGame().GetTalentManager().TryGetTalent(AchievementGroup, out talent))
+                    {
                         Azure.GetGame().GetTalentManager().CompleteUserTalent(Session, talent);
+                    }
                     return true;
                 }
                 userAchievement.Level = num3;
@@ -253,17 +267,22 @@ namespace Azure.HabboHotel.Achievements
                     queryreactor2.RunQuery();
                 }
 
-                if (Session == null || Session.GetHabbo() == null) return false;
-                Session.SendMessage(AchievementProgressComposer.Compose(achievement, num, targetLevelData, count, Session.GetHabbo().GetAchievementData(AchievementGroup)));
-                Session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
-                Session.GetMessageHandler().GetResponse().AppendInteger(-1);
-                Session.GetMessageHandler().GetResponse().AppendString(Session.GetHabbo().Look);
-                Session.GetMessageHandler().GetResponse().AppendString(Session.GetHabbo().Gender.ToLower());
-                Session.GetMessageHandler().GetResponse().AppendString(Session.GetHabbo().Motto);
-                Session.GetMessageHandler().GetResponse().AppendInteger(Session.GetHabbo().AchievementPoints);
-                Session.GetMessageHandler().SendResponse();
-                return false;
+                    
+                Messages.Handlers.GameClientMessageHandler messageHandler = Session.GetMessageHandler();
+                if (messageHandler != null)
+                {
+                    Session.SendMessage(AchievementProgressComposer.Compose(achievement, num, targetLevelData, count, user.GetAchievementData(AchievementGroup)));
+                    messageHandler.GetResponse().Init(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
+                    messageHandler.GetResponse().AppendInteger(-1);
+                    messageHandler.GetResponse().AppendString(user.Look);
+                    messageHandler.GetResponse().AppendString(user.Gender.ToLower());
+                    messageHandler.GetResponse().AppendString(user.Motto);
+                    messageHandler.GetResponse().AppendInteger(user.AchievementPoints);
+                    messageHandler.SendResponse();
+                    return true;
+                }
             }
+            return false;
         }
 
         /// <summary>

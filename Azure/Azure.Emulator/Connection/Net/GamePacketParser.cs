@@ -64,22 +64,26 @@ namespace Azure.Connection.Net
 
             try
             {
-                for (pos = 0; pos < data.Length;)
+                lock (data)
                 {
-                    int length = HabboEncoding.DecodeInt32(new[] {data[pos++], data[pos++], data[pos++], data[pos++]});
 
-                    if (length < 2 || length > 4096)
-                        return; //broken packet! might be better to disconnect EVERYTHING
+                    for (pos = 0; pos < data.Length; )
+                    {
+                        int length = HabboEncoding.DecodeInt32(new[] { data[pos++], data[pos++], data[pos++], data[pos++] });
 
-                    messageId = HabboEncoding.DecodeInt16(new[] {data[pos++], data[pos++]});
+                        if (length < 2 || length > 4096)
+                            return; //broken packet! might be better to disconnect EVERYTHING
 
-                    byte[] packetContent = new byte[length - 2];
+                        messageId = HabboEncoding.DecodeInt16(new[] { data[pos++], data[pos++] });
 
-                    for (int i = 0; i < packetContent.Length && pos < data.Length; i++)
-                        packetContent[i] = data[pos++];
+                        byte[] packetContent = new byte[length - 2];
 
-                    using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent))
-                        _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+                        for (int i = 0; i < packetContent.Length && pos < data.Length; i++)
+                            packetContent[i] = data[pos++];
+
+                        using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent))
+                            _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+                    }
                 }
             }
             catch (Exception exception)

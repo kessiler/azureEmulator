@@ -259,8 +259,18 @@ namespace Azure.Messages
         /// <param name="isInt">if set to <c>true</c> [is int].</param>
         public void AppendBytes(byte[] b, bool isInt)
         {
-            if (isInt) for (var i = (b.Length - 1); i > -1; i--) CMessage.Add(b[i]);
-            else CMessage.AddRange(b);
+            if (isInt)
+            {
+                lock (b)
+                {
+                    for (var i = (b.Length - 1); i > -1; i--)
+                        CMessage.Add(b[i]);
+                }
+            }
+            else
+            {
+                CMessage.AddRange(b);
+            }
         }
 
         /// <summary>

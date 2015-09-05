@@ -94,7 +94,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SendResponse()
         {
-            if (Response != null && Response.Id > 0 && Session.GetConnection() != null)
+            if (Response != null && Response.Id > 0 && Session != null && Session.GetConnection() != null)
                 Session.GetConnection().SendData(Response.GetReversedBytes());
         }
 

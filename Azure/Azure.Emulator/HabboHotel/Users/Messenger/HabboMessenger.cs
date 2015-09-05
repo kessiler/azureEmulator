@@ -115,8 +115,15 @@ namespace Azure.HabboHotel.Users.Messenger
                                 current != null && current.GetHabbo() != null &&
                                 current.GetHabbo().GetMessenger() != null))
                 {
-                    current.GetHabbo().GetMessenger().UpdateFriend(_userId, current, true);
-                    UpdateFriend(current.GetHabbo().Id, current, notification);
+                    Habbo user = current.GetHabbo();
+                    if (user != null)
+                    {
+                        HabboMessenger messenger = user.GetMessenger();
+                        if(messenger != null) {
+                            messenger.UpdateFriend(_userId, current, true);
+                            UpdateFriend(user.Id, current, notification);
+                        }
+                    }
                 }
             }
             catch (Exception e)
