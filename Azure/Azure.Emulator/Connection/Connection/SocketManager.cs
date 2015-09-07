@@ -21,6 +21,11 @@ namespace Azure.Connection.Connection
         private int _portInformation;
 
         /// <summary>
+        /// Count of accepeted connections
+        /// </summary>
+        private int acceptedConnections;
+
+        /// <summary>
         /// The _connection listener
         /// </summary>
         private TcpListener _listener;
@@ -78,6 +83,7 @@ namespace Azure.Connection.Connection
             _disableNagleAlgorithm = disableNaglesAlgorithm;
             MaximumConnections = maxConnections;
             _portInformation = portId;
+            acceptedConnections = 0;
             MaxIpConnectionCount = connectionsPerIp;
             AntiDDosStatus = antiDDoS;
             if (_portInformation < 0)
@@ -124,7 +130,8 @@ namespace Azure.Connection.Connection
                 if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
                 {
                     socket.NoDelay = _disableNagleAlgorithm;
-                    var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser);
+                    acceptedConnections++;
+                    var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
                     connectionInfo.Disconnected = OnChannelDisconnect;
                     connectionInfo.MessageReceived = OnMessage;
                     OnClientConnected(connectionInfo);

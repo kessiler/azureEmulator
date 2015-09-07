@@ -39,7 +39,7 @@ namespace Azure.Configuration
         /// <param name="connection">The connection.</param>
         private static void OnClientConnected(ConnectionInformation connection)
         {
-            Azure.GetGame().GetClientManager().CreateAndStartClient(((uint)connection.GetConnectionId()), connection);
+            Azure.GetGame().GetClientManager().CreateAndStartClient((uint)connection.GetConnectionId(), connection);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Azure.Configuration
         {
             try
             {
-                Azure.GetGame().GetClientManager().DisposeConnection(((uint)connection.GetConnectionId()));
+                Azure.GetGame().GetClientManager().DisposeConnection((uint)connection.GetConnectionId());
             }
             catch (Exception ex)
             {

@@ -32,7 +32,7 @@ namespace Azure.Connection.Connection
         /// <remarks>
         ///     Must be unique within a server.
         /// </remarks>
-        public string ChannelId { get; private set; }
+        public int ChannelId { get; private set; }
 
         /// <summary>
         /// The _is connected
@@ -65,7 +65,7 @@ namespace Azure.Connection.Connection
         /// </summary>
         /// <param name="dataStream">The data stream.</param>
         /// <param name="parser">The parser.</param>
-        public ConnectionInformation(Socket socket, IDataParser parser)
+        public ConnectionInformation(Socket socket, IDataParser parser, int _ChannelId)
         {
             _socket = socket;
             socket.SendBufferSize = GameSocketManagerStatics.BufferSize;
@@ -73,7 +73,7 @@ namespace Azure.Connection.Connection
             _buffer = new byte[GameSocketManagerStatics.BufferSize];
             _remoteEndPoint = socket.RemoteEndPoint;
             _connected = true;
-            ChannelId = Guid.NewGuid().ToString();
+            ChannelId = _ChannelId;
         }
 
         public OnClientDisconnectedEvent Disconnected
@@ -119,7 +119,11 @@ namespace Azure.Connection.Connection
         {
             try
             {
-                _socket.Close();
+                if (_socket != null && _socket.Connected)
+                {
+                    _socket.Shutdown(SocketShutdown.Both);
+                    _socket.Close();
+                }
                 _connected = false;
                 Parser.Dispose();
                 SocketConnectionCheck.FreeConnection(GetIp());
@@ -133,15 +137,19 @@ namespace Azure.Connection.Connection
 
         private void OnReadCompleted(IAsyncResult async)
         {
-            Socket dataSocket = (Socket)async.AsyncState;
             try
             {
+                Socket dataSocket = (Socket)async.AsyncState;
                 int bytesReceived = dataSocket.EndReceive(async);
                 if (bytesReceived != 0)
                 {
                     byte[] array = new byte[bytesReceived];
                     Array.Copy(_buffer, array, bytesReceived);
-                    HandlePacketData(array);
+                    lock (array)
+                    {
+
+                        HandlePacketData(array);
+                    }
                 }
             }
             catch (Exception exception)
@@ -152,17 +160,32 @@ namespace Azure.Connection.Connection
                 if (_socket == null || !_socket.Connected)
                     return;
             }
-            if (_socket.Connected)
+            finally
             {
-                _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
+                try
+                {
+                    if (_socket.Connected)
+                    {
+                        _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
+                    }
+                    else
+                    {
+                        Disconnect();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    HandleDisconnect(SocketError.ConnectionAborted, exception);
+                }
             }
+
         }
 
         private void OnSendCompleted(IAsyncResult async)
         {
-            Socket dataSocket = (Socket)async.AsyncState;
             try
             {
+                Socket dataSocket = (Socket)async.AsyncState;
                 dataSocket.EndSend(async);
             }
             catch (Exception exception)
@@ -204,10 +227,9 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// Gets the connection identifier.
         /// </summary>
-        /// <returns>System.Int32.</returns>
         public int GetConnectionId()
         {
-            return 1;
+            return ChannelId;
         }
 
         /// <summary>
