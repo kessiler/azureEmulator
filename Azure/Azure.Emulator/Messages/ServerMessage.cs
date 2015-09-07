@@ -261,11 +261,8 @@ namespace Azure.Messages
         {
             if (isInt)
             {
-                lock (b)
-                {
-                    for (var i = (b.Length - 1); i > -1; i--)
-                        CMessage.Add(b[i]);
-                }
+                for (var i = (b.Length - 1); i > -1; i--)
+                    CMessage.Add(b[i]);
             }
             else
             {
