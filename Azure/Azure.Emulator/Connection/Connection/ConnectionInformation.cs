@@ -151,6 +151,10 @@ namespace Azure.Connection.Connection
                         HandlePacketData(array);
                     }
                 }
+                else
+                {
+                    Disconnect();
+                }
             }
             catch (Exception exception)
             {
@@ -164,7 +168,7 @@ namespace Azure.Connection.Connection
             {
                 try
                 {
-                    if (_socket.Connected)
+                    if (_socket.Connected && _connected)
                     {
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
                     }
@@ -267,7 +271,7 @@ namespace Azure.Connection.Connection
         /// <param name="packet">The packet.</param>
         public void SendData(byte[] packet)
         {
-            if (_socket.Connected)
+            if (_socket != null && _socket.Connected && _connected)
             {
                 if (ARC4ClientSide != null)
                     ARC4ClientSide.Parse(ref packet);
@@ -279,6 +283,10 @@ namespace Azure.Connection.Connection
                 {
                     HandleDisconnect(SocketError.ConnectionReset, e);
                 }
+            }
+            else
+            {
+                Disconnect();
             }
         }
     }

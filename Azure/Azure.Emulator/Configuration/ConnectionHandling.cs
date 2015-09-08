@@ -39,7 +39,15 @@ namespace Azure.Configuration
         /// <param name="connection">The connection.</param>
         private static void OnClientConnected(ConnectionInformation connection)
         {
-            Azure.GetGame().GetClientManager().CreateAndStartClient((uint)connection.GetConnectionId(), connection);
+            try
+            {
+                Azure.GetGame().GetClientManager().CreateAndStartClient((uint)connection.GetConnectionId(), connection);
+                Out.WriteLine("Client connected - ID: "+ connection.GetConnectionId() + " /  IP: " + connection.GetIp(), "Azure.Socket", ConsoleColor.DarkYellow);
+            }
+            catch (Exception ex)
+            {
+                Logging.LogException(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -51,6 +59,7 @@ namespace Azure.Configuration
             try
             {
                 Azure.GetGame().GetClientManager().DisposeConnection((uint)connection.GetConnectionId());
+                Out.WriteLine("Client disconnected - ID: " + connection.GetConnectionId() + " /  IP: " + connection.GetIp(), "Azure.Socket", ConsoleColor.DarkYellow);
             }
             catch (Exception ex)
             {
