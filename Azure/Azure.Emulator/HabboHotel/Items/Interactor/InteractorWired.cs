@@ -171,7 +171,6 @@ namespace Azure.HabboHotel.Items.Interactor
                         session.SendMessage(serverMessage6);
                         return;
                     }
-
                 case Interaction.TriggerScoreAchieved:
                     {
                         var serverMessage7 = new ServerMessage(LibraryParser.OutgoingRequest("WiredTriggerMessageComposer"));

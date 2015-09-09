@@ -709,9 +709,7 @@ namespace Azure.HabboHotel.Rooms
                         if (cycleGameItems)
                         {
                             item.UserWalksOnFurni(user);
-                            Azure.GetGame()
-                                .GetQuestManager()
-                                .ProgressUserQuest(user.GetClient(), QuestType.StandOn, item.GetBaseItem().ItemId);
+                            //Azure.GetGame().GetQuestManager().ProgressUserQuest(user.GetClient(), QuestType.StandOn, item.GetBaseItem().ItemId);
                         }
 
                         if (item.GetBaseItem().IsSeat)

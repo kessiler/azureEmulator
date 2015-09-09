@@ -45,7 +45,7 @@ namespace Azure.Manager
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
 
-                Thread.Sleep(1000000);
+                Thread.Sleep(1000000); // WTF?
             }
         }
 

@@ -631,14 +631,10 @@ namespace Azure.Messages.Handlers
                         TriggerLoveLock(item);
                         return;
                     }
-
             }
             item.Interactor.OnTrigger(Session, item, Request.GetInteger(), hasRightsOne);
             item.OnTrigger(room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id));
-            Azure.GetGame()
-                .GetQuestManager()
-                .ProgressUserQuest(Session, QuestType.ExploreFindItem, item.GetBaseItem().ItemId);
-
+            //Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ExploreFindItem, item.GetBaseItem().ItemId);
             foreach (var current in room.GetRoomUserManager().UserList.Values.Where(current => current != null))
                 room.GetRoomUserManager().UpdateUserStatus(current, true);
         }

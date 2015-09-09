@@ -57,15 +57,18 @@ namespace Azure.HabboHotel.Commands.List
         {
             if (poll == null || poll.Type != Poll.PollType.Matching || room == null)
                 return;
-            Thread.Sleep(10000);//10 secondes to vote
-            var result = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollResultMessageComposer"));
-            result.AppendInteger(poll.Id);//question_id
-            result.AppendInteger(2);//while
-            result.AppendString("0");
-            result.AppendInteger(poll.answersNegative);
-            result.AppendString("1");
-            result.AppendInteger(poll.answersPositive);
-            room.SendMessage(result);
+            for(int i = 0; i < 10; i++)
+            {
+                Thread.Sleep(1000);
+                var result = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollResultMessageComposer"));
+                result.AppendInteger(poll.Id);//question_id
+                result.AppendInteger(2);//while
+                result.AppendString("0");
+                result.AppendInteger(poll.answersNegative);
+                result.AppendString("1");
+                result.AppendInteger(poll.answersPositive);
+                room.SendMessage(result);
+            }
         }
     }
 }
