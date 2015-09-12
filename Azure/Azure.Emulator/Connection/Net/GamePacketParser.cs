@@ -20,7 +20,7 @@ namespace Azure.Connection.Net
         /// <summary>
         /// The _current client
         /// </summary>
-        private readonly GameClient _currentClient;
+        private GameClient _currentClient;
 
         /// <summary>
         /// The _con
@@ -36,9 +36,8 @@ namespace Azure.Connection.Net
         /// Initializes a new instance of the <see cref="GamePacketParser"/> class.
         /// </summary>
         /// <param name="me">Me.</param>
-        internal GamePacketParser(GameClient me)
+        internal GamePacketParser()
         {
-            _currentClient = me;
             bufferPos = 0;
             currentPacketLength = -1;
             bufferedData = memoryContainer.TakeBuffer();
@@ -54,9 +53,10 @@ namespace Azure.Connection.Net
         /// Sets the connection.
         /// </summary>
         /// <param name="con">The con.</param>
-        public void SetConnection(ConnectionInformation con)
+        public void SetConnection(ConnectionInformation con, GameClient me)
         {
             _con = con;
+            _currentClient = me;
         }
 
         /// <summary>
@@ -143,8 +143,11 @@ namespace Azure.Connection.Net
         }
 
         private void handleMessage(int messageId, byte[] packetContent, int position, int packetLength) {
-            using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent, position, packetLength))
-                _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+            if (_currentClient != null && _currentClient.GetMessageHandler() != null)
+            {
+                using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent, position, packetLength))
+                    _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+            }
         }
 
         private void bufferCopy(byte[] data, int bytes, int offset = 0)
@@ -176,7 +179,7 @@ namespace Azure.Connection.Net
         /// <returns>A new object that is a copy of this instance.</returns>
         public object Clone()
         {
-            return new GamePacketParser(_currentClient);
+            return new GamePacketParser();
         }
     }
 }

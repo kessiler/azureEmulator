@@ -20,6 +20,8 @@ namespace Azure.Messages.Handlers
     /// </summary>
     internal partial class GameClientMessageHandler
     {
+        internal readonly ushort TOTAL_PER_PAGE = 20;
+
         /// <summary>
         /// Serializes the group purchase page.
         /// </summary>
@@ -786,43 +788,24 @@ namespace Azure.Messages.Handlers
         {
             uint GroupId = Request.GetUInteger();
             int StartIndex = Request.GetInteger();
-            int EndIndex = Request.GetInteger();
-            Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Group == null || !Group.HasForum)
-                return;
             using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0 ORDER BY timestamp DESC;", GroupId));
+                dbClient.SetQuery(string.Format("SELECT count(id) FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0", GroupId));
+                int totalThreads = dbClient.GetInteger();
+                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0 ORDER BY timestamp DESC, pinned DESC LIMIT @startIndex, @totalPerPage;", GroupId));
+                dbClient.AddParameter("startIndex", StartIndex);
+                dbClient.AddParameter("totalPerPage", TOTAL_PER_PAGE);
                 DataTable Table = dbClient.GetTable();
-                if (Table == null)
-                {
-                    var Messages = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadRootMessageComposer"));
-                    Messages.AppendInteger(GroupId);
-                    Messages.AppendInteger(0);
-                    Messages.AppendInteger(0);
-                    Session.SendMessage(Messages);
-                    return;
-                }
-                int b = (Table.Rows.Count <= 20) ? Table.Rows.Count : 20;
+                int threadCount = (Table.Rows.Count <= TOTAL_PER_PAGE) ? Table.Rows.Count : TOTAL_PER_PAGE;
                 var Threads = new List<GroupForumPost>();
-                int i = 1;
-                while (i <= b)
-                {
-                    DataRow Row = Table.Rows[i - 1];
-                    if (Row == null)
-                    {
-                        b--;
-                        continue;
-                    }
-                    var thread = new GroupForumPost(Row);
+                foreach(DataRow row in Table.Rows) {
+                    var thread = new GroupForumPost(row);
                     Threads.Add(thread);
-                    i++;
                 }
-                Threads = Threads.OrderByDescending(x => x.Pinned).ToList();
                 var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadRootMessageComposer"));
                 Message.AppendInteger(GroupId);
                 Message.AppendInteger(StartIndex);
-                Message.AppendInteger(b);
+                Message.AppendInteger(threadCount);
                 foreach (GroupForumPost Thread in Threads)
                 {
                     Message.AppendInteger(Thread.Id);
@@ -870,7 +853,6 @@ namespace Azure.Messages.Handlers
             var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumListingsMessageComposer"));
             Message.AppendInteger(SelectType);
             var GroupList = new List<Guild>();
-            int totalPerPage = 20;
             switch (SelectType)
             {
                 case 0:
@@ -881,7 +863,7 @@ namespace Azure.Messages.Handlers
                         int qtdForums = dbClient.GetInteger();
                         dbClient.SetQuery("SELECT id FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0 ORDER BY forum_Messages_count DESC LIMIT @startIndex, @totalPerPage;");
                         dbClient.AddParameter("startIndex", StartIndex);
-                        dbClient.AddParameter("totalPerPage", totalPerPage);
+                        dbClient.AddParameter("totalPerPage", TOTAL_PER_PAGE);
                         DataTable Table = dbClient.GetTable();
                         Message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
                         Message.AppendInteger(StartIndex);

@@ -1982,24 +1982,27 @@ namespace Azure.Messages.Handlers
         {
             try
             {
-                var queuedServerMessage = new QueuedServerMessage(Session.GetConnection());
-                if (Session.GetHabbo().LoadingRoom <= 0u || CurrentLoadingRoom == null)
-                    return;
-                var roomData = CurrentLoadingRoom.RoomData;
-                if (roomData == null)
-                    return;
-                if (roomData.Model == null || CurrentLoadingRoom.GetGameMap() == null)
+                if (Session != null && Session.GetConnection() != null)
                 {
-                    Session.SendMessage(
-                        new ServerMessage(LibraryParser.OutgoingRequest("OutOfRoomMessageComposer")));
-                    ClearRoomLoading();
-                }
-                else
-                {
-                    queuedServerMessage.AppendResponse(CurrentLoadingRoom.GetGameMap().GetNewHeightmap());
-                    queuedServerMessage.AppendResponse(CurrentLoadingRoom.GetGameMap().Model.GetHeightmap());
-                    queuedServerMessage.SendResponse();
-                    GetRoomData3();
+                    var queuedServerMessage = new QueuedServerMessage(Session.GetConnection());
+                    if (Session.GetHabbo().LoadingRoom <= 0u || CurrentLoadingRoom == null)
+                        return;
+                    var roomData = CurrentLoadingRoom.RoomData;
+                    if (roomData == null)
+                        return;
+                    if (roomData.Model == null || CurrentLoadingRoom.GetGameMap() == null)
+                    {
+                        Session.SendMessage(
+                            new ServerMessage(LibraryParser.OutgoingRequest("OutOfRoomMessageComposer")));
+                        ClearRoomLoading();
+                    }
+                    else
+                    {
+                        queuedServerMessage.AppendResponse(CurrentLoadingRoom.GetGameMap().GetNewHeightmap());
+                        queuedServerMessage.AppendResponse(CurrentLoadingRoom.GetGameMap().Model.GetHeightmap());
+                        queuedServerMessage.SendResponse();
+                        GetRoomData3();
+                    }
                 }
             }
             catch (Exception ex)

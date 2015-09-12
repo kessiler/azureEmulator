@@ -82,7 +82,7 @@ namespace Azure.HabboHotel.GameClients
             ConnectionId = clientId;
             _connection = connection;
             CurrentRoomUserId = -1;
-            PacketParser = new GamePacketParser(this);
+            PacketParser = new GamePacketParser();
         }
 
         /// <summary>
@@ -493,7 +493,7 @@ namespace Azure.HabboHotel.GameClients
                 return;
             if (_messageHandler == null)
                 InitHandler();
-            PacketParser.SetConnection(_connection);
+            PacketParser.SetConnection(_connection, this);
             _connection.Parser.Dispose();
             _connection.Parser = PacketParser;
             _connection.Parser.HandlePacketData(data, amountOfBytes);
