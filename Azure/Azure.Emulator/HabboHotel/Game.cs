@@ -617,7 +617,7 @@ namespace Azure.HabboHotel
                     {
                         Logging.LogCriticalException(string.Format("Exception in Game Loop!: {0}", ex));
                     }
-                Thread.Sleep(25);
+                Thread.Sleep(1000);
             }
         }
     }

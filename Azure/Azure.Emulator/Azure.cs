@@ -277,7 +277,7 @@ namespace Azure
             Console.WriteLine(@"     " + @"`---^'---'`---'`    `---'    `---'` ' '`---'`---'`---^`---'`---'`    ");
             Console.WriteLine();
             Console.WriteLine(@"     " + @"  BUILD " + Version + "." + Build + " RELEASE 63B CRYPTO BOTH SIDE");
-            Console.WriteLine(@"     " + @"  .NET Framework 4.6     C# 6 Roslyn");
+            Console.WriteLine(@"     " + @"  .NET Framework "+ Environment.Version +"     C# 6 Roslyn");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Black;
 
@@ -409,6 +409,10 @@ namespace Azure
                 if (ConsoleTimerOn)
                     Out.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
 
+
+                Out.WriteLine(
+                    "Starting up asynchronous sockets server for game connections for port " +
+                    int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
                 connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conlimit"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conperip"]),
@@ -428,13 +432,6 @@ namespace Azure
                 }
 
                 Console.WriteLine();
-
-                Out.WriteLine(
-                    "Starting up asynchronous sockets server for game connections for port " +
-                    int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
-
-                connectionManager.Init();
-                connectionManager.Start();
 
                 Out.WriteLine(
                     "Asynchronous sockets server for game connections running on port " +

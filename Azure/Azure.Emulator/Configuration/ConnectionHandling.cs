@@ -16,7 +16,7 @@ namespace Azure.Configuration
         /// <summary>
         /// The manager
         /// </summary>
-        public NewSocketManager Manager;
+        public SocketManager Manager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionHandling"/> class.
@@ -27,24 +27,44 @@ namespace Azure.Configuration
         /// <param name="enabeNagles">if set to <c>true</c> [enabe nagles].</param>
         public ConnectionHandling(int port, int maxConnections, int connectionsPerIp, bool antiDDoS, bool enabeNagles)
         {
-            Manager = new NewSocketManager();
+            Manager = new SocketManager();
+            Manager.OnClientConnected += OnClientConnected;
+            Manager.OnClientDisconnected += OnClientDisconnected;
             Manager.Init(port, maxConnections, connectionsPerIp, antiDDoS, new InitialPacketParser(), !enabeNagles);
         }
 
         /// <summary>
-        /// Initializes this instance.
+        /// Managers the connection event.
         /// </summary>
-        internal void Init()
+        /// <param name="connection">The connection.</param>
+        private static void OnClientConnected(ConnectionInformation connection)
         {
-            Manager.Connection += ManagerConnectionEvent;
+            try
+            {
+                Azure.GetGame().GetClientManager().CreateAndStartClient((uint)connection.GetConnectionId(), connection);
+                Out.WriteLine("Client connected - ID: "+ connection.GetConnectionId() + " /  IP: " + connection.GetIp(), "Azure.Socket", ConsoleColor.DarkYellow);
+            }
+            catch (Exception ex)
+            {
+                Logging.LogException(ex.ToString());
+            }
         }
 
         /// <summary>
-        /// Starts this instance.
+        /// Closes the connection.
         /// </summary>
-        internal void Start()
+        /// <param name="connection">The connection.</param>
+        private static void OnClientDisconnected(ConnectionInformation connection, Exception exception)
         {
-            Manager.InitializeConnectionRequests();
+            try
+            {
+                Azure.GetGame().GetClientManager().DisposeConnection((uint)connection.GetConnectionId());
+                Out.WriteLine("Client disconnected - ID: " + connection.GetConnectionId() + " /  IP: " + connection.GetIp(), "Azure.Socket", ConsoleColor.DarkYellow);
+            }
+            catch (Exception ex)
+            {
+                Logging.LogException(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -53,44 +73,6 @@ namespace Azure.Configuration
         internal void Destroy()
         {
             Manager.Destroy();
-        }
-
-        /// <summary>
-        /// Managers the connection event.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        private static void ManagerConnectionEvent(ConnectionInformation connection)
-        {
-            connection.ConnectionChanged += ConnectionChanged;
-            Azure.GetGame().GetClientManager().CreateAndStartClient(((uint)connection.GetConnectionId()), connection);
-        }
-
-        /// <summary>
-        /// Connections the changed.
-        /// </summary>
-        /// <param name="information">The information.</param>
-        /// <param name="state">The state.</param>
-        private static void ConnectionChanged(ConnectionInformation information, ConnectionState state)
-        {
-            if (state == ConnectionState.Closed)
-                CloseConnection(information);
-        }
-
-        /// <summary>
-        /// Closes the connection.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        private static void CloseConnection(ConnectionInformation connection)
-        {
-            try
-            {
-                connection.Dispose();
-                Azure.GetGame().GetClientManager().DisposeConnection(((uint)connection.GetConnectionId()));
-            }
-            catch (Exception ex)
-            {
-                Logging.LogException(ex.ToString());
-            }
         }
     }
 }

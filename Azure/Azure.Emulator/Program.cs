@@ -42,7 +42,7 @@ namespace Azure
 
             Console.CursorVisible = false;
             var currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += MyHandler;
+            currentDomain.UnhandledException += ExceptionHandler;
             Azure.Initialize();
         }
 
@@ -51,7 +51,7 @@ namespace Azure
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="args">The <see cref="UnhandledExceptionEventArgs"/> instance containing the event data.</param>
-        private static void MyHandler(object sender, UnhandledExceptionEventArgs args)
+        private static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
             Logging.DisablePrimaryWriting(true);
             var ex = (Exception)args.ExceptionObject;

@@ -172,10 +172,9 @@
     <Compile Include="Configuration\FurniData.cs" />
     <Compile Include="Configuration\Languages.cs" />
     <Compile Include="Connection\Connection\ConnectionInformation.cs" />
-    <Compile Include="Connection\Connection\ConnectionState.cs" />
     <Compile Include="Connection\Connection\GameSocketManagerStatics.cs" />
-    <Compile Include="Connection\Connection\NewSocketManager.cs" />
     <Compile Include="Connection\Connection\SocketConnectionCheck.cs" />
+    <Compile Include="Connection\Connection\SocketManager.cs" />
     <Compile Include="Connection\Web.cs" />
     <Compile Include="HabboHotel\Catalogs\TargetedOffers.cs" />
     <Compile Include="HabboHotel\Commands\Command.cs" />
@@ -625,6 +624,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\app.config" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>

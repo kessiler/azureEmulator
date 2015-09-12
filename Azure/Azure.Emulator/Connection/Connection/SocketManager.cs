@@ -1,128 +1,110 @@
+﻿#region
+
 using System;
-using SharpNetty;
 using System.Collections.Specialized;
 using System.Net;
 using System.Net.Sockets;
-using ConnectionManager;
-using ConnectionManager.Socket_Exceptions;
-using SharedPacketLib;
-using System.Collections.Generic;
+using Azure.Messages.Parsers;
 
-namespace Mercury.Connection.Connection
+#endregion
+
+namespace Azure.Connection.Connection
 {
-
+    /// <summary>
+    /// Class SocketManager.
+    /// </summary>
     public class SocketManager
     {
-        protected int acceptedConnections;
-        //protected Socket connectionListener;
-        protected int portInformation;
-        protected bool acceptConnections;
-        protected IDataParser parser;
-        protected bool disableNagleAlgorithm;
+        /// <summary>
+        /// The port to open socket
+        /// </summary>
+        private int _portInformation;
 
-        public delegate void ConnectionEvent(ConnectionInformation _connection);
+        /// <summary>
+        /// Count of accepeted connections
+        /// </summary>
+        private int acceptedConnections;
 
-        public event ConnectionEvent connectionEvent;
+        /// <summary>
+        /// The _connection listener
+        /// </summary>
+        private TcpListener _listener;
 
+        /// <summary>
+        /// The _disableNagleAlgorithm in connectios
+        /// </summary>
+        private bool _disableNagleAlgorithm;
+
+        /// <summary>
+        /// The _parser
+        /// </summary>
+        private IDataParser _parser;
+
+        /// <summary>
+        ///     A client has connected (nothing has been sent or received yet)
+        /// </summary>
+        public delegate void OnClientConnectedEvent(ConnectionInformation connection);
+        public event OnClientConnectedEvent OnClientConnected = delegate { };
+        /// <summary>
+        ///     A client has disconnected
+        /// </summary>
+        public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
+        public event OnClientDisconnectedEvent OnClientDisconnected = delegate { };
+
+        /// <summary>
+        /// Gets or sets the maximum connections.
+        /// </summary>
+        /// <value>The maximum connections.</value>
         public int MaximumConnections { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum ip connection count.
+        /// </summary>
+        /// <value>The maximum ip connection count.</value>
         public int MaxIpConnectionCount { get; set; }
 
-        public HybridDictionary IpConnectionCount { get; set; }
+        /// <summary>
+        /// Gets or sets the AntiDDoS Status.
+        /// </summary>
+        public bool AntiDDosStatus { get; set; }
 
-        public HybridDictionary ActiveConnections { get; set; }
-
-        protected NettyServer nettyServer;
-
-        protected Dictionary<int, Client> clients;
-
-        public void Handle_NewConnection(int socketIndex)
+        /// <summary>
+        /// Initializes the specified port identifier.
+        /// </summary>
+        /// <param name="portId">The port identifier.</param>
+        /// <param name="maxConnections">The maximum connections.</param>
+        /// <param name="connectionsPerIp">The connections per ip.</param>
+        /// <param name="antiDDoS">The antiDDoS status</param>
+        /// <param name="parser">The parser.</param>
+        /// <param name="disableNaglesAlgorithm">if set to <c>true</c> [disable nagles algorithm].</param>
+        public void Init(int portId, int maxConnections, int connectionsPerIp, bool antiDDoS, IDataParser parser, bool disableNaglesAlgorithm)
         {
-            clients.Add(socketIndex, new Client(nettyServer.GetConnection(socketIndex)));
+            _parser = parser;
+            _disableNagleAlgorithm = disableNaglesAlgorithm;
+            MaximumConnections = maxConnections;
+            _portInformation = portId;
+            acceptedConnections = 0;
+            MaxIpConnectionCount = connectionsPerIp;
+            AntiDDosStatus = antiDDoS;
+            if (_portInformation < 0)
+                throw new ArgumentOutOfRangeException("port", _portInformation, "Port must be 0 or more.");
+            if (_listener != null)
+                throw new InvalidOperationException("Already listening.");
+            PrepareConnectionDetails();
         }
 
-        public void Handle_LostConnection(int socketIndex)
+        /// <summary>
+        /// Prepares the connection details.
+        /// </summary>
+        /// <exception cref="SocketInitializationException"></exception>
+        private void PrepareConnectionDetails()
         {
-            Console.WriteLine("Lost connection with " + this.clients[socketIndex].IP);
-            this.clients.Remove(socketIndex);
-        }
-
-        public void Init(int portID, int maxConnections, int connectionsPerIP, IDataParser parser, bool disableNaglesAlgorithm)
-        {
-            clients = new Dictionary<int, Client>();
-            this.parser = parser;
-            this.parser = parser.Clone() as IDataParser;
-            this.InitializeFields();
-            this.MaximumConnections = maxConnections;
-            this.portInformation = portID;
-            this.MaxIpConnectionCount = connectionsPerIP;
-            this.acceptedConnections = 0;
-            this.PrepareConnectionDetails();
-        }
-
-        public void InitializeConnectionRequests()
-        {
-            this.acceptConnections = true;
-            string hostName = Dns.GetHostName();
-            Dns.GetHostEntry(hostName);
             try
             {
-                nettyServer.Handle_NewConnection = this.Handle_NewConnection;
-                nettyServer.Handle_LostConnection = this.Handle_LostConnection;
-                nettyServer.Listen(100, MaximumConnections);
-            }
-            catch
-            {
-                this.Destroy();
-            }
-        }
-
-        public void Destroy()
-        {
-            this.acceptConnections = false;
-            try
-            {
-                this.nettyServer.StopListening();
-            }
-            catch
-            {
-
-            }
-            this.nettyServer = null;
-        }
-
-        public void ReportDisconnect(ConnectionInformation gameConnection)
-        {
-            gameConnection.connectionChanged -= new ConnectionInformation.ConnectionChange(this.CConnectionChanged);
-            this.reportUserLogout(gameConnection.getIp());
-        }
-
-        public int getAcceptedConnections()
-        {
-            return this.acceptedConnections;
-        }
-
-        internal bool isConnected()
-        {
-            return this.nettyServer != null;
-        }
-
-        protected void InitializeFields()
-        {
-            this.ActiveConnections = new HybridDictionary();
-            this.IpConnectionCount = new HybridDictionary();
-        }
-
-        protected void PrepareConnectionDetails()
-        {
-            IPAddress Ip = IPAddress.Any;
-            string ip = Ip.ToString();
-            int port = this.portInformation;
-            this.clients = new Dictionary<int, Client>();
-            this.nettyServer = new NettyServer(true);
-            try
-            {
-                nettyServer.BindSocket(ip, port);
+                _listener = new TcpListener(IPAddress.Any, _portInformation);
+                _listener.Start();
+                _listener.BeginAcceptSocket(OnAcceptSocket, null);
+                SocketConnectionCheck.SetupTcpAuthorization(20000);
             }
             catch (SocketException ex)
             {
@@ -130,62 +112,47 @@ namespace Mercury.Connection.Connection
             }
         }
 
-        protected void CConnectionChanged(ConnectionInformation information, ConnectionState state)
+        protected virtual void OnMessage(ConnectionInformation connection, object msg) { }
+
+        private void OnChannelDisconnect(ConnectionInformation connection, Exception exception)
         {
-            if (state == ConnectionState.closed)
+            OnClientDisconnected(connection, exception);
+            connection.Cleanup();
+        }
+
+
+
+        private void OnAcceptSocket(IAsyncResult ar)
+        {
+            try
             {
-                this.ReportDisconnect(information);
-            }
-        }
-
-        protected void reportUserLogin(string ip)
-        {
-            this.alterIpConnectionCount(ip, checked(this.getAmountOfConnectionFromIp(ip) + 1));
-        }
-
-        protected void reportUserLogout(string ip)
-        {
-            this.alterIpConnectionCount(ip, checked(this.getAmountOfConnectionFromIp(ip) - 1));
-        }
-
-        protected void alterIpConnectionCount(string ip, int amount)
-        {
-
-        }
-
-        protected int getAmountOfConnectionFromIp(string ip)
-        {
-            return 0;
-        }
-
-        protected class Client : SocketManager
-        {
-
-            private NettyServer.Connection _connection;
-
-            public string IP { get; private set; }
-
-            public Client(NettyServer.Connection iAr)
-            {
-                try
+                var socket = _listener.EndAcceptSocket(ar);
+                if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
                 {
-                    _connection = iAr;
-                    Socket thisSocket = _connection.Socket;
-                    IP = thisSocket.RemoteEndPoint.ToString().Split(new char[]{':'})[0];
-                    this.acceptedConnections++;
-                    ConnectionInformation connectionInformation = new ConnectionInformation(thisSocket, this.acceptedConnections, this, this.parser, IP);
-                    this.reportUserLogin(IP);
-                    connectionInformation.connectionChanged += new ConnectionInformation.ConnectionChange(this.CConnectionChanged);
-                    if (connectionEvent != null)
-                    {
-                        connectionEvent(connectionInformation);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+                    socket.NoDelay = _disableNagleAlgorithm;
+                    acceptedConnections++;
+                    var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
+                    connectionInfo.Disconnected = OnChannelDisconnect;
+                    connectionInfo.MessageReceived = OnMessage;
+                    OnClientConnected(connectionInfo);
                 }
             }
+            catch (Exception exception)
+            {
+                Writer.Writer.LogException("Error OnAcceptSocket: " + exception.Message);
+            }
+
+
+            _listener.BeginAcceptSocket(OnAcceptSocket, null);
         }
+
+        /// <summary>
+        /// Destroys this instance.
+        /// </summary>
+        public void Destroy()
+        {
+            _listener.Stop();
+        }
+
     }
 }

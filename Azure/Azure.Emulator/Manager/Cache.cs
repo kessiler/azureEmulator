@@ -18,6 +18,7 @@ namespace Azure.Manager
         public static void StartProcess()
         {
             _thread = new Thread(Process);
+            _thread.Name = "Thread Cache";
             _thread.Start();
             Working = true;
         }
