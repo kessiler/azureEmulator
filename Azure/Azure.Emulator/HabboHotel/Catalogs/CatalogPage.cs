@@ -199,11 +199,12 @@ namespace Azure.HabboHotel.Catalogs
         /// </summary>
         /// <param name="pId">The p identifier.</param>
         /// <returns>CatalogItem.</returns>
-        internal CatalogItem GetItem(int pId)
+        internal CatalogItem GetItem(uint pId)
         {
             var num = (uint)pId;
-            if (FlatOffers.ContainsKey(pId))
-                return (CatalogItem)Items[FlatOffers[pId]];
+            var flatInt = (int)pId;
+            if (FlatOffers.ContainsKey(flatInt))
+                return (CatalogItem)Items[FlatOffers[flatInt]];
             if (Items.Contains(num))
                 return (CatalogItem)Items[num];
             return null;

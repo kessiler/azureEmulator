@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Azure.Configuration;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Achievements;
@@ -159,7 +160,7 @@ namespace Azure.HabboHotel
         /// <summary>
         /// The _game loop
         /// </summary>
-        private Thread _gameLoop;
+        private Task _gameLoop;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Game"/> class.
@@ -560,8 +561,7 @@ namespace Azure.HabboHotel
         internal void StartGameLoop()
         {
             GameLoopActiveExt = true;
-            _gameLoop = new Thread(MainGameLoop);
-            _gameLoop.Name = "Game Loop";
+            _gameLoop = new Task(MainGameLoop);            
             _gameLoop.Start();
         }
 

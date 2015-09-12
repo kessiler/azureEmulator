@@ -32,7 +32,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void CataloguePage()
         {
-            var pageId = Request.GetUInteger();
+            var pageId = Request.GetInteger();
             int Num = Request.GetInteger();
             var cPage = Azure.GetGame().GetCatalog().GetPage(pageId);
             if (cPage == null || !cPage.Enabled || !cPage.Visible || cPage.MinRank > Session.GetHabbo().Rank)
@@ -123,10 +123,10 @@ namespace Azure.Messages.Handlers
                 Session.SendMessage(StaticMessage.AdvicePurchaseMaxItems);
                 return;
             }
-            var pageId = Request.GetUInteger16();
-            var itemId = Request.GetInteger();
-            var extraData = Request.GetString();
-            var priceAmount = Request.GetInteger();
+            int pageId = Request.GetInteger();
+            uint itemId = Request.GetUInteger();
+            string extraData = Request.GetString();
+            int priceAmount = Request.GetInteger();
             Azure.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, priceAmount, false, "", "", 0, 0, 0, false, 0u);
         }
 
@@ -135,14 +135,14 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void PurchaseGift()
         {
-            var pageId = Request.GetUInteger16();
-            var itemId = Request.GetInteger();
-            var extraData = Request.GetString();
-            var giftUser = Request.GetString();
-            var giftMessage = Request.GetString();
-            var giftSpriteId = Request.GetInteger();
-            var giftLazo = Request.GetInteger();
-            var giftColor = Request.GetInteger();
+            int pageId = Request.GetInteger();
+            uint itemId = Request.GetUInteger();
+            string extraData = Request.GetString();
+            string giftUser = Request.GetString();
+            string giftMessage = Request.GetString();
+            int giftSpriteId = Request.GetInteger();
+            int giftLazo = Request.GetInteger();
+            int giftColor = Request.GetInteger();
             var undef = Request.GetBool();
             Azure.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, 1, true, giftUser, giftMessage, giftSpriteId, giftLazo, giftColor, undef, 0u);
         }

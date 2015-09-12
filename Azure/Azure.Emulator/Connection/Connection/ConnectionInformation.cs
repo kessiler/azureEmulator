@@ -148,7 +148,7 @@ namespace Azure.Connection.Connection
                     lock (array)
                     {
 
-                        HandlePacketData(array);
+                        HandlePacketData(array, bytesReceived);
                     }
                 }
                 else
@@ -168,7 +168,7 @@ namespace Azure.Connection.Connection
             {
                 try
                 {
-                    if (_socket.Connected && _connected)
+                    if (_socket != null && _socket.Connected && _connected)
                     {
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
                     }
@@ -241,7 +241,7 @@ namespace Azure.Connection.Connection
         /// </summary>
         public void Dispose()
         {
-            if (_connected) Disconnect();
+            Disconnect();
         }
 
         /// <summary>
@@ -249,19 +249,19 @@ namespace Azure.Connection.Connection
         /// </summary>
         internal void Disconnect()
         {
-            HandleDisconnect(SocketError.ConnectionReset, new SocketException((int)SocketError.ConnectionReset));
+            if (_connected) HandleDisconnect(SocketError.ConnectionReset, new SocketException((int)SocketError.ConnectionReset));
         }
 
         /// <summary>
         /// Handles the packet data.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        private void HandlePacketData(byte[] packet)
+        private void HandlePacketData(byte[] packet, int bytesReceived)
         {
             if (Parser != null)
             {
                 if (ARC4ServerSide != null) ARC4ServerSide.Parse(ref packet);
-                Parser.HandlePacketData(packet);
+                Parser.HandlePacketData(packet, bytesReceived);
             }
         }
 
@@ -271,7 +271,7 @@ namespace Azure.Connection.Connection
         /// <param name="packet">The packet.</param>
         public void SendData(byte[] packet)
         {
-            if (_socket != null && _socket.Connected && _connected)
+            if (_socket != null && _socket.Connected)
             {
                 if (ARC4ClientSide != null)
                     ARC4ClientSide.Parse(ref packet);

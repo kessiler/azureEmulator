@@ -261,7 +261,7 @@ namespace Azure.HabboHotel.Catalogs
                         visible = true;
                     if (dataRow2["enabled"].ToString() == "1")
                         enabled = true;
-                    Categories.Add(Convert.ToUInt32(dataRow2["id"]),
+                    Categories.Add(Convert.ToInt32(dataRow2["id"]),
                         new CatalogPage(Convert.ToUInt32(dataRow2["id"]), short.Parse(dataRow2["parent_id"].ToString()),
                             (string)dataRow2["code_name"], (string)dataRow2["caption"], visible, enabled, comingSoon,
                             Convert.ToUInt32(dataRow2["min_rank"]), (int)dataRow2["icon_image"],
@@ -308,7 +308,7 @@ namespace Azure.HabboHotel.Catalogs
         /// </summary>
         /// <param name="page">The page.</param>
         /// <returns>CatalogPage.</returns>
-        internal CatalogPage GetPage(uint page)
+        internal CatalogPage GetPage(int page)
         {
             return !Categories.Contains(page) ? null : (CatalogPage)Categories[page];
         }
@@ -329,7 +329,7 @@ namespace Azure.HabboHotel.Catalogs
         /// <param name="giftColor">Color of the gift.</param>
         /// <param name="undef">if set to <c>true</c> [undef].</param>
         /// <param name="group">The group.</param>
-        internal void HandlePurchase(GameClient session, uint pageId, int itemId, string extraData, int priceAmount,
+        internal void HandlePurchase(GameClient session, int pageId, uint itemId, string extraData, int priceAmount,
             bool isGift, string giftUser, string giftMessage, int giftSpriteId, int giftLazo, int giftColor, bool undef,
             uint @group)
         {

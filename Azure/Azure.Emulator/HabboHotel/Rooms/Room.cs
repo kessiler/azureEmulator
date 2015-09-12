@@ -820,10 +820,7 @@ namespace Azure.HabboHotel.Rooms
                         continue;
 
                     GameClient usersClient = user.GetClient();
-                    if (usersClient == null)
-                        continue;
-
-                    if (user.IsBot)
+                    if (usersClient == null || usersClient.GetConnection() == null)
                         continue;
 
                     usersClient.GetConnection().SendData(message);
@@ -937,7 +934,7 @@ namespace Azure.HabboHotel.Rooms
                         continue;
 
                     GameClient UsersClient = user.GetClient();
-                    if (UsersClient == null)
+                    if (UsersClient == null || UsersClient.GetConnection() == null)
                         continue;
 
                     if (!CheckRights(UsersClient))

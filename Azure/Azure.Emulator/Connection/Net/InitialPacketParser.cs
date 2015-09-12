@@ -12,39 +12,31 @@ namespace Azure.Connection.Net
     public class InitialPacketParser : IDataParser
     {
         /// <summary>
-        /// The current data
-        /// </summary>
-        public byte[] CurrentData;
-
-        /// <summary>
         /// Delegate NoParamDelegate
         /// </summary>
         public delegate void NoParamDelegate();
+        /// <summary>
+        /// Delegate with params
+        /// </summary>
+        public delegate void DualParamDelegate(byte[] packet, int amountOfBytes);
 
         public event NoParamDelegate PolicyRequest;
 
-        public event NoParamDelegate SwitchParserRequest;
+        public event DualParamDelegate SwitchParserRequest;
 
         /// <summary>
         /// Handles the packet data.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        public void HandlePacketData(byte[] packet)
+        public void HandlePacketData(byte[] packet, int amountOfBytes)
         {
             if (Azure.ShutdownStarted)
                 return;
 
             if (packet[0] == 60 && PolicyRequest != null)
-            {
                 PolicyRequest();
-                return;
-            }
-
-            if (packet[0] == 67 || SwitchParserRequest == null)
-                return;
-
-            CurrentData = packet;
-            SwitchParserRequest();
+            else if (packet[0] != 67 || SwitchParserRequest == null)
+                SwitchParserRequest(packet, amountOfBytes);
         }
 
         /// <summary>

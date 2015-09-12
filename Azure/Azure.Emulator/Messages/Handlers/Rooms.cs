@@ -1425,8 +1425,8 @@ namespace Azure.Messages.Handlers
 
         internal void PromoteRoom()
         {
-            var pageId = Request.GetUInteger16();
-            var item = Request.GetInteger();
+            var pageId = Request.GetInteger();
+            var item = Request.GetUInteger();
 
             var page2 = Azure.GetGame().GetCatalog().GetPage(pageId);
             if (page2 == null) return;

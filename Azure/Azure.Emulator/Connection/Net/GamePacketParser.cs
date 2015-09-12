@@ -6,6 +6,7 @@ using Azure.Connection.Connection;
 using Azure.HabboHotel.GameClients;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.Util;
 
 #endregion
 
@@ -25,6 +26,11 @@ namespace Azure.Connection.Net
         /// The _con
         /// </summary>
         private ConnectionInformation _con;
+        private const int INT_SIZE = sizeof(int);
+        private static readonly MemoryContainer memoryContainer = new MemoryContainer(10, 2048);
+        private readonly byte[] bufferedData;
+        private int bufferPos;
+        private int currentPacketLength;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GamePacketParser"/> class.
@@ -33,6 +39,9 @@ namespace Azure.Connection.Net
         internal GamePacketParser(GameClient me)
         {
             _currentClient = me;
+            bufferPos = 0;
+            currentPacketLength = -1;
+            bufferedData = memoryContainer.TakeBuffer();
         }
 
         /// <summary>
@@ -54,44 +63,100 @@ namespace Azure.Connection.Net
         /// Handles the packet data.
         /// </summary>
         /// <param name="data">The data.</param>
-        public void HandlePacketData(byte[] data)
+        public void HandlePacketData(byte[] data, int length)
         {
-            if (data.Length == 0 || _currentClient == null)
-                return;
-
-            int pos = 0;
-            short messageId = 0;
-
-            try
+            if (length > 0 && _currentClient != null)
             {
-                for (pos = 0; pos < data.Length; )
+                int pos = 0;
+                short messageId = 0;
+
+                try
                 {
-                    int dataSize = pos + 4; //prevent index outside
-                    if (dataSize < data.Length)
+                    for (pos = 0; pos < length; )
                     {
-                        int length = HabboEncoding.DecodeInt32(new[] { data[pos++], data[pos++], data[pos++], data[pos++] });
+                        if (currentPacketLength == -1)
+                        {
+                            if (length < INT_SIZE)
+                            {
+                                bufferCopy(data, length); // store the bytes in the buffer for the next read and break operation
+                                break;
+                            }
 
-                        if (length < 2 || length > 4096)
-                            return; //broken packet! might be better to disconnect EVERYTHING
+                            currentPacketLength = HabboEncoding.DecodeInt32(data, ref pos);
+                        }
+                        if (currentPacketLength < 2 || currentPacketLength > 4096)
+                        {
+                            currentPacketLength = -1;
+                            break; //broken packet! might be better to disconnect EVERYTHING
+                        }
+                        if (currentPacketLength == ((length - pos) + bufferPos)) // if packet is exactly big enough (no more data needed, no excessive data)
+                        {
+                            if (bufferPos != 0) // do we have stuff in buffer
+                            {
+                                bufferCopy(data, length, pos);
+                                pos = 0;
+                                messageId = HabboEncoding.DecodeInt16(bufferedData, ref pos);
+                                handleMessage(messageId, bufferedData, 2, currentPacketLength);
+                            }
+                            else
+                            {
+                                messageId = HabboEncoding.DecodeInt16(data, ref pos);       //pos -= 2;// -2 cuz of toint16
+                                handleMessage(messageId, data, pos, currentPacketLength);
+                            }
+                            pos = length;
+                            currentPacketLength = -1;
+                        }
+                        else //  we have remainder
+                        {
+                            int remainder = ((length - pos)) - (currentPacketLength - bufferPos);
 
-                        messageId = HabboEncoding.DecodeInt16(new[] { data[pos++], data[pos++] });
+                            if (bufferPos != 0)
+                            {
+                                int toCopy = remainder - bufferPos;
+                                bufferCopy(data, toCopy, pos);
+                                int zero = 0;
+                                messageId = HabboEncoding.DecodeInt16(bufferedData, ref zero); //small hack to preserve the POS value
+                                //Create packet with bufferData variable
+                                handleMessage(messageId, bufferedData, 2, currentPacketLength); //Not sure
+                            }
+                            else
+                            {
+                                messageId = HabboEncoding.DecodeInt16(data, ref pos);
+                                //create packet with data variable
+                                //pos -= 2;
+                                handleMessage(messageId, data, pos, currentPacketLength);
+                                pos -= 2; //because else the remainder will fail
+                            }
+                            currentPacketLength = -1;
 
-                        byte[] packetContent = new byte[length - 2];
-
-                        for (int i = 0; i < packetContent.Length && pos < data.Length; i++)
-                            packetContent[i] = data[pos++];
-
-                        using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent))
-                            _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+                            pos = (length - remainder); //set pos to max pos of remainder
+                        }
                     }
                 }
-            }
-            catch (Exception exception)
-            {
-                Logging.HandleException(exception, string.Format("packet handling ----> {0}", messageId));
+                catch (Exception exception)
+                {
+                    Logging.HandleException(exception, string.Format("packet handling ----> {0}", messageId));
 
-                //_con.Dispose();
+                    _con.Dispose();
+                }
             }
+        }
+
+        private void handleMessage(int messageId, byte[] packetContent, int position, int packetLength) {
+            using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent, position, packetLength))
+                _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+        }
+
+        private void bufferCopy(byte[] data, int bytes, int offset = 0)
+        {
+            for (int i = 0; i < (bytes - offset); i++)
+                bufferedData[bufferPos++] = data[i + offset];
+        }
+
+        private void bufferCopy(byte[] data, int bytes)
+        {
+            for (int i = 0; i < bytes; i++)
+                bufferedData[bufferPos++] = data[i];
         }
 
         /// <summary>
@@ -102,6 +167,7 @@ namespace Azure.Connection.Net
             //todo: mem checking
             //_currentClient = null;
             //_con = null;
+            memoryContainer.GiveBuffer(bufferedData);
         }
 
         /// <summary>

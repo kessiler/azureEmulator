@@ -19,24 +19,14 @@ namespace Azure.Messages
         private byte[] _body;
 
         /// <summary>
-        /// The _pointer
+        /// The _position
         /// </summary>
-        private int _pointer;
+        private int _position;
 
         /// <summary>
         /// The length
         /// </summary>
-        internal int Length;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClientMessage"/> class.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="body">The body.</param>
-        internal ClientMessage(int messageId, byte[] body)
-        {
-            Init(messageId, body);
-        }
+        internal int _length;
 
         /// <summary>
         /// Gets the identifier.
@@ -44,13 +34,17 @@ namespace Azure.Messages
         /// <value>The identifier.</value>
         internal int Id { get; private set; }
 
-        /// <summary>
-        /// Gets the length of the remaining.
-        /// </summary>
-        /// <value>The length of the remaining.</value>
-        internal int RemainingLength
+        public int Length
         {
-            get { return (_body.Length - _pointer); }
+            get { return _length; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientMessage"/> class.
+        /// </summary>
+        internal ClientMessage(int messageId, byte[] body, int position, int packetLength)
+        {
+            Init(messageId, body, position, packetLength);
         }
 
         /// <summary>
@@ -70,7 +64,7 @@ namespace Azure.Messages
             string stringValue = string.Empty;
 
             stringValue += Encoding.Default.GetString(_body);
-           
+
             for (int i = 0; i < 13; i++)
                 stringValue = stringValue.Replace(char.ToString((char)(i)), string.Format("[{0}]", i));
 
@@ -80,18 +74,12 @@ namespace Azure.Messages
         /// <summary>
         /// Initializes the specified message identifier.
         /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="body">The body.</param>
-        internal void Init(int messageId, byte[] body)
+        internal void Init(int messageId, byte[] body, int position, int packetLength)
         {
-            if (body == null)
-                body = new byte[0];
-
             Id = messageId;
-
             _body = body;
-            Length = body.Length;
-            _pointer = 0;
+            _position = position;
+            _length = packetLength;
         }
 
         /// <summary>
@@ -101,13 +89,10 @@ namespace Azure.Messages
         /// <returns>System.Byte[].</returns>
         internal byte[] ReadBytes(int len)
         {
-            if (len > RemainingLength)
-                len = RemainingLength;
-
             byte[] arrayBytes = new byte[len];
 
             for (int i = 0; i < len; i++)
-                arrayBytes[i] = _body[_pointer++];
+                arrayBytes[i] = _body[_position++];
 
             return arrayBytes;
         }
@@ -119,11 +104,8 @@ namespace Azure.Messages
         /// <returns>System.Byte[].</returns>
         internal byte[] GetBytes(int len)
         {
-            if (len > RemainingLength)
-                len = RemainingLength;
-
             byte[] arrayBytes = new byte[len];
-            int pos = _pointer;
+            int pos = _position;
 
             for (int i = 0; i < len; i++)
             {
@@ -132,17 +114,6 @@ namespace Azure.Messages
             }
 
             return arrayBytes;
-        }
-
-        /// <summary>
-        /// Gets the next.
-        /// </summary>
-        /// <returns>System.Byte[].</returns>
-        internal byte[] GetNext()
-        {
-            int length = HabboEncoding.DecodeInt16(ReadBytes(2));
-
-            return ReadBytes(length);
         }
 
         /// <summary>
@@ -161,7 +132,13 @@ namespace Azure.Messages
         /// <returns>System.String.</returns>
         internal string GetString(Encoding encoding)
         {
-            return encoding.GetString(GetNext());
+            int stringLength = GetInteger16();
+            if (stringLength == 0 || _position + stringLength > _body.Length)
+                return string.Empty;
+
+            string value = encoding.GetString(_body, _position, stringLength);
+            _position += stringLength;
+            return value;
         }
 
         /// <summary>
@@ -185,19 +162,16 @@ namespace Azure.Messages
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool GetBool()
         {
-            if (RemainingLength <= 0) 
-                return false;
-
-            return _body[_pointer++] == (char)1;
+            return (_body[_position++] == 1);
         }
 
         /// <summary>
         /// Gets the integer16.
         /// </summary>
         /// <returns>System.Int16.</returns>
-        internal short GetInteger16()
+        internal Int16 GetInteger16()
         {
-            return short.Parse(GetInteger().ToString(CultureInfo.InvariantCulture));
+            return HabboEncoding.DecodeInt16(_body, ref _position);
         }
 
         /// <summary>
@@ -206,28 +180,12 @@ namespace Azure.Messages
         /// <returns>System.Int32.</returns>
         internal int GetInteger()
         {
-            if (RemainingLength < 1)
-                return 0;
-
-            byte[] bytesArray = GetBytes(4);
-
-            int result = HabboEncoding.DecodeInt32(bytesArray);
-            _pointer += 4;
-
-            return result;
+            return HabboEncoding.DecodeInt32(_body, ref _position);
         }
 
         internal bool GetIntegerAsBool()
         {
-            if (RemainingLength < 1)
-                return false;
-
-            byte[] bytesArray = GetBytes(4);
-
-            int result = HabboEncoding.DecodeInt32(bytesArray);
-            _pointer += 4;
-
-            return result == 1;
+            return HabboEncoding.DecodeInt32(_body, ref _position) == 1;
         }
 
         /// <summary>
@@ -236,7 +194,8 @@ namespace Azure.Messages
         /// <returns>System.UInt32.</returns>
         internal uint GetUInteger()
         {
-            return (uint)(GetInteger());
+            int value = GetInteger();
+            return (value < 0 ? 0 : (uint)value);
         }
 
         /// <summary>
@@ -245,7 +204,7 @@ namespace Azure.Messages
         /// <returns>System.UInt16.</returns>
         internal ushort GetUInteger16()
         {
-            return (UInt16)(GetInteger());
+            return (ushort)GetInteger16();
         }
     }
 }

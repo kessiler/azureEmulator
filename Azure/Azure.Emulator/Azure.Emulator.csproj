@@ -597,6 +597,7 @@
     <Compile Include="Properties\Settings.cs" />
     <Compile Include="Messages\Parsers\IDataParser.cs" />
     <Compile Include="Util\IPlugin.cs" />
+    <Compile Include="Util\MemoryContainer.cs" />
     <Compile Include="Util\OutPut.cs" />
     <Compile Include="Util\TextHandling.cs" />
     <Compile Include="Util\EndingType.cs" />

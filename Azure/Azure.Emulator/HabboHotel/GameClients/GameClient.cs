@@ -487,15 +487,16 @@ namespace Azure.HabboHotel.GameClients
         /// <summary>
         /// Switches the parser request.
         /// </summary>
-        private void SwitchParserRequest()
+        private void SwitchParserRequest(byte[] data, int amountOfBytes)
         {
+            if (_connection == null)
+                return;
             if (_messageHandler == null)
                 InitHandler();
             PacketParser.SetConnection(_connection);
-            var currentData = (_connection.Parser as InitialPacketParser).CurrentData;
             _connection.Parser.Dispose();
             _connection.Parser = PacketParser;
-            _connection.Parser.HandlePacketData(currentData);
+            _connection.Parser.HandlePacketData(data, amountOfBytes);
         }
 
         /// <summary>

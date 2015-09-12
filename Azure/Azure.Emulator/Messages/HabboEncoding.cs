@@ -11,16 +11,20 @@ namespace Azure.Messages
     /// </summary>
     internal class HabboEncoding
     {
+
+        private const Int16 SHORT_LENGTH = sizeof(short);
+        private const int INT_LENGTH = sizeof(int);
         /// <summary>
         /// Decodes the int32.
         /// </summary>
         /// <param name="v">The v.</param>
         /// <returns>System.Int32.</returns>
-        internal static int DecodeInt32(byte[] v)
+        internal static int DecodeInt32(byte[] v, ref int position)
         {
-            if ((v[0] | v[1] | v[2] | v[3]) < 0)
-                return -1;
-            return ((v[0] << 24) + (v[1] << 16) + (v[2] << 8) + (v[3]));
+            if (position + INT_LENGTH > v.Length || position < 0)
+                return 0;
+
+            return (v[position++] << 24) + (v[position++] << 16) + (v[position++] << 8) + v[position++];
         }
 
         /// <summary>
@@ -28,12 +32,12 @@ namespace Azure.Messages
         /// </summary>
         /// <param name="v">The v.</param>
         /// <returns>Int16.</returns>
-        internal static Int16 DecodeInt16(byte[] v)
+        internal static Int16 DecodeInt16(byte[] v, ref int position)
         {
-            if ((v[0] | v[1]) < 0)
-                return -1;
-            var result = ((v[0] << 8) + (v[1]));
-            return (Int16)result;
+            if (position + SHORT_LENGTH > v.Length || position < 0)
+                return 0;
+
+            return (Int16)((v[position++] << 8) + v[position++]);
         }
 
         /// <summary>
