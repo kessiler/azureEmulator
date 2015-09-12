@@ -850,15 +850,15 @@ namespace Azure.HabboHotel.Rooms
                         continue;
 
                     GameClient UsersClient = user.GetClient();
-                    if (UsersClient == null)
+                    if (UsersClient == null || roomUser == null || UsersClient.GetHabbo() == null)
                         continue;
 
                     try
                     {
                         if (user.OnCampingTent || !roomUser.OnCampingTent)
                         {
-                            if (!user.GetClient().GetHabbo().MutedUsers.Contains(p))
-                                user.SendMessage(PacketData);
+                            if (!UsersClient.GetHabbo().MutedUsers.Contains(p))
+                                UsersClient.SendMessage(PacketData);
                         }
                     }
                     catch (Exception e) { Logging.HandleException(e, "Room.SendMessageToUsersWithRights"); }
