@@ -125,35 +125,34 @@ namespace Azure.Messages.Handlers
         internal void GetUserBadges()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null)
-                return;
-            var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
-            if (roomUserByHabbo == null || roomUserByHabbo.IsBot)
-                return;
-            if (roomUserByHabbo.GetClient() == null)
-                return;
-
-            Session.GetHabbo().LastSelectedUser = roomUserByHabbo.UserId;
-            Response.Init(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
-            Response.AppendInteger(roomUserByHabbo.GetClient().GetHabbo().Id);
-
-            Response.StartArray();
-            foreach (
-                var badge in
-                    roomUserByHabbo.GetClient()
-                        .GetHabbo()
-                        .GetBadgeComponent()
-                        .BadgeList.Values.Cast<Badge>()
-                        .Where(badge => badge.Slot > 0).Take(5))
+            if (room != null)
             {
-                Response.AppendInteger(badge.Slot);
-                Response.AppendString(badge.Code);
+                var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
+                if (roomUserByHabbo != null && !roomUserByHabbo.IsBot && roomUserByHabbo.GetClient() != null && roomUserByHabbo.GetClient().GetHabbo() != null)
+                {
+                    Session.GetHabbo().LastSelectedUser = roomUserByHabbo.UserId;
+                    Response.Init(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
+                    Response.AppendInteger(roomUserByHabbo.GetClient().GetHabbo().Id);
 
-                Response.SaveArray();
+                    Response.StartArray();
+                    foreach (
+                        var badge in
+                            roomUserByHabbo.GetClient()
+                                .GetHabbo()
+                                .GetBadgeComponent()
+                                .BadgeList.Values.Cast<Badge>()
+                                .Where(badge => badge.Slot > 0).Take(5))
+                    {
+                        Response.AppendInteger(badge.Slot);
+                        Response.AppendString(badge.Code);
+
+                        Response.SaveArray();
+                    }
+
+                    Response.EndArray();
+                    SendResponse();
+                }
             }
-
-            Response.EndArray();
-            SendResponse();
         }
 
         /// <summary>

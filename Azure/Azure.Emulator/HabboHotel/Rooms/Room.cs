@@ -185,9 +185,9 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         public bool JustLoaded = true;
 
-        internal void Start(RoomData data)
+        internal void Start(RoomData data, bool forceLoad = false)
         {
-            InitializeFromRoomData(data);
+            InitializeFromRoomData(data, forceLoad);
             GetRoomItemHandler().LoadFurniture();
             GetGameMap().GenerateMaps(true);
         }
@@ -380,7 +380,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         internal void StartRoomProcessing()
         {
-            _processTimer = new Timer(ProcessRoom, null, 0, 500);
+            _processTimer = new Timer(ProcessRoom, null, 500, 500);
         }
 
         /// <summary>
@@ -1182,7 +1182,7 @@ namespace Azure.HabboHotel.Rooms
         internal void ReloadSettings()
         {
             var data = Azure.GetGame().GetRoomManager().GenerateRoomData(RoomId);
-            InitializeFromRoomData(data);
+            InitializeFromRoomData(data, false);
         }
 
         /// <summary>
@@ -1266,9 +1266,9 @@ namespace Azure.HabboHotel.Rooms
         /// Initializes from room data.
         /// </summary>
         /// <param name="data">The data.</param>
-        private void InitializeFromRoomData(RoomData data)
+        private void InitializeFromRoomData(RoomData data, bool forceLoad)
         {
-            Initialize(data.Id, data, data.AllowRightsOverride, data.WordFilter);
+            Initialize(data.Id, data, data.AllowRightsOverride, data.WordFilter, forceLoad);
         }
 
         /// <summary>
@@ -1278,7 +1278,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="roomData">The room data.</param>
         /// <param name="rightOverride">if set to <c>true</c> [right override].</param>
         /// <param name="wordFilter">The word filter.</param>
-        private void Initialize(uint id, RoomData roomData, bool rightOverride, List<string> wordFilter)
+        private void Initialize(uint id, RoomData roomData, bool rightOverride, List<string> wordFilter, bool forceLoad)
         {
             RoomData = roomData;
 
@@ -1305,9 +1305,12 @@ namespace Azure.HabboHotel.Rooms
             LoadBans();
             InitUserBots();
 
-            _roomThread = new Thread(StartRoomProcessing);
-            _roomThread.Name = "Room Loader";
-            _roomThread.Start();
+            if (!forceLoad)
+            {
+                _roomThread = new Thread(StartRoomProcessing);
+                _roomThread.Name = "Room Loader";
+                _roomThread.Start();
+            }
             Azure.GetGame().GetRoomManager().QueueActiveRoomAdd(RoomData);
         }
 
@@ -1366,7 +1369,10 @@ namespace Azure.HabboHotel.Rooms
                 GetRoomItemHandler().SaveFurniture(queryReactor, null);
                 queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET users_now=0 WHERE id = {0} LIMIT 1", RoomId));
             }
-            _processTimer.Dispose();
+            if (_processTimer != null)
+            {
+                _processTimer.Dispose();
+            }
             _processTimer = null;
             RoomData.Tags.Clear();
             _roomUserManager.UserList.Clear();

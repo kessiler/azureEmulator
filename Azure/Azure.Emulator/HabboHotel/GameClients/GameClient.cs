@@ -456,9 +456,9 @@ namespace Azure.HabboHotel.GameClients
         {
             if (message == null)
                 return;
-            var bytes = message.GetReversedBytes();
             if (GetConnection() == null)
                 return;
+            var bytes = message.GetReversedBytes();
             GetConnection().SendData(bytes);
         }
 

@@ -1448,14 +1448,8 @@ namespace Azure.Messages.Handlers
             }
             var category = Request.GetInteger();
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(num);
-            if (room == null)
-            {
-                var roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(num);
-                if (roomData == null) return;
-                room = new Room();
-                room.Start(roomData);
-            }
+            Room room = Azure.GetGame().GetRoomManager().GetRoom(num) ?? new Room();
+            room.Start(Azure.GetGame().GetRoomManager().GenerateNullableRoomData(num), true);
 
             if (!room.CheckRights(Session, true)) return;
             if (catalogItem.CreditsCost > 0)

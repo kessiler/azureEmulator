@@ -58,7 +58,7 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         /// The _room models
         /// </summary>
-        private readonly HybridDictionary _roomModels;
+        private readonly Hashtable _roomModels;
 
         /// <summary>
         /// The _voted rooms
@@ -98,7 +98,7 @@ namespace Azure.HabboHotel.Rooms
         internal RoomManager()
         {
             LoadedRooms = new ConcurrentDictionary<uint, Room>();
-            _roomModels = new HybridDictionary();
+            _roomModels = new Hashtable();
             LoadedRoomData = new ConcurrentDictionary<uint, RoomData>();
             _votedRooms = new Dictionary<RoomData, int>();
             _activeRooms = new Dictionary<RoomData, uint>();
@@ -150,8 +150,10 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>RoomModel.</returns>
         internal RoomModel GetModel(string model, uint roomId)
         {
-            if (model == "custom" && _roomModels.Contains(string.Format("custom_{0}", roomId))) return (RoomModel)_roomModels[string.Format("custom_{0}", roomId)];
-            if (_roomModels.Contains(model)) return (RoomModel)_roomModels[model];
+            if (model == "custom" && _roomModels.ContainsKey(string.Format("custom_{0}", roomId)))
+                return (RoomModel)_roomModels[string.Format("custom_{0}", roomId)];
+            if (_roomModels.ContainsKey(model))
+                return (RoomModel)_roomModels[model];
             return null;
         }
 
@@ -162,10 +164,16 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>RoomData.</returns>
         internal RoomData GenerateNullableRoomData(uint roomId)
         {
-            if (GenerateRoomData(roomId) != null) return GenerateRoomData(roomId);
-            var roomData = new RoomData();
+            if (GenerateRoomData(roomId) != null)
+                return GenerateRoomData(roomId);
+            RoomData roomData = new RoomData();
             roomData.FillNull(roomId);
             return roomData;
+        }
+
+        private bool IsRoomLoaded(uint RoomId)
+        {
+            return LoadedRooms.ContainsKey(RoomId);
         }
 
         /// <summary>
@@ -183,7 +191,7 @@ namespace Azure.HabboHotel.Rooms
 
             var roomData = new RoomData();
 
-            if (LoadedRooms.ContainsKey(roomId))
+            if (IsRoomLoaded(roomId))
                 return GetRoom(roomId).RoomData;
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
@@ -195,9 +203,8 @@ namespace Azure.HabboHotel.Rooms
                     return null;
 
                 roomData.Fill(dataRow);
+                LoadedRoomData.TryAdd(roomId, roomData);
             }
-
-            LoadedRoomData.TryAdd(roomId, roomData);
 
             return roomData;
         }
@@ -216,20 +223,18 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Room.</returns>
-        internal Room LoadRoom(uint id)
+        internal Room LoadRoom(uint id, bool forceLoad = false)
         {
-            if (LoadedRooms.ContainsKey(id))
+            if (IsRoomLoaded(id))
                 return GetRoom(id);
 
             var roomData = GenerateRoomData(id);
             if (roomData == null)
                 return null;
-            if (LoadedRooms.ContainsKey(id))
-                return GetRoom(id);
 
             var room = new Room();
             LoadedRooms.AddOrUpdate(id, room, (key, value) => room);
-            room.Start(roomData);
+            room.Start(roomData, forceLoad);
 
             Out.WriteLine(string.Format("Room #{0} was loaded", id), "Azure.Room.Manager", ConsoleColor.DarkCyan);
 
@@ -288,7 +293,7 @@ namespace Azure.HabboHotel.Rooms
         internal RoomData CreateRoom(GameClient session, string name, string desc, string model, int category,
                                      int maxVisitors, int tradeState)
         {
-            if (!_roomModels.Contains(model))
+            if (!_roomModels.ContainsKey(model))
             {
                 session.SendNotif(Azure.GetLanguage().GetVar("user_room_model_error"));
 
@@ -375,8 +380,7 @@ namespace Azure.HabboHotel.Rooms
         internal void LoadModels(IQueryAdapter dbClient)
         {
             _roomModels.Clear();
-            dbClient.SetQuery(
-                "SELECT id,door_x,door_y,door_z,door_dir,heightmap,public_items,club_only,poolmap FROM rooms_models");
+            dbClient.SetQuery("SELECT * FROM rooms_models");
             var table = dbClient.GetTable();
             if (table == null) return;
             foreach (DataRow dataRow in table.Rows)
@@ -389,7 +393,7 @@ namespace Azure.HabboHotel.Rooms
                         (int)dataRow["door_dir"], (string)dataRow["heightmap"], staticFurniMap,
                         Azure.EnumToBool(dataRow["club_only"].ToString()), (string)dataRow["poolmap"]));
             }
-            dbClient.SetQuery("SELECT roomid,door_x,door_y,door_z,door_dir,heightmap FROM rooms_models_customs");
+            dbClient.SetQuery("SELECT * FROM rooms_models_customs");
             var dataCustom = dbClient.GetTable();
 
             if (dataCustom == null) return;
@@ -498,7 +502,7 @@ namespace Azure.HabboHotel.Rooms
             Out.WriteLine("RoomManager Destroyed", "Azure.RoomManager", ConsoleColor.DarkYellow);
         }
 
-/// <summary>
+        /// <summary>
         /// Unloads the room.
         /// </summary>
         /// <param name="room">The room.</param>

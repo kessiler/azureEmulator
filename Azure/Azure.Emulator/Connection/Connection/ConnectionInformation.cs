@@ -121,8 +121,11 @@ namespace Azure.Connection.Connection
             {
                 if (_socket != null && _socket.Connected)
                 {
-                    _socket.Shutdown(SocketShutdown.Both);
-                    _socket.Close();
+                    try
+                    {
+                        _socket.Shutdown(SocketShutdown.Both);
+                        _socket.Close();
+                    } catch(Exception) {} // silent
                 }
                 _connected = false;
                 Parser.Dispose();

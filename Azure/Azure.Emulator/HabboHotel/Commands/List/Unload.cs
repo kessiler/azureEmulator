@@ -41,7 +41,8 @@ namespace Azure.HabboHotel.Commands.List
 
             Azure.GetGame().GetRoomManager().UnloadRoom(session.GetHabbo().CurrentRoom, "Unload command");
 
-            if (!_reEnter) return true;
+            if (!_reEnter) 
+                return true;
             Azure.GetGame().GetRoomManager().LoadRoom(roomId);
 
             var roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
