@@ -687,13 +687,13 @@ namespace Azure.Messages.Handlers
                     if ((uint)Row["poster_id"] == Session.GetHabbo().Id || Group.Admins.ContainsKey(Session.GetHabbo().Id))
                     {
                         dbClient.SetQuery(string.Format("UPDATE groups_forums_posts SET hidden = @hid WHERE id = {0};", ThreadId));
-                        dbClient.AddParameter("hid", (StateToSet == 10) ? "1" : "0");
+                        dbClient.AddParameter("hid", (StateToSet == 20) ? "1" : "0");
                         dbClient.RunQuery();
                     }
                 }
                 var Thread = new GroupForumPost(Row);
                 var Notif = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                Notif.AppendString((StateToSet == 10) ? "forums.thread.hidden" : "forums.thread.restored");
+                Notif.AppendString((StateToSet == 20) ? "forums.thread.hidden" : "forums.thread.restored");
                 Notif.AppendInteger(0);
                 Session.SendMessage(Notif);
                 if (Thread.ParentId != 0)
