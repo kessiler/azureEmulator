@@ -302,7 +302,7 @@ namespace Azure.HabboHotel
         /// <value>The game loop sleep time ext.</value>
         internal int GameLoopSleepTimeExt
         {
-            get { return 25; }
+            get { return 1000; }
         }
 
         /// <summary>
@@ -602,22 +602,21 @@ namespace Azure.HabboHotel
         /// </summary>
         private void MainGameLoop()
         {
-            LowPriorityWorker.StartProcessing();
             while (GameLoopActiveExt)
             {
-                if (GameLoopEnabled)
-                    try
-                    {
-                        RoomManagerCycleEnded = false;
-                        ClientManagerCycleEnded = false;
-                        _roomManager.OnCycle();
-                        _clientManager.OnCycle();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logging.LogCriticalException(string.Format("Exception in Game Loop!: {0}", ex));
-                    }
-                Thread.Sleep(1000);
+                LowPriorityWorker.Process();
+                try
+                {
+                    RoomManagerCycleEnded = false;
+                    ClientManagerCycleEnded = false;
+                    _roomManager.OnCycle();
+                    _clientManager.OnCycle();
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogCriticalException(string.Format("Exception in Game Loop!: {0}", ex));
+                }
+                Thread.Sleep(GameLoopSleepTimeExt);
             }
         }
     }
