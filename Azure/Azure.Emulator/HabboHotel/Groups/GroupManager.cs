@@ -307,7 +307,7 @@ namespace Azure.HabboHotel.Groups
                     goto AppendRest;
             }
             response.AppendInteger(group.Admins.Count);
-            if (group.Admins.Count > 0)
+            if (group.Admins.Count > 0 && list.Count > 0)
             {
                 response.AppendInteger(list[page].Count);
                 using (var enumerator3 = list[page].GetEnumerator())
