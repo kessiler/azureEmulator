@@ -733,7 +733,7 @@ namespace Azure.Messages.Handlers
         {
             if (room == null)
                 return;
-            room.RoomData.SerializeRoomData(GetResponse(), Session, room.RoomId != Session.GetHabbo().CurrentRoomId, null, show);
+            room.RoomData.SerializeRoomData(GetResponse(), Session, true, null, show);
             SendResponse();
 
             DataTable table;
