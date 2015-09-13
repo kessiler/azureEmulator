@@ -1503,135 +1503,141 @@ namespace Azure.Messages.Handlers
 
         internal void SaveHeightmap()
         {
-            var room = Session.GetHabbo().CurrentRoom;
 
-            if (room == null)
+            if (Session != null && Session.GetHabbo() != null)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("user_is_not_in_room"));
-                return;
-            }
 
-            if (!room.CheckRights(Session, true))
-            {
-                Session.SendNotif(Azure.GetLanguage().GetVar("user_is_not_his_room"));
-                return;
-            }
+                var room = Session.GetHabbo().CurrentRoom;
 
-            var heightMap = Request.GetString();
-            var doorX = Request.GetInteger();
-            var doorY = Request.GetInteger();
-            var doorOrientation = Request.GetInteger();
-            var wallThickness = Request.GetInteger();
-            var floorThickness = Request.GetInteger();
-            var wallHeight = Request.GetInteger();
+                if (room == null)
+                {
+                    Session.SendNotif(Azure.GetLanguage().GetVar("user_is_not_in_room"));
+                    return;
+                }
 
-            if (heightMap.Length < 2)
-            {
-                Session.SendNotif(Azure.GetLanguage().GetVar("invalid_room_length"));
-                return;
-            }
+                if (!room.CheckRights(Session, true))
+                {
+                    Session.SendNotif(Azure.GetLanguage().GetVar("user_is_not_his_room"));
+                    return;
+                }
 
-            if (wallThickness < -2 || wallThickness > 1)
-                wallThickness = 0;
+                var heightMap = Request.GetString();
+                var doorX = Request.GetInteger();
+                var doorY = Request.GetInteger();
+                var doorOrientation = Request.GetInteger();
+                var wallThickness = Request.GetInteger();
+                var floorThickness = Request.GetInteger();
+                var wallHeight = Request.GetInteger();
 
-            if (floorThickness < -2 || floorThickness > 1)
-                floorThickness = 0;
+                if (heightMap.Length < 2)
+                {
+                    Session.SendNotif(Azure.GetLanguage().GetVar("invalid_room_length"));
+                    return;
+                }
 
-            if (doorOrientation < 0 || doorOrientation > 8)
-                doorOrientation = 2;
+                if (wallThickness < -2 || wallThickness > 1)
+                    wallThickness = 0;
 
-            if (wallHeight < -1 || wallHeight > 16)
-                wallHeight = -1;
+                if (floorThickness < -2 || floorThickness > 1)
+                    floorThickness = 0;
 
-            char[] validLetters =
-            {
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-                'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', '\r'
-            };
-            if (heightMap.Any(letter => !validLetters.Contains(letter)))
-            {
-                Session.SendNotif(Azure.GetLanguage().GetVar("user_floor_editor_error"));
+                if (doorOrientation < 0 || doorOrientation > 8)
+                    doorOrientation = 2;
 
-                return;
-            }
+                if (wallHeight < -1 || wallHeight > 16)
+                    wallHeight = -1;
 
-            if (heightMap.Last() == Convert.ToChar(13))
-                heightMap = heightMap.Remove(heightMap.Length - 1);
+                char[] validLetters =
+                {
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', '\r'
+                };
+                if (heightMap.Any(letter => !validLetters.Contains(letter)))
+                {
+                    Session.SendNotif(Azure.GetLanguage().GetVar("user_floor_editor_error"));
 
-            if (heightMap.Length > 1800)
-            {
-                var message = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                message.AppendString("floorplan_editor.error");
-                message.AppendInteger(1);
-                message.AppendString("errors");
-                message.AppendString(
-                    "(general): too large height (max 64 tiles)\r(general): too large area (max 1800 tiles)");
-                Session.SendMessage(message);
+                    return;
+                }
 
-                return;
-            }
+                if (heightMap.Last() == Convert.ToChar(13))
+                    heightMap = heightMap.Remove(heightMap.Length - 1);
 
-            if (heightMap.Split((char)13).Length - 1 < doorY)
-            {
-                var message = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                message.AppendString("floorplan_editor.error");
-                message.AppendInteger(1);
-                message.AppendString("errors");
-                message.AppendString("Y: Door is in invalid place.");
-                Session.SendMessage(message);
-
-                return;
-            }
-
-            var lines = heightMap.Split((char)13);
-            var lineWidth = lines[0].Length;
-            for (var i = 1; i < lines.Length; i++)
-                if (lines[i].Length != lineWidth)
+                if (heightMap.Length > 1800)
                 {
                     var message = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
                     message.AppendString("floorplan_editor.error");
                     message.AppendInteger(1);
                     message.AppendString("errors");
-                    message.AppendString("(general): Line " + (i + 1) + " is of different length than line 1");
+                    message.AppendString(
+                        "(general): too large height (max 64 tiles)\r(general): too large area (max 1800 tiles)");
                     Session.SendMessage(message);
 
                     return;
                 }
-            var doorZ = 0.0;
-            var charDoor = lines[doorY][doorX];
-            if (charDoor >= (char)97 && charDoor <= 119) // a-w
-            {
-                doorZ = charDoor - 87;
-            }
-            else
-            {
-                double.TryParse(charDoor.ToString(), out doorZ);
-            }
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.SetQuery("REPLACE INTO rooms_models_customs (roomid,door_x,door_y,door_z,door_dir,heightmap,poolmap) VALUES ('" + room.RoomId + "', '" + doorX + "','" +
-                                  doorY + "','" + doorZ.ToString(CultureInfo.InvariantCulture).Replace(',', '.') + "','" + doorOrientation + "',@newmodel,'')");
-                queryReactor.AddParameter("newmodel", heightMap);
-                queryReactor.RunQuery();
 
-                room.RoomData.WallHeight = wallHeight;
-                room.RoomData.WallThickness = wallThickness;
-                room.RoomData.FloorThickness = floorThickness;
-                room.RoomData.Model.DoorZ = doorZ;
+                if (heightMap.Split((char)13).Length - 1 < doorY)
+                {
+                    var message = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                    message.AppendString("floorplan_editor.error");
+                    message.AppendInteger(1);
+                    message.AppendString("errors");
+                    message.AppendString("Y: Door is in invalid place.");
+                    Session.SendMessage(message);
 
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoHoleFurniCount", 1, false);
+                    return;
+                }
 
-                queryReactor.RunFastQuery(
-                    string.Format(
-                        "UPDATE rooms_data SET model_name = 'custom', wallthick = '{0}', floorthick = '{1}', walls_height = '{2}' WHERE id = {3};",
-                        wallThickness, floorThickness, wallHeight, room.RoomId));
-                Azure.GetGame().GetRoomManager().LoadModels(queryReactor);
-                room.ResetGameMap("custom", wallHeight, wallThickness, floorThickness);
-                Azure.GetGame().GetRoomManager().UnloadRoom(room, "Reload floor");
+                var lines = heightMap.Split((char)13);
+                var lineWidth = lines[0].Length;
+                for (var i = 1; i < lines.Length; i++)
+                    if (lines[i].Length != lineWidth)
+                    {
+                        var message = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                        message.AppendString("floorplan_editor.error");
+                        message.AppendInteger(1);
+                        message.AppendString("errors");
+                        message.AppendString("(general): Line " + (i + 1) + " is of different length than line 1");
+                        Session.SendMessage(message);
 
-                var ForwardToRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
-                ForwardToRoom.AppendInteger(room.RoomId);
-                Session.SendMessage(ForwardToRoom);
+                        return;
+                    }
+                var doorZ = 0.0;
+                var charDoor = lines[doorY][doorX];
+                if (charDoor >= (char)97 && charDoor <= 119) // a-w
+                {
+                    doorZ = charDoor - 87;
+                }
+                else
+                {
+                    double.TryParse(charDoor.ToString(), out doorZ);
+                }
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.SetQuery("REPLACE INTO rooms_models_customs (roomid,door_x,door_y,door_z,door_dir,heightmap,poolmap) VALUES ('" + room.RoomId + "', '" + doorX + "','" +
+                                      doorY + "','" + doorZ.ToString(CultureInfo.InvariantCulture).Replace(',', '.') + "','" + doorOrientation + "',@newmodel,'')");
+                    queryReactor.AddParameter("newmodel", heightMap);
+                    queryReactor.RunQuery();
+
+                    room.RoomData.WallHeight = wallHeight;
+                    room.RoomData.WallThickness = wallThickness;
+                    room.RoomData.FloorThickness = floorThickness;
+                    room.RoomData.Model.DoorZ = doorZ;
+
+                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoHoleFurniCount", 1, false);
+
+                    queryReactor.RunFastQuery(
+                        string.Format(
+                            "UPDATE rooms_data SET model_name = 'custom', wallthick = '{0}', floorthick = '{1}', walls_height = '{2}' WHERE id = {3};",
+                            wallThickness, floorThickness, wallHeight, room.RoomId));
+                    RoomModel roomModel = new RoomModel((int)doorX, (int)doorY, (double)doorZ, (int)doorOrientation, (string)heightMap, "", false, "");
+                    Azure.GetGame().GetRoomManager().UpdateCustomModel(room.RoomId, roomModel);
+                    room.ResetGameMap("custom", wallHeight, wallThickness, floorThickness);
+                    Azure.GetGame().GetRoomManager().UnloadRoom(room, "Reload floor");
+
+                    var ForwardToRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
+                    ForwardToRoom.AppendInteger(room.RoomId);
+                    Session.SendMessage(ForwardToRoom);
+                }
             }
         }
 

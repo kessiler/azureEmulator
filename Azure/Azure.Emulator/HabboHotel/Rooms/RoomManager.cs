@@ -337,32 +337,6 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Loads the new model.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        internal void LoadNewModel(string model)
-        {
-            if (_roomModels.Contains(model)) _roomModels.Remove(model);
-
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.SetQuery(
-                    "SELECT id,door_x,door_y,door_z,door_dir,heightmap,public_items,club_only,poolmap FROM rooms_models WHERE id = @model");
-                queryReactor.AddParameter("model", model);
-                var table = queryReactor.GetTable();
-                if (table == null) return;
-                foreach (DataRow row in table.Rows)
-                {
-                    var staticFurniMap = (string)row["public_items"];
-                    _roomModels.Add(model,
-                        new RoomModel((int)row["door_x"], (int)row["door_y"], (double)row["door_z"],
-                            (int)row["door_dir"], (string)row["heightmap"], staticFurniMap,
-                            Azure.EnumToBool(row["club_only"].ToString()), (string)row["poolmap"]));
-                }
-            }
-        }
-
-        /// <summary>
         /// Loads the models.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
@@ -405,6 +379,23 @@ namespace Azure.HabboHotel.Rooms
                     new RoomModel((int)row["door_x"], (int)row["door_y"], (double)row["door_z"],
                         (int)row["door_dir"],
                         (string)row["heightmap"], "", false, ""));
+            }
+        }
+
+        /// <summary>
+        /// Update the existent model.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        internal void UpdateCustomModel(uint roomId, RoomModel modelData)
+        {
+            string modelId = string.Format("custom_{0}", roomId);
+            if (_roomModels.ContainsKey(modelId))
+            {
+                _roomModels[modelId] = modelData;
+            }
+            else
+            {
+                _roomModels.Add(modelId, modelData);
             }
         }
 
