@@ -38,36 +38,62 @@ namespace Azure.HabboHotel.Commands.List
             }
             poll.answersPositive = 0;
             poll.answersNegative = 0;
-            var message = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollMessageComposer"));
-            message.AppendString("MATCHING_POLL");
-            message.AppendInteger(poll.Id); //poll id
-            message.AppendInteger(poll.Id); //question_id
-            message.AppendInteger(15580);
-            message.AppendInteger(poll.Id); //question_id
-            message.AppendInteger(29); //number
-            message.AppendInteger(5); //type
-            message.AppendString(poll.PollName);
-            client.GetHabbo().CurrentRoom.SendMessage(message);
-            Thread ShowPoll = new Thread(delegate () { MatchingPollResults(client.GetHabbo().CurrentRoom, poll); });
+            MatchingPollAnswer(client, poll);
+            Thread ShowPoll = new Thread(delegate () { MatchingPollResults(client, poll); });
             ShowPoll.Start();
             return true;
         }
 
-        internal static void MatchingPollResults(Room room, Poll poll)
+        internal static void MatchingPollAnswer(GameClient client, Poll poll)
         {
+            if (poll == null || poll.Type != Poll.PollType.Matching)
+                return;
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollMessageComposer"));
+            message.AppendString("MATCHING_POLL");
+            message.AppendInteger(poll.Id);
+            message.AppendInteger(poll.Id);
+            message.AppendInteger(15580);
+            message.AppendInteger(poll.Id);
+            message.AppendInteger(29);
+            message.AppendInteger(5);
+            message.AppendString(poll.PollName);
+            client.GetHabbo().CurrentRoom.SendMessage(message);
+        }
+
+        internal static void MatchingPollResults(GameClient client, Poll poll)
+        {
+            Room room = client.GetHabbo().CurrentRoom;
             if (poll == null || poll.Type != Poll.PollType.Matching || room == null)
                 return;
-            for(int i = 0; i < 10; i++)
+
+            var users = room.GetRoomUserManager().GetRoomUsers();
+
+            for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(1000);
-                var result = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollResultMessageComposer"));
-                result.AppendInteger(poll.Id);//question_id
-                result.AppendInteger(2);//while
-                result.AppendString("0");
-                result.AppendInteger(poll.answersNegative);
-                result.AppendString("1");
-                result.AppendInteger(poll.answersPositive);
-                room.SendMessage(result);
+                foreach (var roomUser in users)
+                {
+                    var user = Azure.GetHabboById(roomUser.UserId);
+                    if (user.answeredPool == true)
+                    {
+                        var result = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollResultMessageComposer"));
+                        result.AppendInteger(poll.Id);
+                        result.AppendInteger(2);
+                        result.AppendString("0");
+                        result.AppendInteger(poll.answersNegative);
+                        result.AppendString("1");
+                        result.AppendInteger(poll.answersPositive);
+                        room.SendMessage(result);
+                    }
+                }
+            }
+            foreach (var roomUser in users)
+            {
+                var user = Azure.GetHabboById(roomUser.UserId);
+                if (user.answeredPool == true)
+                {
+                    user.answeredPool = false;
+                }
             }
         }
     }

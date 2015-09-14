@@ -2240,20 +2240,15 @@ namespace Azure.Messages.Handlers
                     list.Add(Request.GetString());
                 var text = string.Join("\r\n", list);
                 var poll = Azure.GetGame().GetPollManager().TryGetPollById(pollId);
-                if (poll != null && poll.Type == Poll.PollType.Matching)//MATCHING_POLL
+                if (poll != null && poll.Type == Poll.PollType.Matching)
                 {
-                    if (text == "1") { poll.answersPositive++; }
-                    else { poll.answersNegative++; }
+                    if (text == "1") { poll.answersPositive++; } else { poll.answersNegative++; }
                     ServerMessage Answered = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollAnsweredMessageComposer"));
                     Answered.AppendInteger(Session.GetHabbo().Id);
                     Answered.AppendString(text);
-                    Answered.AppendInteger(0);//count
-                    /*Answered.AppendInteger(2);//count
-                    Answered.AppendString("0");
-                    Answered.AppendInteger(poll.answersNegative);
-                    Answered.AppendString("1");
-                    Answered.AppendInteger(poll.answersPositive);*/
+                    Answered.AppendInteger(0);
                     Session.SendMessage(Answered);
+                    Session.GetHabbo().answeredPool = true;
                     return;
                 }
                 Session.GetHabbo().AnsweredPolls.Add(pollId);

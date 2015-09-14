@@ -145,6 +145,9 @@ namespace Azure.HabboHotel.Users
         /// </summary>
         internal int BobbaFiltered = 0;
 
+        // NEW
+        internal bool answeredPool = false;
+
         /// <summary>
         /// The teleporter identifier
         /// </summary>
