@@ -552,7 +552,7 @@ namespace Azure.HabboHotel.Rooms
                 _room.GetSoccer().UnRegisterGate(item);
             if (item.GetBaseItem().InteractionType != Interaction.Gift)
                 item.Interactor.OnRemove(session, item);
-            if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.PressurePadBed) 
+            if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.PressurePadBed)
                 _room._containsBeds--;
             RemoveRoomItem(item, wasPicked);
         }
@@ -1108,6 +1108,7 @@ namespace Azure.HabboHotel.Rooms
         internal void OnCycle()
         {
             if (GotRollers)
+            {
                 try
                 {
                     _room.SendMessage(CycleRollers());
@@ -1118,19 +1119,23 @@ namespace Azure.HabboHotel.Rooms
                         string.Format("rollers for room with ID {0}", _room.RoomId));
                     GotRollers = false;
                 }
-            if (_roomItemUpdateQueue.Count <= 0) return;
-            var list = new List<RoomItem>();
-            lock (_roomItemUpdateQueue.SyncRoot)
+            }
+            if (_roomItemUpdateQueue.Count > 0)
             {
-                while (_roomItemUpdateQueue.Count > 0)
+                List<RoomItem> addItems = new List<RoomItem>();
+                lock (_roomItemUpdateQueue.SyncRoot)
                 {
-                    var roomItem = (RoomItem)_roomItemUpdateQueue.Dequeue();
-                    roomItem.ProcessUpdates();
-                    if (roomItem.IsTrans || roomItem.UpdateCounter > 0)
-                        list.Add(roomItem);
+                    while (_roomItemUpdateQueue.Count > 0)
+                    {
+                        RoomItem roomItem = (RoomItem)_roomItemUpdateQueue.Dequeue();
+                        roomItem.ProcessUpdates();
+
+                        if (roomItem.IsTrans || roomItem.UpdateCounter > 0)
+                            addItems.Add(roomItem);
+                    }
+                    foreach (RoomItem item in addItems)
+                        _roomItemUpdateQueue.Enqueue(item);
                 }
-                foreach (var current in list)
-                    _roomItemUpdateQueue.Enqueue(current);
             }
         }
 

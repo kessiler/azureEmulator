@@ -15,7 +15,7 @@ namespace Azure.Connection.Connection
     /// <summary>
     /// Class ConnectionInformation.
     /// </summary>
-    public class ConnectionInformation
+    public class ConnectionInformation : IDisposable
     {
 
         private Socket _socket;
@@ -125,7 +125,8 @@ namespace Azure.Connection.Connection
                     {
                         _socket.Shutdown(SocketShutdown.Both);
                         _socket.Close();
-                    } catch(Exception) {} // silent
+                    }
+                    catch (Exception) { } // silent
                 }
                 _connected = false;
                 Parser.Dispose();
@@ -219,7 +220,7 @@ namespace Azure.Connection.Connection
         /// </summary>
         public void StartPacketProcessing()
         {
-            ReadAsync();
+            if (_connected) ReadAsync();
         }
 
         /// <summary>

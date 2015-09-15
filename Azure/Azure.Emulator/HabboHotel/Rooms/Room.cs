@@ -169,16 +169,12 @@ namespace Azure.HabboHotel.Rooms
         private Queue _roomKick;
 
         /// <summary>
-        /// The _room thread
-        /// </summary>
-        private Thread _roomThread;
-
-        /// <summary>
         /// The _process timer
         /// </summary>
         private Timer _processTimer;
 
         internal DateTime LastTimerReset;
+        internal bool isCycling;
 
         /// <summary>
         /// The just loaded
@@ -373,14 +369,6 @@ namespace Azure.HabboHotel.Rooms
         internal bool GotFreeze()
         {
             return _freeze != null;
-        }
-
-        /// <summary>
-        /// Starts the room processing.
-        /// </summary>
-        internal void StartRoomProcessing()
-        {
-            _processTimer = new Timer(ProcessRoom, null, 500, 500);
         }
 
         /// <summary>
@@ -752,6 +740,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         internal void ProcessRoom(object callItem)
         {
+            isCycling = true;
             try
             {
                 if (_isCrashed || Disposed || Azure.ShutdownStarted)
@@ -769,7 +758,7 @@ namespace Azure.HabboHotel.Rooms
 
                     if (!_mCycleEnded)
                     {
-                        if ((_idleTime >= 20 && !JustLoaded) || (_idleTime >= 100 && JustLoaded))
+                        if ((_idleTime >= 25 && !JustLoaded) || (_idleTime >= 100 && JustLoaded))
                         {
                             Azure.GetGame().GetRoomManager().UnloadRoom(this, "No users");
                             return;
@@ -782,12 +771,16 @@ namespace Azure.HabboHotel.Rooms
 
                     if (_gameItemHandler != null)
                         _gameItemHandler.OnCycle();
+
                     if (_game != null)
                         _game.OnCycle();
+
                     if (GotBanzai())
                         _banzai.OnCycle();
+
                     if (GotSoccer())
                         _soccer.OnCycle();
+
                     if (GetRoomMusicController() != null)
                         GetRoomMusicController().Update(this);
 
@@ -803,6 +796,10 @@ namespace Azure.HabboHotel.Rooms
             catch (Exception e)
             {
                 Logging.LogCriticalException(string.Format("Sub crash in room cycle: {0}", e));
+            }
+            finally
+            {
+                isCycling = false;
             }
         }
 
@@ -1307,9 +1304,8 @@ namespace Azure.HabboHotel.Rooms
 
             if (!forceLoad)
             {
-                _roomThread = new Thread(StartRoomProcessing);
-                _roomThread.Name = "Room Loader";
-                _roomThread.Start();
+                if (_processTimer != null || !isCycling)
+                    _processTimer = new Timer(ProcessRoom, null, 500, 500);
             }
             Azure.GetGame().GetRoomManager().QueueActiveRoomAdd(RoomData);
         }

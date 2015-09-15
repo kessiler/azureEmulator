@@ -103,7 +103,7 @@ namespace Azure.Connection.Connection
             {
                 _listener = new TcpListener(IPAddress.Any, _portInformation);
                 _listener.Start();
-                _listener.BeginAcceptSocket(OnAcceptSocket, null);
+                _listener.BeginAcceptSocket(OnAcceptSocket, _listener);
                 SocketConnectionCheck.SetupTcpAuthorization(20000);
             }
             catch (SocketException ex)
@@ -143,7 +143,7 @@ namespace Azure.Connection.Connection
             }
 
 
-            _listener.BeginAcceptSocket(OnAcceptSocket, null);
+            _listener.BeginAcceptSocket(OnAcceptSocket, _listener);
         }
 
         /// <summary>
