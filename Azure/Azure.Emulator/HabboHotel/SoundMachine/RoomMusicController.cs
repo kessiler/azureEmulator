@@ -290,10 +290,8 @@ namespace Azure.HabboHotel.SoundMachine
         /// </summary>
         public void SetNextSong()
         {
-            {
-                SongQueuePosition++;
-                PlaySong();
-            }
+            SongQueuePosition++;
+            PlaySong();
         }
 
         /// <summary>

@@ -737,6 +737,9 @@ namespace Azure.HabboHotel.Items
                 case "moplaseed":
                     return Interaction.Moplaseed;
 
+                case "raremoplaseed":
+                    return Interaction.RareMoplaSeed;
+
                 case "fireworks":
                     return Interaction.Fireworks;
 

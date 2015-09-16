@@ -132,21 +132,13 @@ namespace Azure.HabboHotel.Support
             get
             {
                 if (Status == TicketStatus.Open)
-                {
                     return 1;
-                }
                 if (Status == TicketStatus.Picked)
-                {
                     return 2;
-                }
-                if (Status == TicketStatus.Abusive || Status == TicketStatus.Invalid || Status == TicketStatus.Resolved)
-                {
+                if ((Status == TicketStatus.Abusive) || (Status == TicketStatus.Invalid) || (Status == TicketStatus.Resolved))
                     return 0;
-                }
                 if (Status == TicketStatus.Deleted)
-                {
                     return 0;
-                }
                 return 0;
             }
         }
@@ -167,10 +159,9 @@ namespace Azure.HabboHotel.Support
             Status = TicketStatus.Picked;
             ModeratorId = pModeratorId;
             _modName = Azure.GetHabboById(pModeratorId).UserName;
+
             if (!updateInDb)
-            {
                 return;
-            }
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("UPDATE moderation_tickets SET status = 'picked', moderator_id = ", pModeratorId, ", timestamp = '", Azure.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
@@ -185,22 +176,25 @@ namespace Azure.HabboHotel.Support
         internal void Close(TicketStatus newStatus, bool updateInDb)
         {
             Status = newStatus;
+
             if (!updateInDb)
-            {
                 return;
-            }
-            string text;
+
+            string text = "resolved";
+
             switch (newStatus)
             {
                 case TicketStatus.Abusive:
                     text = "abusive";
-                    goto IL_41;
+                    break;
                 case TicketStatus.Invalid:
                     text = "invalid";
-                    goto IL_41;
+                    break;
+                case TicketStatus.Resolved:
+                    text = "resolved";
+                    break;            
             }
-            text = "resolved";
-        IL_41:
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("UPDATE moderation_tickets SET status = '", text, "' WHERE id = ", TicketId));
@@ -214,10 +208,10 @@ namespace Azure.HabboHotel.Support
         internal void Release(bool updateInDb)
         {
             Status = TicketStatus.Open;
+
             if (!updateInDb)
-            {
                 return;
-            }
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'open' WHERE id = {0}", TicketId));
@@ -232,9 +226,8 @@ namespace Azure.HabboHotel.Support
         {
             Status = TicketStatus.Deleted;
             if (!updateInDb)
-            {
                 return;
-            }
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'deleted' WHERE id = {0}", TicketId));
@@ -250,7 +243,7 @@ namespace Azure.HabboHotel.Support
         {
             message.AppendInteger(TicketId); // id
             message.AppendInteger(TabId); // state
-            message.AppendInteger(Type); // type (3 or 4 for new style)
+            message.AppendInteger(3); // type (3 or 4 for new style)
             message.AppendInteger(Category);
             message.AppendInteger((Azure.GetUnixTimeStamp() - (int)Timestamp) * 1000); // -->> timestamp
             message.AppendInteger(Score); // priority
@@ -265,6 +258,7 @@ namespace Azure.HabboHotel.Support
             message.AppendInteger(0); // is room public?
 
             message.AppendInteger(ReportedChats.Count);
+
             foreach (string str in ReportedChats)
             {
                 message.AppendString(str);

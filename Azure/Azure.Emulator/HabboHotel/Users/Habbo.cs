@@ -934,6 +934,8 @@ namespace Azure.HabboHotel.Users
                             string.Format(
                                 "UPDATE moderation_tickets SET status='open', moderator_id=0 WHERE status='picked' AND moderator_id={0}",
                                 Id));
+
+                    queryReactor.RunFastQuery("UPDATE users SET block_newfriends = " + Convert.ToInt32(HasFriendRequestsDisabled) + ", hide_online = " + Convert.ToInt32(AppearOffline) + ", hide_inroom = " + Convert.ToInt32(HideInRoom) + " WHERE id = " + Id);
                 }
             }
             if (InRoom && CurrentRoom != null)

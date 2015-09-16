@@ -1704,6 +1704,7 @@ namespace Azure.HabboHotel.Items
                         break;
 
                     case Interaction.Moplaseed:
+                    case Interaction.RareMoplaSeed:
                         message.AppendInteger(0);
                         message.AppendInteger(1);
                         message.AppendInteger(1);
@@ -1779,7 +1780,7 @@ namespace Azure.HabboHotel.Items
                                        GetBaseItem().InteractionType == Interaction.YoutubeTv ||
                                        GetBaseItem().InteractionType == Interaction.Background)
                     ? 2
-                    : ((GetBaseItem().InteractionType == Interaction.Moplaseed || GetBaseItem().Modes > 1)
+                    : (((GetBaseItem().InteractionType == Interaction.Moplaseed || GetBaseItem().InteractionType == Interaction.RareMoplaSeed) || GetBaseItem().Modes > 1)
                         ? 1
                         : 0));
                 message.AppendInteger(IsBuilder ? -12345678 : Convert.ToInt32(UserId)); //-12345678 for bc

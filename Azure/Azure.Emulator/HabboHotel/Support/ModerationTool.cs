@@ -216,10 +216,10 @@ namespace Azure.HabboHotel.Support
         internal static void AlertUser(GameClient modSession, uint userId, string message, bool caution)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             if (clientByUserId == null)
-            {
                 return;
-            }
+
             clientByUserId.SendModeratorMessage(message);
         }
 
@@ -233,6 +233,7 @@ namespace Azure.HabboHotel.Support
         internal static void LockTrade(GameClient modSession, uint userId, string message, int length)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             if (clientByUserId == null)
                 return;
 
@@ -621,10 +622,9 @@ namespace Azure.HabboHotel.Support
             DataTable table2 = dbClient.GetTable();
             dbClient.SetQuery("SELECT * FROM moderation_templates");
             DataTable table3 = dbClient.GetTable();
+
             if (table == null || table2 == null)
-            {
                 return;
-            }
             foreach (DataRow dataRow in table.Rows)
             {
                 var item = (string)dataRow["message"];
@@ -633,23 +633,17 @@ namespace Azure.HabboHotel.Support
                 if (a != "message")
                 {
                     if (a == "roommessage")
-                    {
                         RoomMessagePresets.Add(item);
-                    }
                 }
                 else
-                {
                     UserMessagePresets.Add(item);
-                }
             }
+
             foreach (DataRow dataRow2 in table2.Rows)
-            {
                 SupportTicketHints.Add((string)dataRow2[0], (string)dataRow2[1]);
-            }
+
             foreach (DataRow dataRow3 in table3.Rows)
-            {
                 ModerationTemplates.Add(uint.Parse(dataRow3["id"].ToString()), new ModerationTemplate(uint.Parse(dataRow3["id"].ToString()), short.Parse(dataRow3["category"].ToString()), dataRow3["cName"].ToString(), dataRow3["caption"].ToString(), dataRow3["warning_message"].ToString(), dataRow3["ban_message"].ToString(), short.Parse(dataRow3["ban_hours"].ToString()), dataRow3["avatar_ban"].ToString() == "1", dataRow3["mute"].ToString() == "1", dataRow3["trade_lock"].ToString() == "1"));
-            }
         }
 
         /// <summary>
@@ -781,19 +775,22 @@ namespace Azure.HabboHotel.Support
         internal void CloseTicket(GameClient session, uint ticketId, int result)
         {
             SupportTicket ticket = GetTicket(ticketId);
+
             if (ticket == null || ticket.Status != TicketStatus.Picked || ticket.ModeratorId != session.GetHabbo().Id)
-            {
                 return;
-            }
-            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(ticket.SenderId);
-            int i;
+
+            Habbo senderUser = Azure.GetHabboById(ticket.SenderId);
+
+            int i = 0;
+
             TicketStatus newStatus;
+
             switch (result)
             {
                 case 1:
                     i = 1;
                     newStatus = TicketStatus.Invalid;
-                    goto IL_9E;
+                    break;
                 case 2:
                     i = 2;
                     newStatus = TicketStatus.Abusive;
@@ -801,13 +798,45 @@ namespace Azure.HabboHotel.Support
                     {
                         AbusiveCooldown.Add(ticket.SenderId, Azure.GetUnixTimeStamp() + 600);
                         queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {0}", ticket.SenderId));
-                        goto IL_9E;
                     }
+                    break;
+                case 0:
+                default:
+                    i = 0;
+                    newStatus = TicketStatus.Resolved;
+                    break;
             }
-            i = 0;
-            newStatus = TicketStatus.Resolved;
-            IL_9E:
-            if (clientByUserId != null && (ticket.Type != 3 && ticket.Type != 4))
+
+            if (!senderUser.Disconnected)
+            {
+                GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(ticket.SenderId);
+
+                if ((clientByUserId != null) && (ticket.Type != 3 && ticket.Type != 4))
+                {
+                    foreach (SupportTicket current2 in Tickets.FindAll(current => current.ReportedId == ticket.ReportedId && current.Status == TicketStatus.Picked))
+                    {
+                        current2.Delete(true);
+                        SendTicketToModerators(current2);
+                        current2.Close(newStatus, true);
+                    }
+
+                    clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationToolUpdateIssueMessageComposer"));
+                    clientByUserId.GetMessageHandler().GetResponse().AppendInteger(1);
+                    clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.TicketId);
+                    clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.ModeratorId);
+                    clientByUserId.GetMessageHandler()
+                                  .GetResponse()
+                                  .AppendString((Azure.GetHabboById(ticket.ModeratorId) != null)
+                                                ? Azure.GetHabboById(ticket.ModeratorId).UserName
+                                                : "Undefined");
+                    clientByUserId.GetMessageHandler().GetResponse().AppendBool(false);
+                    clientByUserId.GetMessageHandler().GetResponse().AppendInteger(0);
+                    clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationTicketResponseMessageComposer"));
+                    clientByUserId.GetMessageHandler().GetResponse().AppendInteger(i);
+                    clientByUserId.GetMessageHandler().SendResponse();
+                }
+            }
+            else
             {
                 foreach (SupportTicket current2 in Tickets.FindAll(current => current.ReportedId == ticket.ReportedId && current.Status == TicketStatus.Picked))
                 {
@@ -815,21 +844,8 @@ namespace Azure.HabboHotel.Support
                     SendTicketToModerators(current2);
                     current2.Close(newStatus, true);
                 }
-                clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationToolUpdateIssueMessageComposer"));
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(1);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.TicketId);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.ModeratorId);
-                clientByUserId.GetMessageHandler()
-                              .GetResponse()
-                              .AppendString((Azure.GetHabboById(ticket.ModeratorId) != null)
-                                            ? Azure.GetHabboById(ticket.ModeratorId).UserName
-                                            : "Undefined");
-                clientByUserId.GetMessageHandler().GetResponse().AppendBool(false);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(0);
-                clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationTicketResponseMessageComposer"));
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(i);
-                clientByUserId.GetMessageHandler().SendResponse();
             }
+
             using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={0} LIMIT 1", session.GetHabbo().Id));

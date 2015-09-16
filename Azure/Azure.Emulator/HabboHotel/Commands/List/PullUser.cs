@@ -29,6 +29,12 @@ namespace Azure.HabboHotel.Commands.List
             var user = room.GetRoomUserManager().GetRoomUserByHabbo(session.GetHabbo().Id);
             if (user == null) return true;
 
+            if(room.RoomData.DisablePull)
+            {
+                session.SendWhisper("Realizar Pull Foi Desativado pelo Dono do Quarto");
+                return true;
+            }
+        
             var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {

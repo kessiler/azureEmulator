@@ -83,18 +83,13 @@ namespace Azure.HabboHotel.Commands.List
                         result.AppendInteger(poll.answersNegative);
                         result.AppendString("1");
                         result.AppendInteger(poll.answersPositive);
-                        room.SendMessage(result);
+                        client.SendMessage(result);
                     }
                 }
             }
+
             foreach (var roomUser in users)
-            {
-                var user = Azure.GetHabboById(roomUser.UserId);
-                if (user.answeredPool == true)
-                {
-                    user.answeredPool = false;
-                }
-            }
+                Azure.GetHabboById(roomUser.UserId).answeredPool = false;
         }
     }
 }

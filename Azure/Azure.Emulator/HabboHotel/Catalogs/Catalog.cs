@@ -712,6 +712,10 @@ namespace Azure.HabboHotel.Catalogs
                                 extraData = new Random().Next(0, 12).ToString();
                                 break;
 
+                            case Interaction.RareMoplaSeed:
+                                extraData = new Random().Next(10, 12).ToString();
+                                break;
+
                             case Interaction.MusicDisc:
                                 var song = SongManager.GetSongById(item.SongId);
                                 if (song != null)

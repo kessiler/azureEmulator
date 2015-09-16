@@ -22,11 +22,12 @@ namespace Azure.Messages.Handlers
             var userId = Request.GetIntegerFromString();
             var message = Request.GetString();
             var guideManager = Azure.GetGame().GetGuideManager();
+
             if (guideManager.GuidesCount <= 0)
             {
-                Response.Init(LibraryParser.OutgoingRequest("OnGuideSessionError"));
-                Response.AppendInteger(0);
-                SendResponse();
+                var errorTrue = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionError"));
+                errorTrue.AppendInteger(0);
+                Session.SendMessage(errorTrue);
                 return;
             }
 
@@ -37,11 +38,13 @@ namespace Azure.Messages.Handlers
             onGuideSessionAttached.AppendString(message);
             onGuideSessionAttached.AppendInteger(30);
             Session.SendMessage(onGuideSessionAttached);
+
             var onGuideSessionAttached2 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
             onGuideSessionAttached2.AppendBool(true);
             onGuideSessionAttached2.AppendInteger(userId);
             onGuideSessionAttached2.AppendString(message);
             onGuideSessionAttached2.AppendInteger(15);
+
             guide.SendMessage(onGuideSessionAttached2);
             guide.GetHabbo().GuideOtherUser = Session;
             Session.GetHabbo().GuideOtherUser = guide;
@@ -53,8 +56,10 @@ namespace Azure.Messages.Handlers
         internal void AnswerGuideRequest()
         {
             var state = Request.GetBool();
+
             if (!state)
                 return;
+
             var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionStartedMessageComposer"));
             message.AppendInteger(requester.GetHabbo().Id);
@@ -73,8 +78,12 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CancelCallGuide()
         {
-            Response.Init(3485); ///BUG: IMPORTANT 
-            SendResponse();
+            //Response.Init(3485); ///BUG: IMPORTANT 
+            //SendResponse();
+
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            Session.SendMessage(message);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1, false);
         }
 
         /// <summary>

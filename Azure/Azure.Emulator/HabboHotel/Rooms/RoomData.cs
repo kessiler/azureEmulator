@@ -39,6 +39,10 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         internal string Type;
 
+        internal bool DisablePush = false;
+
+        internal bool DisablePull = false;
+
         /// <summary>
         /// The owner
         /// </summary>

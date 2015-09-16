@@ -618,6 +618,7 @@ namespace Azure.Messages.Handlers
                         return;
                     }
                 case Interaction.Moplaseed:
+                case Interaction.RareMoplaSeed:
                     {
                         if (!hasRightsOne)
                             return;
@@ -1110,8 +1111,8 @@ namespace Azure.Messages.Handlers
             {
                 int.TryParse(array[2], out amount);
 
-                Session.GetHabbo().Diamonds += amount;
-                Session.GetHabbo().UpdateSeasonalCurrencyBalance();
+                Session.GetHabbo().Credits += amount;
+                Session.GetHabbo().UpdateCreditsBalance();
             }
             else
             {

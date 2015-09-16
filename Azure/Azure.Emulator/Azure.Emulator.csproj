@@ -164,6 +164,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Reflection" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Windows.Forms" />
@@ -179,10 +180,20 @@
     <Compile Include="HabboHotel\Catalogs\TargetedOffers.cs" />
     <Compile Include="HabboHotel\Commands\Command.cs" />
     <Compile Include="HabboHotel\Commands\CommandsManager.cs" />
+    <Compile Include="HabboHotel\Commands\List\AddVideo.cs" />
+    <Compile Include="HabboHotel\Commands\List\DisablePush.cs" />
     <Compile Include="HabboHotel\Commands\List\DisconnectUser.cs" />
     <Compile Include="HabboHotel\Commands\List\FloodUser.cs" />
+    <Compile Include="HabboHotel\Commands\List\HideInRoom.cs" />
+    <Compile Include="HabboHotel\Commands\List\DisablePull.cs" />
+    <Compile Include="HabboHotel\Commands\List\Offline.cs" />
+    <Compile Include="HabboHotel\Commands\List\GiveRank.cs" />
     <Compile Include="HabboHotel\Commands\List\GoInvisible.cs" />
     <Compile Include="HabboHotel\Commands\List\HotelAlertLink.cs" />
+    <Compile Include="HabboHotel\Commands\List\LTD.cs" />
+    <Compile Include="HabboHotel\Commands\List\MakePrivate.cs" />
+    <Compile Include="HabboHotel\Commands\List\MakePublic.cs" />
+    <Compile Include="HabboHotel\Commands\List\SayAll.cs" />
     <Compile Include="HabboHotel\Commands\List\StartQuestion.cs" />
     <Compile Include="HabboHotel\Commands\List\AddBlackWord.cs" />
     <Compile Include="HabboHotel\Commands\List\DeleteBlackWord.cs" />
@@ -198,6 +209,8 @@
     <Compile Include="HabboHotel\Commands\List\Restart.cs" />
     <Compile Include="HabboHotel\Commands\List\SpullUser.cs" />
     <Compile Include="HabboHotel\Commands\List\StaffAlert.cs" />
+    <Compile Include="HabboHotel\Commands\List\WhisperHotel.cs" />
+    <Compile Include="HabboHotel\Commands\List\WhisperRoom.cs" />
     <Compile Include="HabboHotel\Items\HighscoreData.cs" />
     <Compile Include="HabboHotel\Items\HighScoreLine.cs" />
     <Compile Include="HabboHotel\Items\HopperHandler.cs" />

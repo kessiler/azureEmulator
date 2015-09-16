@@ -44,9 +44,12 @@ namespace Azure.HabboHotel.Commands
 
             CommandsDictionary.Add("about", new About());
             CommandsDictionary.Add("friends", new Friends());
+            CommandsDictionary.Add("status", new Offline());
+            CommandsDictionary.Add("followable", new HideInRoom());
             CommandsDictionary.Add("commands", new CommandList());
             CommandsDictionary.Add("disable_diagonal", new DisableDiagonal());
             CommandsDictionary.Add("setvideos", new SetVideos());
+            CommandsDictionary.Add("setvideo", new AddVideo());
             CommandsDictionary.Add("follow", new FollowUser());
             CommandsDictionary.Add("faq", new UserFaq());
 
@@ -77,11 +80,23 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("reload", new Unload(true));
             CommandsDictionary.Add("setspeed", new SetSpeed());
 
+            CommandsDictionary.Add("disablepull", new DisablePull());
+            CommandsDictionary.Add("disablepush", new DisablePush());
+
             #endregion Room Actions
 
             #region Staff
 
+            CommandsDictionary.Add("whisperroom", new WhisperRoom());
+            CommandsDictionary.Add("whisperhotel", new WhisperHotel());
+            CommandsDictionary.Add("giverank", new GiveRank());
+            CommandsDictionary.Add("makepublic", new MakePublic());
+            CommandsDictionary.Add("makeprivate", new MakePrivate());
+            CommandsDictionary.Add("sayall", new SayAll());
+
+
             CommandsDictionary.Add("refresh_navigator", new RefreshNavigator());
+            CommandsDictionary.Add("ltd", new LTD());
             CommandsDictionary.Add("refresh_quests", new RefreshQuests());
             CommandsDictionary.Add("refresh_polls", new RefreshPolls());
             CommandsDictionary.Add("refresh_achievements", new RefreshAchievements());

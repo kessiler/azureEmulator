@@ -665,6 +665,8 @@ namespace Azure.HabboHotel.Items
         /// </summary>
         Moplaseed,
 
+        RareMoplaSeed,
+
         /// <summary>
         /// The fireworks
         /// </summary>

@@ -1,6 +1,7 @@
 #region
 
 using System;
+using System.Data;
 using System.Linq;
 using Azure.Configuration;
 using Azure.Connection.Connection;
@@ -219,9 +220,8 @@ namespace Azure.HabboHotel.GameClients
                     .RegisterClient(this, userData.UserId, userData.User.UserName);
                 _habbo = userData.User;
                 userData.User.LoadData(userData);
-                var banReason = Azure.GetGame()
-                    .GetBanManager()
-                    .GetBanReason(userData.User.UserName, ip, MachineId);
+                var banReason = Azure.GetGame().GetBanManager().GetBanReason(userData.User.UserName, ip, MachineId);
+
                 if (!string.IsNullOrEmpty(banReason) || userData.User.UserName == null)
                 {
                     SendNotifWithScroll(banReason);
@@ -242,6 +242,31 @@ namespace Azure.HabboHotel.GameClients
                     }
                     return false;
                 }
+
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.SetQuery(string.Format("SELECT ip_last FROM users WHERE id={0}", GetHabbo().Id));
+                    DataRow row = queryReactor.GetRow();
+
+                    if ((string)row["ip"] != ip)
+                        queryReactor.RunFastQuery(string.Format("UPDATE users SET ip_last={0} WHERE id={1}", ip, GetHabbo().Id));
+                }
+
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.SetQuery(string.Format("SELECT username FROM users WHERE ip_last={0}", ip));
+                    DataTable table = queryReactor.GetTable();
+
+                    int count = 1;
+
+                    foreach (DataRow dataRow in table.Rows)
+                        if ((string)dataRow["username"] != GetHabbo().UserName)
+                            count++;
+
+                    if (count > 1)
+                        return false;
+                }
+
                 userData.User.Init(this, userData);
                 var queuedServerMessage = new QueuedServerMessage(_connection);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UniqueMachineIDMessageComposer"));

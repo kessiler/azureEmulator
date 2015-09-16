@@ -171,7 +171,7 @@ namespace Azure.HabboHotel.Items
                 message.AppendBool(false);
                 message.AppendString(ExtraData);
             }
-            else if (BaseItem.InteractionType == Interaction.Moplaseed)
+            else if ((BaseItem.InteractionType == Interaction.Moplaseed) && (BaseItem.InteractionType == Interaction.RareMoplaSeed))
             {
                 message.AppendInteger(1);
                 message.AppendInteger(1);

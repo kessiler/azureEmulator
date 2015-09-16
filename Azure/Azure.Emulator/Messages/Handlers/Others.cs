@@ -237,7 +237,10 @@ namespace Azure.Messages.Handlers
         {
             if (Session == null || Session.GetHabbo() != null)
                 return;
-            Session.TryLogin(Request.GetString());
+
+            if (Session.TryLogin(Request.GetString()) == false)
+                Session.Disconnect("banned");
+
             if (Session != null)
                 Session.TimePingedReceived = DateTime.Now;
         }
@@ -267,7 +270,7 @@ namespace Azure.Messages.Handlers
             Response.AppendBool(false);
             SendResponse();
             Response.Init(LibraryParser.OutgoingRequest("BuildersClubMembershipMessageComposer"));
-            Response.AppendInteger(Session.GetHabbo().BuildersExpire);
+            Response.AppendInteger(uint.MaxValue);
             Response.AppendInteger(Session.GetHabbo().BuildersItemsMax);
             Response.AppendInteger(2);
             SendResponse();

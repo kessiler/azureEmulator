@@ -56,9 +56,11 @@ namespace Azure.HabboHotel.Users.Authenticator
             {
             }
 
+            //AQUI
             var hasFriendRequestsDisabled = Azure.EnumToBool(dRow["block_newfriends"].ToString());
             var appearOffline = Azure.EnumToBool(dRow["hide_online"].ToString());
             var hideInRoom = Azure.EnumToBool(dRow["hide_inroom"].ToString());
+            // TERMINA
             var vip = Azure.EnumToBool(dRow["vip"].ToString());
             var createDate = Convert.ToDouble(dRow["account_created"]);
             var online = Azure.EnumToBool(dRow["online"].ToString());

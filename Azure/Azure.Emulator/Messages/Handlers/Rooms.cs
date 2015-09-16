@@ -1647,7 +1647,7 @@ namespace Azure.Messages.Handlers
             if (room == null || mopla == null)
                 return;
 
-            if (mopla.GetBaseItem().InteractionType != Interaction.Moplaseed)
+            if ((mopla.GetBaseItem().InteractionType != Interaction.Moplaseed) && (mopla.GetBaseItem().InteractionType != Interaction.RareMoplaSeed))
                 return;
             if (string.IsNullOrEmpty(mopla.ExtraData) || mopla.ExtraData == "0")
                 rarity = 1;

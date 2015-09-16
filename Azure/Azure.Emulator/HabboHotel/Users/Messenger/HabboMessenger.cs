@@ -340,7 +340,7 @@ namespace Azure.HabboHotel.Users.Messenger
                 num = clientByUsername.GetHabbo().Id;
                 flag = clientByUsername.GetHabbo().HasFriendRequestsDisabled;
             }
-            if (flag && GetClient().GetHabbo().Rank < 4u)
+            if (flag && GetClient().GetHabbo().Rank < 4)
             {
                 GetClient()
                     .GetMessageHandler()
