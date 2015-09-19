@@ -28,7 +28,9 @@ namespace Azure.Messages.Handlers
         public void SendBullyReport()
         {
             var reportedId = Request.GetUInteger();
-            Azure.GetGame().GetModerationTool().SendNewTicket(Session, 104, 9, reportedId, "", new List<string>());
+            Azure.GetGame()
+                .GetModerationTool()
+                .SendNewTicket(Session, 104, 9, reportedId, "", new List<string>());
 
             Response.Init(LibraryParser.OutgoingRequest("BullyReportSentMessageComposer"));
             Response.AppendInteger(0);

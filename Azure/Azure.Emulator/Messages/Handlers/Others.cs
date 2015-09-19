@@ -270,7 +270,7 @@ namespace Azure.Messages.Handlers
             Response.AppendBool(false);
             SendResponse();
             Response.Init(LibraryParser.OutgoingRequest("BuildersClubMembershipMessageComposer"));
-            Response.AppendInteger(uint.MaxValue);
+            Response.AppendInteger(Session.GetHabbo().BuildersExpire);
             Response.AppendInteger(Session.GetHabbo().BuildersItemsMax);
             Response.AppendInteger(2);
             SendResponse();

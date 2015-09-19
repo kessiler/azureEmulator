@@ -1111,8 +1111,8 @@ namespace Azure.Messages.Handlers
             {
                 int.TryParse(array[2], out amount);
 
-                Session.GetHabbo().Credits += amount;
-                Session.GetHabbo().UpdateCreditsBalance();
+                Session.GetHabbo().Diamonds += amount;
+                Session.GetHabbo().UpdateSeasonalCurrencyBalance();
             }
             else
             {

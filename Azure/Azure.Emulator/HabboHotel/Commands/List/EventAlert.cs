@@ -1,10 +1,6 @@
-﻿#region
-
-using Azure.HabboHotel.GameClients;
+﻿using Azure.HabboHotel.GameClients;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.List
 {
@@ -30,13 +26,17 @@ namespace Azure.HabboHotel.Commands.List
             message.AppendString("events");
             message.AppendInteger(4);
             message.AppendString("title");
-            message.AppendString(Azure.GetLanguage().GetVar("alert_event_title"));
+            message.AppendString("Temos um novo Evento");
             message.AppendString("message");
-            message.AppendString(Azure.GetLanguage().GetVar("alert_event_message").Replace("{username}", session.GetHabbo().UserName).Replace("{extrainfo}", string.Join(" ", pms)));
+            message.AppendString(
+                "Tem um novo evento acontecendo agora mesmo!\n\nO evento está sendo feito por:    <b>" +
+                session.GetHabbo().UserName + "</b>\n\nCorra para participar antes que o quarto seja fechado! Clique em " +
+                "<i>Ir para o Evento</i>\n\nE o " +
+                "evento vai ser:\n\n<b>" + string.Join(" ", pms) + "</b>\n\nEstamos esperando você lá em!");
             message.AppendString("linkUrl");
             message.AppendString("event:navigator/goto/" + session.GetHabbo().CurrentRoomId);
             message.AppendString("linkTitle");
-            message.AppendString(Azure.GetLanguage().GetVar("alert_event_goRoom"));
+            message.AppendString("Ir para o Evento");
 
             Azure.GetGame().GetClientManager().QueueBroadcaseMessage(message);
             return true;
