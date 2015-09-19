@@ -933,10 +933,6 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="pOverride">if set to <c>true</c> [p override].</param>
         internal void MoveTo(int x, int y, bool pOverride)
         {
-            if (GetRoom().GetGameMap().SquareHasUsers(x, y) && !pOverride || !CanWalk) return;
-
-            if (!GetRoom().MovedToBed(this, ref x, ref y)) return;
-
             if (TeleportEnabled)
             {
                 UnIdle();
@@ -950,7 +946,7 @@ namespace Azure.HabboHotel.Rooms
                 GetRoom().GetRoomUserManager().UpdateUserStatus(this, false);
                 return;
             }
-            
+            if (GetRoom().GetGameMap().SquareHasUsers(x, y) && !pOverride) return;
             if (Frozen) return;
 
             var coordItemSearch = new CoordItemSearch(GetRoom().GetGameMap().CoordinatedItems);

@@ -69,9 +69,9 @@ namespace Azure
         /// </summary>
         internal static uint StaffAlertMinRank = 4, FriendRequestLimit = 1000;
 
-          /// <summary>
+        /// <summary>
         /// Bobba Filter Muted Users by Filter
-          /// </summary>
+        /// </summary>
         internal static Dictionary<uint, uint> MutedUsersByFilter;
 
         /// <summary>
@@ -266,35 +266,11 @@ namespace Azure
         /// </summary>
         internal static void Initialize()
         {
-            Console.Clear();
-            Console.SetWindowSize(Console.LargestWindowWidth > 149 ? 150 : Console.WindowWidth, Console.LargestWindowHeight > 49 ? 50 : Console.WindowHeight);
-            Console.SetCursorPosition(0, 0);
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.WriteLine();
-            Console.WriteLine(@"     " + @"                                            |         |              ");
-            Console.WriteLine(@"     " + @",---.,---,.   .,---.,---.    ,---.,-.-..   .|    ,---.|--- ,---.,---.");
-            Console.WriteLine(@"     " + @",---| .-' |   ||    |---'    |---'| | ||   ||    ,---||    |   ||    ");
-            Console.WriteLine(@"     " + @"`---^'---'`---'`    `---'    `---'` ' '`---'`---'`---^`---'`---'`    ");
-            Console.WriteLine();
-            Console.WriteLine(@"     " + @"  BUILD " + Version + "." + Build + " RELEASE 63B CRYPTO BOTH SIDE");
-            Console.WriteLine(@"     " + @"  .NET Framework "+ Environment.Version +"     C# 6 Roslyn");
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Black;
-
-            Console.WriteLine(
-                Console.LargestWindowWidth > 149
-                ? @"---------------------------------------------------------------------------------------------------------------------------------------------------"
-                : @"-------------------------------------------------------------------------");
-
-            #region Precheck
-
             Console.Title = "Azure Emulator | Loading [...]";
             ServerStarted = DateTime.Now;
             defaultEncoding = Encoding.Default;
             MutedUsersByFilter = new Dictionary<uint, uint>();
             ChatEmotions.Initialize();
-
-            #endregion Precheck
 
             #region Database Connection
 
@@ -320,8 +296,7 @@ namespace Azure
                     DefaultCommandTimeout = (300u),
                     ConnectionTimeout = (10u)
                 };
-                MySqlConnectionStringBuilder mySqlConnectionStringBuilder2 = mySqlConnectionStringBuilder;
-                Manager = new DatabaseManager(mySqlConnectionStringBuilder2.ToString(), DatabaseConnectionType);
+                Manager = new DatabaseManager(mySqlConnectionStringBuilder.ToString(), DatabaseConnectionType);
                 using (var queryReactor = GetDatabaseManager().GetQueryReactor())
                 {
                     ConfigData = new ConfigData(queryReactor);
@@ -331,7 +306,7 @@ namespace Azure
                     OfflineMessage.InitOfflineMessages(queryReactor);
                 }
 
-                #endregion Database Connection
+            #endregion Database Connection
 
                 #region Packets Registering
 
@@ -459,10 +434,10 @@ namespace Azure
                 if (ConfigurationData.Data.ContainsKey("StaffAlert.MinRank"))
                     StaffAlertMinRank = uint.Parse(ConfigurationData.Data["StaffAlert.MinRank"]);
 
-                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInMainLoops.enabled")&& ConfigurationData.Data["SeparatedTasksInMainLoops.enabled"] == "true")
+                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInMainLoops.enabled") && ConfigurationData.Data["SeparatedTasksInMainLoops.enabled"] == "true")
                     SeparatedTasksInMainLoops = true;
 
-                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInGameClientManager.enabled")&& ConfigurationData.Data["SeparatedTasksInGameClientManager.enabled"] == "true")
+                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInGameClientManager.enabled") && ConfigurationData.Data["SeparatedTasksInGameClientManager.enabled"] == "true")
                     SeparatedTasksInGameClientManager = true;
 
                 if (ConfigurationData.Data.ContainsKey("Debug"))
@@ -491,7 +466,7 @@ namespace Azure
                     Environment.Exit(1);
             }
 
-            #endregion Tasks and MusSystem
+                #endregion Tasks and MusSystem
         }
 
         /// <summary>
@@ -652,7 +627,7 @@ namespace Azure
                     }
                 }
             }
-            catch{}
+            catch { }
             return null;
         }
 
@@ -876,21 +851,18 @@ namespace Azure
                     sb.Append(keyInfo.KeyChar);
                     Console.Write(mask);
                 }
-                else
+                else if (keyInfo.Key == ConsoleKey.Backspace && sb.Length > 0)
                 {
-                    if (keyInfo.Key == ConsoleKey.Backspace && sb.Length > 0)
-                    {
-                        sb.Remove(sb.Length - 1, 1);
+                    sb.Remove(sb.Length - 1, 1);
 
-                        if (Console.CursorLeft == 0)
-                        {
-                            Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
-                            Console.Write(' ');
-                            Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
-                        }
-                        else
-                            Console.Write("\b \b");
+                    if (Console.CursorLeft == 0)
+                    {
+                        Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
+                        Console.Write(' ');
+                        Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
                     }
+                    else
+                        Console.Write("\b \b");
                 }
             }
             Console.WriteLine();

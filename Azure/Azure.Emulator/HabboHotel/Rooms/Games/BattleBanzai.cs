@@ -12,6 +12,7 @@ using Azure.HabboHotel.Items;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
+using System.Collections.Specialized;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Azure.HabboHotel.Rooms.Games
 {
     internal class BattleBanzai
     {
-        internal Hashtable BanzaiTiles;
+        internal HybridDictionary BanzaiTiles;
         private Room _room;
         private QueuedDictionary<uint, RoomItem> _pucks;
         private byte[,] _floorMap;
@@ -30,7 +31,7 @@ namespace Azure.HabboHotel.Rooms.Games
         public BattleBanzai(Room room)
         {
             _room = room;
-            BanzaiTiles = new Hashtable();
+            BanzaiTiles = new HybridDictionary();
             IsBanzaiActive = false;
             _pucks = new QueuedDictionary<uint, RoomItem>();
             _timestarted = 0.0;
@@ -38,7 +39,7 @@ namespace Azure.HabboHotel.Rooms.Games
 
         internal void AddTile(RoomItem item, uint itemId)
         {
-            if (BanzaiTiles.ContainsKey(itemId)) 
+            if (BanzaiTiles.Contains(itemId)) 
                 return;
 
             BanzaiTiles.Add(itemId, item);
@@ -76,19 +77,18 @@ namespace Azure.HabboHotel.Rooms.Games
                 int differenceX = user.X - roomItem.X;
                 int differenceY = user.Y - roomItem.Y;
 
-                if (differenceX > 1 || differenceX < -1 || differenceY > 1 || differenceY < -1)
-                {
-                    int newX = (differenceX*-1) + roomItem.X;
-                    int newY = (differenceY*-1) + roomItem.Y;
+                if (differenceX > 1 || differenceX < -1 || differenceY > 1 || differenceY < -1) 
+                    continue;
+                int newX = (differenceX*-1) + roomItem.X;
+                int newY = (differenceY*-1) + roomItem.Y;
 
-                    if (roomItem.InteractingBallUser == user.UserId && _room.GetGameMap().ValidTile(newX, newY))
-                    {
-                        roomItem.InteractingBallUser = 0;
-                        MovePuck(roomItem, user.GetClient(), user.Coordinate, roomItem.Coordinate, 6, user.Team);
-                    }
-                    else if (_room.GetGameMap().ValidTile(newX, newY))
-                        MovePuck(roomItem, user.GetClient(), newX, newY, user.Team);
+                if (roomItem.InteractingBallUser == user.UserId && _room.GetGameMap().ValidTile(newX, newY))
+                {
+                    roomItem.InteractingBallUser = 0;
+                    MovePuck(roomItem, user.GetClient(), user.Coordinate, roomItem.Coordinate, 6, user.Team);
                 }
+                else if (_room.GetGameMap().ValidTile(newX, newY))
+                    MovePuck(roomItem, user.GetClient(), newX, newY, user.Team);
             }
 
             if (IsBanzaiActive)

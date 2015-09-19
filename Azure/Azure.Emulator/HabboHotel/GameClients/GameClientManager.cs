@@ -57,12 +57,15 @@ namespace Azure.HabboHotel.GameClients
         /// </summary>
         private readonly HybridDictionary _idUserNameRegister;
 
+        private readonly ConcurrentQueue<GameClient> clientsAddQueue;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GameClientManager"/> class.
         /// </summary>
         internal GameClientManager()
         {
             Clients = new ConcurrentDictionary<uint, GameClient>();
+            clientsAddQueue = new ConcurrentQueue<GameClient>();
             _badgeQueue = new Queue();
             _broadcastQueue = new ConcurrentQueue<byte[]>();
             _userNameRegister = new HybridDictionary();
@@ -79,7 +82,7 @@ namespace Azure.HabboHotel.GameClients
         {
             return Clients.Count;
         }
-    
+
 
         /// <summary>
         /// Gets the client by user identifier.
@@ -208,6 +211,7 @@ namespace Azure.HabboHotel.GameClients
         {
             try
             {
+                AddClients();
                 GiveBadges();
                 BroadcastPackets();
                 Azure.GetGame().ClientManagerCycleEnded = true;
@@ -268,7 +272,7 @@ namespace Azure.HabboHotel.GameClients
         {
             var gameClient = new GameClient(clientId, connection);
             Clients.AddOrUpdate(clientId, gameClient, (key, value) => gameClient);
-            gameClient.StartConnection();
+            clientsAddQueue.Enqueue(gameClient);
         }
 
         /// <summary>
@@ -281,7 +285,6 @@ namespace Azure.HabboHotel.GameClients
 
             if (client != null)
                 client.Stop();
-
             Clients.TryRemove(clientId, out client);
         }
 
@@ -421,6 +424,18 @@ namespace Azure.HabboHotel.GameClients
             var old = (GameClient)_userNameRegister[oldName.ToLower()];
             _userNameRegister.Remove(oldName.ToLower());
             _userNameRegister.Add(newName.ToLower(), old);
+        }
+
+        private void AddClients()
+        {
+            if (clientsAddQueue.Count > 0)
+            {
+                GameClient client;
+                while (clientsAddQueue.TryDequeue(out client))
+                {
+                    client.StartConnection();
+                }
+            }
         }
 
         /// <summary>

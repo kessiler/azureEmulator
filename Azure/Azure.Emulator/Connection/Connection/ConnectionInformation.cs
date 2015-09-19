@@ -144,20 +144,19 @@ namespace Azure.Connection.Connection
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
-                int bytesReceived = dataSocket.EndReceive(async);
-                if (bytesReceived != 0)
+                if (_socket != null && _socket.Connected && _connected)
                 {
-                    byte[] array = new byte[bytesReceived];
-                    Array.Copy(_buffer, array, bytesReceived);
-                    lock (array)
+                    int bytesReceived = dataSocket.EndReceive(async);
+                    if (bytesReceived != 0)
                     {
-
+                        byte[] array = new byte[bytesReceived];
+                        Array.Copy(_buffer, array, bytesReceived);
                         HandlePacketData(array, bytesReceived);
                     }
-                }
-                else
-                {
-                    Disconnect();
+                    else
+                    {
+                        Disconnect();
+                    }
                 }
             }
             catch (Exception exception)
@@ -194,7 +193,14 @@ namespace Azure.Connection.Connection
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
-                dataSocket.EndSend(async);
+                if (_socket != null && _socket.Connected && _connected)
+                {
+                    dataSocket.EndSend(async);
+                }
+                else
+                {
+                    Disconnect();
+                }
             }
             catch (Exception exception)
             {
@@ -220,7 +226,14 @@ namespace Azure.Connection.Connection
         /// </summary>
         public void StartPacketProcessing()
         {
-            if (_connected) ReadAsync();
+            if (_connected && _socket.Connected)
+            {
+                ReadAsync();
+            }
+            else
+            {
+                Dispose();
+            }
         }
 
         /// <summary>

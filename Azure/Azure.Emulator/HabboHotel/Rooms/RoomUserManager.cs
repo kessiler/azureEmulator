@@ -1409,25 +1409,22 @@ namespace Azure.HabboHotel.Rooms
             {
                 if (RoomUsers.Statusses.ContainsKey("mv"))
                     RoomUsers.ClearMovement();
-                return;
+            }
+            else
+            {
+                // If he Want's to Walk.. Let's Continue!..
+
+                // Let's go to The Tile! And Walk :D
+                UserGoToTile(RoomUsers, invalidStep);
+                // If User isn't Riding, Must Update Statusses...
+                if (!RoomUsers.RidingHorse)
+                    RoomUsers.UpdateNeeded = true;
             }
 
-            // If he Want's to Walk.. Let's Continue!..
-
-            // Let's go to The Tile! And Walk :D
-            UserGoToTile(RoomUsers, invalidStep);
-
-            // If User isn't Riding, Must Update Statusses...
-            if (!RoomUsers.RidingHorse)
-                RoomUsers.UpdateNeeded = true;
-
             // If is a Bot.. Let's Tick the Time Count of Bot..
-            if ((RoomUsers.IsBot) && (!RoomUsers.IsPet))
+            if (RoomUsers.IsBot)
                 RoomUsers.BotAI.OnTimerTick();
-
-            // If is a Pet and is not ridding.. Let's Tick the Time Count of Bot..
-            if ((!RoomUsers.RidingHorse) && (RoomUsers.IsPet))
-                RoomUsers.BotAI.OnTimerTick();
+            UpdateUserEffect(RoomUsers, RoomUsers.X, RoomUsers.Y);
         }
 
         /// <summary>
@@ -1443,21 +1440,28 @@ namespace Azure.HabboHotel.Rooms
             lock (RemoveUsers)
                 RemoveUsers.Clear();
 
-            // Check Disco Procedure...
-            if ((UserRoom != null) && (UserRoom.DiscoMode) && (UserRoom.TonerData != null) && (UserRoom.TonerData.Enabled == 1))
+            try
             {
-                RoomItem TonerItem = UserRoom.GetRoomItemHandler().GetItem(UserRoom.TonerData.ItemId);
-
-                if (TonerItem != null)
+                // Check Disco Procedure...
+                if ((UserRoom != null) && (UserRoom.DiscoMode) && (UserRoom.TonerData != null) && (UserRoom.TonerData.Enabled == 1))
                 {
-                    UserRoom.TonerData.Data1 = Azure.GetRandomNumber(0, 255);
-                    UserRoom.TonerData.Data2 = Azure.GetRandomNumber(0, 255);
-                    UserRoom.TonerData.Data3 = Azure.GetRandomNumber(0, 255);
+                    RoomItem TonerItem = UserRoom.GetRoomItemHandler().GetItem(UserRoom.TonerData.ItemId);
 
-                    ServerMessage TonerComposingMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateRoomItemMessageComposer"));
-                    TonerItem.Serialize(TonerComposingMessage);
-                    UserRoom.SendMessage(TonerComposingMessage);
+                    if (TonerItem != null)
+                    {
+                        UserRoom.TonerData.Data1 = Azure.GetRandomNumber(0, 255);
+                        UserRoom.TonerData.Data2 = Azure.GetRandomNumber(0, 255);
+                        UserRoom.TonerData.Data3 = Azure.GetRandomNumber(0, 255);
+
+                        ServerMessage TonerComposingMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateRoomItemMessageComposer"));
+                        TonerItem.Serialize(TonerComposingMessage);
+                        UserRoom.SendMessage(TonerComposingMessage);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Writer.Writer.LogException("Disco mode: " + e);
             }
 
             // Region: Main User Procedure... Really Main..
@@ -1610,7 +1614,7 @@ namespace Azure.HabboHotel.Rooms
 
                 if (!user.IsSpectator)
                 {
-                    var model = UserRoom.GetGameMap().Model;
+                    DynamicRoomModel model = UserRoom.GetGameMap().Model;
                     if (model == null) return;
                     user.SetPos(model.DoorX, model.DoorY, model.DoorZ);
                     user.SetRot(model.DoorOrientation, false);
@@ -1682,14 +1686,17 @@ namespace Azure.HabboHotel.Rooms
                             .ProgressUserAchievement(client, "ACH_RoomEntry", 1, false);
                     }
                 }
-                if (client.GetHabbo().GetMessenger() != null) client.GetHabbo().GetMessenger().OnStatusChanged(true);
+                if (client.GetHabbo().GetMessenger() != null) 
+                    client.GetHabbo().GetMessenger().OnStatusChanged(true);
                 client.GetMessageHandler().OnRoomUserAdd();
 
                 //if (client.GetHabbo().HasFuse("fuse_mod")) client.GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(102);
                 //if (client.GetHabbo().Rank == Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"])) client.GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(178);
 
-                if (OnUserEnter != null) OnUserEnter(user, null);
-                if (UserRoom.GotMusicController() && UserRoom.GotMusicController()) UserRoom.GetRoomMusicController().OnNewUserEnter(user);
+                if (OnUserEnter != null) 
+                    OnUserEnter(user, null);
+                if (UserRoom.GotMusicController() && UserRoom.GotMusicController()) 
+                    UserRoom.GetRoomMusicController().OnNewUserEnter(user);
                 UserRoom.OnUserEnter(user);
             }
             catch (Exception ex)
@@ -1707,7 +1714,7 @@ namespace Azure.HabboHotel.Rooms
             try
             {
                 if (user == null || user.GetClient() == null) return;
-                var client = user.GetClient();
+                GameClient client = user.GetClient();
                 var list = UserList.Values.Where(current => current.IsBot && !current.IsPet && current.BotAI != null);
                 var list2 = new List<RoomUser>();
 
@@ -1758,7 +1765,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         public void OnUserUpdateStatus()
         {
-            foreach (var current in UserList.Values)
+            foreach (RoomUser current in UserList.Values)
                 UpdateUserStatus(current, false);
         }
 
@@ -1769,7 +1776,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         public void OnUserUpdateStatus(int x, int y)
         {
-            foreach (var current in UserList.Values.Where(current => current.X == x && current.Y == y))
+            foreach (RoomUser current in UserList.Values.Where(current => current.X == x && current.Y == y))
                 UpdateUserStatus(current, false);
         }
 

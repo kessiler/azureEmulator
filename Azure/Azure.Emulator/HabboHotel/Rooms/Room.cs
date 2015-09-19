@@ -880,7 +880,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="messages">The messages.</param>
         internal void SendMessage(List<ServerMessage> messages)
         {
-            if (!messages.Any())
+            if (messages.Count == 0)
                 return;
 
             try

@@ -245,26 +245,7 @@ namespace Azure.HabboHotel.GameClients
 
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.SetQuery(string.Format("SELECT ip_last FROM users WHERE id={0}", GetHabbo().Id));
-                    DataRow row = queryReactor.GetRow();
-
-                    if ((string)row["ip"] != ip)
-                        queryReactor.RunFastQuery(string.Format("UPDATE users SET ip_last={0} WHERE id={1}", ip, GetHabbo().Id));
-                }
-
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.SetQuery(string.Format("SELECT username FROM users WHERE ip_last={0}", ip));
-                    DataTable table = queryReactor.GetTable();
-
-                    int count = 1;
-
-                    foreach (DataRow dataRow in table.Rows)
-                        if ((string)dataRow["username"] != GetHabbo().UserName)
-                            count++;
-
-                    if (count > 1)
-                        return false;
+                    queryReactor.RunFastQuery(string.Format("UPDATE users SET ip_last='{0}' WHERE id={1}", ip, GetHabbo().Id));
                 }
 
                 userData.User.Init(this, userData);
@@ -273,14 +254,12 @@ namespace Azure.HabboHotel.GameClients
                 serverMessage.AppendString(MachineId);
                 queuedServerMessage.AppendResponse(serverMessage);
                 queuedServerMessage.AppendResponse(new ServerMessage(LibraryParser.OutgoingRequest("AuthenticationOKMessageComposer")));
-                // @issue #99
-                if (_habbo != null)
-                {
-                    var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("HomeRoomMessageComposer"));
-                    serverMessage2.AppendInteger(_habbo.HomeRoom);
-                    serverMessage2.AppendInteger(_habbo.HomeRoom);
-                    queuedServerMessage.AppendResponse(serverMessage2);
-                }
+                    
+                var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("HomeRoomMessageComposer"));
+                serverMessage2.AppendInteger(_habbo.HomeRoom);
+                serverMessage2.AppendInteger(_habbo.HomeRoom);
+                queuedServerMessage.AppendResponse(serverMessage2);
+
                 serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("MinimailCountMessageComposer"));
                 serverMessage.AppendInteger(_habbo.MinimailUnreadMessages);
                 queuedServerMessage.AppendResponse(serverMessage);

@@ -1012,7 +1012,7 @@ namespace Azure.HabboHotel.Catalogs
                         session.GetHabbo().GetAvatarEffectsInventoryComponent().AddNewEffect(item.SpriteId, 7200, 0);
                     return list;
                 }
-                if (a == 'r')
+                else if (a == 'r')
                 {
                     if (item.Name == "bot_bartender")
                     {

@@ -52,13 +52,14 @@ namespace Azure.HabboHotel.PathFinding
         {
             var list = new List<Vector2D>();
             var pathFinderNode = FindPathReversed(user, diag, map, start, end);
-            if (pathFinderNode == null)
-                return list;
-            list.Add(end);
-            while (pathFinderNode.Next != null)
+            if (pathFinderNode != null)
             {
-                list.Add(pathFinderNode.Next.Position);
-                pathFinderNode = pathFinderNode.Next;
+                list.Add(end);
+                while (pathFinderNode.Next != null)
+                {
+                    list.Add(pathFinderNode.Next.Position);
+                    pathFinderNode = pathFinderNode.Next;
+                }
             }
             return list;
         }
@@ -82,18 +83,16 @@ namespace Azure.HabboHotel.PathFinding
             PathFinderMap[PathFinderStart.Position.X, PathFinderStart.Position.Y] = PathFinderStart;
             MinSpanTreeCost.Add(PathFinderStart);
 
-            int loop_variable_one, InternalSpanTreeCost, loop_total_cost;
+            int InternalSpanTreeCost, loop_total_cost;
 
             while (MinSpanTreeCost.Count > 0)
             {
                 PathFinderStart = MinSpanTreeCost.ExtractFirst();
                 PathFinderStart.InClosed = true;
 
-                loop_variable_one = 0;
-
-                while ((WhatIsDiag ? (loop_variable_one < DiagMovePoints.Length) : (loop_variable_one < NoDiagMovePoints.Length)))
+                for (int index = 0; (WhatIsDiag ? (index < DiagMovePoints.Length ? 1 : 0) : (index < NoDiagMovePoints.Length ? 1 : 0)) != 0; index++)
                 {
-                    Vector2D RealEndPosition = PathFinderStart.Position + (WhatIsDiag ? DiagMovePoints[loop_variable_one] : NoDiagMovePoints[loop_variable_one]);
+                    Vector2D RealEndPosition = PathFinderStart.Position + (WhatIsDiag ? DiagMovePoints[index] : NoDiagMovePoints[index]);
 
                     bool IsEndOfPath = ((RealEndPosition.X == EndMap.X) && (RealEndPosition.Y == EndMap.Y));
 
@@ -142,8 +141,6 @@ namespace Azure.HabboHotel.PathFinding
                             }
                         }
                     }
-
-                    loop_variable_one++;
                 }
             }
             return null;

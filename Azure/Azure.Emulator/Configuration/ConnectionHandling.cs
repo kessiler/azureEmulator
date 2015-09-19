@@ -57,6 +57,7 @@ namespace Azure.Configuration
         {
             try
             {
+                connection.Dispose();
                 Azure.GetGame().GetClientManager().DisposeConnection((uint)connection.GetConnectionId());
             }
             catch (Exception ex)

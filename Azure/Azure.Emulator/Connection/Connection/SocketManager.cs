@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Net.Sockets;
 using Azure.Messages.Parsers;
+using Azure.Configuration;
 
 #endregion
 
@@ -101,10 +102,10 @@ namespace Azure.Connection.Connection
         {
             try
             {
+                SocketConnectionCheck.SetupTcpAuthorization(20000);
                 _listener = new TcpListener(IPAddress.Any, _portInformation);
                 _listener.Start();
                 _listener.BeginAcceptSocket(OnAcceptSocket, _listener);
-                SocketConnectionCheck.SetupTcpAuthorization(20000);
             }
             catch (SocketException ex)
             {
@@ -126,21 +127,21 @@ namespace Azure.Connection.Connection
         {
             try
             {
-                var socket = _listener.EndAcceptSocket(ar);
-                if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
+                Socket socket = _listener.EndAcceptSocket(ar);
+                if (socket.Connected)
                 {
-                    socket.NoDelay = _disableNagleAlgorithm;
-                    acceptedConnections++;
-                    var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
-                    connectionInfo.Disconnected = OnChannelDisconnect;
-                    connectionInfo.MessageReceived = OnMessage;
-                    OnClientConnected(connectionInfo);
+                    if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
+                    {
+                        socket.NoDelay = _disableNagleAlgorithm;
+                        acceptedConnections++;
+                        var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
+                        connectionInfo.Disconnected = OnChannelDisconnect;
+                        connectionInfo.MessageReceived = OnMessage;
+                        OnClientConnected(connectionInfo);
+                    }
                 }
             }
-            catch (Exception exception)
-            {
-                Writer.Writer.LogException("Error OnAcceptSocket: " + exception.Message);
-            }
+            catch (Exception){}
 
 
             _listener.BeginAcceptSocket(OnAcceptSocket, _listener);

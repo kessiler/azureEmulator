@@ -184,6 +184,9 @@ namespace Azure.HabboHotel
                 uint achievementLoaded;
                 uint pollLoaded;
 
+                Progress(bar, wait, end, "Cleaning dirty in database...");
+                DatabaseStartupCleanup(queryReactor);
+
                 Progress(bar, wait, end, "Loading Bans...");
                 _banManager = new ModerationBanManager();
                 _banManager.LoadBans(queryReactor);
@@ -302,7 +305,7 @@ namespace Azure.HabboHotel
         /// <value>The game loop sleep time ext.</value>
         internal int GameLoopSleepTimeExt
         {
-            get { return 1000; }
+            get { return 25; }
         }
 
         /// <summary>
@@ -319,11 +322,17 @@ namespace Azure.HabboHotel
                 bar.Step();
         }
 
+
+        private static void DatabaseStartupCleanup(IQueryAdapter dbClient)
+        {
+            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
+        }
+
         /// <summary>
         /// Databases the cleanup.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
-        internal static void DatabaseCleanup(IQueryAdapter dbClient)
+        internal static void DatabaseShutdownCleanup(IQueryAdapter dbClient)
         {
             dbClient.RunFastQuery("UPDATE users SET online = '0' WHERE online <> '0'");
             dbClient.RunFastQuery("UPDATE rooms_data SET users_now = 0 WHERE users_now <> 0");
@@ -581,7 +590,7 @@ namespace Azure.HabboHotel
         internal void Destroy()
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                DatabaseCleanup(queryReactor);
+                DatabaseShutdownCleanup(queryReactor);
             GetClientManager();
             Out.WriteLine("Client Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
         }

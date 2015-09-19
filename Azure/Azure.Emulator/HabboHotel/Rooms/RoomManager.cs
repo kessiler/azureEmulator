@@ -189,11 +189,10 @@ namespace Azure.HabboHotel.Rooms
                 return LoadedRoomData[roomId];
             }
 
-            var roomData = new RoomData();
-
             if (IsRoomLoaded(roomId))
                 return GetRoom(roomId).RoomData;
 
+            var roomData = new RoomData();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("SELECT * FROM rooms_data WHERE id = {0} LIMIT 1", roomId));

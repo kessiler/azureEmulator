@@ -1,55 +1,46 @@
-#region
-
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using Azure.Configuration;
 using Azure.HabboHotel.GameClients;
 using Azure.HabboHotel.Items;
 using Azure.HabboHotel.Pathfinding;
 using Azure.HabboHotel.PathFinding;
 using Azure.HabboHotel.Rooms.Games;
-using Azure.HabboHotel.Rooms.Wired.Handlers;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using Azure.HabboHotel.Rooms.Wired.Handlers;
 
 namespace Azure.HabboHotel.Rooms
 {
     /// <summary>
     /// Class Gamemap.
     /// </summary>
-    internal class Gamemap
+    class Gamemap
     {
         /// <summary>
         /// The diagonal enabled
         /// </summary>
         internal bool DiagonalEnabled;
-
         /// <summary>
         /// The got public pool
         /// </summary>
         internal bool GotPublicPool;
-
         /// <summary>
         /// The serialized floormap
         /// </summary>
         internal ServerMessage SerializedFloormap;
-
         /// <summary>
         /// The walkable list
         /// </summary>
         internal HashSet<Point> WalkableList;
-
         /// <summary>
         /// The _room
         /// </summary>
-        private Room UserRoom;
-
+        private Room _room;
         /// <summary>
         /// The _user map
         /// </summary>
@@ -62,7 +53,7 @@ namespace Azure.HabboHotel.Rooms
         /// <exception cref="System.Exception"></exception>
         public Gamemap(Room room)
         {
-            UserRoom = room;
+            _room = room;
             DiagonalEnabled = true;
             StaticModel = Azure.GetGame().GetRoomManager().GetModel(room.RoomData.ModelName, room.RoomId);
             if (StaticModel == null)
@@ -82,36 +73,30 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <value>The model.</value>
         internal DynamicRoomModel Model { get; private set; }
-
         /// <summary>
         /// Gets the static model.
         /// </summary>
         /// <value>The static model.</value>
         internal RoomModel StaticModel { get; private set; }
-
         /// <summary>
         /// Gets the effect map.
         /// </summary>
         /// <value>The effect map.</value>
         internal byte[,] EffectMap { get; private set; }
-
         /// <summary>
         /// Gets the coordinated items.
         /// </summary>
         /// <value>The coordinated items.</value>
         internal HybridDictionary CoordinatedItems { get; private set; }
-
         /// <summary>
         /// The guild gates
         /// </summary>
         internal Dictionary<Point, RoomItem> GuildGates;
-
         /// <summary>
         /// Gets the game map.
         /// </summary>
         /// <value>The game map.</value>
         internal byte[,] GameMap { get; private set; }
-
         /// <summary>
         /// Gets the item height map.
         /// </summary>
@@ -124,10 +109,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="pState">State of the p.</param>
         /// <param name="pOverride">if set to <c>true</c> [p override].</param>
         /// <returns><c>true</c> if this instance can walk the specified p state; otherwise, <c>false</c>.</returns>
-        internal static bool CanWalk(byte pState, bool pOverride)
-        {
-            return pOverride || pState == 3 || pState == 1;
-        }
+        internal static bool CanWalk(byte pState, bool pOverride) { return pOverride || pState == 3 || pState == 1; }
 
         /// <summary>
         /// Gets the affected tiles.
@@ -290,10 +272,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <param name="coord">The coord.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool MapGotUser(Point coord)
-        {
-            return GetRoomUsers(coord).Any();
-        }
+        internal bool MapGotUser(Point coord) { return GetRoomUsers(coord).Any(); }
 
         /// <summary>
         /// Gets the room users.
@@ -382,10 +361,7 @@ namespace Azure.HabboHotel.Rooms
         /// Adds to map.
         /// </summary>
         /// <param name="item">The item.</param>
-        internal void AddToMap(RoomItem item)
-        {
-            AddItemToMap(item, true);
-        }
+        internal void AddToMap(RoomItem item) { AddItemToMap(item, true); }
 
         /// <summary>
         /// Updates the map for item.
@@ -412,7 +388,7 @@ namespace Azure.HabboHotel.Rooms
 
                 if (checkLines)
                 {
-                    var roomItema = UserRoom.GetRoomItemHandler().FloorItems.Values.ToArray();
+                    var roomItema = _room.GetRoomItemHandler().FloorItems.Values.ToArray();
                     foreach (var roomItems in roomItema)
                     {
                         if (roomItems.X > Model.MapSizeX && roomItems.X > xMap)
@@ -532,12 +508,12 @@ namespace Azure.HabboHotel.Rooms
                     }
                 }
 
-                var roomItem = UserRoom.GetRoomItemHandler().FloorItems.Values;
+                var roomItem = _room.GetRoomItemHandler().FloorItems.Values;
                 roomItem.Any(t => !AddItemToMap(t));
 
-                if (!UserRoom.RoomData.AllowWalkThrough)
+                if (!_room.RoomData.AllowWalkThrough)
                 {
-                    foreach (var current in UserRoom.GetRoomUserManager().UserList.Values)
+                    foreach (var current in _room.GetRoomUserManager().UserList.Values)
                     {
                         current.SqState = GameMap[current.X, current.Y];
                         GameMap[current.X, current.Y] = 0;
@@ -581,7 +557,7 @@ namespace Azure.HabboHotel.Rooms
         internal List<RoomItem> GetCoordinatedItems(Point coord)
         {
             var point = new Point(coord.X, coord.Y);
-            if (CoordinatedItems.Contains(point) && CoordinatedItems[point] != null)
+            if (CoordinatedItems.Contains(point))
                 return (List<RoomItem>)CoordinatedItems[point];
             return new List<RoomItem>();
         }
@@ -610,8 +586,8 @@ namespace Azure.HabboHotel.Rooms
         internal bool RemoveFromMap(RoomItem item, bool handleGameItem)
         {
             RemoveSpecialItem(item);
-            if (UserRoom.GotSoccer())
-                UserRoom.GetSoccer().OnGateRemove(item);
+            if (_room.GotSoccer())
+                _room.GetSoccer().OnGateRemove(item);
             var result = false;
             foreach (var current in item.GetCoords.Where(current => RemoveCoordinatedItem(item, current)))
                 result = true;
@@ -635,7 +611,7 @@ namespace Azure.HabboHotel.Rooms
             }
             if (GuildGates.ContainsKey(item.Coordinate))
                 GuildGates.Remove(item.Coordinate);
-            UserRoom.GetRoomItemHandler().OnHeightMapUpdate(hybridDictionary.Keys);
+            _room.GetRoomItemHandler().OnHeightMapUpdate(hybridDictionary.Keys);
             hybridDictionary.Clear();
             hybridDictionary = null;
 
@@ -647,10 +623,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <param name="item">The item.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool RemoveFromMap(RoomItem item)
-        {
-            return RemoveFromMap(item, true);
-        }
+        internal bool RemoveFromMap(RoomItem item) { return RemoveFromMap(item, true); }
 
         /// <summary>
         /// Adds the item to map.
@@ -674,7 +647,7 @@ namespace Azure.HabboHotel.Rooms
                         case Interaction.BanzaiScoreGreen:
                         case Interaction.FreezeGreenCounter:
                         case Interaction.FreezeGreenGate:
-                            UserRoom.GetGameManager().AddFurnitureToTeam(item, Team.green);
+                            _room.GetGameManager().AddFurnitureToTeam(item, Team.green);
                             break;
 
                         case Interaction.FootballGoalYellow:
@@ -683,7 +656,7 @@ namespace Azure.HabboHotel.Rooms
                         case Interaction.BanzaiScoreYellow:
                         case Interaction.FreezeYellowCounter:
                         case Interaction.FreezeYellowGate:
-                            UserRoom.GetGameManager().AddFurnitureToTeam(item, Team.yellow);
+                            _room.GetGameManager().AddFurnitureToTeam(item, Team.yellow);
                             break;
 
                         case Interaction.FootballGoalBlue:
@@ -692,7 +665,7 @@ namespace Azure.HabboHotel.Rooms
                         case Interaction.BanzaiScoreBlue:
                         case Interaction.FreezeBlueCounter:
                         case Interaction.FreezeBlueGate:
-                            UserRoom.GetGameManager().AddFurnitureToTeam(item, Team.blue);
+                            _room.GetGameManager().AddFurnitureToTeam(item, Team.blue);
                             break;
 
                         case Interaction.FootballGoalRed:
@@ -701,11 +674,11 @@ namespace Azure.HabboHotel.Rooms
                         case Interaction.BanzaiScoreRed:
                         case Interaction.FreezeRedCounter:
                         case Interaction.FreezeRedGate:
-                            UserRoom.GetGameManager().AddFurnitureToTeam(item, Team.red);
+                            _room.GetGameManager().AddFurnitureToTeam(item, Team.red);
                             break;
 
                         case Interaction.FreezeExit:
-                            UserRoom.GetFreeze().ExitTeleport = item;
+                            _room.GetFreeze().ExitTeleport = item;
                             break;
 
                         case Interaction.GuildGate:
@@ -716,7 +689,7 @@ namespace Azure.HabboHotel.Rooms
                             }
                     }
                 else
-                    UserRoom.GetRoomItemHandler().Rollers.TryAdd(item.Id, item);
+                    _room.GetRoomItemHandler().Rollers.TryAdd(item.Id, item);
             }
             if (item.GetBaseItem().Type != 's')
                 return true;
@@ -748,7 +721,7 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if this instance can walk the specified x; otherwise, <c>false</c>.</returns>
         internal bool CanWalk(int x, int y, bool Override, uint horseId = 0u)
         {
-            return (UserRoom.RoomData.AllowWalkThrough || Override || (UserRoom.GetRoomUserManager().GetUserForSquare(x, y) == null));
+            return _room.RoomData.AllowWalkThrough || Override || _room.GetRoomUserManager().GetUserForSquare(x, y) == null;
         }
 
         /// <summary>
@@ -757,10 +730,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="item">The item.</param>
         /// <param name="newItem">if set to <c>true</c> [new item].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool AddItemToMap(RoomItem item, bool newItem = true)
-        {
-            return AddItemToMap(item, true, newItem);
-        }
+        internal bool AddItemToMap(RoomItem item, bool newItem = true) { return AddItemToMap(item, true, newItem); }
 
         /// <summary>
         /// Gets the floor status.
@@ -820,28 +790,26 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         /// Determines whether [is valid step3] [the specified user].
         /// </summary>
-        /// <param name="RoomUser">The user.</param>
-        /// <param name="ActualPosition">From.</param>
-        /// <param name="NextPosition">To.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="from">From.</param>
+        /// <param name="to">To.</param>
         /// <param name="endOfPath">if set to <c>true</c> [end of path].</param>
-        /// <param name="HasOverride">if set to <c>true</c> [override].</param>
+        /// <param name="Override">if set to <c>true</c> [override].</param>
         /// <param name="client">The client.</param>
         /// <returns><c>true</c> if [is valid step3] [the specified user]; otherwise, <c>false</c>.</returns>
-        internal bool IsValidStep3(RoomUser RoomUser, Vector2D ActualPosition, Vector2D NextPosition, bool endOfPath, bool HasOverride, GameClient client)
+        internal bool IsValidStep3(RoomUser user, Vector2D @from, Vector2D to, bool endOfPath, bool Override,
+            GameClient client)
         {
-            if (RoomUser == null)
+            if (user == null)
                 return false;
 
-            var NextPositionSquare = new Point(NextPosition.X, NextPosition.Y);
-            var RoomUsersInTile = UserRoom.GetRoomUserManager().GetUserForSquare(NextPosition.X, NextPosition.Y);
-            var RoomItemsInTile = GetCoordinatedItems(NextPositionSquare);
-
-            if ((GuildGates.ContainsKey(NextPositionSquare)) && (RoomUser.GetClient() != null) && (RoomUser.GetClient().GetHabbo() != null) && (RoomUser.GetClient().GetHabbo().UserGroups != null))
+            var square = new Point(to.X, to.Y);
+            if (GuildGates.ContainsKey(square) && user.GetClient() != null && user.GetClient().GetHabbo() != null && user.GetClient().GetHabbo().UserGroups != null)
             {
-                var roomItem = GuildGates[NextPositionSquare];
+                var roomItem = GuildGates[square];
                 var guildId = roomItem.GroupId;
-
-                if ((guildId > 0) && (RoomUser.GetClient().GetHabbo().UserGroups.Any(member => (member != null) && (member.GroupId == guildId))))
+                if (guildId > 0 &&
+                    user.GetClient().GetHabbo().UserGroups.Any(member => member != null && member.GroupId == guildId))
                 {
                     roomItem.ExtraData = "1";
                     roomItem.UpdateState();
@@ -849,29 +817,88 @@ namespace Azure.HabboHotel.Rooms
                 }
             }
 
-            if (!ValidTile(NextPosition.X, NextPosition.Y))
+            if (!ValidTile(to.X, to.Y))
                 return false;
 
-            if (HasOverride)
+            if (Override)
                 return true;
 
-            if (!CanWalk(NextPosition.X, NextPosition.Y, HasOverride))
-                return false;
-
-            if (((GameMap[NextPosition.X, NextPosition.Y] == 3) && (!endOfPath)) || (GameMap[NextPosition.X, NextPosition.Y] == 0) || ((GameMap[NextPosition.X, NextPosition.Y] == 2) && (!endOfPath)))
+            if (((GameMap[to.X, to.Y] == 3 && !endOfPath) || GameMap[to.X, to.Y] == 0 ||
+                 (GameMap[to.X, to.Y] == 2 && !endOfPath)))
             {
-                RoomUser.Path.Clear();
-                RoomUser.PathRecalcNeeded = false;
+                user.Path.Clear();
+                user.PathRecalcNeeded = false;
+
                 return false;
             }
 
-            if ((RoomUsersInTile != null) && (!RoomUsersInTile.IsWalking) && (endOfPath))
+            var userRoom = _room.GetRoomUserManager().GetUserForSquare(to.X, to.Y);
+            if (userRoom != null && !userRoom.IsWalking && endOfPath)
                 return false;
 
-            if (RoomItemsInTile.All(item => item.GetBaseItem().Walkable))
-                return true;
+            return SqAbsoluteHeight(to.X, to.Y) - SqAbsoluteHeight(@from.X, @from.Y) <= 1.5;
+        }
 
-            return ((SqAbsoluteHeight(NextPosition.X, NextPosition.Y) - SqAbsoluteHeight(ActualPosition.X, ActualPosition.Y)) <= 1.5);
+        /// <summary>
+        /// Determines whether [is valid step2] [the specified user].
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="from">From.</param>
+        /// <param name="to">To.</param>
+        /// <param name="endOfPath">if set to <c>true</c> [end of path].</param>
+        /// <param name="Override">if set to <c>true</c> [override].</param>
+        /// <returns><c>true</c> if [is valid step2] [the specified user]; otherwise, <c>false</c>.</returns>
+        internal bool IsValidStep2(RoomUser user, Point @from, Point to, bool endOfPath, bool Override)
+        {
+            if (user == null)
+                return false;
+
+            if (GuildGates.ContainsKey(to))
+            {
+                var roomItem = GuildGates[to];
+                var guildId = roomItem.GroupId;
+                if (guildId > 0)
+                    if (user.GetClient().GetHabbo() != null &&
+                        user.GetClient().GetHabbo().MyGroups != null &&
+                        user.GetClient().GetHabbo().MyGroups.Contains(guildId))
+                    {
+                        roomItem.ExtraData = "1";
+                        roomItem.UpdateState();
+                        return true;
+                    }
+            }
+            if (!ValidTile2(to.X, to.Y))
+                return false;
+            if (Override)
+                return true;
+            if (GameMap[to.X, to.Y] == 3 && !endOfPath || GameMap[to.X, to.Y] == 0 ||
+                GameMap[to.X, to.Y] == 2 && !endOfPath ||
+                SqAbsoluteHeight(to.X, to.Y) - SqAbsoluteHeight(@from.X, @from.Y) > 1.5)
+                return false;
+            var userForSquare = _room.GetRoomUserManager().GetUserForSquare(to.X, to.Y);
+            if (userForSquare != null && endOfPath && !_room.RoomData.AllowWalkThrough)
+            {
+                user.HasPathBlocked = true;
+                user.Path.Clear();
+                user.IsWalking = false;
+                user.RemoveStatus("mv");
+                _room.GetRoomUserManager().UpdateUserStatus(user, false);
+                if (user.RidingHorse && !user.IsPet && !user.IsBot)
+                {
+                    var roomUserByVirtualId =
+                        _room.GetRoomUserManager().GetRoomUserByVirtualId(Convert.ToInt32(user.HorseId));
+                    roomUserByVirtualId.IsWalking = false;
+                    roomUserByVirtualId.RemoveStatus("mv");
+                    var message = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserStatusMessageComposer"));
+                    message.AppendInteger(1);
+                    roomUserByVirtualId.SerializeStatus(message, "");
+                    user.GetClient().GetHabbo().CurrentRoom.SendMessage(message);
+                }
+            }
+            else if (userForSquare != null && !_room.RoomData.AllowWalkThrough && !userForSquare.IsWalking)
+                return false;
+            user.HasPathBlocked = false;
+            return true;
         }
 
         /// <summary>
@@ -884,7 +911,7 @@ namespace Azure.HabboHotel.Rooms
         internal bool AntiChoques(int x, int y, RoomUser user)
         {
             RoomUser roomUser;
-            UserRoom.GetRoomUserManager().ToSet.TryGetValue(new Point(x, y), out roomUser);
+            _room.GetRoomUserManager().ToSet.TryGetValue(new Point(x, y), out roomUser);
             return (roomUser == null || roomUser == user);
         }
 
@@ -913,62 +940,48 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         /// Determines whether [is valid step] [the specified user].
         /// </summary>
-        /// <param name="RoomUser">The user.</param>
-        /// <param name="StartPosition">From.</param>
-        /// <param name="NextPosition">To.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="from">From.</param>
+        /// <param name="to">To.</param>
         /// <param name="endOfPath">if set to <c>true</c> [end of path].</param>
-        /// <param name="HasOverride">if set to <c>true</c> [override].</param>
+        /// <param name="Override">if set to <c>true</c> [override].</param>
         /// <returns><c>true</c> if [is valid step] [the specified user]; otherwise, <c>false</c>.</returns>
-        internal bool IsValidStep(RoomUser RoomUser, Vector2D StartPosition, Vector2D NextPosition, bool endOfPath, bool HasOverride)
+        internal bool IsValidStep(RoomUser user, Vector2D @from, Vector2D to, bool endOfPath, bool Override)
         {
-            if (RoomUser == null)
+            if (user == null)
                 return false;
-
-            Point NextPositionSquare = new Point(NextPosition.X, NextPosition.Y);
-            RoomUser RoomUsersInTile = UserRoom.GetRoomUserManager().GetUserForSquare(NextPosition.X, NextPosition.Y);
-            List<RoomItem> RoomItemsInTile = GetCoordinatedItems(NextPositionSquare);
-
-            if ((!RoomUser.IsBot) && (!RoomUser.IsPet) && (RoomUser.GetClient() != null))
+            var square = new Point(to.X, to.Y);
+            if (user.IsBot == false && user.GetClient() != null)
             {
-                if (GuildGates.ContainsKey(NextPositionSquare))
+                if (GuildGates.ContainsKey(square))
                 {
-                    uint GroupId = GuildGates[NextPositionSquare].GroupId;
-
-                    if (GroupId > 0 && RoomUser.GetClient().GetHabbo().UserGroups.Any(member => ((member != null) && (member.GroupId == GroupId))))
-                        return true;
+                    var guildId = GuildGates[square].GroupId;
+                    if (guildId > 0 && user.GetClient().GetHabbo().UserGroups.Any(member => member != null && member.GroupId == guildId)) return true;
                 }
             }
 
-            if (!ValidTile(NextPosition.X, NextPosition.Y))
+            if (!ValidTile(to.X, to.Y))
                 return false;
-
-            if (HasOverride)
+            if (Override)
                 return true;
-
-            if (!CanWalk(NextPosition.X, NextPosition.Y, HasOverride))
+            if (GameMap[to.X, to.Y] == 3 && !endOfPath || GameMap[to.X, to.Y] == 0 ||
+                GameMap[to.X, to.Y] == 2 && !endOfPath)
                 return false;
-
-            if ((RoomUsersInTile != null) && (!RoomUsersInTile.IsWalking) && (endOfPath))
-                return false;
-
-            if (((GameMap[NextPosition.X, NextPosition.Y] == 3) && (!endOfPath)) || (GameMap[NextPosition.X, NextPosition.Y] == 0) || ((GameMap[NextPosition.X, NextPosition.Y] == 2) && (!endOfPath)))
-                return false;
-
-            if ((RoomUsersInTile != null) && (endOfPath) && (!UserRoom.RoomData.AllowWalkThrough))
+            var userForSquare = _room.GetRoomUserManager().GetUserForSquare(to.X, to.Y);
+            if (userForSquare != null && endOfPath && !_room.RoomData.AllowWalkThrough)
             {
-                RoomUser.HasPathBlocked = true;
-                RoomUser.Path.Clear();
-                RoomUser.IsWalking = false;
-                RoomUser.RemoveStatus("mv");
-                UserRoom.GetRoomUserManager().UpdateUserStatus(RoomUser, false);
-
-                if (!RoomUser.RidingHorse || RoomUser.IsPet || RoomUser.IsBot)
+                user.HasPathBlocked = true;
+                user.Path.Clear();
+                user.IsWalking = false;
+                user.RemoveStatus("mv");
+                _room.GetRoomUserManager().UpdateUserStatus(user, false);
+                if (!user.RidingHorse || user.IsPet || user.IsBot)
                     return true;
+                var roomUserByVirtualId =
+                    _room.GetRoomUserManager().GetRoomUserByVirtualId(Convert.ToInt32(user.HorseId));
 
-                RoomUser roomUserByVirtualId = UserRoom.GetRoomUserManager().GetRoomUserByVirtualId(Convert.ToInt32(RoomUser.HorseId));
-                ServerMessage message = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserStatusMessageComposer"));
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserStatusMessageComposer"));
                 message.AppendInteger(1);
-
                 if (roomUserByVirtualId != null)
                 {
                     roomUserByVirtualId.IsWalking = false;
@@ -976,15 +989,11 @@ namespace Azure.HabboHotel.Rooms
                     roomUserByVirtualId.RemoveStatus("mv");
                     roomUserByVirtualId.SerializeStatus(message, "");
                 }
-
-                RoomUser.GetClient().GetHabbo().CurrentRoom.SendMessage(message);
+                user.GetClient().GetHabbo().CurrentRoom.SendMessage(message);
             }
-            else if (RoomItemsInTile.All(item => item.GetBaseItem().Walkable))
-                return true;
-            else if ((RoomUsersInTile != null) && (!UserRoom.RoomData.AllowWalkThrough) && (!RoomUsersInTile.IsWalking))
+            else if (userForSquare != null && !_room.RoomData.AllowWalkThrough && !userForSquare.IsWalking)
                 return false;
-
-            return ((SqAbsoluteHeight(NextPosition.X, NextPosition.Y) - SqAbsoluteHeight(StartPosition.X, StartPosition.Y)) <= 1.5);
+            return SqAbsoluteHeight(to.X, to.Y) - SqAbsoluteHeight(@from.X, @from.Y) <= 1.5;
         }
 
         /// <summary>
@@ -1062,7 +1071,7 @@ namespace Azure.HabboHotel.Rooms
                         itemsOnSquare.Where(
                             item => item != null && item.GetBaseItem() != null && item.TotalHeight > highestStack))
                 {
-                    if (item.GetBaseItem().IsSeat || item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.PressurePadBed) deductable = item.GetBaseItem().Height;
+                    if (item.GetBaseItem().IsSeat || item.GetBaseItem().InteractionType == Interaction.Bed) deductable = item.GetBaseItem().Height;
                     highestStack = item.TotalHeight;
                 }
 
@@ -1084,7 +1093,7 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool ValidTile(int x, int y)
         {
-            return ((x > 0) && (y > 0) && (x < Model.MapSizeX) && (y < Model.MapSizeY));
+            return x > 0 && y > 0 && x < Model.MapSizeX && y < Model.MapSizeY;
         }
 
         /// <summary>
@@ -1166,10 +1175,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool SquareHasUsers(int x, int y)
-        {
-            return MapGotUser(new Point(x, y));
-        }
+        internal bool SquareHasUsers(int x, int y) { return MapGotUser(new Point(x, y)); }
 
         /// <summary>
         /// Destroys this instance.
@@ -1188,7 +1194,7 @@ namespace Azure.HabboHotel.Rooms
             ItemHeightMap = null;
             CoordinatedItems = null;
             Model = null;
-            UserRoom = null;
+            _room = null;
             StaticModel = null;
         }
 
@@ -1255,7 +1261,6 @@ namespace Azure.HabboHotel.Rooms
                     case SquareState.Open:
                         GameMap[x, y] = 1;
                         return;
-
                     case SquareState.Seat:
                         GameMap[x, y] = 2;
                         break;
@@ -1296,66 +1301,62 @@ namespace Azure.HabboHotel.Rooms
         {
             try
             {
-                if (coord.X > (Model.MapSizeX - 1))
                 {
-                    Model.AddX();
-                    GenerateMaps(true);
-                    return false;
+                    if (coord.X > Model.MapSizeX - 1)
+                    {
+                        Model.AddX();
+                        GenerateMaps(true);
+                        return false;
+                    }
+                    if (coord.Y > Model.MapSizeY - 1)
+                    {
+                        Model.AddY();
+                        GenerateMaps(true);
+                        return false;
+                    }
+                    if (Model.SqState[coord.X][coord.Y] == SquareState.Blocked)
+                    {
+                        Model.OpenSquare(coord.X, coord.Y, item.Z);
+                        Model.SetUpdateState();
+                    }
                 }
-                if (coord.Y > (Model.MapSizeY - 1))
-                {
-                    Model.AddY();
-                    GenerateMaps(true);
-                    return false;
-                }
-                if (Model.SqState[coord.X][coord.Y] == SquareState.Blocked)
-                {
-                    Model.OpenSquare(coord.X, coord.Y, item.Z);
-                    Model.SetUpdateState();
-                }
-
                 if (ItemHeightMap[coord.X, coord.Y] <= item.TotalHeight)
                 {
                     ItemHeightMap[coord.X, coord.Y] = item.TotalHeight - Model.SqFloorHeight[item.X][item.Y];
 
-                    EffectMap[coord.X, coord.Y] = 0;
-
-                    Interaction interactionType = item.GetBaseItem().InteractionType;
-
-                    switch (interactionType)
+                    try
                     {
-                        case Interaction.IceSkates:
-                            EffectMap[coord.X, coord.Y] = 3;
-                            break;
+                        EffectMap[coord.X, coord.Y] = 0;
+                        var interactionType = item.GetBaseItem().InteractionType;
+                        if (interactionType != Interaction.Pool)
+                            switch (interactionType)
+                            {
+                                case Interaction.IceSkates:
+                                    EffectMap[coord.X, coord.Y] = 3;
+                                    break;
 
-                        case Interaction.Normslaskates:
-                            EffectMap[coord.X, coord.Y] = 2;
-                            break;
+                                case Interaction.Normslaskates:
+                                    EffectMap[coord.X, coord.Y] = 2;
+                                    break;
 
-                        case Interaction.LowPool:
-                            EffectMap[coord.X, coord.Y] = 4;
-                            break;
+                                case Interaction.LowPool:
+                                    EffectMap[coord.X, coord.Y] = 4;
+                                    break;
 
-                        case Interaction.HaloweenPool:
-                            EffectMap[coord.X, coord.Y] = 5;
-                            break;
+                                case Interaction.HaloweenPool:
+                                    EffectMap[coord.X, coord.Y] = 5;
+                                    break;
 
-                        case Interaction.SnowBoardSlope:
-                            EffectMap[coord.X, coord.Y] = 7;
-                            break;
-
-                        case Interaction.Pool:
-                            EffectMap[coord.X, coord.Y] = 1;
-                            break;
-
-                        case Interaction.PressurePadBed:
-                        case Interaction.Bed:
-                        case Interaction.Guillotine:
-                        case Interaction.BedTent:
-                            GameMap[coord.X, coord.Y] = 3;
-                            break;
+                                case Interaction.SnowBoardSlope:
+                                    EffectMap[coord.X, coord.Y] = 7;
+                                    break;
+                            }
+                        else EffectMap[coord.X, coord.Y] = 1;
                     }
-
+                    catch (Exception e)
+                    {
+                        Writer.Writer.LogException(e.ToString());
+                    }
 
                     if (item.GetBaseItem().Walkable)
                     {
@@ -1380,10 +1381,10 @@ namespace Azure.HabboHotel.Rooms
                 }
                 if (item.GetBaseItem().InteractionType == Interaction.Bed || item.GetBaseItem().InteractionType == Interaction.Guillotine || item.GetBaseItem().InteractionType == Interaction.BedTent)
                     GameMap[coord.X, coord.Y] = 3;
-            } 
+            }
             catch (Exception ex)
             {
-                Logging.LogException(string.Concat("Error during map generation for room ", UserRoom.RoomId, ". Exception: ", ex.ToString()));
+                Logging.LogException(string.Concat("Error during map generation for room ", _room.RoomId, ". Exception: ", ex.ToString()));
             }
             return true;
         }
@@ -1397,39 +1398,39 @@ namespace Azure.HabboHotel.Rooms
             switch (item.GetBaseItem().InteractionType)
             {
                 case Interaction.BanzaiFloor:
-                    UserRoom.GetBanzai().AddTile(item, item.Id);
+                    _room.GetBanzai().AddTile(item, item.Id);
                     break;
 
                 case Interaction.BanzaiTele:
-                    UserRoom.GetGameItemHandler().AddTeleport(item, item.Id);
+                    _room.GetGameItemHandler().AddTeleport(item, item.Id);
                     item.ExtraData = string.Empty;
                     break;
 
                 case Interaction.BanzaiPuck:
-                    UserRoom.GetBanzai().AddPuck(item);
+                    _room.GetBanzai().AddPuck(item);
                     break;
 
                 case Interaction.BanzaiPyramid:
-                    UserRoom.GetGameItemHandler().AddPyramid(item, item.Id);
+                    _room.GetGameItemHandler().AddPyramid(item, item.Id);
                     break;
 
                 case Interaction.FreezeExit:
-                    var exitTeleport = UserRoom.GetFreeze().ExitTeleport;
+                    var exitTeleport = _room.GetFreeze().ExitTeleport;
                     if (exitTeleport == null || (int)item.Id != (int)exitTeleport.Id)
                         break;
-                    UserRoom.GetFreeze().ExitTeleport = null;
+                    _room.GetFreeze().ExitTeleport = null;
                     break;
 
                 case Interaction.FreezeTileBlock:
-                    UserRoom.GetFreeze().AddFreezeBlock(item);
+                    _room.GetFreeze().AddFreezeBlock(item);
                     break;
 
                 case Interaction.FreezeTile:
-                    UserRoom.GetFreeze().AddFreezeTile(item);
+                    _room.GetFreeze().AddFreezeTile(item);
                     break;
 
                 case Interaction.Football:
-                    UserRoom.GetSoccer().AddBall(item);
+                    _room.GetSoccer().AddBall(item);
                     break;
             }
         }
@@ -1443,27 +1444,27 @@ namespace Azure.HabboHotel.Rooms
             switch (item.GetBaseItem().InteractionType)
             {
                 case Interaction.BanzaiFloor:
-                    UserRoom.GetBanzai().RemoveTile(item.Id);
+                    _room.GetBanzai().RemoveTile(item.Id);
                     break;
 
                 case Interaction.BanzaiTele:
-                    UserRoom.GetGameItemHandler().RemoveTeleport(item.Id);
+                    _room.GetGameItemHandler().RemoveTeleport(item.Id);
                     break;
 
                 case Interaction.BanzaiPuck:
-                    UserRoom.GetBanzai().RemovePuck(item.Id);
+                    _room.GetBanzai().RemovePuck(item.Id);
                     break;
 
                 case Interaction.BanzaiPyramid:
-                    UserRoom.GetGameItemHandler().RemovePyramid(item.Id);
+                    _room.GetGameItemHandler().RemovePyramid(item.Id);
                     break;
 
                 case Interaction.FreezeTileBlock:
-                    UserRoom.GetFreeze().RemoveFreezeBlock(item.Id);
+                    _room.GetFreeze().RemoveFreezeBlock(item.Id);
                     break;
 
                 case Interaction.FreezeTile:
-                    UserRoom.GetFreeze().RemoveFreezeTile(item.Id);
+                    _room.GetFreeze().RemoveFreezeTile(item.Id);
                     break;
 
                 case Interaction.FootballGate:
@@ -1471,7 +1472,7 @@ namespace Azure.HabboHotel.Rooms
                     break;
 
                 case Interaction.Football:
-                    UserRoom.GetSoccer().RemoveBall(item.Id);
+                    _room.GetSoccer().RemoveBall(item.Id);
                     break;
             }
         }
