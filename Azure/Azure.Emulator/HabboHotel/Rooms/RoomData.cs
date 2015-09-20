@@ -425,6 +425,7 @@ namespace Azure.HabboHotel.Rooms
             catch (Exception ex)
             {
                 Logging.LogException("Exception on RoomData Loading (Fill Void): " + ex);
+                Logging.HandleException(ex, "Azure.HabboHotel.Rooms.RoomData");
             }
         }
 

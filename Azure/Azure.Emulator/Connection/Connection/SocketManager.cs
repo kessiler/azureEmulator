@@ -24,7 +24,9 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// Count of accepeted connections
         /// </summary>
-        private int acceptedConnections;
+        public int acceptedConnections;
+
+        public int activeConnections;
 
         /// <summary>
         /// The _connection listener
@@ -85,6 +87,7 @@ namespace Azure.Connection.Connection
             MaximumConnections = maxConnections;
             _portInformation = portId;
             acceptedConnections = 0;
+            activeConnections = 0;
             MaxIpConnectionCount = connectionsPerIp;
             AntiDDosStatus = antiDDoS;
             if (_portInformation < 0)
@@ -113,10 +116,10 @@ namespace Azure.Connection.Connection
             }
         }
 
-        protected virtual void OnMessage(ConnectionInformation connection, object msg) { }
-
         private void OnChannelDisconnect(ConnectionInformation connection, Exception exception)
         {
+            connection.Disconnected = null;
+            activeConnections--;
             OnClientDisconnected(connection, exception);
             connection.Cleanup();
         }
@@ -134,9 +137,9 @@ namespace Azure.Connection.Connection
                     {
                         socket.NoDelay = _disableNagleAlgorithm;
                         acceptedConnections++;
+                        activeConnections++;
                         var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
                         connectionInfo.Disconnected = OnChannelDisconnect;
-                        connectionInfo.MessageReceived = OnMessage;
                         OnClientConnected(connectionInfo);
                     }
                 }

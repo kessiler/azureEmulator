@@ -424,9 +424,9 @@ namespace Azure.HabboHotel.GameClients
         internal void Stop()
         {
             if (GetMessageHandler() != null)
-                _messageHandler.Destroy();
+                GetMessageHandler().Destroy();
             if (GetHabbo() != null)
-                _habbo.OnDisconnect("disconnect");
+                GetHabbo().OnDisconnect("disconnect");
             CurrentRoomUserId = -1;
             _messageHandler = null;
             _habbo = null;

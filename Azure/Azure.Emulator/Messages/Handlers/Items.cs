@@ -423,7 +423,7 @@ namespace Azure.Messages.Handlers
         {
             Request.GetInteger();
             var room = Session.GetHabbo().CurrentRoom;
-            if (room == null || room.GetRoomItemHandler() == null)
+            if (room == null || room.GetRoomItemHandler() == null || Session.GetHabbo() == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
             if (item == null || item.GetBaseItem().InteractionType == Interaction.PostIt)

@@ -18,33 +18,33 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CallGuide()
         {
-            //Request.GetBool();
-            //var userId = Request.GetIntegerFromString();
-            //var message = Request.GetString();
-            //var guideManager = Azure.GetGame().GetGuideManager();
-            //if (guideManager.GuidesCount <= 0)
-            //{
-            //    Response.Init(LibraryParser.OutgoingRequest("OnGuideSessionError"));
-            //    Response.AppendInteger(0);
-            //    SendResponse();
-            //    return;
-            //}
+            /*Request.GetBool();
+            var userId = Request.GetIntegerFromString();
+            var message = Request.GetString();
+            var guideManager = Azure.GetGame().GetGuideManager();
+            if (guideManager.GuidesCount <= 0)
+            {
+                Response.Init(LibraryParser.OutgoingRequest("OnGuideSessionError"));
+                Response.AppendInteger(0);
+                SendResponse();
+                return;
+            }
 
-            //var guide = guideManager.GetRandomGuide();
-            //var onGuideSessionAttached = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
-            //onGuideSessionAttached.AppendBool(false);
-            //onGuideSessionAttached.AppendInteger(userId);
-            //onGuideSessionAttached.AppendString(message);
-            //onGuideSessionAttached.AppendInteger(30);
-            //Session.SendMessage(onGuideSessionAttached);
-            //var onGuideSessionAttached2 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
-            //onGuideSessionAttached2.AppendBool(true);
-            //onGuideSessionAttached2.AppendInteger(userId);
-            //onGuideSessionAttached2.AppendString(message);
-            //onGuideSessionAttached2.AppendInteger(15);
-            //guide.SendMessage(onGuideSessionAttached2);
-            //guide.GetHabbo().GuideOtherUser = Session;
-            //Session.GetHabbo().GuideOtherUser = guide;
+            var guide = guideManager.GetRandomGuide();
+            var onGuideSessionAttached = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
+            onGuideSessionAttached.AppendBool(false);
+            onGuideSessionAttached.AppendInteger(userId);
+            onGuideSessionAttached.AppendString(message);
+            onGuideSessionAttached.AppendInteger(30);
+            Session.SendMessage(onGuideSessionAttached);
+            var onGuideSessionAttached2 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
+            onGuideSessionAttached2.AppendBool(true);
+            onGuideSessionAttached2.AppendInteger(userId);
+            onGuideSessionAttached2.AppendString(message);
+            onGuideSessionAttached2.AppendInteger(15);
+            guide.SendMessage(onGuideSessionAttached2);
+            guide.GetHabbo().GuideOtherUser = Session;
+            Session.GetHabbo().GuideOtherUser = guide;*/
         }
 
         /// <summary>

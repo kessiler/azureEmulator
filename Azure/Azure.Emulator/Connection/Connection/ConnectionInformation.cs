@@ -22,8 +22,6 @@ namespace Azure.Connection.Connection
         private System.Net.EndPoint _remoteEndPoint;
         public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
         public event OnClientDisconnectedEvent _disconnectAction = delegate { };
-        public delegate void OnMessageReceiveEvent(ConnectionInformation connection, object message);
-        public event OnMessageReceiveEvent _messageReceived = delegate { };
 
 
         /// <summary>
@@ -89,19 +87,6 @@ namespace Azure.Connection.Connection
             }
         }
 
-        public OnMessageReceiveEvent MessageReceived
-        {
-            get { return _messageReceived; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentException("You must have a MessageReceived delegate");
-
-
-                _messageReceived = value;
-            }
-        }
-
         private void ReadAsync()
         {
             try
@@ -136,6 +121,7 @@ namespace Azure.Connection.Connection
             catch (Exception ex)
             {
                 Logging.LogException(ex.ToString());
+                Logging.HandleException(ex, "Azure.Connection.Connection.ConnectionInformation");
             }
         }
 

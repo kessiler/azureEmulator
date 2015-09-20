@@ -680,17 +680,22 @@ namespace Azure.HabboHotel.Rooms
         {
             if (user == null) return;
 
-            if (user.Statusses.Remove("lay") || user.Statusses.Remove("sit"))
+            if (user.Statusses.ContainsKey("lay") || user.Statusses.ContainsKey("sit"))
+            {
+                user.Statusses.Remove("lay");
+                user.Statusses.Remove("sit");
                 user.UpdateNeeded = true;
+            }
 
             var isBot = user.IsBot;
             if (isBot) cycleGameItems = false;
 
             try
             {
-                var coordItemSearch = new CoordItemSearch(UserRoom.GetGameMap().CoordinatedItems);
-                var allRoomItemForSquare = coordItemSearch.GetAllRoomItemForSquare(user.X, user.Y);
-                var itemsOnSquare = UserRoom.GetGameMap().GetCoordinatedItems(new Point(user.X, user.Y));
+                Gamemap roomMap = UserRoom.GetGameMap();
+                Point userPoint = new Point(user.X, user.Y);
+                RoomItem[] allRoomItemForSquare = roomMap.GetCoordinatedHeighestItems(userPoint).ToArray();
+                var itemsOnSquare = roomMap.GetCoordinatedItems(userPoint);
 
                 var newZ = UserRoom.GetGameMap().SqAbsoluteHeight(user.X, user.Y, itemsOnSquare) + ((user.RidingHorse && user.IsPet == false) ? 1 : 0);
 
@@ -699,247 +704,240 @@ namespace Azure.HabboHotel.Rooms
                     user.Z = newZ;
                     user.UpdateNeeded = true;
                 }
-
-                if (!allRoomItemForSquare.Any()) user.LastItem = 0;
-                using (var enumerator = allRoomItemForSquare.GetEnumerator())
+                foreach (RoomItem item in allRoomItemForSquare)
                 {
-                    while (enumerator.MoveNext())
+                    if (cycleGameItems)
                     {
-                        var item = enumerator.Current;
-                        if (cycleGameItems)
-                        {
-                            item.UserWalksOnFurni(user);
-                            //Azure.GetGame().GetQuestManager().ProgressUserQuest(user.GetClient(), QuestType.StandOn, item.GetBaseItem().ItemId);
-                        }
+                        item.UserWalksOnFurni(user);
+                    }
 
-                        if (item.GetBaseItem().IsSeat)
+                    if (item.GetBaseItem().IsSeat)
+                    {
+                        if (!user.Statusses.ContainsKey("sit"))
                         {
-                            if (!user.Statusses.ContainsKey("sit"))
-                            {
-                                if (item.GetBaseItem().StackMultipler && !string.IsNullOrWhiteSpace(item.ExtraData))
-                                    if (item.ExtraData != "0")
-                                    {
-                                        var num2 = Convert.ToInt32(item.ExtraData);
-                                        user.Statusses.Add("sit",
-                                            item.GetBaseItem().ToggleHeight[num2].ToString(CultureInfo.InvariantCulture)
-                                                .Replace(',', '.'));
-                                    }
-                                    else
-                                    {
-                                        user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
-                                    }
+                            if (item.GetBaseItem().StackMultipler && !string.IsNullOrWhiteSpace(item.ExtraData))
+                                if (item.ExtraData != "0")
+                                {
+                                    var num2 = Convert.ToInt32(item.ExtraData);
+                                    user.Statusses.Add("sit",
+                                        item.GetBaseItem().ToggleHeight[num2].ToString(CultureInfo.InvariantCulture)
+                                            .Replace(',', '.'));
+                                }
                                 else
                                 {
                                     user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
                                 }
-                            }
-
-                            if (Math.Abs(user.Z - item.Z) > 0 || user.RotBody != item.Rot)
+                            else
                             {
+                                user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
+                            }
+                        }
+
+                        if (Math.Abs(user.Z - item.Z) > 0 || user.RotBody != item.Rot)
+                        {
+                            user.Z = item.Z;
+                            user.RotHead = item.Rot;
+                            user.RotBody = item.Rot;
+                            user.UpdateNeeded = true;
+                        }
+                    }
+
+                    var interactionType = item.GetBaseItem().InteractionType;
+
+                    switch (interactionType)
+                    {
+                        case Interaction.QuickTeleport:
+                        case Interaction.GuildGate:
+                        case Interaction.WalkInternalLink:
+                            {
+                                item.Interactor.OnUserWalk(user.GetClient(), item, user);
+                                break;
+                            }
+                        case Interaction.None:
+                            break;
+
+                        case Interaction.PressurePadBed:
+                        case Interaction.Bed:
+                            {
+                                if (!user.Statusses.ContainsKey("lay"))
+                                    user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
+                                else
+                                    if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
+                                        user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
+
                                 user.Z = item.Z;
                                 user.RotHead = item.Rot;
                                 user.RotBody = item.Rot;
                                 user.UpdateNeeded = true;
-                            }
-                        }
 
-                        var interactionType = item.GetBaseItem().InteractionType;
-
-                        switch (interactionType)
-                        {
-                            case Interaction.QuickTeleport:
-                            case Interaction.GuildGate:
-                            case Interaction.WalkInternalLink:
+                                if (item.GetBaseItem().InteractionType == Interaction.PressurePadBed)
                                 {
-                                    item.Interactor.OnUserWalk(user.GetClient(), item, user);
-                                    break;
-                                }
-                            case Interaction.None:
-                                break;
-
-                            case Interaction.PressurePadBed:
-                            case Interaction.Bed:
-                                {
-                                    if (!user.Statusses.ContainsKey("lay"))
-                                        user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
-                                    else
-                                        if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
-                                            user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
-
-                                    user.Z = item.Z;
-                                    user.RotHead = item.Rot;
-                                    user.RotBody = item.Rot;
-                                    user.UpdateNeeded = true;
-
-                                    if (item.GetBaseItem().InteractionType == Interaction.PressurePadBed)
-                                    {
-                                        item.ExtraData = "1";
-                                        item.UpdateState();
-                                    }
-                                    break;
-                                }
-
-                            case Interaction.Guillotine:
-                                {
-                                    if (!user.Statusses.ContainsKey("lay")) user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
-                                    else if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height)) user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
-
-                                    user.Z = item.Z;
-                                    user.RotBody = item.Rot;
-
                                     item.ExtraData = "1";
                                     item.UpdateState();
-                                    var avatarEffectsInventoryComponent =
-                                        user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
+                                }
+                                break;
+                            }
 
-                                    avatarEffectsInventoryComponent.ActivateCustomEffect(133);
+                        case Interaction.Guillotine:
+                            {
+                                if (!user.Statusses.ContainsKey("lay")) user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
+                                else if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height)) user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
+
+                                user.Z = item.Z;
+                                user.RotBody = item.Rot;
+
+                                item.ExtraData = "1";
+                                item.UpdateState();
+                                var avatarEffectsInventoryComponent =
+                                    user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
+
+                                avatarEffectsInventoryComponent.ActivateCustomEffect(133);
+                                break;
+                            }
+
+                        case Interaction.FootballGate:
+                            break;
+
+                        case Interaction.BanzaiGateBlue:
+                        case Interaction.BanzaiGateRed:
+                        case Interaction.BanzaiGateYellow:
+                        case Interaction.BanzaiGateGreen:
+                            {
+                                int Effect = (int)item.Team + 32;
+                                var teamManagerForBanzai =
+                                    user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForBanzai();
+                                var avatarEffectsInventoryComponent =
+                                    user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
+                                if (user.Team == Team.none)
+                                {
+                                    if (!teamManagerForBanzai.CanEnterOnTeam(item.Team)) break;
+                                    if (user.Team != Team.none) teamManagerForBanzai.OnUserLeave(user);
+                                    user.Team = item.Team;
+                                    teamManagerForBanzai.AddUser(user);
+                                    if (avatarEffectsInventoryComponent.CurrentEffect != Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(Effect);
                                     break;
                                 }
-
-                            case Interaction.FootballGate:
-                                break;
-
-                            case Interaction.BanzaiGateBlue:
-                            case Interaction.BanzaiGateRed:
-                            case Interaction.BanzaiGateYellow:
-                            case Interaction.BanzaiGateGreen:
+                                if (user.Team != Team.none && user.Team != item.Team)
                                 {
-                                    int Effect = (int)item.Team + 32;
-                                    var teamManagerForBanzai =
-                                        user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForBanzai();
-                                    var avatarEffectsInventoryComponent =
-                                        user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
-                                    if (user.Team == Team.none)
-                                    {
-                                        if (!teamManagerForBanzai.CanEnterOnTeam(item.Team)) break;
-                                        if (user.Team != Team.none) teamManagerForBanzai.OnUserLeave(user);
-                                        user.Team = item.Team;
-                                        teamManagerForBanzai.AddUser(user);
-                                        if (avatarEffectsInventoryComponent.CurrentEffect != Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(Effect);
-                                        break;
-                                    }
-                                    if (user.Team != Team.none && user.Team != item.Team)
-                                    {
-                                        teamManagerForBanzai.OnUserLeave(user);
-                                        user.Team = Team.none;
-                                        avatarEffectsInventoryComponent.ActivateCustomEffect(0);
-                                        break;
-                                    }
                                     teamManagerForBanzai.OnUserLeave(user);
-
-                                    if (avatarEffectsInventoryComponent.CurrentEffect == Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(0);
                                     user.Team = Team.none;
+                                    avatarEffectsInventoryComponent.ActivateCustomEffect(0);
                                     break;
                                 }
+                                teamManagerForBanzai.OnUserLeave(user);
 
-                            case Interaction.Jump:
+                                if (avatarEffectsInventoryComponent.CurrentEffect == Effect) avatarEffectsInventoryComponent.ActivateCustomEffect(0);
+                                user.Team = Team.none;
                                 break;
+                            }
 
-                            case Interaction.Pinata:
+                        case Interaction.Jump:
+                            break;
+
+                        case Interaction.Pinata:
+                            {
+                                if (!user.IsWalking || item.ExtraData.Length <= 0) break;
+                                var num5 = int.Parse(item.ExtraData);
+                                if (num5 >= 100 || user.CurrentEffect != 158) break;
+                                var num6 = num5 + 1;
+                                item.ExtraData = num6.ToString();
+                                item.UpdateState();
+                                Azure.GetGame()
+                                    .GetAchievementManager()
+                                    .ProgressUserAchievement(user.GetClient(), "ACH_PinataWhacker", 1, false);
+                                if (num6 == 100)
                                 {
-                                    if (!user.IsWalking || item.ExtraData.Length <= 0) break;
-                                    var num5 = int.Parse(item.ExtraData);
-                                    if (num5 >= 100 || user.CurrentEffect != 158) break;
-                                    var num6 = num5 + 1;
-                                    item.ExtraData = num6.ToString();
-                                    item.UpdateState();
+                                    Azure.GetGame().GetPinataHandler().DeliverRandomPinataItem(user, UserRoom, item);
                                     Azure.GetGame()
                                         .GetAchievementManager()
-                                        .ProgressUserAchievement(user.GetClient(), "ACH_PinataWhacker", 1, false);
-                                    if (num6 == 100)
-                                    {
-                                        Azure.GetGame().GetPinataHandler().DeliverRandomPinataItem(user, UserRoom, item);
-                                        Azure.GetGame()
-                                            .GetAchievementManager()
-                                            .ProgressUserAchievement(user.GetClient(), "ACH_PinataBreaker", 1, false);
-                                    }
-                                    break;
-                                }
-                            case Interaction.TileStackMagic:
-                            case Interaction.Poster:
-                                break;
-
-                            case Interaction.Tent:
-                            case Interaction.BedTent:
-                                if (user.LastItem == item.Id) break;
-                                if (!user.IsBot && !user.OnCampingTent)
-                                {
-                                    var serverMessage22 = new ServerMessage();
-                                    serverMessage22.Init(
-                                        LibraryParser.OutgoingRequest("UpdateFloorItemExtraDataMessageComposer"));
-                                    serverMessage22.AppendString(item.Id.ToString());
-                                    serverMessage22.AppendInteger(0);
-                                    serverMessage22.AppendString("1");
-                                    user.GetClient().SendMessage(serverMessage22);
-                                    user.OnCampingTent = true;
-                                    user.LastItem = item.Id;
+                                        .ProgressUserAchievement(user.GetClient(), "ACH_PinataBreaker", 1, false);
                                 }
                                 break;
+                            }
+                        case Interaction.TileStackMagic:
+                        case Interaction.Poster:
+                            break;
 
-                            case Interaction.RunWaySage:
+                        case Interaction.Tent:
+                        case Interaction.BedTent:
+                            if (user.LastItem == item.Id) break;
+                            if (!user.IsBot && !user.OnCampingTent)
+                            {
+                                var serverMessage22 = new ServerMessage();
+                                serverMessage22.Init(
+                                    LibraryParser.OutgoingRequest("UpdateFloorItemExtraDataMessageComposer"));
+                                serverMessage22.AppendString(item.Id.ToString());
+                                serverMessage22.AppendInteger(0);
+                                serverMessage22.AppendString("1");
+                                user.GetClient().SendMessage(serverMessage22);
+                                user.OnCampingTent = true;
+                                user.LastItem = item.Id;
+                            }
+                            break;
+
+                        case Interaction.RunWaySage:
+                            {
+                                var num7 = new Random().Next(1, 4);
+                                item.ExtraData = num7.ToString();
+                                item.UpdateState();
+                                break;
+                            }
+                        case Interaction.Shower:
+                        case Interaction.ChairState:
+                        case Interaction.PressurePad:
+                            {
+                                item.ExtraData = "1";
+                                item.UpdateState();
+                                break;
+                            }
+                        case Interaction.BanzaiTele:
+                            {
+                                if (user.IsWalking)
+                                    UserRoom.GetGameItemHandler().OnTeleportRoomUserEnter(user, item);
+                                break;
+                            }
+                        case Interaction.FreezeYellowGate:
+                        case Interaction.FreezeRedGate:
+                        case Interaction.FreezeGreenGate:
+                        case Interaction.FreezeBlueGate:
+                            {
+                                if (cycleGameItems)
                                 {
-                                    var num7 = new Random().Next(1, 4);
-                                    item.ExtraData = num7.ToString();
-                                    item.UpdateState();
-                                    break;
-                                }
-                            case Interaction.Shower:
-                            case Interaction.ChairState:
-                            case Interaction.PressurePad:
-                                {
-                                    item.ExtraData = "1";
-                                    item.UpdateState();
-                                    break;
-                                }
-                            case Interaction.BanzaiTele:
-                                {
-                                    if (user.IsWalking)
-                                        UserRoom.GetGameItemHandler().OnTeleportRoomUserEnter(user, item);
-                                    break;
-                                }
-                            case Interaction.FreezeYellowGate:
-                            case Interaction.FreezeRedGate:
-                            case Interaction.FreezeGreenGate:
-                            case Interaction.FreezeBlueGate:
-                                {
-                                    if (cycleGameItems)
+                                    var num4 = (int)(item.Team + 39);
+                                    var teamManagerForFreeze =
+                                        user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
+                                    var avatarEffectsInventoryComponent2 =
+                                        user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
+                                    if (user.Team != item.Team)
                                     {
-                                        var num4 = (int)(item.Team + 39);
-                                        var teamManagerForFreeze =
-                                            user.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
-                                        var avatarEffectsInventoryComponent2 =
-                                            user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent();
-                                        if (user.Team != item.Team)
+                                        if (teamManagerForFreeze.CanEnterOnTeam(item.Team))
                                         {
-                                            if (teamManagerForFreeze.CanEnterOnTeam(item.Team))
-                                            {
-                                                if (user.Team != Team.none) teamManagerForFreeze.OnUserLeave(user);
-                                                user.Team = item.Team;
-                                                teamManagerForFreeze.AddUser(user);
-                                                if (avatarEffectsInventoryComponent2.CurrentEffect != num4) avatarEffectsInventoryComponent2.ActivateCustomEffect(num4);
-                                            }
+                                            if (user.Team != Team.none) teamManagerForFreeze.OnUserLeave(user);
+                                            user.Team = item.Team;
+                                            teamManagerForFreeze.AddUser(user);
+                                            if (avatarEffectsInventoryComponent2.CurrentEffect != num4) avatarEffectsInventoryComponent2.ActivateCustomEffect(num4);
                                         }
-                                        else
-                                        {
-                                            teamManagerForFreeze.OnUserLeave(user);
-                                            if (avatarEffectsInventoryComponent2.CurrentEffect == num4) avatarEffectsInventoryComponent2.ActivateCustomEffect(0);
-                                            user.Team = Team.none;
-                                        }
-                                        var serverMessage33 =
-                                            new ServerMessage(
-                                                LibraryParser.OutgoingRequest("UserIsPlayingFreezeMessageComposer"));
-                                        serverMessage33.AppendBool(user.Team != Team.none);
-                                        user.GetClient().SendMessage(serverMessage33);
                                     }
-                                    break;
+                                    else
+                                    {
+                                        teamManagerForFreeze.OnUserLeave(user);
+                                        if (avatarEffectsInventoryComponent2.CurrentEffect == num4) avatarEffectsInventoryComponent2.ActivateCustomEffect(0);
+                                        user.Team = Team.none;
+                                    }
+                                    var serverMessage33 =
+                                        new ServerMessage(
+                                            LibraryParser.OutgoingRequest("UserIsPlayingFreezeMessageComposer"));
+                                    serverMessage33.AppendBool(user.Team != Team.none);
+                                    user.GetClient().SendMessage(serverMessage33);
                                 }
-                        }
-
-                        if (item.GetBaseItem().InteractionType == Interaction.BedTent)
-                            user.OnCampingTent = true;
-
-                        user.LastItem = item.Id;
+                                break;
+                            }
                     }
+
+                    if (item.GetBaseItem().InteractionType == Interaction.BedTent)
+                        user.OnCampingTent = true;
+
+                    user.LastItem = item.Id;
                 }
 
                 if (user.IsSitting && user.TeleportEnabled)
@@ -947,10 +945,12 @@ namespace Azure.HabboHotel.Rooms
                     user.Z -= 0.35;
                     user.UpdateNeeded = true;
                 }
-                if (!cycleGameItems) return;
-                UserRoom.GetSoccer().OnUserWalk(user);
-                UserRoom.GetBanzai().OnUserWalk(user);
-                UserRoom.GetFreeze().OnUserWalk(user);
+                if (cycleGameItems)
+                {
+                    UserRoom.GetSoccer().OnUserWalk(user);
+                    UserRoom.GetBanzai().OnUserWalk(user);
+                    UserRoom.GetFreeze().OnUserWalk(user);
+                }
             }
             catch (Exception e)
             {
@@ -1686,16 +1686,16 @@ namespace Azure.HabboHotel.Rooms
                             .ProgressUserAchievement(client, "ACH_RoomEntry", 1, false);
                     }
                 }
-                if (client.GetHabbo().GetMessenger() != null) 
+                if (client.GetHabbo().GetMessenger() != null)
                     client.GetHabbo().GetMessenger().OnStatusChanged(true);
                 client.GetMessageHandler().OnRoomUserAdd();
 
                 //if (client.GetHabbo().HasFuse("fuse_mod")) client.GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(102);
                 //if (client.GetHabbo().Rank == Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"])) client.GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(178);
 
-                if (OnUserEnter != null) 
+                if (OnUserEnter != null)
                     OnUserEnter(user, null);
-                if (UserRoom.GotMusicController() && UserRoom.GotMusicController()) 
+                if (UserRoom.GotMusicController() && UserRoom.GotMusicController())
                     UserRoom.GetRoomMusicController().OnNewUserEnter(user);
                 UserRoom.OnUserEnter(user);
             }

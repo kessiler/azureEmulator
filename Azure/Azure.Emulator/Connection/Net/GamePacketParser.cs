@@ -143,10 +143,13 @@ namespace Azure.Connection.Net
         }
 
         private void handleMessage(int messageId, byte[] packetContent, int position, int packetLength) {
-            if (_currentClient != null && _currentClient.GetMessageHandler() != null)
+            using (ClientMessage clientMessage = ClientMessageFactory.GetClientMessage(messageId, packetContent, position, packetLength))
             {
-                using (ClientMessage clientMessage = new ClientMessage(messageId, packetContent, position, packetLength))
+                if (_currentClient != null && _currentClient.GetMessageHandler() != null)
+                {
+
                     _currentClient.GetMessageHandler().HandleRequest(clientMessage);
+                }
             }
         }
 

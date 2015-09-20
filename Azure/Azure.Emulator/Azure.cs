@@ -384,6 +384,7 @@ namespace Azure
                 if (ConsoleTimerOn)
                     Out.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
 
+                ClientMessageFactory.Init();
 
                 Out.WriteLine(
                     "Starting up asynchronous sockets server for game connections for port " +

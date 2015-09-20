@@ -2008,6 +2008,7 @@ namespace Azure.Messages.Handlers
             catch (Exception ex)
             {
                 Logging.LogException("Unable to load room ID [" + Session.GetHabbo().LoadingRoom + "]" + ex);
+                Logging.HandleException(ex, "Azure.Messages.Handlers.Rooms");
             }
         }
 
@@ -2063,8 +2064,7 @@ namespace Azure.Messages.Handlers
                 Response.AppendString(CurrentLoadingRoom.RoomData.Owner);
             }
             Response.AppendInteger(array.Length);
-            var array3 = array;
-            foreach (var roomItem in array3)
+            foreach (var roomItem in array)
             {
                 roomItem.Serialize(Response);
             }

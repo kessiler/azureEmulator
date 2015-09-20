@@ -45,7 +45,7 @@ namespace Azure.Configuration
             }
             catch (Exception ex)
             {
-                Logging.LogException(ex.ToString());
+                Logging.HandleException(ex, "Azure.Configuration.ConnectionHandling");
             }
         }
 
@@ -62,7 +62,7 @@ namespace Azure.Configuration
             }
             catch (Exception ex)
             {
-                Logging.LogException(ex.ToString());
+                Logging.HandleException(ex, "Azure.Configuration.ConnectionHandling");
             }
         }
 

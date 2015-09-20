@@ -949,8 +949,8 @@ namespace Azure.HabboHotel.Rooms
             if (GetRoom().GetGameMap().SquareHasUsers(x, y) && !pOverride) return;
             if (Frozen) return;
 
-            var coordItemSearch = new CoordItemSearch(GetRoom().GetGameMap().CoordinatedItems);
-            var allRoomItemForSquare = coordItemSearch.GetAllRoomItemForSquare(x, y);
+            Point coord = new Point(x, y);
+            List<RoomItem> allRoomItemForSquare = GetRoom().GetGameMap().GetCoordinatedHeighestItems(coord);
             if ((RidingHorse && !IsBot && allRoomItemForSquare.Any()) || (IsPet && allRoomItemForSquare.Any()))
                 if (
                     allRoomItemForSquare.Any(

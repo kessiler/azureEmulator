@@ -525,6 +525,7 @@ namespace Azure.HabboHotel.Rooms
             catch (Exception ex)
             {
                 Logging.LogException("Exception RoomData Loading on (GenerateMaps): " + ex);
+                Logging.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
             }
         }
 
@@ -556,9 +557,8 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>List&lt;RoomItem&gt;.</returns>
         internal List<RoomItem> GetCoordinatedItems(Point coord)
         {
-            var point = new Point(coord.X, coord.Y);
-            if (CoordinatedItems.Contains(point))
-                return (List<RoomItem>)CoordinatedItems[point];
+            if (CoordinatedItems.Contains(coord))
+                return (List<RoomItem>)CoordinatedItems[coord];
             return new List<RoomItem>();
         }
 
@@ -575,6 +575,32 @@ namespace Azure.HabboHotel.Rooms
                 return false;
             ((List<RoomItem>)CoordinatedItems[point]).Remove(item);
             return true;
+        }
+
+        internal List<RoomItem> GetCoordinatedHeighestItems(Point coord)
+        {
+            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coord];
+            if (items == null)
+                return new List<RoomItem>();
+
+            if (items.Count == 1)
+                return items;
+            List<RoomItem> returnItems = new List<RoomItem>();
+            double heighest = -1;
+
+            foreach (RoomItem i in items)
+            {
+                if (i.TotalHeight > heighest)
+                {
+                    heighest = i.Z;
+                    returnItems.Clear();
+                    returnItems.Add(i);
+                }
+                else if (i.TotalHeight == heighest)
+                    returnItems.Add(i);
+            }
+
+            return returnItems;
         }
 
         /// <summary>
@@ -1048,6 +1074,7 @@ namespace Azure.HabboHotel.Rooms
             catch (Exception ex)
             {
                 Logging.LogException("Exception RoomData Loading on (SqAbsoluteHeight): " + ex);
+                Logging.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
                 return 0.0;
             }
         }
@@ -1385,6 +1412,7 @@ namespace Azure.HabboHotel.Rooms
             catch (Exception ex)
             {
                 Logging.LogException(string.Concat("Error during map generation for room ", _room.RoomId, ". Exception: ", ex.ToString()));
+                Logging.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
             }
             return true;
         }
@@ -1486,15 +1514,12 @@ namespace Azure.HabboHotel.Rooms
             var serverMessage = new ServerMessage();
             serverMessage.Init(LibraryParser.OutgoingRequest("HeightMapMessageComposer"));
             serverMessage.AppendInteger(Model.MapSizeX);
-
-            {
-                serverMessage.AppendInteger(Model.MapSizeX * Model.MapSizeY);
-                for (var i = 0; i < Model.MapSizeY; i++)
-                    for (var j = 0; j < Model.MapSizeX; j++)
-                        serverMessage.AppendShort((short)(SqAbsoluteHeight(j, i) * 256));
-                //  serverMessage.AppendShort(this.Model.SqFloorHeight[j, i] * 256);
-                return serverMessage;
-            }
+            serverMessage.AppendInteger(Model.MapSizeX * Model.MapSizeY);
+            for (var i = 0; i < Model.MapSizeY; i++)
+                for (var j = 0; j < Model.MapSizeX; j++)
+                    serverMessage.AppendShort((short)(SqAbsoluteHeight(j, i) * 256));
+            //  serverMessage.AppendShort(this.Model.SqFloorHeight[j, i] * 256);
+            return serverMessage;
         }
 
         internal MovementState GetChasingMovement(int x, int y)

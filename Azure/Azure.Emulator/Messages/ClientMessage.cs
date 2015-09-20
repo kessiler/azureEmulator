@@ -52,6 +52,7 @@ namespace Azure.Messages
         /// </summary>
         public void Dispose()
         {
+            ClientMessageFactory.ObjectCallback(this);
             GC.SuppressFinalize(this);
         }
 

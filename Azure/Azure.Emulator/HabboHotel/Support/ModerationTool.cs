@@ -178,7 +178,7 @@ namespace Azure.HabboHotel.Support
         internal static void KickUser(GameClient modSession, uint userId, string message, bool soft)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
-            if (clientByUserId == null || clientByUserId.GetHabbo().CurrentRoomId < 1u || clientByUserId.GetHabbo().Id == modSession.GetHabbo().Id)
+            if (clientByUserId == null || clientByUserId.GetHabbo().CurrentRoomId < 1 || clientByUserId.GetHabbo().Id == modSession.GetHabbo().Id)
             {
                 ModActionResult(modSession.GetHabbo().Id, false);
                 return;
@@ -195,14 +195,13 @@ namespace Azure.HabboHotel.Support
             }
             room.GetRoomUserManager().RemoveUserFromRoom(clientByUserId, true, false);
             clientByUserId.CurrentRoomUserId = -1;
-            if (soft)
+            if (!soft)
             {
-                return;
-            }
-            clientByUserId.SendNotif(message);
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {0}", userId));
+                clientByUserId.SendNotif(message);
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {0}", userId));
+                }
             }
         }
 

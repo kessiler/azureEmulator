@@ -18,7 +18,7 @@
   <PropertyGroup>
     <ApplicationIcon>Favicon.ico</ApplicationIcon>
     <ProjectGuid>{4F3B6B3F-7754-40C9-B3DD-8D83BFA59FE5}</ProjectGuid>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NoStdLib>False</NoStdLib>
     <OutputType>Exe</OutputType>
@@ -351,7 +351,6 @@
     <Compile Include="HabboHotel\Pets\PetCommand.cs" />
     <Compile Include="HabboHotel\Rooms\ByteToItemEffectEnum.cs" />
     <Compile Include="HabboHotel\Rooms\Chatlog.cs" />
-    <Compile Include="HabboHotel\Rooms\CoordItemSearch.cs" />
     <Compile Include="HabboHotel\Rooms\DynamicRoomModel.cs" />
     <Compile Include="HabboHotel\Rooms\GameItemHandler.cs" />
     <Compile Include="HabboHotel\Rooms\Gamemap.cs" />
@@ -463,6 +462,7 @@
     <Compile Include="HabboHotel\Users\UserPreferences.cs" />
     <Compile Include="HabboHotel\Users\Inventory\UserClothing.cs" />
     <Compile Include="Manager\Cache.cs" />
+    <Compile Include="Messages\ClientMessageFactory.cs" />
     <Compile Include="Messages\Handlers\Catalogs.cs" />
     <Compile Include="Messages\Handlers\GameCenter.cs" />
     <Compile Include="Messages\Handlers\Groups.cs" />

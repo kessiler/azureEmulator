@@ -22,6 +22,7 @@ namespace Azure.HabboHotel.Items.Interactor
 
         public void OnTrigger(GameClient session, RoomItem item, int request, bool hasRights)
         {
+            /* TEMPORARY DISABLED =D
             if (!hasRights) return;
             RoomUser user = item.GetRoom().GetRoomUserManager().GetRoomUserByHabbo(session.GetHabbo().Id);
             if (user == null) return;
@@ -73,7 +74,7 @@ namespace Azure.HabboHotel.Items.Interactor
                         queryReactor.RunFastQuery("DELETE FROM items_rooms WHERE id = " + item.Id);
                     }
                 }
-            }
+            }*/
         }
 
         public void OnUserWalk(GameClient session, RoomItem item, RoomUser user)

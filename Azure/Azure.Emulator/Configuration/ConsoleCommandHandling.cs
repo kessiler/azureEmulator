@@ -6,6 +6,7 @@ using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
+using System.Runtime;
 
 #endregion
 
@@ -97,6 +98,42 @@ namespace Azure.Configuration
                     case "clear":
                         Console.Clear();
                         break;
+
+                    case "status":
+                        TimeSpan Uptime = DateTime.Now - Azure.ServerStarted;
+
+                        Console.WriteLine("Server status:");
+                        Console.WriteLine();
+                        Console.WriteLine("Uptime:");
+                        Console.WriteLine("\tDays:    {0}", Uptime.Days);
+                        Console.WriteLine("\tHours:   {0}", Uptime.Hours);
+                        Console.WriteLine("\tMinutes: {0}", Uptime.Minutes);
+                        Console.WriteLine();
+                        Console.WriteLine("Stats:");
+                        Console.WriteLine("\tActive Connections: {0}", Azure.GetConnectionManager().Manager.activeConnections);
+                        Console.WriteLine("\tAccepted Connections: {0}", Azure.GetConnectionManager().Manager.acceptedConnections);
+                        Console.WriteLine("\tActive Threads: {0}", System.Diagnostics.Process.GetCurrentProcess().Threads.Count);
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        break;
+
+                    case "gcinfo":
+                        {
+                            Console.WriteLine("Mode: " + GCSettings.LatencyMode);
+                            Console.WriteLine("Is server GC: " + GCSettings.IsServerGC);
+
+                            break;
+                        }
+
+                    case "memstat":
+                        {
+                            Console.WriteLine("GC status:");
+                            Console.WriteLine("\tGeneration supported: " + GC.MaxGeneration);
+                            Console.WriteLine("\tLatency mode: " + GCSettings.LatencyMode);
+                            Console.WriteLine("\tIs server GC: " + GCSettings.IsServerGC);
+                            Console.WriteLine();
+                            break;
+                        }
 
                     case "memory":
                         {

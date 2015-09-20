@@ -132,7 +132,7 @@ namespace Azure.HabboHotel.GameClients
                 queryReactor.SetQuery("SELECT username FROM users WHERE id = " + id);
                 String = queryReactor.GetString();
             }
-            return String;
+            return string.IsNullOrEmpty(String) ? "Unknown User" : String;
         }
 
         /// <summary>
