@@ -137,14 +137,13 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                     queryReactor.SetQuery(string.Format("SELECT group_id,rank,date_join FROM groups_members WHERE user_id = {0}", Convert.ToUInt32(userid)));
                     groupsTable = queryReactor.GetTable();
 
-                    queryReactor.SetQuery(string.Format("UPDATE users_info SET login_timestamp = '{1}' WHERE user_id = {0}", Convert.ToUInt32(userid), Azure.GetUnixTimeStamp()));
+                    queryReactor.SetQuery("REPLACE INTO users_info(user_id, login_timestamp) VALUES(@userid, @login_timestamp)");
+                    queryReactor.AddParameter("userid", Convert.ToUInt32(userid));
+                    queryReactor.AddParameter("login_timestamp", Azure.GetUnixTimeStamp());
                     queryReactor.RunQuery();
 
                     queryReactor.SetQuery(string.Format("SELECT * FROM users_relationships WHERE user_id = {0}", Convert.ToUInt32(userid)));
                     relationShipsTable = queryReactor.GetTable();
-                    
-                    //queryReactor.SetQuery(string.Format("SELECT Count( IsReaded ) FROM xdrcms_minimail WHERE InBin = 0 AND IsReaded = 0 AND SenderId != {0} AND OwnerId = {0}", Convert.ToUInt32(userid)));
-                    //miniMailCount = (uint)queryReactor.GetInteger();
 
                     queryReactor.RunFastQuery(string.Format("UPDATE users SET online='1' WHERE id = {0} LIMIT 1", Convert.ToUInt32(userid)));
                 }
@@ -288,23 +287,6 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                         row => new Relationship((int)row[0], (int)row[2], Convert.ToInt32(row[3].ToString())));
 
                 var user = HabboFactory.GenerateHabbo(dataRow, statsTable, groups);
-                //dataRow = null;
-                //achievementsTable = null;
-                //favoritesTable = null;
-                //ignoresTable = null;
-                //tagsTable = null;
-                //subscriptionsRow = null;
-                //badgesTable = null;
-                //itemsTable = null;
-                //effectsTable = null;
-                //friendsTable = null;
-                //friendsRequestsTable = null;
-                //myRoomsTable = null;
-                //petsTable = null;
-                //botsTable = null;
-                //relationShipsTable = null;
-                //pollsTable = null;
-
                 errorCode = 0;
                 if (user.Rank >= Azure.StaffAlertMinRank)
                     friends.Add(0, new MessengerBuddy(0, "Staff Chat", "hr-831-45.fa-1206-91.sh-290-1331.ha-3129-100.hd-180-2.cc-3039-73.ch-3215-92.lg-270-73", string.Empty, 0, false, true));

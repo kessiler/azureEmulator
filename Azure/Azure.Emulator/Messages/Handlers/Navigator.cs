@@ -79,7 +79,7 @@ namespace Azure.Messages.Handlers
                 return;
             string name = Request.GetString();
             string junk = Request.GetString();
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerlializeNewNavigator(name, junk, Session));
+            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNewNavigator(name, junk, Session));
         }
 
         /// <summary>

@@ -81,6 +81,7 @@ namespace Azure.HabboHotel.Support
         {
             var message = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolIssueMessageComposer"));
             message = ticket.Serialize(message);
+
             Azure.GetGame().GetClientManager().StaffAlert(message);
         }
 
@@ -96,29 +97,27 @@ namespace Azure.HabboHotel.Support
         internal static void PerformRoomAction(GameClient modSession, uint roomId, bool kickUsers, bool lockRoom, bool inappropriateRoom, ServerMessage message)
         {
             Room room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
-            if (room == null)
-            {
-                return;
-            }
+
+            if (room == null) return;
+
             if (lockRoom)
             {
                 room.RoomData.State = 1;
+
                 using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
                     queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET state = 'locked' WHERE id = {0}", room.RoomId));
-                }
             }
+
             if (inappropriateRoom)
             {
-                room.RoomData.Name = "Inappropiate to Hotel Management.";
-                room.RoomData.Description = "Your room description is not allowed.";
+                room.RoomData.Name = "Inapropriado para a Gerência do Hotel";
+                room.RoomData.Description = "A descrição do quarto não é permitida.";
                 room.ClearTags();
                 room.RoomData.SerializeRoomData(message, modSession, false, true);
             }
+
             if (kickUsers)
-            {
                 room.OnRoomKick();
-            }
         }
 
         /// <summary>
@@ -143,28 +142,28 @@ namespace Azure.HabboHotel.Support
         internal static ServerMessage SerializeRoomTool(RoomData Data)
         {
             Room room = Azure.GetGame().GetRoomManager().GetRoom(Data.Id);
+
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationRoomToolMessageComposer"));
             serverMessage.AppendInteger(Data.Id);
             serverMessage.AppendInteger(Data.UsersNow);
+
             if (room != null)
-            {
                 serverMessage.AppendBool(room.GetRoomUserManager().GetRoomUserByHabbo(Data.Owner) != null);
-            }
             else
-            {
                 serverMessage.AppendBool(false);
-            }
-            serverMessage.AppendInteger(room != null ? room.RoomData.OwnerId : 0);
+
+            serverMessage.AppendInteger(((room != null) ? room.RoomData.OwnerId : 0));
             serverMessage.AppendString(Data.Owner);
             serverMessage.AppendBool(room != null);
             serverMessage.AppendString(Data.Name);
             serverMessage.AppendString(Data.Description);
             serverMessage.AppendInteger(Data.TagCount);
+
             foreach (string current in Data.Tags)
-            {
                 serverMessage.AppendString(current);
-            }
+
             serverMessage.AppendBool(false);
+
             return serverMessage;
         }
 
@@ -178,31 +177,32 @@ namespace Azure.HabboHotel.Support
         internal static void KickUser(GameClient modSession, uint userId, string message, bool soft)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             if (clientByUserId == null || clientByUserId.GetHabbo().CurrentRoomId < 1 || clientByUserId.GetHabbo().Id == modSession.GetHabbo().Id)
             {
                 ModActionResult(modSession.GetHabbo().Id, false);
                 return;
             }
+
             if (clientByUserId.GetHabbo().Rank >= modSession.GetHabbo().Rank)
             {
                 ModActionResult(modSession.GetHabbo().Id, false);
                 return;
             }
+
             Room room = Azure.GetGame().GetRoomManager().GetRoom(clientByUserId.GetHabbo().CurrentRoomId);
-            if (room == null)
-            {
-                return;
-            }
+
+            if (room == null) return;
+
             room.GetRoomUserManager().RemoveUserFromRoom(clientByUserId, true, false);
             clientByUserId.CurrentRoomUserId = -1;
-            if (!soft)
-            {
-                clientByUserId.SendNotif(message);
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {0}", userId));
-                }
-            }
+
+            clientByUserId.SendNotif(message);
+
+            if (soft) return;
+
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {0}", userId));
         }
 
         /// <summary>
@@ -215,10 +215,10 @@ namespace Azure.HabboHotel.Support
         internal static void AlertUser(GameClient modSession, uint userId, string message, bool caution)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             if (clientByUserId == null)
-            {
                 return;
-            }
+
             clientByUserId.SendModeratorMessage(message);
         }
 
@@ -232,11 +232,10 @@ namespace Azure.HabboHotel.Support
         internal static void LockTrade(GameClient modSession, uint userId, string message, int length)
         {
             GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
-            if (clientByUserId == null)
-                return;
 
-            if (!clientByUserId.GetHabbo().CheckTrading())
-                length += Azure.GetUnixTimeStamp() - clientByUserId.GetHabbo().TradeLockExpire;
+            if (clientByUserId == null) return;
+
+            if (!clientByUserId.GetHabbo().CheckTrading()) length += Azure.GetUnixTimeStamp() - clientByUserId.GetHabbo().TradeLockExpire;
 
             clientByUserId.GetHabbo().TradeLocked = true;
             clientByUserId.GetHabbo().TradeLockExpire = Azure.GetUnixTimeStamp() + length;
@@ -280,59 +279,42 @@ namespace Azure.HabboHotel.Support
         /// <exception cref="System.NullReferenceException">User not found in database.</exception>
         internal static ServerMessage SerializeUserInfo(uint userId)
         {
+            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserToolMessageComposer"));
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                ServerMessage result;
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.SetQuery("SELECT id, username, online, mail, ip_last, look , rank , trade_lock , trade_lock_expire FROM users WHERE id = " + userId);
-                    DataRow row = queryReactor.GetRow();
-                    queryReactor.SetQuery("SELECT reg_timestamp, login_timestamp, cfhs, cfhs_abusive, cautions, bans FROM users_info WHERE user_id = " + userId);
-                    DataRow row2 = queryReactor.GetRow();
-                    if (row == null)
-                    {
-                        throw new NullReferenceException("User not found in database.");
-                    }
-                    var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserToolMessageComposer"));
-                    serverMessage.AppendInteger(Convert.ToUInt32(row["id"]));
-                    serverMessage.AppendString((string)row["username"]);
-                    serverMessage.AppendString((string)row["look"]);
-                    if (row2 != null)
-                    {
-                        serverMessage.AppendInteger((int)Math.Ceiling((Azure.GetUnixTimeStamp() - (double)row2["reg_timestamp"]) / 60.0));
+                queryReactor.SetQuery("SELECT id, username, mail, look, trade_lock, trade_lock_expire, rank, ip_last, " +
+                                      "IFNULL(cfhs, 0) cfhs, IFNULL(cfhs_abusive, 0) cfhs_abusive, IFNULL(cautions, 0) cautions, IFNULL(bans, 0) bans, " +
+                                      "IFNULL(reg_timestamp, 0) reg_timestamp, IFNULL(login_timestamp, 0) login_timestamp " +
+                                      "FROM users left join users_info on (users.id = users_info.user_id) WHERE id = '" + userId + "' LIMIT 1"
+                                      );
+                DataRow row = queryReactor.GetRow();
 
-                        serverMessage.AppendInteger((int)Math.Ceiling((Azure.GetUnixTimeStamp() - (double)row2["login_timestamp"]) / 60.0));
-                    }
-                    else
-                    {
-                        serverMessage.AppendInteger(0);
-                        serverMessage.AppendInteger(0);
-                    }
-                    serverMessage.AppendBool(Azure.GetGame().GetClientManager().GetClientByUserId(Convert.ToUInt32(row["id"])) != null);
-                    if (row2 != null)
-                    {
-                        serverMessage.AppendInteger((int)row2["cfhs"]);
-                        serverMessage.AppendInteger((int)row2["cfhs_abusive"]);
-                        serverMessage.AppendInteger((int)row2["cautions"]);
-                        serverMessage.AppendInteger((int)row2["bans"]);
-                    }
-                    else
-                    {
-                        serverMessage.AppendInteger(0);
-                        serverMessage.AppendInteger(0);
-                        serverMessage.AppendInteger(0);
-                        serverMessage.AppendInteger(0);
-                    }
-                    serverMessage.AppendInteger(0);
-                    serverMessage.AppendString((row["trade_lock"].ToString() == "1") ? Azure.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString() : "Not trade-locked");
-                    serverMessage.AppendString(((uint)row["rank"] < 6u) ? ((string)row["ip_last"]) : "127.0.0.1");
-                    serverMessage.AppendInteger(Convert.ToUInt32(row["id"]));
-                    serverMessage.AppendInteger(0);
-                    serverMessage.AppendString(string.Format("E-Mail:         {0}", row["mail"]));
-                    serverMessage.AppendString(string.Format("Rank ID:        {0}", (uint)row["rank"]));
-                    result = serverMessage;
-                }
-                return result;
+                uint id = Convert.ToUInt32(row["id"]);
+                serverMessage.AppendInteger(id);
+                serverMessage.AppendString(row["username"].ToString());
+                serverMessage.AppendString(row["look"].ToString());
+                double regTimestamp = (double)row["reg_timestamp"];
+                double loginTimestamp = (double)row["login_timestamp"];
+                int unixTimestamp = Azure.GetUnixTimeStamp();
+                serverMessage.AppendInteger((int)(regTimestamp > 0 ? Math.Ceiling((unixTimestamp - regTimestamp) / 60.0) : regTimestamp));
+                serverMessage.AppendInteger((int)(loginTimestamp > 0 ? Math.Ceiling((unixTimestamp - loginTimestamp) / 60.0) : loginTimestamp));
+                serverMessage.AppendBool(true);
+                serverMessage.AppendInteger(Convert.ToInt32(row["cfhs"]));
+                serverMessage.AppendInteger(Convert.ToInt32(row["cfhs_abusive"]));
+                serverMessage.AppendInteger(Convert.ToInt32(row["cautions"]));
+                serverMessage.AppendInteger(Convert.ToInt32(row["bans"]));
+
+                serverMessage.AppendInteger(0);
+                uint rank = (uint)row["rank"];
+                serverMessage.AppendString((row["trade_lock"].ToString() == "1") ? Azure.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString() : "Not trade-locked");
+                serverMessage.AppendString((rank < 6) ? row["ip_last"].ToString() : "127.0.0.1");
+                serverMessage.AppendInteger(id);
+                serverMessage.AppendInteger(0);
+
+                serverMessage.AppendString(string.Format("E-Mail:         {0}", row["mail"]));
+                serverMessage.AppendString(string.Format("Rank ID:        {0}", rank));
             }
+            return serverMessage;
         }
 
         /// <summary>
@@ -346,6 +328,7 @@ namespace Azure.HabboHotel.Support
             serverMessage.AppendInteger(userId);
 
             var user = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             if (user == null || user.GetHabbo() == null)
             {
                 serverMessage.AppendString("Not online");
@@ -356,10 +339,7 @@ namespace Azure.HabboHotel.Support
             serverMessage.AppendString(user.GetHabbo().UserName);
             serverMessage.StartArray();
 
-            foreach (var roomData in user.GetHabbo()
-                .RecentlyVisitedRooms.Select(
-                    roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId))
-                .Where(roomData => roomData != null))
+            foreach (var roomData in user.GetHabbo().RecentlyVisitedRooms.Select(roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId)).Where(roomData => roomData != null))
             {
                 serverMessage.AppendInteger(roomData.Id);
                 serverMessage.AppendString(roomData.Name);
@@ -382,6 +362,7 @@ namespace Azure.HabboHotel.Support
         internal static ServerMessage SerializeUserChatlog(uint userId)
         {
             ServerMessage result;
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = {0} ORDER BY timestamp DESC LIMIT 4", userId));
@@ -418,12 +399,13 @@ namespace Azure.HabboHotel.Support
                                     while (enumerator2.MoveNext())
                                     {
                                         var dataRow2 = (DataRow)enumerator2.Current;
+
                                         Habbo habboForId = Azure.GetHabboById((uint)dataRow2["user_id"]);
                                         Azure.UnixToDateTime((double)dataRow2["timestamp"]);
+
                                         if (habboForId == null)
-                                        {
                                             return null;
-                                        }
+
                                         serverMessage.AppendInteger(((int)(Azure.GetUnixTimeStamp() - (double)dataRow2["timestamp"])));
 
                                         serverMessage.AppendInteger(habboForId.Id);
@@ -436,29 +418,29 @@ namespace Azure.HabboHotel.Support
                                 finally
                                 {
                                     var disposable = enumerator2 as IDisposable;
+
                                     if (disposable != null)
-                                    {
                                         disposable.Dispose();
-                                    }
                                 }
                             }
+
                             serverMessage.AppendByte(1);
                             serverMessage.AppendShort(0);
                             serverMessage.AppendShort(0);
                         }
-                        goto IL_29B;
+                        result = serverMessage;
+                        return result;
                     }
                     finally
                     {
                         var disposable2 = enumerator as IDisposable;
+
                         if (disposable2 != null)
-                        {
                             disposable2.Dispose();
-                        }
                     }
                 }
+
                 serverMessage.AppendInteger(0);
-            IL_29B:
                 result = serverMessage;
             }
             return result;
@@ -475,38 +457,43 @@ namespace Azure.HabboHotel.Support
         internal static ServerMessage SerializeTicketChatlog(SupportTicket ticket, RoomData roomData, double timestamp)
         {
             var message = new ServerMessage();
+
             RoomData room = Azure.GetGame().GetRoomManager().GenerateRoomData(ticket.RoomId);
-            if (room == null)
+
+            if (room != null)
             {
-                throw new NullReferenceException("No room found.");
+
+                message.Init(LibraryParser.OutgoingRequest("ModerationToolIssueChatlogMessageComposer"));
+
+                message.AppendInteger(ticket.TicketId);
+                message.AppendInteger(ticket.SenderId);
+                message.AppendInteger(ticket.ReportedId);
+                message.AppendInteger(ticket.RoomId);
+
+                message.AppendByte(1);
+                message.AppendShort(2);
+                message.AppendString("roomName");
+                message.AppendByte(2);
+                message.AppendString(ticket.RoomName);
+                message.AppendString("roomId");
+                message.AppendByte(1);
+                message.AppendInteger(ticket.RoomId);
+
+                var tempChatlogs = room.RoomChat.Reverse().Skip(Math.Max(0, room.RoomChat.Count() - 60)).Take(60).ToList();
+
+                message.AppendShort(tempChatlogs.Count());
+
+                foreach (var chatLog in tempChatlogs)
+                    chatLog.Serialize(ref message);
+
+                tempChatlogs = null;
+
+                return message;
             }
-
-            message.Init(LibraryParser.OutgoingRequest("ModerationToolIssueChatlogMessageComposer"));
-
-            message.AppendInteger(ticket.TicketId);
-            message.AppendInteger(ticket.SenderId);
-            message.AppendInteger(ticket.ReportedId);
-            message.AppendInteger(ticket.RoomId);
-
-            message.AppendByte(1);
-            message.AppendShort(2);
-            message.AppendString("roomName");
-            message.AppendByte(2);
-            message.AppendString(ticket.RoomName);
-            message.AppendString("roomId");
-            message.AppendByte(1);
-            message.AppendInteger(ticket.RoomId);
-
-            var tempChatlogs = room.RoomChat.Reverse().Skip(Math.Max(0, room.RoomChat.Count() - 60)).Take(60).ToList();
-
-            message.AppendShort(tempChatlogs.Count());
-            foreach (var chatLog in tempChatlogs)
+            else
             {
-                chatLog.Serialize(ref message);
+                return null;
             }
-            tempChatlogs = null;
-
-            return message;
         }
 
         /// <summary>
@@ -519,29 +506,34 @@ namespace Azure.HabboHotel.Support
         {
             var message = new ServerMessage();
             Room room = Azure.GetGame().GetRoomManager().LoadRoom(roomId);
-            if (room == null || room.RoomData == null)
-                throw new NullReferenceException("No room found.");
 
-            message.Init(LibraryParser.OutgoingRequest("ModerationToolRoomChatlogMessageComposer"));
-            message.AppendByte(1); //type
-            message.AppendShort(2);
-            message.AppendString("roomName");
-            message.AppendByte(2);
-            message.AppendString(room.RoomData.Name);
-            message.AppendString("roomId");
-            message.AppendByte(1);
-            message.AppendInteger(room.RoomData.Id);
-
-            var tempChatlogs = room.RoomData.RoomChat.Reverse().Skip(Math.Max(0, room.RoomData.RoomChat.Count() - 60)).Take(60).ToList();
-
-            message.AppendShort(tempChatlogs.Count());
-            foreach (var chatLog in tempChatlogs)
+            if (room != null && room.RoomData != null)
             {
-                chatLog.Serialize(ref message);
-            }
-            tempChatlogs = null;
+                message.Init(LibraryParser.OutgoingRequest("ModerationToolRoomChatlogMessageComposer"));
+                message.AppendByte(1);
+                message.AppendShort(2);
+                message.AppendString("roomName");
+                message.AppendByte(2);
+                message.AppendString(room.RoomData.Name);
+                message.AppendString("roomId");
+                message.AppendByte(1);
+                message.AppendInteger(room.RoomData.Id);
 
-            return message;
+                var tempChatlogs = room.RoomData.RoomChat.Reverse().Skip(Math.Max(0, room.RoomData.RoomChat.Count() - 60)).Take(60).ToList();
+
+                message.AppendShort(tempChatlogs.Count());
+
+                foreach (var chatLog in tempChatlogs)
+                    chatLog.Serialize(ref message);
+
+                tempChatlogs = null;
+
+                return message;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -552,28 +544,32 @@ namespace Azure.HabboHotel.Support
         internal ServerMessage SerializeTool(GameClient session)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("LoadModerationToolMessageComposer"));
-            serverMessage.AppendInteger(Tickets.Count);
-            foreach (var current in Tickets) current.Serialize(serverMessage);
-            serverMessage.AppendInteger(UserMessagePresets.Count);
-            foreach (var current2 in UserMessagePresets) serverMessage.AppendString(current2);
 
-            IEnumerable<ModerationTemplate> enumerable = (from x in ModerationTemplates.Values
-                                                          where x.Category == -1
-                                                          select x).ToArray();
+            serverMessage.AppendInteger(Tickets.Count);
+
+            foreach (var current in Tickets)
+                current.Serialize(serverMessage);
+
+            serverMessage.AppendInteger(UserMessagePresets.Count);
+
+            foreach (var current2 in UserMessagePresets)
+                serverMessage.AppendString(current2);
+
+            IEnumerable<ModerationTemplate> enumerable = (from x in ModerationTemplates.Values where x.Category == -1 select x).ToArray();
 
             serverMessage.AppendInteger(enumerable.Count());
             using (var enumerator3 = enumerable.GetEnumerator())
             {
                 var first = true;
+
                 while (enumerator3.MoveNext())
                 {
                     var template = enumerator3.Current;
-                    IEnumerable<ModerationTemplate> enumerable2 = (from x in ModerationTemplates.Values
-                                                                   where x.Category == (long)((ulong)template.Id)
-                                                                   select x).ToArray();
+                    IEnumerable<ModerationTemplate> enumerable2 = (from x in ModerationTemplates.Values where x.Category == (long)((ulong)template.Id) select x).ToArray();
                     serverMessage.AppendString(template.CName);
                     serverMessage.AppendBool(first);
                     serverMessage.AppendInteger(enumerable2.Count());
+
                     foreach (var current3 in enumerable2)
                     {
                         serverMessage.AppendString(current3.Caption);
@@ -583,8 +579,9 @@ namespace Azure.HabboHotel.Support
                         serverMessage.AppendInteger(Azure.BoolToInteger(current3.Mute));
                         serverMessage.AppendInteger(Azure.BoolToInteger(current3.TradeLock));
                         serverMessage.AppendString(current3.WarningMessage);
-                        serverMessage.AppendBool(true); //showHabboWay
+                        serverMessage.AppendBool(true);
                     }
+
                     first = false;
                 }
             }
@@ -599,7 +596,9 @@ namespace Azure.HabboHotel.Support
             serverMessage.AppendBool(session.GetHabbo().HasFuse("fuse_kick")); //kick_but
 
             serverMessage.AppendInteger(RoomMessagePresets.Count);
-            foreach (var current4 in RoomMessagePresets) serverMessage.AppendString(current4);
+
+            foreach (var current4 in RoomMessagePresets)
+                serverMessage.AppendString(current4);
 
             return serverMessage;
         }
@@ -620,10 +619,9 @@ namespace Azure.HabboHotel.Support
             DataTable table2 = dbClient.GetTable();
             dbClient.SetQuery("SELECT * FROM moderation_templates");
             DataTable table3 = dbClient.GetTable();
+
             if (table == null || table2 == null)
-            {
                 return;
-            }
             foreach (DataRow dataRow in table.Rows)
             {
                 var item = (string)dataRow["message"];
@@ -632,23 +630,20 @@ namespace Azure.HabboHotel.Support
                 if (a != "message")
                 {
                     if (a == "roommessage")
-                    {
                         RoomMessagePresets.Add(item);
-                    }
                 }
                 else
                 {
                     UserMessagePresets.Add(item);
                 }
+
             }
+
             foreach (DataRow dataRow2 in table2.Rows)
-            {
                 SupportTicketHints.Add((string)dataRow2[0], (string)dataRow2[1]);
-            }
+
             foreach (DataRow dataRow3 in table3.Rows)
-            {
                 ModerationTemplates.Add(uint.Parse(dataRow3["id"].ToString()), new ModerationTemplate(uint.Parse(dataRow3["id"].ToString()), short.Parse(dataRow3["category"].ToString()), dataRow3["cName"].ToString(), dataRow3["caption"].ToString(), dataRow3["warning_message"].ToString(), dataRow3["ban_message"].ToString(), short.Parse(dataRow3["ban_hours"].ToString()), dataRow3["avatar_ban"].ToString() == "1", dataRow3["mute"].ToString() == "1", dataRow3["trade_lock"].ToString() == "1"));
-            }
         }
 
         /// <summary>
@@ -677,8 +672,7 @@ namespace Azure.HabboHotel.Support
         /// <param name="reportedUser">The reported user.</param>
         /// <param name="message">The message.</param>
         /// <param name="messages">The messages.</param>
-        internal void SendNewTicket(GameClient session, int category, int type, uint reportedUser, string message,
-            List<string> messages)
+        internal void SendNewTicket(GameClient session, int category, int type, uint reportedUser, string message, List<string> messages)
         {
             uint id;
 
@@ -692,26 +686,29 @@ namespace Azure.HabboHotel.Support
                     dbClient.RunFastQuery(string.Format("UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {0}", session.GetHabbo().Id));
                 }
 
-                var ticket = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, 0u, "",
-                    Azure.GetUnixTimeStamp(), messages);
+                var ticket = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, 0u, "", Azure.GetUnixTimeStamp(), messages);
+
                 Tickets.Add(ticket);
                 SendTicketToModerators(ticket);
-                return;
             }
-
-            RoomData data = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(session.GetHabbo().CurrentRoomId);
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            else
             {
-                dbClient.SetQuery(string.Concat("INSERT INTO moderation_tickets (score,type,status,sender_id,reported_id,moderator_id,message,room_id,room_name,timestamp) VALUES (1,'", category, "','open','", session.GetHabbo().Id, "','", reportedUser, "','0',@message,'", data.Id, "',@name,'", Azure.GetUnixTimeStamp(), "')"));
-                dbClient.AddParameter("message", message);
-                dbClient.AddParameter("name", data.Name);
-                id = (uint)dbClient.InsertQuery();
-                dbClient.RunFastQuery(string.Format("UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {0}", session.GetHabbo().Id));
+                RoomData data = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(session.GetHabbo().CurrentRoomId);
+
+                using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    dbClient.SetQuery(string.Concat("INSERT INTO moderation_tickets (score,type,status,sender_id,reported_id,moderator_id,message,room_id,room_name,timestamp) VALUES (1,'", category, "','open','", session.GetHabbo().Id, "','", reportedUser, "','0',@message,'", data.Id, "',@name,'", Azure.GetUnixTimeStamp(), "')"));
+                    dbClient.AddParameter("message", message);
+                    dbClient.AddParameter("name", data.Name);
+                    id = (uint)dbClient.InsertQuery();
+                    dbClient.RunFastQuery(string.Format("UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {0}", session.GetHabbo().Id));
+                }
+
+                var ticket2 = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, data.Id, data.Name, Azure.GetUnixTimeStamp(), messages);
+
+                Tickets.Add(ticket2);
+                SendTicketToModerators(ticket2);
             }
-            var ticket2 = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, data.Id, data.Name,
-                Azure.GetUnixTimeStamp(), messages);
-            Tickets.Add(ticket2);
-            SendTicketToModerators(ticket2);
         }
 
         /// <summary>
@@ -722,6 +719,7 @@ namespace Azure.HabboHotel.Support
         internal void SerializeOpenTickets(ref QueuedServerMessage serverMessages, uint userId)
         {
             var message = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolIssueMessageComposer"));
+
             foreach (SupportTicket current in Tickets.Where(current => current.Status == TicketStatus.Open || (current.Status == TicketStatus.Picked && current.ModeratorId == userId) || (current.Status == TicketStatus.Picked && current.ModeratorId == 0u)))
             {
                 message = current.Serialize(message);
@@ -747,10 +745,10 @@ namespace Azure.HabboHotel.Support
         internal void PickTicket(GameClient session, uint ticketId)
         {
             SupportTicket ticket = GetTicket(ticketId);
+
             if (ticket == null || ticket.Status != TicketStatus.Open)
-            {
                 return;
-            }
+
             ticket.Pick(session.GetHabbo().Id, true);
             SendTicketToModerators(ticket);
         }
@@ -763,10 +761,10 @@ namespace Azure.HabboHotel.Support
         internal void ReleaseTicket(GameClient session, uint ticketId)
         {
             SupportTicket ticket = GetTicket(ticketId);
+
             if (ticket == null || ticket.Status != TicketStatus.Picked || ticket.ModeratorId != session.GetHabbo().Id)
-            {
                 return;
-            }
+
             ticket.Release(true);
             SendTicketToModerators(ticket);
         }
@@ -780,33 +778,47 @@ namespace Azure.HabboHotel.Support
         internal void CloseTicket(GameClient session, uint ticketId, int result)
         {
             SupportTicket ticket = GetTicket(ticketId);
+
             if (ticket == null || ticket.Status != TicketStatus.Picked || ticket.ModeratorId != session.GetHabbo().Id)
-            {
                 return;
-            }
-            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(ticket.SenderId);
-            int i;
+
+            Habbo senderUser = Azure.GetHabboById(ticket.SenderId);
+
+            if (senderUser == null)
+                return;
+
+            uint statusCode = 0;
             TicketStatus newStatus;
+
             switch (result)
             {
                 case 1:
-                    i = 1;
+                    statusCode = 1;
                     newStatus = TicketStatus.Invalid;
-                    goto IL_9E;
+                    break;
                 case 2:
-                    i = 2;
+                    statusCode = 2;
                     newStatus = TicketStatus.Abusive;
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                    {
-                        AbusiveCooldown.Add(ticket.SenderId, Azure.GetUnixTimeStamp() + 600);
-                        queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {0}", ticket.SenderId));
-                        goto IL_9E;
-                    }
+                    break;
+                case 0:
+                default:
+                    statusCode = 0;
+                    newStatus = TicketStatus.Resolved;
+                    break;
             }
-            i = 0;
-            newStatus = TicketStatus.Resolved;
-        IL_9E:
-            if (clientByUserId != null && (ticket.Type != 3 && ticket.Type != 4))
+
+            if (statusCode == 2)
+            {
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    AbusiveCooldown.Add(ticket.SenderId, Azure.GetUnixTimeStamp() + 600);
+                    queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {0}", ticket.SenderId));
+                }
+            }
+
+            GameClient senderClient = Azure.GetGame().GetClientManager().GetClientByUserId(senderUser.Id);
+
+            if (senderClient != null)
             {
                 foreach (SupportTicket current2 in Tickets.FindAll(current => current.ReportedId == ticket.ReportedId && current.Status == TicketStatus.Picked))
                 {
@@ -814,25 +826,30 @@ namespace Azure.HabboHotel.Support
                     SendTicketToModerators(current2);
                     current2.Close(newStatus, true);
                 }
-                clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationToolUpdateIssueMessageComposer"));
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(1);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.TicketId);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(ticket.ModeratorId);
-                clientByUserId.GetMessageHandler()
-                              .GetResponse()
-                              .AppendString((Azure.GetHabboById(ticket.ModeratorId) != null)
-                                            ? Azure.GetHabboById(ticket.ModeratorId).UserName
-                                            : "Undefined");
-                clientByUserId.GetMessageHandler().GetResponse().AppendBool(false);
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(0);
-                clientByUserId.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationTicketResponseMessageComposer"));
-                clientByUserId.GetMessageHandler().GetResponse().AppendInteger(i);
-                clientByUserId.GetMessageHandler().SendResponse();
+
+                senderClient.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationToolUpdateIssueMessageComposer"));
+                senderClient.GetMessageHandler().GetResponse().AppendInteger(1);
+                senderClient.GetMessageHandler().GetResponse().AppendInteger(ticket.TicketId);
+                senderClient.GetMessageHandler().GetResponse().AppendInteger(ticket.ModeratorId);
+                senderClient.GetMessageHandler().GetResponse().AppendString((Azure.GetHabboById(ticket.ModeratorId) != null) ? Azure.GetHabboById(ticket.ModeratorId).UserName : "Undefined");
+                senderClient.GetMessageHandler().GetResponse().AppendBool(false);
+                senderClient.GetMessageHandler().GetResponse().AppendInteger(0);
+                senderClient.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("ModerationTicketResponseMessageComposer"));
+                senderClient.GetMessageHandler().GetResponse().AppendInteger(statusCode);
+                senderClient.GetMessageHandler().SendResponse();
             }
-            using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            else
             {
-                queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={0} LIMIT 1", session.GetHabbo().Id));
+                foreach (SupportTicket current2 in Tickets.FindAll(current => current.ReportedId == ticket.ReportedId && current.Status == TicketStatus.Picked))
+                {
+                    current2.Delete(true);
+                    SendTicketToModerators(current2);
+                    current2.Close(newStatus, true);
+                }
             }
+
+            using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={0} LIMIT 1", session.GetHabbo().Id));
         }
 
         /// <summary>
@@ -855,9 +872,8 @@ namespace Azure.HabboHotel.Support
             foreach (KeyValuePair<uint, double> item in AbusiveCooldown)
             {
                 if (AbusiveCooldown.ContainsKey(Id) && item.Value - Azure.GetUnixTimeStamp() > 0)
-                {
                     return true;
-                }
+
                 AbusiveCooldown.Remove(Id);
                 return false;
             }
@@ -886,9 +902,8 @@ namespace Azure.HabboHotel.Support
         internal SupportTicket GetPendingTicketForUser(uint id)
         {
             foreach (SupportTicket current in Tickets.Where(current => current.SenderId == id && current.Status == TicketStatus.Open))
-            {
                 return current;
-            }
+
             return null;
         }
 

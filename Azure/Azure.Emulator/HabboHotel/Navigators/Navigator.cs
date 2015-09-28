@@ -327,7 +327,7 @@ namespace Azure.HabboHotel.Navigators
         /// <param name="value2">The value2.</param>
         /// <param name="session">The session.</param>
         /// <returns>ServerMessage.</returns>
-        internal ServerMessage SerlializeNewNavigator(string value1, string value2, GameClient session)
+        internal ServerMessage SerializeNewNavigator(string value1, string value2, GameClient session)
         {
             var newNavigator = new ServerMessage(LibraryParser.OutgoingRequest("SearchResultSetComposer"));
             newNavigator.AppendString(value1);

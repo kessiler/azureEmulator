@@ -85,6 +85,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -97,6 +98,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -108,6 +110,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -119,6 +122,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }
@@ -140,6 +144,7 @@ namespace Azure.Database.Manager.Database.Session_Details
             catch (Exception exception)
             {
                 Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                throw exception;
             }
             return result;
         }
@@ -164,6 +169,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -179,6 +185,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -193,6 +200,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -207,6 +215,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }
@@ -232,6 +241,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -245,6 +255,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -257,6 +268,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -269,6 +281,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }
@@ -293,6 +306,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -305,6 +319,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -316,6 +331,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -327,6 +343,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }
@@ -349,6 +366,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -360,6 +378,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -370,6 +389,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -381,6 +401,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }
@@ -412,6 +433,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        throw exception;
                     }
                     break;
                 case "ingres":
@@ -423,6 +445,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        throw exception;
                     }
                     break;
                 case "pgsql":
@@ -433,6 +456,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        throw exception;
                     }
                     break;
                 default:
@@ -443,6 +467,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     catch (Exception exception)
                     {
                         Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        throw exception;
                     }
                     break;
             }

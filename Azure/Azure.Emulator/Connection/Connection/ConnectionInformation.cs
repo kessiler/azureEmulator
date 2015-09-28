@@ -30,7 +30,7 @@ namespace Azure.Connection.Connection
         /// <remarks>
         ///     Must be unique within a server.
         /// </remarks>
-        public int ChannelId { get; private set; }
+        public uint ChannelId { get; private set; }
 
         /// <summary>
         /// The _is connected
@@ -63,7 +63,7 @@ namespace Azure.Connection.Connection
         /// </summary>
         /// <param name="dataStream">The data stream.</param>
         /// <param name="parser">The parser.</param>
-        public ConnectionInformation(Socket socket, IDataParser parser, int _ChannelId)
+        public ConnectionInformation(Socket socket, IDataParser parser, uint _ChannelId)
         {
             _socket = socket;
             socket.SendBufferSize = GameSocketManagerStatics.BufferSize;
@@ -234,7 +234,7 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// Gets the connection identifier.
         /// </summary>
-        public int GetConnectionId()
+        public uint GetConnectionId()
         {
             return ChannelId;
         }

@@ -28,7 +28,7 @@ namespace Azure.HabboHotel.Commands.List
                 FurniDataParser.SetCache();
                 Azure.GetGame().GetItemManager().LoadItems(adapter);
                 Azure.GetGame().GetCatalog().Initialize(adapter);
-                Azure.GetGame().Reloaditems();
+                Azure.GetGame().ReloadItems();
                 FurniDataParser.Clear();
             }
             Azure.GetGame()

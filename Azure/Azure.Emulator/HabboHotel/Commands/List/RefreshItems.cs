@@ -26,7 +26,7 @@ namespace Azure.HabboHotel.Commands.List
         public override bool Execute(GameClient session, string[] pms)
         {
             FurniDataParser.SetCache();
-            Azure.GetGame().Reloaditems();
+            Azure.GetGame().ReloadItems();
             FurniDataParser.Clear();
             session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_items"));
             return true;

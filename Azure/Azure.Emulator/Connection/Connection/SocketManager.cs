@@ -24,7 +24,7 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// Count of accepeted connections
         /// </summary>
-        public int acceptedConnections;
+        public uint acceptedConnections;
 
         public int activeConnections;
 

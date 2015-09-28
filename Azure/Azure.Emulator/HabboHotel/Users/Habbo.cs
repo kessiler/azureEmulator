@@ -929,7 +929,7 @@ namespace Azure.HabboHotel.Users
                     queryReactor.AddParameter("navilogs", navilogs);
                     queryReactor.RunQuery();
                     queryReactor.RunFastQuery("UPDATE users_stats SET online_seconds = online_seconds + " + SecondsToGive + " WHERE id = " + Id);
-                    if (Rank >= 4u)
+                    if (Rank >= 4)
                         queryReactor.RunFastQuery(
                             string.Format(
                                 "UPDATE moderation_tickets SET status='open', moderator_id=0 WHERE status='picked' AND moderator_id={0}",

@@ -59,7 +59,6 @@ namespace Azure.HabboHotel.Items
         /// <param name="dbClient">The database client.</param>
         internal void LoadItems(IQueryAdapter dbClient)
         {
-            _items = new Hashtable();
             _items.Clear();
 
             GiftWrappers.Clear();

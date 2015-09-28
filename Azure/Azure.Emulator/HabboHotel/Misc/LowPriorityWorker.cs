@@ -61,6 +61,7 @@ namespace Azure.HabboHotel.Misc
                             Azure.GetUnixTimeStamp(), "', users_online = ", clientCount, ", rooms_loaded = ",
                             loadedRoomsCount, ", server_ver = 'Azure Emulator', userpeak = ", _userPeak));
                     }
+                    Azure.GetGame().GetNavigator().LoadNewPublicRooms();
                 }
                 catch (Exception e)
                 {

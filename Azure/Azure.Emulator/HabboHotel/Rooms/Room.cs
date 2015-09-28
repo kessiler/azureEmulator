@@ -764,7 +764,6 @@ namespace Azure.HabboHotel.Rooms
                             return;
                         }
                         var serverMessage = GetRoomUserManager().SerializeStatusUpdates(false);
-
                         if (serverMessage != null)
                             SendMessage(serverMessage);
                     }
@@ -843,7 +842,7 @@ namespace Azure.HabboHotel.Rooms
 
                 foreach (RoomUser user in _roomUserManager.UserList.Values)
                 {
-                    if (user.IsBot)
+                    if (user.IsBot || user.IsPet)
                         continue;
 
                     GameClient UsersClient = user.GetClient();
@@ -870,8 +869,8 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="message">The message.</param>
         internal void SendMessage(ServerMessage message)
         {
-            //if (message != null)
-            SendMessage(message.GetReversedBytes());
+            if (message != null)
+                SendMessage(message.GetReversedBytes());
         }
 
         /// <summary>

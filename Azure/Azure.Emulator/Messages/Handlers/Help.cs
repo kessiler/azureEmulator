@@ -111,15 +111,18 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ModGetUserInfo()
         {
-            if (!Session.GetHabbo().HasFuse("fuse_mod"))
-                return;
-            var num = Request.GetUInteger();
-            if (Azure.GetGame().GetClientManager().GetNameById(num) != "Unknown User")
+            if (Session.GetHabbo().HasFuse("fuse_mod"))
             {
-                Session.SendMessage(ModerationTool.SerializeUserInfo(num));
-                return;
+                var num = Request.GetUInteger();
+                if (Azure.GetGame().GetClientManager().GetNameById(num) != "Unknown User")
+                {
+                    Session.SendMessage(ModerationTool.SerializeUserInfo(num));
+                }
+                else
+                {
+                    Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error"));
+                }
             }
-            Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error"));
         }
 
         /// <summary>
@@ -233,15 +236,11 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ModGetRoomVisits()
         {
-            if (!Session.GetHabbo().HasFuse("fuse_mod"))
-                return;
-
-            uint userId = Request.GetUInteger();
-
-            if (userId <= 0)
-                return;
-
-            Session.SendMessage(ModerationTool.SerializeRoomVisits(userId));
+            if (Session.GetHabbo().HasFuse("fuse_mod"))
+            {
+                uint userId = Request.GetUInteger();
+                if (userId > 0) Session.SendMessage(ModerationTool.SerializeRoomVisits(userId));
+            }
         }
 
         /// <summary>

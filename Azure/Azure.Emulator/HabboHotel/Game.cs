@@ -185,7 +185,7 @@ namespace Azure.HabboHotel
                 uint pollLoaded;
 
                 Progress(bar, wait, end, "Cleaning dirty in database...");
-                DatabaseStartupCleanup(queryReactor);
+                DatabaseCleanup(queryReactor);
 
                 Progress(bar, wait, end, "Loading Bans...");
                 _banManager = new ModerationBanManager();
@@ -323,24 +323,17 @@ namespace Azure.HabboHotel
         }
 
 
-        private static void DatabaseStartupCleanup(IQueryAdapter dbClient)
-        {
-            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
-        }
-
         /// <summary>
         /// Databases the cleanup.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
-        internal static void DatabaseShutdownCleanup(IQueryAdapter dbClient)
+        private static void DatabaseCleanup(IQueryAdapter dbClient)
         {
             dbClient.RunFastQuery("UPDATE users SET online = '0' WHERE online <> '0'");
             dbClient.RunFastQuery("UPDATE rooms_data SET users_now = 0 WHERE users_now <> 0");
-            dbClient.RunFastQuery(
-                string.Format(
-                    "UPDATE server_status SET status = 1, users_online = 0, rooms_loaded = 0, server_ver = 'Mercury Emulator', stamp = '{0}' ",
-                    Azure.GetUnixTimeStamp()));
+            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
         }
+        
 
         /*internal AntiMutant GetAntiMutant()
         {
@@ -590,7 +583,7 @@ namespace Azure.HabboHotel
         internal void Destroy()
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                DatabaseShutdownCleanup(queryReactor);
+                DatabaseCleanup(queryReactor);
             GetClientManager();
             Out.WriteLine("Client Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
         }
@@ -598,7 +591,7 @@ namespace Azure.HabboHotel
         /// <summary>
         /// Reloaditemses this instance.
         /// </summary>
-        internal void Reloaditems()
+        internal void ReloadItems()
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {

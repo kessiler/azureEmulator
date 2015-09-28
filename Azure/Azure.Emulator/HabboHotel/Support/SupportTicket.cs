@@ -102,8 +102,7 @@ namespace Azure.HabboHotel.Support
         /// <param name="roomName">Name of the room.</param>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="reportedChats">The reported chats.</param>
-        internal SupportTicket(uint id, int score, int category, int type, uint senderId, uint reportedId, string message, uint roomId,
-            string roomName, double timestamp, List<string> reportedChats)
+        internal SupportTicket(uint id, int score, int category, int type, uint senderId, uint reportedId, string message, uint roomId, string roomName, double timestamp, List<string> reportedChats)
         {
             TicketId = id;
             Score = score;
@@ -162,10 +161,9 @@ namespace Azure.HabboHotel.Support
 
             if (!updateInDb)
                 return;
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
                 queryReactor.RunFastQuery(string.Concat("UPDATE moderation_tickets SET status = 'picked', moderator_id = ", pModeratorId, ", timestamp = '", Azure.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
-            }
         }
 
         /// <summary>
@@ -180,25 +178,23 @@ namespace Azure.HabboHotel.Support
             if (!updateInDb)
                 return;
 
-            string text = "resolved";
+            string statusCode = "resolved";
 
             switch (newStatus)
             {
                 case TicketStatus.Abusive:
-                    text = "abusive";
+                    statusCode = "abusive";
                     break;
                 case TicketStatus.Invalid:
-                    text = "invalid";
+                    statusCode = "invalid";
                     break;
                 case TicketStatus.Resolved:
-                    text = "resolved";
+                    statusCode = "resolved";
                     break;            
             }
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Concat("UPDATE moderation_tickets SET status = '", text, "' WHERE id = ", TicketId));
-            }
+                queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = '{0}' WHERE id = {1}", statusCode, TicketId));
         }
 
         /// <summary>
@@ -213,9 +209,7 @@ namespace Azure.HabboHotel.Support
                 return;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
                 queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'open' WHERE id = {0}", TicketId));
-            }
         }
 
         /// <summary>
@@ -225,13 +219,12 @@ namespace Azure.HabboHotel.Support
         internal void Delete(bool updateInDb)
         {
             Status = TicketStatus.Deleted;
+
             if (!updateInDb)
                 return;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
                 queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'deleted' WHERE id = {0}", TicketId));
-            }
         }
 
         /// <summary>
@@ -241,21 +234,21 @@ namespace Azure.HabboHotel.Support
         /// <returns>ServerMessage.</returns>
         internal ServerMessage Serialize(ServerMessage message)
         {
-            message.AppendInteger(TicketId); // id
-            message.AppendInteger(TabId); // state
+            message.AppendInteger(TicketId); 
+            message.AppendInteger(TabId); 
             message.AppendInteger(3); // type (3 or 4 for new style)
             message.AppendInteger(Category);
-            message.AppendInteger((Azure.GetUnixTimeStamp() - (int)Timestamp) * 1000); // -->> timestamp
-            message.AppendInteger(Score); // priority
-            message.AppendInteger(1); // ensures that more tickets of the same reporter/reported user get merged
-            message.AppendInteger(SenderId); // sender id 8 ints
-            message.AppendString(_senderName); // sender name
+            message.AppendInteger((Azure.GetUnixTimeStamp() - (int)Timestamp) * 1000); 
+            message.AppendInteger(Score);
+            message.AppendInteger(1);
+            message.AppendInteger(SenderId);
+            message.AppendString(_senderName);
             message.AppendInteger(ReportedId);
             message.AppendString(_reportedName);
-            message.AppendInteger((Status == TicketStatus.Picked) ? ModeratorId : 0); // mod id
-            message.AppendString(_modName); // mod name
-            message.AppendString(Message); // issue message
-            message.AppendInteger(0); // is room public?
+            message.AppendInteger((Status == TicketStatus.Picked) ? ModeratorId : 0);
+            message.AppendString(_modName); 
+            message.AppendString(Message);
+            message.AppendInteger(0); 
 
             message.AppendInteger(ReportedChats.Count);
 

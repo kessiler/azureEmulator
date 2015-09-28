@@ -59,6 +59,8 @@ namespace Azure.HabboHotel.GameClients
 
         private readonly ConcurrentQueue<GameClient> clientsAddQueue;
 
+        private readonly ConcurrentQueue<GameClient> clientsToRemove;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GameClientManager"/> class.
         /// </summary>
@@ -66,6 +68,7 @@ namespace Azure.HabboHotel.GameClients
         {
             Clients = new ConcurrentDictionary<uint, GameClient>();
             clientsAddQueue = new ConcurrentQueue<GameClient>();
+            clientsToRemove = new ConcurrentQueue<GameClient>();
             _badgeQueue = new Queue();
             _broadcastQueue = new ConcurrentQueue<byte[]>();
             _userNameRegister = new HybridDictionary();
@@ -212,6 +215,7 @@ namespace Azure.HabboHotel.GameClients
             try
             {
                 AddClients();
+                RemoveClients();
                 GiveBadges();
                 BroadcastPackets();
                 Azure.GetGame().ClientManagerCycleEnded = true;
@@ -282,10 +286,7 @@ namespace Azure.HabboHotel.GameClients
         internal void DisposeConnection(uint clientId)
         {
             GameClient client = GetClient(clientId);
-
-            if (client != null)
-                client.Stop();
-            Clients.TryRemove(clientId, out client);
+            clientsToRemove.Enqueue(client);
         }
 
         /// <summary>
@@ -434,6 +435,20 @@ namespace Azure.HabboHotel.GameClients
                 while (clientsAddQueue.TryDequeue(out client))
                 {
                     client.StartConnection();
+                }
+            }
+        }
+
+        private void RemoveClients()
+        {
+            if (clientsToRemove.Count > 0)
+            {
+                GameClient client;
+                while (clientsToRemove.TryDequeue(out client))
+                {
+                    if (client != null)
+                        client.Stop();
+                    Clients.TryRemove(client.ConnectionId, out client);
                 }
             }
         }
