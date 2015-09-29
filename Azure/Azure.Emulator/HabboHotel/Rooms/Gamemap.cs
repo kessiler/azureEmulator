@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Azure.HabboHotel.Rooms.Wired.Handlers;
+using Azure.Util;
 
 namespace Azure.HabboHotel.Rooms
 {
@@ -44,29 +45,7 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         /// The _user map
         /// </summary>
-        private Dictionary<Point, List<RoomUser>> _userMap;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Gamemap"/> class.
-        /// </summary>
-        /// <param name="room">The room.</param>
-        /// <exception cref="System.Exception"></exception>
-        public Gamemap(Room room)
-        {
-            _room = room;
-            DiagonalEnabled = true;
-            StaticModel = Azure.GetGame().GetRoomManager().GetModel(room.RoomData.ModelName, room.RoomId);
-            if (StaticModel == null)
-                throw new ArgumentNullException(string.Format("No modeldata found for roomID {0}", room.RoomId));
-            Model = new DynamicRoomModel(StaticModel, room);
-            CoordinatedItems = new HybridDictionary();
-            GotPublicPool = room.RoomData.Model.GotPublicPool;
-            GameMap = new byte[Model.MapSizeX, Model.MapSizeY];
-            ItemHeightMap = new double[Model.MapSizeX, Model.MapSizeY];
-            _userMap = new Dictionary<Point, List<RoomUser>>();
-            WalkableList = GetWalkablePoints();
-            GuildGates = new Dictionary<Point, RoomItem>();
-        }
+        private HybridDictionary _userMap;
 
         /// <summary>
         /// Gets the model.
@@ -102,6 +81,28 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <value>The item height map.</value>
         internal double[,] ItemHeightMap { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Gamemap"/> class.
+        /// </summary>
+        /// <param name="room">The room.</param>
+        /// <exception cref="System.Exception"></exception>
+        public Gamemap(Room room)
+        {
+            _room = room;
+            DiagonalEnabled = true;
+            StaticModel = Azure.GetGame().GetRoomManager().GetModel(room.RoomData.ModelName, room.RoomId);
+            if (StaticModel == null)
+                throw new ArgumentNullException(string.Format("No modeldata found for roomID {0}", room.RoomId));
+            Model = new DynamicRoomModel(StaticModel, room);
+            CoordinatedItems = new HybridDictionary();
+            GotPublicPool = room.RoomData.Model.GotPublicPool;
+            GameMap = new byte[Model.MapSizeX, Model.MapSizeY];
+            ItemHeightMap = new double[Model.MapSizeX, Model.MapSizeY];
+            _userMap = new HybridDictionary();
+            WalkableList = GetWalkablePoints();
+            GuildGates = new Dictionary<Point, RoomItem>();
+        }
 
         /// <summary>
         /// Determines whether this instance can walk the specified p state.
@@ -211,12 +212,18 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="coord">The coord.</param>
         internal void AddUserToMap(RoomUser user, Point coord)
         {
-            if (_userMap.ContainsKey(coord))
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomUser> users = (List<RoomUser>)_userMap[coordKey];
+
+            if (users != null)
             {
-                _userMap[coord].Add(user);
-                return;
+                users.Add(user);
             }
-            _userMap.Add(coord, new List<RoomUser> { user });
+            else
+            {
+                users = new List<RoomUser> { user };
+                _userMap.Add(coordKey, users);
+            }
         }
 
         /// <summary>
@@ -262,9 +269,10 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="coord">The coord.</param>
         internal void RemoveUserFromMap(RoomUser user, Point coord)
         {
-            if (user == null) return;
-            if (_userMap.ContainsKey(coord))
-                _userMap[coord].Remove(user);
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomUser> users = (List<RoomUser>)_userMap[coordKey];
+            if (users != null)
+                users.Remove(user);
         }
 
         /// <summary>
@@ -272,7 +280,7 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <param name="coord">The coord.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool MapGotUser(Point coord) { return GetRoomUsers(coord).Any(); }
+        internal bool MapGotUser(Point coord) { return GetRoomUsers(coord).Count > 0; }
 
         /// <summary>
         /// Gets the room users.
@@ -281,7 +289,11 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>List&lt;RoomUser&gt;.</returns>
         internal List<RoomUser> GetRoomUsers(Point coord)
         {
-            return _userMap.ContainsKey(coord) ? _userMap[coord] : new List<RoomUser>();
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomUser> users = (List<RoomUser>)_userMap[coordKey];
+            if (users != null)
+                return users;
+            return new List<RoomUser>();
         }
 
         /// <summary>
@@ -290,21 +302,18 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>Point.</returns>
         internal Point GetRandomWalkableSquare()
         {
-            var list = WalkableList;
-            if (!list.Any())
+            if (!WalkableList.Any())
                 return new Point(0, 0);
 
+            var randomNumber = new Random().Next(0, WalkableList.Count);
+            var num = 0;
+            foreach (var current in WalkableList)
             {
-                var randomNumber = new Random().Next(0, list.Count);
-                var num = 0;
-                foreach (var current in list)
-                {
-                    if (num == randomNumber)
-                        return current;
-                    num++;
-                }
-                return new Point(0, 0);
+                if (num == randomNumber)
+                    return current;
+                num++;
             }
+            return new Point(0, 0);
         }
 
         /// <summary>
@@ -361,7 +370,7 @@ namespace Azure.HabboHotel.Rooms
         /// Adds to map.
         /// </summary>
         /// <param name="item">The item.</param>
-        internal void AddToMap(RoomItem item) { AddItemToMap(item, true); }
+        internal void AddToMap(RoomItem item) { AddItemToMap(item); }
 
         /// <summary>
         /// Updates the map for item.
@@ -381,15 +390,15 @@ namespace Azure.HabboHotel.Rooms
         {
             try
             {
-                var xMap = 0;
-                var yMap = 0;
+                int xMap = 0;
+                int yMap = 0;
 
-                CoordinatedItems = new HybridDictionary();
+                CoordinatedItems.Clear();
 
                 if (checkLines)
                 {
-                    var roomItema = _room.GetRoomItemHandler().FloorItems.Values.ToArray();
-                    foreach (var roomItems in roomItema)
+                    RoomItem[] roomItema = _room.GetRoomItemHandler().FloorItems.Values.ToArray();
+                    foreach (RoomItem roomItems in roomItema)
                     {
                         if (roomItems.X > Model.MapSizeX && roomItems.X > xMap)
                             xMap = roomItems.X;
@@ -398,8 +407,10 @@ namespace Azure.HabboHotel.Rooms
                     }
 
                     Array.Clear(roomItema, 0, roomItema.Length);
+                    roomItema = null;
                 }
 
+                #region Dynamic game map handling
                 if (yMap > Model.MapSizeY - 1 || xMap > Model.MapSizeX - 1)
                 {
                     if (xMap < Model.MapSizeX)
@@ -459,6 +470,8 @@ namespace Azure.HabboHotel.Rooms
                         }
                     }
                 }
+                #endregion
+                #region Static game map handling
                 else
                 {
                     EffectMap = new byte[Model.MapSizeX, Model.MapSizeY];
@@ -507,9 +520,16 @@ namespace Azure.HabboHotel.Rooms
                         }
                     }
                 }
+                #endregion
 
-                var roomItem = _room.GetRoomItemHandler().FloorItems.Values;
-                roomItem.Any(t => !AddItemToMap(t));
+                RoomItem[] roomItem = _room.GetRoomItemHandler().FloorItems.Values.ToArray();
+                foreach (RoomItem item in roomItem)
+                {
+                    if (!AddItemToMap(item))
+                        break;
+                }
+                roomItem = null;
+
 
                 if (!_room.RoomData.AllowWalkThrough)
                 {
@@ -536,18 +556,21 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="coord">The coord.</param>
         internal void AddCoordinatedItem(RoomItem item, Point coord)
         {
-            List<RoomItem> list;
-            if (!CoordinatedItems.Contains(coord))
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coordKey];
+
+            if (items == null)
             {
-                list = new List<RoomItem> { item };
-                CoordinatedItems.Add(coord, list);
-                return;
+                items = new List<RoomItem>();
+                items.Add(item);
+
+                CoordinatedItems.Add(coordKey, items);
             }
-            list = (List<RoomItem>)CoordinatedItems[coord];
-            if (list.Contains(item))
-                return;
-            list.Add(item);
-            CoordinatedItems[coord] = list;
+            else
+            {
+                if (!items.Contains(item))
+                    items.Add(item);
+            }
         }
 
         /// <summary>
@@ -557,8 +580,10 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>List&lt;RoomItem&gt;.</returns>
         internal List<RoomItem> GetCoordinatedItems(Point coord)
         {
-            if (CoordinatedItems.Contains(coord))
-                return (List<RoomItem>)CoordinatedItems[coord];
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coordKey];
+            if (items != null)
+                return items;
             return new List<RoomItem>();
         }
 
@@ -570,16 +595,20 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool RemoveCoordinatedItem(RoomItem item, Point coord)
         {
-            var point = new Point(coord.X, coord.Y);
-            if (!CoordinatedItems.Contains(point))
-                return false;
-            ((List<RoomItem>)CoordinatedItems[point]).Remove(item);
-            return true;
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coordKey];
+            if (items != null)
+            {
+                items.Remove(item);
+                return true;
+            }
+            return false;
         }
 
         internal List<RoomItem> GetCoordinatedHeighestItems(Point coord)
         {
-            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coord];
+            int coordKey = Formatter.PointToInt(coord);
+            List<RoomItem> items = (List<RoomItem>)CoordinatedItems[coordKey];
             if (items == null)
                 return new List<RoomItem>();
 
@@ -620,7 +649,7 @@ namespace Azure.HabboHotel.Rooms
             var hybridDictionary = new HybridDictionary();
             foreach (var current2 in item.GetCoords)
             {
-                var point = new Point(current2.X, current2.Y);
+                int point = Formatter.PointToInt(current2);
                 if (CoordinatedItems.Contains(point))
                 {
                     var value = (List<RoomItem>)CoordinatedItems[point];
@@ -656,9 +685,8 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="handleGameItem">if set to <c>true</c> [handle game item].</param>
-        /// <param name="newItem">if set to <c>true</c> [new item].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool AddItemToMap(RoomItem item, bool handleGameItem, bool newItem = true)
+        internal bool AddItemToMap(RoomItem item, bool handleGameItem = true)
         {
             if (handleGameItem)
             {
@@ -720,21 +748,27 @@ namespace Azure.HabboHotel.Rooms
             if (item.GetBaseItem().Type != 's')
                 return true;
             foreach (var coord in item.GetCoords.Select(current => new Point(current.X, current.Y)))
-                AddCoordinatedItem(item, coord);
-
             {
-                if (item.X > Model.MapSizeX - 1)
-                {
-                    Model.AddX();
-                    GenerateMaps(true);
-                    return false;
-                }
-                if (item.Y <= Model.MapSizeY - 1)
-                    return item.GetCoords.All(current2 => ConstructMapForItem(item, current2));
+                AddCoordinatedItem(item, coord);
+            }
+            if (item.X > Model.MapSizeX - 1)
+            {
+                Model.AddX();
+                GenerateMaps(true);
+                return false;
+            }
+            if (item.Y > Model.MapSizeY - 1)
+            {
                 Model.AddY();
                 GenerateMaps(true);
                 return false;
             }
+
+            foreach (Point coord in item.GetCoords)
+                if (!ConstructMapForItem(item, coord))
+                    return false;
+
+            return true;
         }
 
         /// <summary>
@@ -749,14 +783,6 @@ namespace Azure.HabboHotel.Rooms
         {
             return _room.RoomData.AllowWalkThrough || Override || _room.GetRoomUserManager().GetUserForSquare(x, y) == null;
         }
-
-        /// <summary>
-        /// Adds the item to map.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <param name="newItem">if set to <c>true</c> [new item].</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool AddItemToMap(RoomItem item, bool newItem = true) { return AddItemToMap(item, true, newItem); }
 
         /// <summary>
         /// Gets the floor status.
@@ -1065,11 +1091,19 @@ namespace Azure.HabboHotel.Rooms
         {
             try
             {
-                var point = new Point(x, y);
-                if (!CoordinatedItems.Contains(point))
-                    return Model.SqFloorHeight[x][y];
-                var itemsOnSquare = (List<RoomItem>)CoordinatedItems[point];
-                return SqAbsoluteHeight(x, y, itemsOnSquare);
+                if (x >= GameMap.GetUpperBound(0) || y >= GameMap.GetUpperBound(1))
+                    return 0;
+
+                if (x >= Model.MapSizeX || y >= Model.MapSizeY)
+                    return 0.0;
+
+                int point = Formatter.CombineXYCoord(x, y);
+                if (CoordinatedItems.Contains(point))
+                {
+                    List<RoomItem> itemsOnSquare = (List<RoomItem>)CoordinatedItems[point];
+                    return SqAbsoluteHeight(x, y, itemsOnSquare);
+                }
+                return Model.SqFloorHeight[x][y];
             }
             catch (Exception ex)
             {
@@ -1131,13 +1165,13 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>List&lt;RoomItem&gt;.</returns>
         internal List<RoomItem> GetRoomItemForSquare(int x, int y)
         {
-            var point = new Point(x, y);
+            int point = Formatter.CombineXYCoord(x, y);
             var list = new List<RoomItem>();
             if (!CoordinatedItems.Contains(point))
                 return list;
 
             var list2 = (List<RoomItem>)CoordinatedItems[point];
-            list.AddRange(list2.Where(current => current.Coordinate.X == point.X && current.Coordinate.Y == point.Y));
+            list.AddRange(list2.Where(current => current.Coordinate.X == x && current.Coordinate.Y == y));
             return list;
         }
 
@@ -1150,7 +1184,7 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool SquareHasFurni(int x, int y, Interaction type)
         {
-            var point = new Point(x, y);
+            int point = Formatter.CombineXYCoord(x, y);
             if (!CoordinatedItems.Contains(point))
                 return false;
 
@@ -1158,7 +1192,7 @@ namespace Azure.HabboHotel.Rooms
             return
                 list.Any(
                     item =>
-                        item.Coordinate.X == point.X && item.Coordinate.Y == point.Y &&
+                        item.Coordinate.X == x && item.Coordinate.Y == y &&
                         item.GetBaseItem().InteractionType == type);
         }
 
@@ -1170,12 +1204,12 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool SquareHasFurni(int x, int y)
         {
-            var point = new Point(x, y);
+            int point = Formatter.CombineXYCoord(x, y);
             if (!CoordinatedItems.Contains(point))
                 return false;
 
             var list = (List<RoomItem>)CoordinatedItems[point];
-            return list.Any(item => item.Coordinate.X == point.X && item.Coordinate.Y == point.Y);
+            return list.Any(item => item.Coordinate.X == x && item.Coordinate.Y == y);
         }
 
         /// <summary>
@@ -1186,7 +1220,7 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>List&lt;RoomItem&gt;.</returns>
         internal List<RoomItem> GetAllRoomItemForSquare(int pX, int pY)
         {
-            var point = new Point(pX, pY);
+            int point = Formatter.CombineXYCoord(pX, pY);
             var list = new List<RoomItem>();
             if (!CoordinatedItems.Contains(point))
                 return list;
