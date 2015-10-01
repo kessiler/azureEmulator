@@ -76,45 +76,44 @@ namespace Azure.HabboHotel.Users
 
         public void AddUserVideo(GameClient client, string video)
         {
-            if (client == null)
-                return;
-
-            Match youtubeMatch = YoutubeVideoRegex.Match(video);
-
-            string id = string.Empty;
-            string video_name = string.Empty;
-
-            if (youtubeMatch.Success)
+            if (client != null)
             {
-                id = youtubeMatch.Groups[1].Value;
+                Match youtubeMatch = YoutubeVideoRegex.Match(video);
 
-                if(GetTitleById(id) == String.Empty)
+                string id = string.Empty;
+                string video_name = string.Empty;
+
+                if (youtubeMatch.Success)
                 {
-                    client.SendWhisper("This Youtube Video doesn't Exists");
+                    id = youtubeMatch.Groups[1].Value;
+                    video_name = GetTitleById(id);
+
+                    if (String.IsNullOrEmpty(video_name))
+                    {
+                        client.SendWhisper("This Youtube Video doesn't Exists");
+                        return;
+                    }
+                }
+                else
+                {
+                    client.SendWhisper("This Youtube Url is Not Valid");
                     return;
                 }
 
-                video_name = GetTitleById(id);
-            }           
-            else
-            {
-                client.SendWhisper("This Youtube Url is Not Valid");
-                return;
-            }
-                
 
-            UserId = client.GetHabbo().Id;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.SetQuery("INSERT INTO users_videos_youtube (user_id, video_id, name, description) VALUES (@user_id, @video_id, @name, @name)");
-                queryReactor.AddParameter("user_id", UserId);
-                queryReactor.AddParameter("video_id", id);
-                queryReactor.AddParameter("name", video_name);
-                queryReactor.RunQuery();
-            }
+                UserId = client.GetHabbo().Id;
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.SetQuery("INSERT INTO users_videos_youtube (user_id, video_id, name, description) VALUES (@user_id, @video_id, @name, @name)");
+                    queryReactor.AddParameter("user_id", UserId);
+                    queryReactor.AddParameter("video_id", id);
+                    queryReactor.AddParameter("name", video_name);
+                    queryReactor.RunQuery();
+                }
 
-            RefreshVideos();
-            client.SendNotif("Youtube Video Added Sucessfully!");
+                RefreshVideos();
+                client.SendNotif("Youtube Video Added Sucessfully!");
+            }
         }
     }
 
