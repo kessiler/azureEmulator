@@ -682,7 +682,8 @@ namespace Azure.HabboHotel.Rooms
         /// <returns><c>true</c> if this instance is owner; otherwise, <c>false</c>.</returns>
         internal bool IsOwner()
         {
-            return !IsBot && GetUserName() == GetRoom().RoomData.Owner;
+            Room currentRoom = GetRoom();
+            return !IsBot && currentRoom != null && GetUserName() == currentRoom.RoomData.Owner;
         }
 
         /// <summary>
