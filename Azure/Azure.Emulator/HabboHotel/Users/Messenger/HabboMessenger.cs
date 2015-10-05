@@ -320,7 +320,6 @@ namespace Azure.HabboHotel.Users.Messenger
         {
             var clientByUsername = Azure.GetGame().GetClientManager().GetClientByUserName(userQuery);
             uint userId;
-            string userName, look;
             bool blockForNewFriends;
 
             if (clientByUsername == null)
@@ -328,23 +327,19 @@ namespace Azure.HabboHotel.Users.Messenger
                 DataRow dataRow;
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.SetQuery("SELECT id, block_newfriends, username, look FROM users WHERE username = @query");
+                    queryReactor.SetQuery("SELECT id, block_newfriends FROM users WHERE username = @query");
                     queryReactor.AddParameter("query", userQuery.ToLower());
                     dataRow = queryReactor.GetRow();
                 }
                 if (dataRow == null)
                     return false;
                 userId = Convert.ToUInt32(dataRow["id"]);
-                userName = dataRow["username"].ToString();
-                look = dataRow["look"].ToString();
                 blockForNewFriends = Azure.EnumToBool(dataRow["block_newfriends"].ToString());
             }
             else
             {
                 Habbo currentUser = clientByUsername.GetHabbo();
                 userId = currentUser.Id;
-                userName = currentUser.UserName;
-                look = currentUser.Look;
                 blockForNewFriends = currentUser.HasFriendRequestsDisabled;
             }
             var client = GetClient();
@@ -367,9 +362,10 @@ namespace Azure.HabboHotel.Users.Messenger
             using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 queryreactor2.RunFastQuery(string.Concat("REPLACE INTO messenger_requests (from_id,to_id) VALUES (", _userId, ",", userId, ")"));
             Azure.GetGame().GetQuestManager().ProgressUserQuest(client, QuestType.AddFriends, 0);
-            if (clientByUsername != null && clientByUsername.GetHabbo() != null)
+            Habbo fromUser = client.GetHabbo();
+            if (clientByUsername != null && clientByUsername.GetHabbo() != null && fromUser != null)
             {
-                MessengerRequest messengerRequest = new MessengerRequest(userId, _userId, userName, look);
+                MessengerRequest messengerRequest = new MessengerRequest(userId, _userId, fromUser.UserName, fromUser.Look);
                 clientByUsername.GetHabbo().GetMessenger().OnNewRequest(_userId, messengerRequest);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ConsoleSendFriendRequestMessageComposer"));
                 messengerRequest.Serialize(serverMessage);
