@@ -216,7 +216,7 @@ namespace Azure.HabboHotel.Users
         /// <summary>
         /// The user groups
         /// </summary>
-        internal HashSet<GroupUser> UserGroups;
+        internal HashSet<GroupMember> UserGroups;
 
         /// <summary>
         /// The favourite group
@@ -497,7 +497,7 @@ namespace Azure.HabboHotel.Users
             int dailyRespectPoints, int dailyPetRespectPoints, bool hasFriendRequestsDisabled, uint currentQuestId,
             int currentQuestProgress, int achievementPoints, int regTimestamp, int lastOnline, bool appearOffline,
             bool hideInRoom, bool vip, double createDate, bool online, string citizenShip, int diamonds,
-            HashSet<GroupUser> groups, uint favId, int lastChange, bool tradeLocked, int tradeLockExpire, bool nuxPassed,
+            HashSet<GroupMember> groups, uint favId, int lastChange, bool tradeLocked, int tradeLockExpire, bool nuxPassed,
             int buildersExpire, int buildersItemsMax, int buildersItemsUsed, int releaseVersion, bool onDuty,
             Dictionary<int, NaviLogs> naviLogs, int dailyCompetitionVotes, uint dutyLevel)
         {

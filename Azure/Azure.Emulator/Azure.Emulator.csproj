@@ -267,6 +267,7 @@
     <Compile Include="HabboHotel\Items\TonerData.cs" />
     <Compile Include="HabboHotel\Items\UserItem.cs" />
     <Compile Include="HabboHotel\Items\WallCoordinate.cs" />
+    <Compile Include="HabboHotel\Items\Wired\Handlers\Conditions\TimerTrigger.cs" />
     <Compile Include="HabboHotel\Misc\AntiMutant.cs" />
     <Compile Include="HabboHotel\Misc\CoinsManager.cs" />
     <Compile Include="HabboHotel\Commands\List\About.cs" />
@@ -521,7 +522,7 @@
     <Compile Include="HabboHotel\Groups\GroupManager.cs" />
     <Compile Include="HabboHotel\Groups\Structs\GroupSymbolColours.cs" />
     <Compile Include="HabboHotel\Groups\Structs\GroupSymbols.cs" />
-    <Compile Include="HabboHotel\Groups\Structs\GroupUser.cs" />
+    <Compile Include="HabboHotel\Groups\Structs\GroupMember.cs" />
     <Compile Include="HabboHotel\Groups\Guild.cs" />
     <Compile Include="HabboHotel\Navigators\FlatCat.cs" />
     <Compile Include="HabboHotel\Navigators\HotelView.cs" />

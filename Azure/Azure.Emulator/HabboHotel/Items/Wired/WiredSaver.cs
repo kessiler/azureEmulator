@@ -26,6 +26,15 @@ namespace Azure.HabboHotel.Rooms.Wired
 
             switch (item.GetBaseItem().InteractionType)
             {
+                case Interaction.TriggerTimer:
+                    {
+                        request.GetInteger();
+                        IWiredItem wired = wiredHandler.GetWired(item);
+                        int delay = request.GetInteger() * 500;
+                        wired.Delay = delay;
+                        wiredHandler.ReloadWired(wired);
+                        break;
+                    }
                 case Interaction.TriggerRoomEnter:
                     {
                         request.GetInteger();

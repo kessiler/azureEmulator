@@ -324,9 +324,11 @@ namespace Azure.HabboHotel.Rooms
         internal List<RoomItem> RemoveAllFurniture(GameClient session)
         {
             var items = new List<RoomItem>();
+            Gamemap roomGamemap = _room.GetGameMap();
             foreach (var item in FloorItems.Values.ToArray())
             {
                 item.Interactor.OnRemove(session, item);
+                roomGamemap.RemoveSpecialItem(item);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("PickUpFloorItemMessageComposer"));
                 serverMessage.AppendString(item.Id.ToString());
                 serverMessage.AppendBool(false); //expired

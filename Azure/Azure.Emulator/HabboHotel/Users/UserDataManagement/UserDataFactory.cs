@@ -39,6 +39,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
         {
             uint userid = 0, miniMailCount = 0;
             errorCode = 1;
+            string userName, look;
 
             DataTable groupsTable;
             DataRow dataRow;
@@ -73,6 +74,8 @@ namespace Azure.HabboHotel.Users.UserDataManagement
 
                     errorCode = 0;
                     userid = Convert.ToUInt32(dataRow["id"]);
+                    userName = dataRow["username"].ToString();
+                    look = dataRow["look"].ToString();
 
                     queryReactor.RunFastQuery(string.Format("UPDATE users SET online = '1' WHERE id = '{0}'", userid));
                     if (Azure.GetGame().GetClientManager().GetClientByUserId(userid) != null)
@@ -118,11 +121,11 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                     queryReactor.SetQuery(string.Format("SELECT * FROM users_stats WHERE id = {0}", Convert.ToUInt32(userid)));
                     statsTable = queryReactor.GetRow();
 
-                    queryReactor.SetQuery(string.Format("SELECT messenger_requests.from_id,messenger_requests.to_id,users.Username FROM users JOIN messenger_requests ON users.id = messenger_requests.from_id WHERE messenger_requests.to_id = {0}", Convert.ToUInt32(userid)));
+                    queryReactor.SetQuery(string.Format("SELECT messenger_requests.from_id,messenger_requests.to_id,users.Username, users.Look FROM users JOIN messenger_requests ON users.id = messenger_requests.from_id WHERE messenger_requests.to_id = {0}", Convert.ToUInt32(userid)));
                     friendsRequestsTable = queryReactor.GetTable();
 
                     queryReactor.SetQuery("SELECT * FROM rooms_data WHERE owner = @name LIMIT 150");
-                    queryReactor.AddParameter("name", dataRow["username"]);
+                    queryReactor.AddParameter("name", userName);
                     myRoomsTable = queryReactor.GetTable();
 
                     queryReactor.SetQuery(string.Format("SELECT * FROM bots WHERE user_id = {0} AND room_id = 0 AND ai_type='pet'", Convert.ToUInt32(userid)));
@@ -134,7 +137,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                     queryReactor.SetQuery(string.Format("SELECT * FROM bots WHERE user_id = {0} AND room_id=0 AND ai_type='generic'", Convert.ToUInt32(userid)));
                     botsTable = queryReactor.GetTable();
 
-                    queryReactor.SetQuery(string.Format("SELECT group_id,rank,date_join FROM groups_members WHERE user_id = {0}", Convert.ToUInt32(userid)));
+                    queryReactor.SetQuery(string.Format("SELECT group_id, rank, date_join FROM groups_members WHERE user_id = {0}", Convert.ToUInt32(userid)));
                     groupsTable = queryReactor.GetTable();
 
                     queryReactor.SetQuery("REPLACE INTO users_info(user_id, login_timestamp) VALUES(@userid, @login_timestamp)");
@@ -241,12 +244,13 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 {
                     var num5 = Convert.ToUInt32(row["from_id"]);
                     var num6 = Convert.ToUInt32(row["to_id"]);
-                    var pUsername2 = (string)row["Username"];
+                    string pUsername2 = row["username"].ToString();
+                    string pLook = row["look"].ToString();
                     if (num5 != userid)
                         if (!friendsRequests.ContainsKey(num5))
-                            friendsRequests.Add(num5, new MessengerRequest(userid, num5, pUsername2));
+                            friendsRequests.Add(num5, new MessengerRequest(userid, num5, pUsername2, pLook));
                         else if (!friendsRequests.ContainsKey(num6))
-                            friendsRequests.Add(num6, new MessengerRequest(userid, num6, pUsername2));
+                            friendsRequests.Add(num6, new MessengerRequest(userid, num6, pUsername2, pLook));
                 }
 
                 var myRooms = new HashSet<RoomData>();
@@ -278,9 +282,9 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                     quests.Add(key, value3);
                 }
 
-                var groups = new HashSet<GroupUser>();
+                var groups = new HashSet<GroupMember>();
                 foreach (DataRow row in groupsTable.Rows)
-                    groups.Add(new GroupUser(userid, (uint)row[0], Convert.ToInt16(row[1]), (int)row[2]));
+                    groups.Add(new GroupMember(userid, userName, look, (uint)row["group_id"], Convert.ToInt16(row["rank"]), (int)row["date_join"]));
 
                 var relationShips = relationShipsTable.Rows.Cast<DataRow>()
                     .ToDictionary(row => (int)row[0],
@@ -351,7 +355,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
             var pets = new Dictionary<uint, Pet>();
             var quests = new Dictionary<uint, int>();
             var bots = new Dictionary<uint, RoomBot>();
-            var group = new HashSet<GroupUser>();
+            var group = new HashSet<GroupMember>();
             var pollData = new HashSet<uint>();
             var dictionary = table.Rows.Cast<DataRow>()
                 .ToDictionary(dataRow2 => (int)dataRow2[0],

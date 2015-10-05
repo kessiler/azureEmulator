@@ -26,8 +26,6 @@ namespace Azure.Connection.Connection
         /// </summary>
         public uint acceptedConnections;
 
-        public int activeConnections;
-
         /// <summary>
         /// The _connection listener
         /// </summary>
@@ -87,7 +85,6 @@ namespace Azure.Connection.Connection
             MaximumConnections = maxConnections;
             _portInformation = portId;
             acceptedConnections = 0;
-            activeConnections = 0;
             MaxIpConnectionCount = connectionsPerIp;
             AntiDDosStatus = antiDDoS;
             if (_portInformation < 0)
@@ -118,8 +115,7 @@ namespace Azure.Connection.Connection
 
         private void OnChannelDisconnect(ConnectionInformation connection, Exception exception)
         {
-            connection.Disconnected = null;
-            activeConnections--;
+            connection.Disconnected = null;            
             OnClientDisconnected(connection, exception);
             connection.Cleanup();
         }
@@ -137,7 +133,6 @@ namespace Azure.Connection.Connection
                     {
                         socket.NoDelay = _disableNagleAlgorithm;
                         acceptedConnections++;
-                        activeConnections++;
                         var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
                         connectionInfo.Disconnected = OnChannelDisconnect;
                         OnClientConnected(connectionInfo);

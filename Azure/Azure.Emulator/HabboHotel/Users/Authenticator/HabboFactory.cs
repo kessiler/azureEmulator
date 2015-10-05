@@ -23,7 +23,7 @@ namespace Azure.HabboHotel.Users.Authenticator
         /// <param name="mRow">The m row.</param>
         /// <param name="group">The group.</param>
         /// <returns>Habbo.</returns>
-        internal static Habbo GenerateHabbo(DataRow dRow, DataRow mRow, HashSet<GroupUser> group)
+        internal static Habbo GenerateHabbo(DataRow dRow, DataRow mRow, HashSet<GroupMember> group)
         {
             var id = uint.Parse(dRow["id"].ToString());
             var userName = (string)dRow["username"];

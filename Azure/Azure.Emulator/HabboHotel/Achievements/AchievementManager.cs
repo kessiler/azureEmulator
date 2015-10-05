@@ -9,6 +9,9 @@ using Azure.HabboHotel.GameClients;
 using Azure.HabboHotel.Users.Subscriptions;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.HabboHotel.Users.Badges;
+using Azure.HabboHotel.Users;
+using Azure.Messages.Handlers;
 
 #endregion
 
@@ -177,10 +180,10 @@ namespace Azure.HabboHotel.Achievements
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool ProgressUserAchievement(GameClient Session, string AchievementGroup, int ProgressAmount, bool FromZero = false)
         {
-            if (Achievements.ContainsKey(AchievementGroup) && Session != null)
+            if (Achievements.ContainsKey(AchievementGroup) && Session != null && Session.GetHabbo() != null)
             {
                 Achievement achievement = Achievements[AchievementGroup];
-                Users.Habbo user = Session.GetHabbo();
+                Habbo user = Session.GetHabbo();
                 UserAchievement userAchievement = user.GetAchievementData(AchievementGroup);
                 if (userAchievement == null)
                 {
@@ -219,14 +222,15 @@ namespace Azure.HabboHotel.Achievements
                     num4++;
                     int argE60 = num2 - targetLevelData.Requirement;
                     num2 = 0;
+                    BadgeComponent userBadgeComponent = user.GetBadgeComponent();
                     if (num == 1)
                     {
-                        user.GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
+                        userBadgeComponent.GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
                     }
                     else
                     {
-                        user.GetBadgeComponent().RemoveBadge(Convert.ToString(string.Format("{0}{1}", AchievementGroup, num - 1)), Session);
-                        user.GetBadgeComponent().GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
+                        userBadgeComponent.RemoveBadge(Convert.ToString(string.Format("{0}{1}", AchievementGroup, num - 1)), Session);
+                        userBadgeComponent.GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
                     }
                     if (num4 > count)
                     {
@@ -238,7 +242,7 @@ namespace Azure.HabboHotel.Achievements
                     Session.SendMessage(AchievementUnlockedComposer.Compose(achievement, num, targetLevelData.RewardPoints, targetLevelData.RewardPixels));
                     using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", Session.GetHabbo().Id, ", @group, ", num3, ", ", num2, ")"));
+                        queryReactor.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", user.Id, ", @group, ", num3, ", ", num2, ")"));
                         queryReactor.AddParameter("group", AchievementGroup);
                         queryReactor.RunQuery();
                     }
@@ -266,9 +270,8 @@ namespace Azure.HabboHotel.Achievements
                     queryreactor2.AddParameter("group", AchievementGroup);
                     queryreactor2.RunQuery();
                 }
-
-                    
-                Messages.Handlers.GameClientMessageHandler messageHandler = Session.GetMessageHandler();
+                  
+                GameClientMessageHandler messageHandler = Session.GetMessageHandler();
                 if (messageHandler != null)
                 {
                     Session.SendMessage(AchievementProgressComposer.Compose(achievement, num, targetLevelData, count, user.GetAchievementData(AchievementGroup)));

@@ -319,58 +319,62 @@ namespace Azure.HabboHotel.Users.Messenger
         internal bool RequestBuddy(string userQuery)
         {
             var clientByUsername = Azure.GetGame().GetClientManager().GetClientByUserName(userQuery);
-            uint num;
-            bool flag;
+            uint userId;
+            string userName, look;
+            bool blockForNewFriends;
+
             if (clientByUsername == null)
             {
                 DataRow dataRow;
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.SetQuery("SELECT id,block_newfriends FROM users WHERE Username = @query");
+                    queryReactor.SetQuery("SELECT id, block_newfriends, username, look FROM users WHERE username = @query");
                     queryReactor.AddParameter("query", userQuery.ToLower());
                     dataRow = queryReactor.GetRow();
                 }
                 if (dataRow == null)
                     return false;
-                num = Convert.ToUInt32(dataRow["id"]);
-                flag = Azure.EnumToBool(dataRow["block_newfriends"].ToString());
+                userId = Convert.ToUInt32(dataRow["id"]);
+                userName = dataRow["username"].ToString();
+                look = dataRow["look"].ToString();
+                blockForNewFriends = Azure.EnumToBool(dataRow["block_newfriends"].ToString());
             }
             else
             {
-                num = clientByUsername.GetHabbo().Id;
-                flag = clientByUsername.GetHabbo().HasFriendRequestsDisabled;
+                Habbo currentUser = clientByUsername.GetHabbo();
+                userId = currentUser.Id;
+                userName = currentUser.UserName;
+                look = currentUser.Look;
+                blockForNewFriends = currentUser.HasFriendRequestsDisabled;
             }
-            if (flag && GetClient().GetHabbo().Rank < 4u)
+            var client = GetClient();
+            if (blockForNewFriends && client.GetHabbo().Rank < 4)
             {
-                GetClient()
+                client
                     .GetMessageHandler()
                     .GetResponse()
                     .Init(LibraryParser.OutgoingRequest("NotAcceptingRequestsMessageComposer"));
-                GetClient().GetMessageHandler().GetResponse().AppendInteger(39);
-                GetClient().GetMessageHandler().GetResponse().AppendInteger(3);
-                GetClient().GetMessageHandler().SendResponse();
+                client.GetMessageHandler().GetResponse().AppendInteger(39);
+                client.GetMessageHandler().GetResponse().AppendInteger(3);
+                client.GetMessageHandler().SendResponse();
                 return false;
             }
-            var num2 = num;
-            if (RequestExists(num2))
+            if (RequestExists(userId))
             {
-                GetClient().SendNotif("Ya le has enviado una petición anteriormente.");
+                client.SendNotif("Ya le has enviado una petición anteriormente.");
                 return true;
             }
             using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                queryreactor2.RunFastQuery(string.Concat("REPLACE INTO messenger_requests (from_id,to_id) VALUES (", _userId, ",", num2, ")"));
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(GetClient(), QuestType.AddFriends, 0u);
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(num2);
-            if (clientByUserId == null || clientByUserId.GetHabbo() == null)
-                return true;
-            var messengerRequest = new MessengerRequest(num2, _userId,
-                Azure.GetGame().GetClientManager().GetNameById(_userId));
-            clientByUserId.GetHabbo().GetMessenger().OnNewRequest(_userId);
-            var serverMessage =
-                new ServerMessage(LibraryParser.OutgoingRequest("ConsoleSendFriendRequestMessageComposer"));
-            messengerRequest.Serialize(serverMessage);
-            clientByUserId.SendMessage(serverMessage);
-            Requests.Add(num2, messengerRequest);
+                queryreactor2.RunFastQuery(string.Concat("REPLACE INTO messenger_requests (from_id,to_id) VALUES (", _userId, ",", userId, ")"));
+            Azure.GetGame().GetQuestManager().ProgressUserQuest(client, QuestType.AddFriends, 0);
+            if (clientByUsername != null && clientByUsername.GetHabbo() != null)
+            {
+                MessengerRequest messengerRequest = new MessengerRequest(userId, _userId, userName, look);
+                clientByUsername.GetHabbo().GetMessenger().OnNewRequest(_userId, messengerRequest);
+                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ConsoleSendFriendRequestMessageComposer"));
+                messengerRequest.Serialize(serverMessage);
+                clientByUsername.SendMessage(serverMessage);
+            }
             return true;
         }
 
@@ -378,11 +382,10 @@ namespace Azure.HabboHotel.Users.Messenger
         /// Called when [new request].
         /// </summary>
         /// <param name="friendId">The friend identifier.</param>
-        internal void OnNewRequest(uint friendId)
+        internal void OnNewRequest(uint friendId, MessengerRequest friendRequest)
         {
             if (!Requests.ContainsKey(friendId))
-                Requests.Add(friendId,
-                    new MessengerRequest(_userId, friendId, Azure.GetGame().GetClientManager().GetNameById(friendId)));
+                Requests.Add(friendId, friendRequest);
         }
 
         /// <summary>
@@ -523,10 +526,11 @@ namespace Azure.HabboHotel.Users.Messenger
             serverMessage.AppendInteger(1);
             serverMessage.AppendInteger(0);
             serverMessage.AppendInteger(Friends.Count);
+            GameClient client = GetClient();
             foreach (var current in Friends.Values)
             {
                 current.UpdateUser();
-                current.Serialize(serverMessage, GetClient());
+                current.Serialize(serverMessage, client);
             }
             return serverMessage;
         }
@@ -569,22 +573,11 @@ namespace Azure.HabboHotel.Users.Messenger
         internal ServerMessage SerializeRequests()
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("FriendRequestsMessageComposer"));
-            serverMessage.AppendInteger(((long)Requests.Count > (long)((ulong)Azure.FriendRequestLimit))
-                ? ((int)Azure.FriendRequestLimit)
-
-                : Requests.Count);
-            serverMessage.AppendInteger(((long)Requests.Count > (long)((ulong)Azure.FriendRequestLimit))
-                ? ((int)Azure.FriendRequestLimit)
-
-                : Requests.Count);
-            var num = 0;
-            foreach (var current in Requests.Values)
+            serverMessage.AppendInteger(Requests.Count > Azure.FriendRequestLimit ? (int)Azure.FriendRequestLimit : Requests.Count);
+            serverMessage.AppendInteger(Requests.Count > Azure.FriendRequestLimit ? (int)Azure.FriendRequestLimit : Requests.Count);
+            IEnumerable<MessengerRequest> requests = Requests.Values.Take((int)Azure.FriendRequestLimit);
+            foreach (var current in requests)
             {
-                {
-                    num++;
-                }
-                if (num > Azure.FriendRequestLimit)
-                    break;
                 current.Serialize(serverMessage);
             }
             return serverMessage;

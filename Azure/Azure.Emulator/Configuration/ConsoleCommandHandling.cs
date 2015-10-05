@@ -109,8 +109,7 @@ namespace Azure.Configuration
                         Console.WriteLine("\tHours:   {0}", Uptime.Hours);
                         Console.WriteLine("\tMinutes: {0}", Uptime.Minutes);
                         Console.WriteLine();
-                        Console.WriteLine("Stats:");
-                        Console.WriteLine("\tActive Connections: {0}", Azure.GetConnectionManager().Manager.activeConnections);
+                        Console.WriteLine("Stats:");                        
                         Console.WriteLine("\tAccepted Connections: {0}", Azure.GetConnectionManager().Manager.acceptedConnections);
                         Console.WriteLine("\tActive Threads: {0}", System.Diagnostics.Process.GetCurrentProcess().Threads.Count);
                         Console.WriteLine();

@@ -206,6 +206,9 @@ namespace Azure.HabboHotel.Rooms.Wired
         {
             switch (item.GetBaseItem().InteractionType)
             {
+                case Interaction.TriggerTimer:
+                    return new TimerTrigger(item, _room);
+
                 case Interaction.TriggerRoomEnter:
                     return new UserEntersRoom(item, _room);
 

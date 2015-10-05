@@ -1501,7 +1501,7 @@ namespace Azure.HabboHotel.Rooms
         /// Removes the special item.
         /// </summary>
         /// <param name="item">The item.</param>
-        private void RemoveSpecialItem(RoomItem item)
+        internal void RemoveSpecialItem(RoomItem item)
         {
             switch (item.GetBaseItem().InteractionType)
             {
@@ -1550,8 +1550,12 @@ namespace Azure.HabboHotel.Rooms
             serverMessage.AppendInteger(Model.MapSizeX);
             serverMessage.AppendInteger(Model.MapSizeX * Model.MapSizeY);
             for (var i = 0; i < Model.MapSizeY; i++)
+            {
                 for (var j = 0; j < Model.MapSizeX; j++)
+                {
                     serverMessage.AppendShort((short)(SqAbsoluteHeight(j, i) * 256));
+                }
+            }
             //  serverMessage.AppendShort(this.Model.SqFloorHeight[j, i] * 256);
             return serverMessage;
         }

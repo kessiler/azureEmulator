@@ -58,7 +58,7 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         /// The _room models
         /// </summary>
-        private readonly Hashtable _roomModels;
+        private readonly HybridDictionary _roomModels;
 
         /// <summary>
         /// The _voted rooms
@@ -98,7 +98,7 @@ namespace Azure.HabboHotel.Rooms
         internal RoomManager()
         {
             LoadedRooms = new ConcurrentDictionary<uint, Room>();
-            _roomModels = new Hashtable();
+            _roomModels = new HybridDictionary();
             LoadedRoomData = new ConcurrentDictionary<uint, RoomData>();
             _votedRooms = new Dictionary<RoomData, int>();
             _activeRooms = new Dictionary<RoomData, uint>();
@@ -150,9 +150,9 @@ namespace Azure.HabboHotel.Rooms
         /// <returns>RoomModel.</returns>
         internal RoomModel GetModel(string model, uint roomId)
         {
-            if (model == "custom" && _roomModels.ContainsKey(string.Format("custom_{0}", roomId)))
+            if (model == "custom" && _roomModels.Contains(string.Format("custom_{0}", roomId)))
                 return (RoomModel)_roomModels[string.Format("custom_{0}", roomId)];
-            if (_roomModels.ContainsKey(model))
+            if (_roomModels.Contains(model))
                 return (RoomModel)_roomModels[model];
             return null;
         }
@@ -292,7 +292,7 @@ namespace Azure.HabboHotel.Rooms
         internal RoomData CreateRoom(GameClient session, string name, string desc, string model, int category,
                                      int maxVisitors, int tradeState)
         {
-            if (!_roomModels.ContainsKey(model))
+            if (!_roomModels.Contains(model))
             {
                 session.SendNotif(Azure.GetLanguage().GetVar("user_room_model_error"));
 
@@ -388,7 +388,7 @@ namespace Azure.HabboHotel.Rooms
         internal void UpdateCustomModel(uint roomId, RoomModel modelData)
         {
             string modelId = string.Format("custom_{0}", roomId);
-            if (_roomModels.ContainsKey(modelId))
+            if (_roomModels.Contains(modelId))
             {
                 _roomModels[modelId] = modelData;
             }

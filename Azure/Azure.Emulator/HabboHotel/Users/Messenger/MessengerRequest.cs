@@ -15,6 +15,10 @@ namespace Azure.HabboHotel.Users.Messenger
         /// The _user name
         /// </summary>
         private readonly string _userName;
+        /// <summary>
+        /// The _user look
+        /// </summary>
+        private readonly string _look;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessengerRequest"/> class.
@@ -22,11 +26,12 @@ namespace Azure.HabboHotel.Users.Messenger
         /// <param name="toUser">To user.</param>
         /// <param name="fromUser">From user.</param>
         /// <param name="userName">Name of the user.</param>
-        internal MessengerRequest(uint toUser, uint fromUser, string userName)
+        internal MessengerRequest(uint toUser, uint fromUser, string userName, string look)
         {
             To = toUser;
             From = fromUser;
             _userName = userName;
+            _look = look;
         }
 
         /// <summary>
@@ -49,8 +54,7 @@ namespace Azure.HabboHotel.Users.Messenger
         {
             request.AppendInteger(From);
             request.AppendString(_userName);
-            var habboForName = Azure.GetHabboForName(_userName);
-            request.AppendString((habboForName != null) ? habboForName.Look : "");
+            request.AppendString(_look);
         }
     }
 }
