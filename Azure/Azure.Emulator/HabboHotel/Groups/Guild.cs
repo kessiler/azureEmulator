@@ -73,17 +73,17 @@ namespace Azure.HabboHotel.Groups
         /// <summary>
         /// The members
         /// </summary>
-        internal Dictionary<uint, GroupUser> Members;
+        internal Dictionary<uint, GroupMember> Members;
 
         /// <summary>
         /// The admins
         /// </summary>
-        internal Dictionary<uint, GroupUser> Admins;
+        internal Dictionary<uint, GroupMember> Admins;
 
         /// <summary>
         /// The requests
         /// </summary>
-        internal List<uint> Requests;
+        internal Dictionary<uint, GroupMember> Requests;
 
         /// <summary>
         /// The has forum
@@ -153,8 +153,8 @@ namespace Azure.HabboHotel.Groups
         /// <param name="forumLastPosterName">Name of the forum last poster.</param>
         /// <param name="forumLastPosterTimestamp">The forum last poster timestamp.</param>
         internal Guild(uint id, string name, string desc, uint roomId, string badge, int create, uint creator,
-            int colour1, int colour2, Dictionary<uint, GroupUser> members, List<uint> requests,
-            Dictionary<uint, GroupUser> admins, uint state, uint adminOnlyDeco, bool hasForum, string forumName,
+            int colour1, int colour2, Dictionary<uint, GroupMember> members, Dictionary<uint, GroupMember> requests,
+            Dictionary<uint, GroupMember> admins, uint state, uint adminOnlyDeco, bool hasForum, string forumName,
             string forumDescription, uint forumMessagesCount, double forumScore, uint forumLastPosterId,
             string forumLastPosterName, int forumLastPosterTimestamp,
             int whoCanRead, int whoCanPost, int whoCanThread, int whoCanMod)

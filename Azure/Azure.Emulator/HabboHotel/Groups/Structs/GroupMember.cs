@@ -3,12 +3,22 @@ namespace Azure.HabboHotel.Groups.Structs
     /// <summary>
     /// Class GroupUser.
     /// </summary>
-    internal class GroupUser
+    internal class GroupMember
     {
         /// <summary>
         /// The identifier
         /// </summary>
         internal uint Id;
+
+        /// <summary>
+        /// The name
+        /// </summary>
+        internal string Name;
+
+        /// <summary>
+        /// The look
+        /// </summary>
+        internal string Look;
 
         /// <summary>
         /// The rank
@@ -26,14 +36,16 @@ namespace Azure.HabboHotel.Groups.Structs
         internal int DateJoin;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GroupUser"/> class.
+        /// Initializes a new instance of the <see cref="GroupMember"/> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="groupId">The group identifier.</param>
         /// <param name="rank">The rank.</param>
-        internal GroupUser(uint id, uint groupId, int rank, int dateJoin)
+        internal GroupMember(uint id, string name, string look, uint groupId, int rank, int dateJoin)
         {
             Id = id;
+            Name = name;
+            Look = look;
             GroupId = groupId;
             Rank = rank;
             DateJoin = dateJoin;

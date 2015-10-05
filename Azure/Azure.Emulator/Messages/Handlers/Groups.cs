@@ -293,7 +293,7 @@ namespace Azure.Messages.Handlers
             uint GroupId = Request.GetUInteger();
             uint UserId = Request.GetUInteger();
             Guild group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.Contains(UserId))
+            if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(UserId))
                 return;
             if (group.Members.ContainsKey(UserId))
             {
@@ -305,8 +305,10 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
+            GroupMember memberGroup = group.Requests[UserId];
+            memberGroup.DateJoin = Azure.GetUnixTimeStamp();
+            group.Members.Add(UserId, memberGroup);
             group.Requests.Remove(UserId);
-            group.Members.Add(UserId, new GroupUser(UserId, GroupId, 0, Azure.GetUnixTimeStamp()));
             group.Admins.Add(UserId, group.Members[UserId]);
 
             Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
@@ -334,7 +336,7 @@ namespace Azure.Messages.Handlers
             var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) &&
-                !group.Requests.Contains(userId)) return;
+                !group.Requests.ContainsKey(userId)) return;
 
             group.Requests.Remove(userId);
 
@@ -365,30 +367,36 @@ namespace Azure.Messages.Handlers
         {
             uint GroupId = Request.GetUInteger();
             Guild group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
+            Habbo user = Session.GetHabbo();
 
-            if (group.Members.ContainsKey(Session.GetHabbo().Id))
-                return;
-
-            if (group.State == 0u)
+            if (!group.Members.ContainsKey(user.Id))
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", Session.GetHabbo().Id, ",", GroupId, ",", Azure.GetUnixTimeStamp(), ")"));
-                    queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group=", GroupId, " WHERE id= ", Session.GetHabbo().Id, " LIMIT 1"));
-                }
-                group.Members.Add(Session.GetHabbo().Id, new GroupUser(Session.GetHabbo().Id, group.Id, 0, Azure.GetUnixTimeStamp()));
-                Session.GetHabbo().UserGroups.Add(group.Members[Session.GetHabbo().Id]);
-            }
-            else
-            {
-                using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryreactor2.RunFastQuery(string.Concat("INSERT INTO groups_requests (user_id, group_id) VALUES (", Session.GetHabbo().Id, ",", GroupId, ")"));
-                }
-                group.Requests.Add(Session.GetHabbo().Id);
-            }
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+                if (group.State == 0)
+                {
+                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    {
+                        queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", user.Id, ",", GroupId, ",", Azure.GetUnixTimeStamp(), ")"));
+                        queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group=", GroupId, " WHERE id= ", user.Id, " LIMIT 1"));
+                    }
+                    group.Members.Add(user.Id, new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp()));
+                    Session.GetHabbo().UserGroups.Add(group.Members[user.Id]);
+                }
+                else
+                {
+                    if (!group.Requests.ContainsKey(user.Id))
+                    {
+                        using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                        {
+                            queryreactor2.RunFastQuery(string.Concat("INSERT INTO groups_requests (user_id, group_id) VALUES (", Session.GetHabbo().Id, ",", GroupId, ")"));
+                        }
+                        GroupMember groupRequest = new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp());
+                        group.Requests.Add(user.Id, groupRequest);
+                    }
+                }
+
+                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+            }
         }
 
         /// <summary>
@@ -880,7 +888,7 @@ namespace Azure.Messages.Handlers
                     break;
 
                 case 2:
-                    foreach (GroupUser groupUser in Session.GetHabbo().UserGroups)
+                    foreach (GroupMember groupUser in Session.GetHabbo().UserGroups)
                     {
                         Guild AGroup = Azure.GetGame().GetGroupManager().GetGroup(groupUser.GroupId);
                         if (AGroup != null && AGroup.HasForum)
@@ -1155,7 +1163,7 @@ namespace Azure.Messages.Handlers
             int type = 3;
             if (UserId == Session.GetHabbo().Id || byeGuild.Admins.ContainsKey(Session.GetHabbo().Id))
             {
-                GroupUser memberShip;
+                GroupMember memberShip;
                 if (byeGuild.Members.ContainsKey(UserId))
                 {
                     memberShip = byeGuild.Members[UserId];

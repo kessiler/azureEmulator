@@ -11,6 +11,7 @@ using Azure.HabboHotel.Groups.Structs;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.HabboHotel.Users;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Azure.HabboHotel.Groups
     /// <summary>
     /// Class GroupManager.
     /// </summary>
-   internal class GroupManager
+    internal class GroupManager
     {
         /// <summary>
         /// The bases
@@ -129,8 +130,11 @@ namespace Azure.HabboHotel.Groups
 
                 var id = (uint)queryReactor.InsertQuery();
                 queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET group_id='{0}' WHERE id='{1}' LIMIT 1", id, roomId));
-                var dictionary = new Dictionary<uint, GroupUser> { { session.GetHabbo().Id, new GroupUser(session.GetHabbo().Id, id, 2, Azure.GetUnixTimeStamp()) } };
-                group = new Guild(id, name, desc, roomId, badge, Azure.GetUnixTimeStamp(), session.GetHabbo().Id, colour1, colour2, dictionary, new List<uint>(), new Dictionary<uint, GroupUser>(), 0u, 1u, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0, 1, 1, 2);
+                Habbo user = session.GetHabbo();
+                GroupMember memberGroup = new GroupMember(user.Id, user.UserName, user.Look, id, 2, Azure.GetUnixTimeStamp());
+                Dictionary<uint, GroupMember> dictionary = new Dictionary<uint, GroupMember> { { session.GetHabbo().Id, memberGroup } };
+                Dictionary<uint, GroupMember> emptyDictionary = new Dictionary<uint, GroupMember>();
+                group = new Guild(id, name, desc, roomId, badge, Azure.GetUnixTimeStamp(), user.Id, colour1, colour2, dictionary, emptyDictionary, emptyDictionary, 0, 1, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0, 1, 1, 2);
                 Groups.Add(id, group);
                 queryReactor.RunFastQuery(string.Format("INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{0}','{1}','2','{2}')", id, session.GetHabbo().Id, Azure.GetUnixTimeStamp()));
                 var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
@@ -139,10 +143,9 @@ namespace Azure.HabboHotel.Groups
                     room.RoomData.Group = group;
                     room.RoomData.GroupId = id;
                 }
-                var user = new GroupUser(session.GetHabbo().Id, id, 2, Azure.GetUnixTimeStamp());
-                session.GetHabbo().UserGroups.Add(user);
-                group.Admins.Add(session.GetHabbo().Id, user);
-                queryReactor.RunFastQuery(string.Format("UPDATE users_stats SET favourite_group='{0}' WHERE id='{1}' LIMIT 1", id, session.GetHabbo().Id));
+                user.UserGroups.Add(memberGroup);
+                group.Admins.Add(user.Id, memberGroup);
+                queryReactor.RunFastQuery(string.Format("UPDATE users_stats SET favourite_group='{0}' WHERE id='{1}' LIMIT 1", id, user.Id));
                 queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_rights WHERE room_id='{0}'", roomId));
             }
         }
@@ -164,26 +167,39 @@ namespace Azure.HabboHotel.Groups
                 var row = queryReactor.GetRow();
                 if (row == null)
                     return null;
-                queryReactor.SetQuery(string.Format("SELECT user_id, rank, date_join FROM groups_members WHERE group_id='{0}'",
-                    groupId));
-                var table = queryReactor.GetTable();
-                queryReactor.SetQuery(string.Format("SELECT user_id FROM groups_requests WHERE group_id='{0}'", groupId));
-                var table2 = queryReactor.GetTable();
-                var dictionary = new Dictionary<uint, GroupUser>();
-                var dictionary2 = new Dictionary<uint, GroupUser>();
-                foreach (DataRow dataRow in table.Rows)
+                queryReactor.SetQuery(string.Format("SELECT g.user_id, u.username, u.look, g.rank, g.date_join FROM groups_members g " +
+                                                    "INNER JOIN users u ON (g.user_id = u.id) WHERE g.group_id='{0}'",
+                                      groupId));
+                DataTable groupMembersTable = queryReactor.GetTable();
+                queryReactor.SetQuery(string.Format("SELECT g.user_id, u.username, u.look FROM groups_requests g " +
+                                                    "INNER JOIN users u ON (g.user_id = u.id) WHERE group_id='{0}'", groupId));
+                DataTable groupRequestsTable = queryReactor.GetTable();
+                Dictionary<uint, GroupMember> members = new Dictionary<uint, GroupMember>();
+                Dictionary<uint, GroupMember> admins = new Dictionary<uint, GroupMember>();
+                Dictionary<uint, GroupMember> requests = new Dictionary<uint, GroupMember>();
+                uint userId;
+                int rank;
+                foreach (DataRow dataRow in groupMembersTable.Rows)
                 {
-                    dictionary.Add((uint)dataRow[0],
-                        new GroupUser((uint)dataRow[0], groupId, int.Parse(dataRow[1].ToString()), (int)dataRow[2]));
-                    // all staffs are group admin... (thanks claudio, recursive..)
-                    if ((int.Parse(dataRow[1].ToString()) >= 1) /*|| (Azure.GetHabboById(uint.Parse(dataRow[0].ToString())).Rank >= 5)*/)
-                        dictionary2.Add((uint)dataRow[0],
-                            new GroupUser((uint)dataRow[0], groupId, int.Parse(dataRow[1].ToString()), (int)dataRow[2]));
+                    userId = (uint)dataRow["user_id"];
+                    rank = int.Parse(dataRow["rank"].ToString());
+                    GroupMember membGroup = new GroupMember(userId, dataRow["username"].ToString(), dataRow["look"].ToString(),
+                        groupId, rank, (int)dataRow["date_join"]);
+                    members.Add(userId, membGroup);
+                    if (rank >= 1)
+                        admins.Add(userId, membGroup);
                 }
-                var list = (from DataRow dataRow2 in table2.Rows select (uint)dataRow2[0]).ToList();
-                var group = new Guild((uint)row[0], row[1].ToString(), row[2].ToString(), (uint)row[6],
-                    row[3].ToString(), (int)row[5], (uint)row[4], (int)row[8], (int)row[9], dictionary, list,
-                    dictionary2, Convert.ToUInt16(row[7]), Convert.ToUInt16(row[10]), row["has_forum"].ToString() == "1",
+                foreach (DataRow dataRow in groupRequestsTable.Rows)
+                {
+                    userId = (uint)dataRow["user_id"];
+                    GroupMember membGroup = new GroupMember(userId, dataRow["username"].ToString(), dataRow["look"].ToString(),
+                        groupId, 0, Azure.GetUnixTimeStamp());
+                    if(!requests.ContainsKey(userId))
+                        requests.Add(userId, membGroup);
+                }
+                Guild group = new Guild((uint)row[0], row[1].ToString(), row[2].ToString(), (uint)row[6],
+                    row[3].ToString(), (int)row[5], (uint)row[4], (int)row[8], (int)row[9], members, requests,
+                    admins, Convert.ToUInt16(row[7]), Convert.ToUInt16(row[10]), row["has_forum"].ToString() == "1",
                     row["forum_name"].ToString(), row["forum_description"].ToString(),
                     uint.Parse(row["forum_messages_count"].ToString()), double.Parse(row["forum_score"].ToString()),
                     uint.Parse(row["forum_lastposter_id"].ToString()), row["forum_lastposter_name"].ToString(),
@@ -199,17 +215,27 @@ namespace Azure.HabboHotel.Groups
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <returns>HashSet&lt;GroupUser&gt;.</returns>
-        internal HashSet<GroupUser> GetUserGroups(uint userId)
+        internal HashSet<GroupMember> GetUserGroups(uint userId)
         {
-            var list = new HashSet<GroupUser>();
+            var list = new HashSet<GroupMember>();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(string.Format("SELECT group_id, rank, date_join FROM groups_members WHERE user_id={0}", userId));
+                queryReactor.SetQuery(string.Format("SELECT u.username, u.look, g.group_id, g.rank, g.date_join FROM groups_members g INNER JOIN users u ON (g.user_id = u.id) WHERE g.user_id={0}", userId));
                 var table = queryReactor.GetTable();
                 foreach (DataRow dataRow in table.Rows)
-                    list.Add(new GroupUser(userId, (uint)dataRow[0], Convert.ToInt16(dataRow[1]), (int)dataRow[2]));
+                    list.Add(new GroupMember(userId, dataRow["username"].ToString(), dataRow["look"].ToString(),
+                        (uint)dataRow["group_id"], Convert.ToInt16(dataRow["rank"]), (int)dataRow["date_join"]));
             }
             return list;
+        }
+
+        internal void addGroupMemberIntoResponse(ServerMessage response, GroupMember member)
+        {
+            response.AppendInteger(member.Rank == 2 ? 0 : member.Rank == 1 ? 1 : 2);
+            response.AppendInteger(member.Id);
+            response.AppendString(member.Name);
+            response.AppendString(member.Look);
+            response.AppendString(Azure.GetGroupDateJoinString(member.DateJoin));
         }
 
         /// <summary>
@@ -229,115 +255,79 @@ namespace Azure.HabboHotel.Groups
                 return null;
             if (page < 1)
                 page = 0;
-            var list = Split(GetGroupUsersByString(group, searchVal, reqType));
             response.AppendInteger(group.Id);
             response.AppendString(group.Name);
             response.AppendInteger(group.RoomId);
             response.AppendString(group.Badge);
+            List<List<GroupMember>> list = Split(GetGroupUsersByString(group, searchVal, reqType));
             switch (reqType)
             {
-                case 0u:
-                    response.AppendInteger(group.Members.Count);
-                    response.AppendInteger(list[page].Count);
-                    using (var enumerator = list[page].GetEnumerator())
+                case 0:
+                    response.AppendInteger(list.Count);
+                    if (group.Members.Count > 0 && list.Count > 0 && list[page] != null)
                     {
-                        while (enumerator.MoveNext())
+                        response.AppendInteger(list[page].Count);
+                        using (var enumerator = list[page].GetEnumerator())
                         {
-                            var current = enumerator.Current;
-                            var habboForId = Azure.GetHabboById(current.Id);
-                            if (habboForId == null)
+                            GroupMember current;
+                            while (enumerator.MoveNext())
                             {
-                                response.AppendInteger(0);
-                                response.AppendInteger(0);
-                                response.AppendString(string.Empty);
-                                response.AppendString(string.Empty);
-                                response.AppendString(string.Empty);
-                            }
-                            else
-                            {
-                                response.AppendInteger((current.Rank == 2) ? 0 : ((current.Rank == 1) ? 1 : 2));
-                                response.AppendInteger(habboForId.Id);
-                                response.AppendString(habboForId.UserName);
-                                response.AppendString(habboForId.Look);
-                                response.AppendString(Azure.GetGroupDateJoinString(current.DateJoin));
+                                current = enumerator.Current;
+                                addGroupMemberIntoResponse(response, current);
                             }
                         }
-                        goto AppendRest;
                     }
-                case 1u:
+                    else
+                    {
+                        response.AppendInteger(0);
+                    }
+                    break;
+                case 1:
+                    response.AppendInteger(group.Admins.Count);
+                    if (group.Admins.Count > 0 && list.Count > 0 && list[page] != null)
+                    {
+                        response.AppendInteger(list[page].Count);
+                        using (var enumerator = list[page].GetEnumerator())
+                        {
+                            GroupMember current;
+                            while (enumerator.MoveNext())
+                            {
+                                current = enumerator.Current;
+                                addGroupMemberIntoResponse(response, current);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        response.AppendInteger(0);
+                    }
                     break;
 
-                case 2u:
+                case 2:
+                    response.AppendInteger(group.Requests.Count);
+                    if (group.Requests.Count > 0 && list.Count > 0 && list[page] != null)
                     {
-                        var list2 = Split(GetGroupRequestsByString(group, searchVal, reqType));
-                        response.AppendInteger(group.Requests.Count);
-                        if (group.Requests.Count > 0)
+                        response.AppendInteger(list[page].Count);
+                        using (var enumerator = list[page].GetEnumerator())
                         {
-                            response.AppendInteger(list2[page].Count);
-                            using (var enumerator2 = list2[page].GetEnumerator())
+                            GroupMember current;
+                            while (enumerator.MoveNext())
                             {
-                                while (enumerator2.MoveNext())
-                                {
-                                    var current2 = enumerator2.Current;
-                                    var habboForId2 = Azure.GetHabboById(current2);
-                                    if (habboForId2 == null)
-                                    {
-                                        response.AppendInteger(0);
-                                        response.AppendInteger(0);
-                                        response.AppendString(string.Empty);
-                                        response.AppendString(string.Empty);
-                                        response.AppendString(string.Empty);
-                                    }
-                                    else
-                                    {
-                                        response.AppendInteger(3);
-                                        response.AppendInteger(habboForId2.Id);
-                                        response.AppendString(habboForId2.UserName);
-                                        response.AppendString(habboForId2.Look);
-                                        response.AppendString("");
-                                    }
-                                }
-                                goto AppendRest;
+                                current = enumerator.Current;
+                                response.AppendInteger(3);
+                                response.AppendInteger(current.Id);
+                                response.AppendString(current.Name);
+                                response.AppendString(current.Look);
+                                response.AppendString("");
                             }
                         }
-                        response.AppendInteger(0);
-                        goto AppendRest;
                     }
-                default:
-                    goto AppendRest;
-            }
-            response.AppendInteger(group.Admins.Count);
-            if (group.Admins.Count > 0 && list.Count > 0)
-            {
-                response.AppendInteger(list[page].Count);
-                using (var enumerator3 = list[page].GetEnumerator())
-                {
-                    while (enumerator3.MoveNext())
+                    else
                     {
-                        var current3 = enumerator3.Current;
-                        var habboForId3 = Azure.GetHabboById(current3.Id);
-                        if (habboForId3 == null)
-                        {
-                            response.AppendInteger(0);
-                            response.AppendInteger(0);
-                            response.AppendString(string.Empty);
-                            response.AppendString(string.Empty);
-                            response.AppendString(string.Empty);
-                        }
-                        else
-                        {
-                            response.AppendInteger((current3.Rank == 2) ? 0 : ((current3.Rank == 1) ? 1 : 2));
-                            response.AppendInteger(habboForId3.Id);
-                            response.AppendString(habboForId3.UserName);
-                            response.AppendString(habboForId3.Look);
-                            response.AppendString(Azure.GetGroupDateJoinString(current3.DateJoin));
-                        }
+                        response.AppendInteger(0);
                     }
-                    goto AppendRest;
-                }
+                    break;
             }
-            response.AppendInteger(0);
-        AppendRest:
             response.AppendBool(session.GetHabbo().Id == group.CreatorId);
             response.AppendInteger(14);
             response.AppendInteger(page);
@@ -353,12 +343,12 @@ namespace Azure.HabboHotel.Groups
         /// <param name="searchVal">The search value.</param>
         /// <param name="req">The req.</param>
         /// <returns>List&lt;GroupUser&gt;.</returns>
-        internal List<GroupUser> GetGroupUsersByString(Guild Group, string searchVal, uint req)
+        internal List<GroupMember> GetGroupUsersByString(Guild Group, string searchVal, uint req)
         {
-            var list = new List<GroupUser>();
-            if (string.IsNullOrWhiteSpace(searchVal))
+            List<GroupMember> list = new List<GroupMember>();
+            switch (req)
             {
-                if (req == 0u)
+                case 0:
                     using (var enumerator = Group.Members.Values.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -366,46 +356,25 @@ namespace Azure.HabboHotel.Groups
                             var current = enumerator.Current;
                             list.Add(current);
                         }
-                        return list;
                     }
-                using (var enumerator2 = Group.Admins.Values.GetEnumerator())
-                {
-                    while (enumerator2.MoveNext())
+                    break;
+                case 1:
+                    using (var enumerator2 = Group.Admins.Values.GetEnumerator())
                     {
-                        var current2 = enumerator2.Current;
-                        list.Add(current2);
+                        while (enumerator2.MoveNext())
+                        {
+                            var current2 = enumerator2.Current;
+                            list.Add(current2);
+                        }
                     }
-                    return list;
-                }
+                    break;
+                case 2:
+                    list = GetGroupRequestsByString(Group, searchVal);
+                    break;
             }
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            if (!string.IsNullOrWhiteSpace(searchVal))
             {
-                queryReactor.SetQuery("SELECT id FROM users WHERE username LIKE @name");
-                queryReactor.AddParameter("name", "%" + searchVal + "%");
-                var table = queryReactor.GetTable();
-                if (table == null)
-                {
-                    if (req == 0u)
-                        using (var enumerator3 = Group.Members.Values.GetEnumerator())
-                        {
-                            while (enumerator3.MoveNext())
-                            {
-                                var current3 = enumerator3.Current;
-                                list.Add(current3);
-                            }
-                            return list;
-                        }
-                    using (var enumerator4 = Group.Admins.Values.GetEnumerator())
-                    {
-                        while (enumerator4.MoveNext())
-                        {
-                            var current4 = enumerator4.Current;
-                            list.Add(current4);
-                        }
-                        return list;
-                    }
-                }
-                list.AddRange(from DataRow dataRow in table.Rows where Group.Members.ContainsKey((uint)dataRow[0]) select Group.Members[(uint)dataRow[0]]);
+                list = list.Where(member => member.Name.ToLower().Contains(searchVal.ToLower())).ToList();
             }
             return list;
         }
@@ -417,23 +386,18 @@ namespace Azure.HabboHotel.Groups
         /// <param name="searchVal">The search value.</param>
         /// <param name="req">The req.</param>
         /// <returns>List&lt;System.UInt32&gt;.</returns>
-        internal List<uint> GetGroupRequestsByString(Guild Group, string searchVal, uint req)
+        internal List<GroupMember> GetGroupRequestsByString(Guild Group, string searchVal)
         {
-            if (Group == null)
-                return null;
+            List<GroupMember> groupRequests;
             if (string.IsNullOrWhiteSpace(searchVal))
-                return Group.Requests;
-            var list = new List<uint>();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT id FROM users WHERE username LIKE @name");
-                queryReactor.AddParameter("name", "%" + searchVal + "%");
-                var table = queryReactor.GetTable();
-                if (table == null)
-                    return list;
-                list.AddRange(from DataRow dataRow in table.Rows where Group.Requests.Contains((uint)dataRow[0]) select (uint)dataRow[0]);
+                groupRequests = Group.Requests.Values.ToList();
             }
-            return list;
+            else
+            {
+                groupRequests = Group.Requests.Values.Where(request => request.Name.ToLower().Contains(searchVal.ToLower())).ToList();
+            }
+            return groupRequests;
         }
 
         /// <summary>
@@ -458,7 +422,7 @@ namespace Azure.HabboHotel.Groups
             response.AppendString(group.Badge);
             response.AppendInteger(group.RoomId);
             response.AppendString((Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Azure.GetGame().GetRoomManager().GenerateRoomData(@group.RoomId).Name);
-            response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.Contains(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
+            response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.ContainsKey(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
             response.AppendInteger(group.Members.Count);
             response.AppendBool(session.GetHabbo().FavouriteGroup == group.Id);
             response.AppendString(string.Format("{0}-{1}-{2}", dateTime2.Day.ToString("00"), dateTime2.Month.ToString("00"), dateTime2.Year));
@@ -496,7 +460,7 @@ namespace Azure.HabboHotel.Groups
             response.AppendString(group.Badge);
             response.AppendInteger(group.RoomId);
             response.AppendString((Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId).Name);
-            response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.Contains(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
+            response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.ContainsKey(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
             response.AppendInteger(group.Members.Count);
             response.AppendBool(session.GetHabbo().FavouriteGroup == group.Id);
             response.AppendString(string.Format("{0}-{1}-{2}", dateTime2.Day.ToString("00"), dateTime2.Month.ToString("00"), dateTime2.Year));
@@ -587,13 +551,13 @@ namespace Azure.HabboHotel.Groups
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>List&lt;List&lt;GroupUser&gt;&gt;.</returns>
-        private static List<List<GroupUser>> Split(IEnumerable<GroupUser> source)
+        private static List<List<GroupMember>> Split(IEnumerable<GroupMember> source)
         {
             return (from x in source.Select((x, i) => new { Index = i, Value = x })
                     group x by x.Index / 14
                         into x
                         select (from v in x
-                                select v.Value).ToList<GroupUser>()).ToList<List<GroupUser>>();
+                                select v.Value).ToList<GroupMember>()).ToList<List<GroupMember>>();
         }
 
         /// <summary>
