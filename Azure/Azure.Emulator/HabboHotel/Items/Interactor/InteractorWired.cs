@@ -50,7 +50,7 @@ namespace Azure.HabboHotel.Items.Interactor
                         serverMessage.AppendInteger(item.Id);
                         serverMessage.AppendString(extraInfo);
                         serverMessage.AppendInteger(1);
-                        serverMessage.AppendInteger(1);
+                        serverMessage.AppendInteger(delay);
                         serverMessage.AppendInteger(1);
                         serverMessage.AppendInteger(3);
                         serverMessage.AppendInteger(0);
@@ -395,7 +395,6 @@ namespace Azure.HabboHotel.Items.Interactor
                         return;
                     }
                 case Interaction.ActionMoveRotate:
-                case Interaction.ActionMoveToDir:
                     {
                         var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("WiredEffectMessageComposer"));
                         serverMessage.AppendBool(false);
@@ -415,8 +414,30 @@ namespace Azure.HabboHotel.Items.Interactor
                         serverMessage.AppendInteger(0);
                         serverMessage.AppendInteger(0);
                         session.SendMessage(serverMessage);
-                        return;
                     }
+                    break;
+                case Interaction.ActionMoveToDir:
+                    {
+                        var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("WiredEffectMessageComposer"));
+                        serverMessage.AppendBool(false);
+                        serverMessage.AppendInteger(5);
+
+                        serverMessage.AppendInteger(list.Count(roomItem => roomItem != null));
+                        foreach (var roomItem in list.Where(roomItem => roomItem != null)) serverMessage.AppendInteger(roomItem.Id);
+
+                        serverMessage.AppendInteger(item.GetBaseItem().SpriteId);
+                        serverMessage.AppendInteger(item.Id);
+                        serverMessage.AppendString(string.Empty);
+                        serverMessage.AppendInteger(2);
+                        serverMessage.AppendIntegersArray(extraInfo, ';', 2);
+                        serverMessage.AppendInteger(0);
+                        serverMessage.AppendInteger(13);
+                        serverMessage.AppendInteger(delay);
+                        serverMessage.AppendInteger(0);
+                        serverMessage.AppendInteger(0);
+                        session.SendMessage(serverMessage);
+                    }
+                    break;
                 case Interaction.ActionResetTimer:
                     {
                         var serverMessage14 = new ServerMessage(LibraryParser.OutgoingRequest("WiredEffectMessageComposer"));

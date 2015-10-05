@@ -46,11 +46,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             set { }
         }
 
-        public bool OtherBool
-        {
-            get { return true; }
-            set { }
-        }
+        public bool OtherBool { get; set;}
 
         public int Delay
         {
