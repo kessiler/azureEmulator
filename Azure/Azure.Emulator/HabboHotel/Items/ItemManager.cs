@@ -9,6 +9,7 @@ using System.Linq;
 using Azure.Configuration;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Catalogs;
+using System.Collections.Specialized;
 
 #endregion
 
@@ -22,7 +23,7 @@ namespace Azure.HabboHotel.Items
         /// <summary>
         /// The items
         /// </summary>
-        private Hashtable _items;
+        private HybridDictionary _items;
 
         /// <summary>
         /// The photo identifier
@@ -34,7 +35,7 @@ namespace Azure.HabboHotel.Items
         /// </summary>
         internal ItemManager()
         {
-            _items = new Hashtable();
+            _items = new HybridDictionary();
         }
 
         /// <summary>
@@ -219,7 +220,7 @@ namespace Azure.HabboHotel.Items
         /// <returns><c>true</c> if the specified identifier contains item; otherwise, <c>false</c>.</returns>
         internal bool ContainsItem(uint id)
         {
-            return _items.ContainsKey(id);
+            return _items.Contains(id);
         }
     }
 }
