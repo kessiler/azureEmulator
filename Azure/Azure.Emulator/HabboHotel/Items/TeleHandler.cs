@@ -25,7 +25,7 @@ namespace Azure.HabboHotel.Items
             {
                 queryReactor.SetQuery(string.Format("SELECT tele_two_id FROM items_teleports WHERE tele_one_id = {0}", teleId));
                 var row = queryReactor.GetRow();
-                result = row == null ? 0u : Convert.ToUInt32(row[0]);
+                result = row == null ? 0 : Convert.ToUInt32(row[0]);
             }
             return result;
         }
@@ -45,7 +45,7 @@ namespace Azure.HabboHotel.Items
             {
                 queryReactor.SetQuery(string.Format("SELECT room_id FROM items_rooms WHERE id = {0} LIMIT 1", teleId));
                 var row = queryReactor.GetRow();
-                result = row == null ? 0u : Convert.ToUInt32(row[0]);
+                result = row == null ? 0 : Convert.ToUInt32(row[0]);
             }
             return result;
         }
