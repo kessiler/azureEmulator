@@ -447,8 +447,10 @@ namespace Azure.HabboHotel.GameClients
                 while (clientsToRemove.TryDequeue(out client))
                 {
                     if (client != null)
+                    {
                         client.Stop();
-                    Clients.TryRemove(client.ConnectionId, out client);
+                        Clients.TryRemove(client.ConnectionId, out client);
+                    }
                 }
             }
         }
