@@ -80,20 +80,22 @@ namespace Azure.HabboHotel.Achievements
         /// <summary>
         /// Tries the progress login achievements.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        internal void TryProgressLoginAchievements(GameClient Session)
+        /// <param name="session">The session.</param>
+        internal void TryProgressLoginAchievements(GameClient session)
         {
-            if (Session.GetHabbo() == null)
+            if (session.GetHabbo() == null)
                 return;
-            UserAchievement loginACH = Session.GetHabbo().GetAchievementData("ACH_Login");
-            if (loginACH == null)
+            UserAchievement loginAch = session.GetHabbo().GetAchievementData("ACH_Login");
+
+            if (loginAch == null)
             {
-                ProgressUserAchievement(Session, "ACH_Login", 1, true);
+                ProgressUserAchievement(session, "ACH_Login", 1, true);
                 return;
             }
-            int daysBtwLastLogin = Azure.GetUnixTimeStamp() - Session.GetHabbo().PreviousOnline;
+
+            int daysBtwLastLogin = Azure.GetUnixTimeStamp() - session.GetHabbo().PreviousOnline;
             if (daysBtwLastLogin >= 51840 && daysBtwLastLogin <= 112320)
-                ProgressUserAchievement(Session, "ACH_Login", 1, true);
+                ProgressUserAchievement(session, "ACH_Login", 1, true);
         }
 
         /// <summary>
@@ -173,108 +175,107 @@ namespace Azure.HabboHotel.Achievements
         /// <summary>
         /// Progresses the user achievement.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="AchievementGroup">The achievement group.</param>
-        /// <param name="ProgressAmount">The progress amount.</param>
-        /// <param name="FromZero">if set to <c>true</c> [from zero].</param>
+        /// <param name="session">The session.</param>
+        /// <param name="achievementGroup">The achievement group.</param>
+        /// <param name="progressAmount">The progress amount.</param>
+        /// <param name="fromZero">if set to <c>true</c> [from zero].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool ProgressUserAchievement(GameClient Session, string AchievementGroup, int ProgressAmount, bool FromZero = false)
+        internal bool ProgressUserAchievement(GameClient session, string achievementGroup, int progressAmount, bool fromZero = false)
         {
-            if (Achievements.ContainsKey(AchievementGroup) && Session != null && Session.GetHabbo() != null)
+            if (Achievements.ContainsKey(achievementGroup) && session?.GetHabbo() != null)
             {
-                Achievement achievement = Achievements[AchievementGroup];
-                Habbo user = Session.GetHabbo();
-                UserAchievement userAchievement = user.GetAchievementData(AchievementGroup);
+                Achievement achievement = Achievements[achievementGroup];
+                Habbo user = session.GetHabbo();
+                UserAchievement userAchievement = user.GetAchievementData(achievementGroup);
+
                 if (userAchievement == null)
                 {
-                    userAchievement = new UserAchievement(AchievementGroup, 0, 0);
-                    user.Achievements.Add(AchievementGroup, userAchievement);
-                }
-                int count = achievement.Levels.Count;
-                if (userAchievement != null && userAchievement.Level == count) {
-                    return false;
+                    userAchievement = new UserAchievement(achievementGroup, 0, 0);
+                    user.Achievements.Add(achievementGroup, userAchievement);
                 }
 
-                int num = (userAchievement != null) ? (userAchievement.Level + 1) : 1;
-                if (num > count)
-                {
-                    num = count;
-                }
-                AchievementLevel targetLevelData = achievement.Levels[num];
-                int num2 = 0;
-                if (FromZero)
-                {
-                    num2 = ProgressAmount;
-                }
-                else
-                {
-                    num2 = ((userAchievement != null) ? (userAchievement.Progress + ProgressAmount) : ProgressAmount);
-                }
-                int num3 = (userAchievement != null) ? userAchievement.Level : 0;
-                int num4 = num3 + 1;
+                int count = achievement.Levels.Count;
+
+                if (userAchievement.Level == count)
+                    return false;
+
+                int acount = (userAchievement.Level + 1);
+
+                if (acount > count)
+                    acount = count;
+
+                AchievementLevel targetLevelData = achievement.Levels[acount];
+
+                int progress = (fromZero) ? progressAmount : ((userAchievement.Progress + progressAmount));
+
+                int level = userAchievement.Level;
+                int num4 = level + 1;
+
                 if (num4 > count)
-                {
                     num4 = count;
-                }
-                if (num2 >= targetLevelData.Requirement)
+
+                if (progress >= targetLevelData.Requirement)
                 {
-                    num3++;
+                    level++;
                     num4++;
-                    int argE60 = num2 - targetLevelData.Requirement;
-                    num2 = 0;
+                    progress = 0;
+
                     BadgeComponent userBadgeComponent = user.GetBadgeComponent();
-                    if (num == 1)
-                    {
-                        userBadgeComponent.GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
-                    }
-                    else
-                    {
-                        userBadgeComponent.RemoveBadge(Convert.ToString(string.Format("{0}{1}", AchievementGroup, num - 1)), Session);
-                        userBadgeComponent.GiveBadge(string.Format("{0}{1}", AchievementGroup, num), true, Session, false);
-                    }
+
+                    if (acount != 1)
+                        userBadgeComponent.RemoveBadge(Convert.ToString($"{achievementGroup}{acount - 1}"), session);     
+
+                    userBadgeComponent.GiveBadge($"{achievementGroup}{acount}", true, session);
+
                     if (num4 > count)
-                    {
                         num4 = count;
-                    }
+
                     user.ActivityPoints += targetLevelData.RewardPixels;
                     user.NotifyNewPixels(targetLevelData.RewardPixels);
                     user.UpdateActivityPointsBalance();
-                    Session.SendMessage(AchievementUnlockedComposer.Compose(achievement, num, targetLevelData.RewardPoints, targetLevelData.RewardPixels));
+
+                    session.SendMessage(AchievementUnlockedComposer.Compose(achievement, acount, targetLevelData.RewardPoints, targetLevelData.RewardPixels));
+
                     using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", user.Id, ", @group, ", num3, ", ", num2, ")"));
-                        queryReactor.AddParameter("group", AchievementGroup);
+                        queryReactor.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", user.Id, ", @group, ", level, ", ", progress, ")"));
+                        queryReactor.AddParameter("group", achievementGroup);
                         queryReactor.RunQuery();
                     }
-                    userAchievement.Level = num3;
-                    userAchievement.Progress = num2;
+
+                    userAchievement.Level = level;
+                    userAchievement.Progress = progress;
                     user.AchievementPoints += targetLevelData.RewardPoints;
                     user.NotifyNewPixels(targetLevelData.RewardPixels);
                     user.ActivityPoints += targetLevelData.RewardPixels;
                     user.UpdateActivityPointsBalance();
-                    Session.SendMessage(AchievementScoreUpdateComposer.Compose(user.AchievementPoints));
-                    AchievementLevel targetLevelData2 = achievement.Levels[num4];
-                    Session.SendMessage(AchievementProgressComposer.Compose(achievement, num4, targetLevelData2, count, user.GetAchievementData(AchievementGroup)));
-                    Talent talent = null;
-                    if (Azure.GetGame().GetTalentManager().TryGetTalent(AchievementGroup, out talent))
-                    {
-                        Azure.GetGame().GetTalentManager().CompleteUserTalent(Session, talent);
-                    }
+
+                    session.SendMessage(AchievementScoreUpdateComposer.Compose(user.AchievementPoints));
+                    session.SendMessage(AchievementProgressComposer.Compose(achievement, num4, achievement.Levels[num4], count, user.GetAchievementData(achievementGroup)));
+
+                    Talent talent;
+
+                    if (Azure.GetGame().GetTalentManager().TryGetTalent(achievementGroup, out talent))
+                        Azure.GetGame().GetTalentManager().CompleteUserTalent(session, talent);
+
                     return true;
                 }
-                userAchievement.Level = num3;
-                userAchievement.Progress = num2;
+
+                userAchievement.Level = level;
+                userAchievement.Progress = progress;
+
                 using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryreactor2.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", Session.GetHabbo().Id, ", @group, ", num3, ", ", num2, ")"));
-                    queryreactor2.AddParameter("group", AchievementGroup);
+                    queryreactor2.SetQuery(string.Concat("REPLACE INTO users_achievements VALUES (", session.GetHabbo().Id, ", @group, ", level, ", ", progress, ")"));
+                    queryreactor2.AddParameter("group", achievementGroup);
                     queryreactor2.RunQuery();
                 }
                   
-                GameClientMessageHandler messageHandler = Session.GetMessageHandler();
+                GameClientMessageHandler messageHandler = session.GetMessageHandler();
+
                 if (messageHandler != null)
                 {
-                    Session.SendMessage(AchievementProgressComposer.Compose(achievement, num, targetLevelData, count, user.GetAchievementData(AchievementGroup)));
+                    session.SendMessage(AchievementProgressComposer.Compose(achievement, acount, targetLevelData, count, user.GetAchievementData(achievementGroup)));
                     messageHandler.GetResponse().Init(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
                     messageHandler.GetResponse().AppendInteger(-1);
                     messageHandler.GetResponse().AppendString(user.Look);

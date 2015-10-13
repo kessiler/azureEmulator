@@ -55,6 +55,8 @@ namespace Azure.HabboHotel.Users
         /// </summary>
         internal uint Rank;
 
+        internal bool DisableEventAlert = false;
+
         /// <summary>
         /// The last change
         /// </summary>
@@ -146,7 +148,7 @@ namespace Azure.HabboHotel.Users
         internal int BobbaFiltered = 0;
 
         // NEW
-        internal bool answeredPool = false;
+        internal bool AnsweredPool = false;
 
         /// <summary>
         /// The teleporter identifier

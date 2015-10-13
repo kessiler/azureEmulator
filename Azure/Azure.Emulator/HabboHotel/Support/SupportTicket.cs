@@ -1,5 +1,6 @@
 #region
 
+using System;
 using System.Collections.Generic;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Messages;
@@ -178,7 +179,7 @@ namespace Azure.HabboHotel.Support
             if (!updateInDb)
                 return;
 
-            string statusCode = "resolved";
+            var statusCode = "resolved";
 
             switch (newStatus)
             {
@@ -190,11 +191,19 @@ namespace Azure.HabboHotel.Support
                     break;
                 case TicketStatus.Resolved:
                     statusCode = "resolved";
-                    break;            
+                    break;
+                case TicketStatus.Open:
+                    break;
+                case TicketStatus.Picked:
+                    break;
+                case TicketStatus.Deleted:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newStatus), newStatus, null);
             }
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = '{0}' WHERE id = {1}", statusCode, TicketId));
+                queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = '{statusCode}' WHERE id = {TicketId}");
         }
 
         /// <summary>
@@ -209,7 +218,7 @@ namespace Azure.HabboHotel.Support
                 return;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'open' WHERE id = {0}", TicketId));
+                queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'open' WHERE id = {TicketId}");
         }
 
         /// <summary>
@@ -224,7 +233,7 @@ namespace Azure.HabboHotel.Support
                 return;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE moderation_tickets SET status = 'deleted' WHERE id = {0}", TicketId));
+                queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'deleted' WHERE id = {TicketId}");
         }
 
         /// <summary>
@@ -234,11 +243,11 @@ namespace Azure.HabboHotel.Support
         /// <returns>ServerMessage.</returns>
         internal ServerMessage Serialize(ServerMessage message)
         {
-            message.AppendInteger(TicketId); 
-            message.AppendInteger(TabId); 
-            message.AppendInteger(3); // type (3 or 4 for new style)
+            message.AppendInteger(TicketId);
+            message.AppendInteger(TabId);
+            message.AppendInteger(Type); // type (3 or 4 for new style)
             message.AppendInteger(Category);
-            message.AppendInteger((Azure.GetUnixTimeStamp() - (int)Timestamp) * 1000); 
+            message.AppendInteger((Azure.GetUnixTimeStamp() - (int) Timestamp)*1000);
             message.AppendInteger(Score);
             message.AppendInteger(1);
             message.AppendInteger(SenderId);
@@ -246,13 +255,13 @@ namespace Azure.HabboHotel.Support
             message.AppendInteger(ReportedId);
             message.AppendString(_reportedName);
             message.AppendInteger((Status == TicketStatus.Picked) ? ModeratorId : 0);
-            message.AppendString(_modName); 
+            message.AppendString(_modName);
             message.AppendString(Message);
-            message.AppendInteger(0); 
+            message.AppendInteger(0);
 
             message.AppendInteger(ReportedChats.Count);
 
-            foreach (string str in ReportedChats)
+            foreach (var str in ReportedChats)
             {
                 message.AppendString(str);
                 message.AppendInteger(-1);

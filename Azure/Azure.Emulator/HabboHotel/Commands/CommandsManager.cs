@@ -49,6 +49,7 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("commands", new CommandList());
             CommandsDictionary.Add("disable_diagonal", new DisableDiagonal());
             CommandsDictionary.Add("setvideos", new SetVideos());
+            CommandsDictionary.Add("disableevent", new DisableEvent());
             CommandsDictionary.Add("setvideo", new AddVideo());
             CommandsDictionary.Add("follow", new FollowUser());
             CommandsDictionary.Add("faq", new UserFaq());

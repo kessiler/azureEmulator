@@ -74,7 +74,7 @@ namespace Azure.HabboHotel.Commands.List
                 foreach (var roomUser in users)
                 {
                     var user = Azure.GetHabboById(roomUser.UserId);
-                    if (user.answeredPool == true)
+                    if (user.AnsweredPool == true)
                     {
                         var result = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollResultMessageComposer"));
                         result.AppendInteger(poll.Id);
@@ -89,7 +89,7 @@ namespace Azure.HabboHotel.Commands.List
             }
 
             foreach (var roomUser in users)
-                Azure.GetHabboById(roomUser.UserId).answeredPool = false;
+                Azure.GetHabboById(roomUser.UserId).AnsweredPool = false;
         }
     }
 }

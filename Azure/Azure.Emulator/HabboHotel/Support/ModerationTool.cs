@@ -98,14 +98,15 @@ namespace Azure.HabboHotel.Support
         {
             Room room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
 
-            if (room == null) return;
+            if (room == null)
+                return;
 
             if (lockRoom)
             {
                 room.RoomData.State = 1;
 
                 using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                    queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET state = 'locked' WHERE id = {0}", room.RoomId));
+                    queryReactor.RunFastQuery($"UPDATE rooms_data SET state = 'locked' WHERE id = {room.RoomId}");
             }
 
             if (inappropriateRoom)
@@ -137,29 +138,29 @@ namespace Azure.HabboHotel.Support
         /// <summary>
         /// Serializes the room tool.
         /// </summary>
-        /// <param name="Data">The data.</param>
+        /// <param name="data">The data.</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage SerializeRoomTool(RoomData Data)
+        internal static ServerMessage SerializeRoomTool(RoomData data)
         {
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(Data.Id);
+            Room room = Azure.GetGame().GetRoomManager().GetRoom(data.Id);
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationRoomToolMessageComposer"));
-            serverMessage.AppendInteger(Data.Id);
-            serverMessage.AppendInteger(Data.UsersNow);
+            serverMessage.AppendInteger(data.Id);
+            serverMessage.AppendInteger(data.UsersNow);
 
             if (room != null)
-                serverMessage.AppendBool(room.GetRoomUserManager().GetRoomUserByHabbo(Data.Owner) != null);
+                serverMessage.AppendBool(room.GetRoomUserManager().GetRoomUserByHabbo(data.Owner) != null);
             else
                 serverMessage.AppendBool(false);
 
-            serverMessage.AppendInteger(((room != null) ? room.RoomData.OwnerId : 0));
-            serverMessage.AppendString(Data.Owner);
+            serverMessage.AppendInteger(room?.RoomData.OwnerId ?? 0);
+            serverMessage.AppendString(data.Owner);
             serverMessage.AppendBool(room != null);
-            serverMessage.AppendString(Data.Name);
-            serverMessage.AppendString(Data.Description);
-            serverMessage.AppendInteger(Data.TagCount);
+            serverMessage.AppendString(data.Name);
+            serverMessage.AppendString(data.Description);
+            serverMessage.AppendInteger(data.TagCount);
 
-            foreach (string current in Data.Tags)
+            foreach (var current in data.Tags)
                 serverMessage.AppendString(current);
 
             serverMessage.AppendBool(false);
@@ -282,37 +283,41 @@ namespace Azure.HabboHotel.Support
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserToolMessageComposer"));
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT id, username, mail, look, trade_lock, trade_lock_expire, rank, ip_last, " +
-                                      "IFNULL(cfhs, 0) cfhs, IFNULL(cfhs_abusive, 0) cfhs_abusive, IFNULL(cautions, 0) cautions, IFNULL(bans, 0) bans, " +
-                                      "IFNULL(reg_timestamp, 0) reg_timestamp, IFNULL(login_timestamp, 0) login_timestamp " +
-                                      "FROM users left join users_info on (users.id = users_info.user_id) WHERE id = '" + userId + "' LIMIT 1"
-                                      );
-                DataRow row = queryReactor.GetRow();
+                if (queryReactor != null)
+                {
+                    queryReactor.SetQuery(
+                        "SELECT id, username, mail, look, trade_lock, trade_lock_expire, rank, ip_last, " +
+                        "IFNULL(cfhs, 0) cfhs, IFNULL(cfhs_abusive, 0) cfhs_abusive, IFNULL(cautions, 0) cautions, IFNULL(bans, 0) bans, " +
+                        "IFNULL(reg_timestamp, 0) reg_timestamp, IFNULL(login_timestamp, 0) login_timestamp " +
+                        $"FROM users left join users_info on (users.id = users_info.user_id) WHERE id = '{userId}' LIMIT 1"
+                        );
+                    DataRow row = queryReactor.GetRow();
 
-                uint id = Convert.ToUInt32(row["id"]);
-                serverMessage.AppendInteger(id);
-                serverMessage.AppendString(row["username"].ToString());
-                serverMessage.AppendString(row["look"].ToString());
-                double regTimestamp = (double)row["reg_timestamp"];
-                double loginTimestamp = (double)row["login_timestamp"];
-                int unixTimestamp = Azure.GetUnixTimeStamp();
-                serverMessage.AppendInteger((int)(regTimestamp > 0 ? Math.Ceiling((unixTimestamp - regTimestamp) / 60.0) : regTimestamp));
-                serverMessage.AppendInteger((int)(loginTimestamp > 0 ? Math.Ceiling((unixTimestamp - loginTimestamp) / 60.0) : loginTimestamp));
-                serverMessage.AppendBool(true);
-                serverMessage.AppendInteger(Convert.ToInt32(row["cfhs"]));
-                serverMessage.AppendInteger(Convert.ToInt32(row["cfhs_abusive"]));
-                serverMessage.AppendInteger(Convert.ToInt32(row["cautions"]));
-                serverMessage.AppendInteger(Convert.ToInt32(row["bans"]));
+                    uint id = Convert.ToUInt32(row["id"]);
+                    serverMessage.AppendInteger(id);
+                    serverMessage.AppendString(row["username"].ToString());
+                    serverMessage.AppendString(row["look"].ToString());
+                    double regTimestamp = (double)row["reg_timestamp"];
+                    double loginTimestamp = (double)row["login_timestamp"];
+                    int unixTimestamp = Azure.GetUnixTimeStamp();
+                    serverMessage.AppendInteger((int)(regTimestamp > 0 ? Math.Ceiling((unixTimestamp - regTimestamp) / 60.0) : regTimestamp));
+                    serverMessage.AppendInteger((int)(loginTimestamp > 0 ? Math.Ceiling((unixTimestamp - loginTimestamp) / 60.0) : loginTimestamp));
+                    serverMessage.AppendBool(true);
+                    serverMessage.AppendInteger(Convert.ToInt32(row["cfhs"]));
+                    serverMessage.AppendInteger(Convert.ToInt32(row["cfhs_abusive"]));
+                    serverMessage.AppendInteger(Convert.ToInt32(row["cautions"]));
+                    serverMessage.AppendInteger(Convert.ToInt32(row["bans"]));
 
-                serverMessage.AppendInteger(0);
-                uint rank = (uint)row["rank"];
-                serverMessage.AppendString((row["trade_lock"].ToString() == "1") ? Azure.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString() : "Not trade-locked");
-                serverMessage.AppendString((rank < 6) ? row["ip_last"].ToString() : "127.0.0.1");
-                serverMessage.AppendInteger(id);
-                serverMessage.AppendInteger(0);
+                    serverMessage.AppendInteger(0);
+                    var rank = (uint)row["rank"];
+                    serverMessage.AppendString(row["trade_lock"].ToString() == "1" ? Azure.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString() : "Not trade-locked");
+                    serverMessage.AppendString(rank < 6 ? row["ip_last"].ToString() : "127.0.0.1");
+                    serverMessage.AppendInteger(id);
+                    serverMessage.AppendInteger(0);
 
-                serverMessage.AppendString(string.Format("E-Mail:         {0}", row["mail"]));
-                serverMessage.AppendString(string.Format("Rank ID:        {0}", rank));
+                    serverMessage.AppendString($"E-Mail:         {row["mail"]}");
+                    serverMessage.AppendString($"Rank ID:        {rank}");
+                }
             }
             return serverMessage;
         }
@@ -329,7 +334,7 @@ namespace Azure.HabboHotel.Support
 
             var user = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
 
-            if (user == null || user.GetHabbo() == null)
+            if (user?.GetHabbo() == null)
             {
                 serverMessage.AppendString("Not online");
                 serverMessage.AppendInteger(0);
@@ -365,7 +370,8 @@ namespace Azure.HabboHotel.Support
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(string.Format("SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = {0} ORDER BY timestamp DESC LIMIT 4", userId));
+                queryReactor.SetQuery(
+                    $"SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = {userId} ORDER BY timestamp DESC LIMIT 4");
                 DataTable table = queryReactor.GetTable();
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserChatlogMessageComposer"));
                 serverMessage.AppendInteger(userId);
@@ -419,8 +425,7 @@ namespace Azure.HabboHotel.Support
                                 {
                                     var disposable = enumerator2 as IDisposable;
 
-                                    if (disposable != null)
-                                        disposable.Dispose();
+                                    disposable?.Dispose();
                                 }
                             }
 
@@ -435,8 +440,7 @@ namespace Azure.HabboHotel.Support
                     {
                         var disposable2 = enumerator as IDisposable;
 
-                        if (disposable2 != null)
-                            disposable2.Dispose();
+                        disposable2?.Dispose();
                     }
                 }
 
@@ -486,14 +490,9 @@ namespace Azure.HabboHotel.Support
                 foreach (var chatLog in tempChatlogs)
                     chatLog.Serialize(ref message);
 
-                tempChatlogs = null;
-
                 return message;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -507,7 +506,7 @@ namespace Azure.HabboHotel.Support
             var message = new ServerMessage();
             Room room = Azure.GetGame().GetRoomManager().LoadRoom(roomId);
 
-            if (room != null && room.RoomData != null)
+            if (room?.RoomData != null)
             {
                 message.Init(LibraryParser.OutgoingRequest("ModerationToolRoomChatlogMessageComposer"));
                 message.AppendByte(1);
@@ -526,14 +525,9 @@ namespace Azure.HabboHotel.Support
                 foreach (var chatLog in tempChatlogs)
                     chatLog.Serialize(ref message);
 
-                tempChatlogs = null;
-
                 return message;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -629,8 +623,12 @@ namespace Azure.HabboHotel.Support
 
                 if (a != "message")
                 {
-                    if (a == "roommessage")
-                        RoomMessagePresets.Add(item);
+                    switch (a)
+                    {
+                        case "roommessage":
+                            RoomMessagePresets.Add(item);
+                            break;
+                    }
                 }
                 else
                 {
@@ -683,7 +681,8 @@ namespace Azure.HabboHotel.Support
                     dbClient.SetQuery(string.Concat("INSERT INTO moderation_tickets (score,type,status,sender_id,reported_id,moderator_id,message,room_id,room_name,timestamp) VALUES (1,'", category, "','open','", session.GetHabbo().Id, "','", reportedUser, "','0',@message,'0','','", Azure.GetUnixTimeStamp(), "')"));
                     dbClient.AddParameter("message", message);
                     id = (uint)dbClient.InsertQuery();
-                    dbClient.RunFastQuery(string.Format("UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {0}", session.GetHabbo().Id));
+                    dbClient.RunFastQuery(
+                        $"UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {session.GetHabbo().Id}");
                 }
 
                 var ticket = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, 0u, "", Azure.GetUnixTimeStamp(), messages);
@@ -701,7 +700,8 @@ namespace Azure.HabboHotel.Support
                     dbClient.AddParameter("message", message);
                     dbClient.AddParameter("name", data.Name);
                     id = (uint)dbClient.InsertQuery();
-                    dbClient.RunFastQuery(string.Format("UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {0}", session.GetHabbo().Id));
+                    dbClient.RunFastQuery(
+                        $"UPDATE users_info SET cfhs = cfhs + 1 WHERE user_id = {session.GetHabbo().Id}");
                 }
 
                 var ticket2 = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, data.Id, data.Name, Azure.GetUnixTimeStamp(), messages);
@@ -787,7 +787,8 @@ namespace Azure.HabboHotel.Support
             if (senderUser == null)
                 return;
 
-            uint statusCode = 0;
+            uint statusCode;
+
             TicketStatus newStatus;
 
             switch (result)
@@ -800,7 +801,6 @@ namespace Azure.HabboHotel.Support
                     statusCode = 2;
                     newStatus = TicketStatus.Abusive;
                     break;
-                case 0:
                 default:
                     statusCode = 0;
                     newStatus = TicketStatus.Resolved;
@@ -812,7 +812,8 @@ namespace Azure.HabboHotel.Support
                 using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     AbusiveCooldown.Add(ticket.SenderId, Azure.GetUnixTimeStamp() + 600);
-                    queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {0}", ticket.SenderId));
+                    queryReactor.RunFastQuery(
+                        $"UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {ticket.SenderId}");
                 }
             }
 
@@ -849,7 +850,8 @@ namespace Azure.HabboHotel.Support
             }
 
             using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={0} LIMIT 1", session.GetHabbo().Id));
+                queryreactor2.RunFastQuery(
+                    $"UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={session.GetHabbo().Id} LIMIT 1");
         }
 
         /// <summary>
@@ -867,14 +869,14 @@ namespace Azure.HabboHotel.Support
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal Boolean UsersHasAbusiveCooldown(UInt32 Id)
+        internal bool UsersHasAbusiveCooldown(uint id)
         {
             foreach (KeyValuePair<uint, double> item in AbusiveCooldown)
             {
-                if (AbusiveCooldown.ContainsKey(Id) && item.Value - Azure.GetUnixTimeStamp() > 0)
+                if (AbusiveCooldown.ContainsKey(id) && item.Value - Azure.GetUnixTimeStamp() > 0)
                     return true;
 
-                AbusiveCooldown.Remove(Id);
+                AbusiveCooldown.Remove(id);
                 return false;
             }
             return false;
@@ -901,10 +903,7 @@ namespace Azure.HabboHotel.Support
         /// <returns>SupportTicket.</returns>
         internal SupportTicket GetPendingTicketForUser(uint id)
         {
-            foreach (SupportTicket current in Tickets.Where(current => current.SenderId == id && current.Status == TicketStatus.Open))
-                return current;
-
-            return null;
+            return Tickets.FirstOrDefault(current => current.SenderId == id && current.Status == TicketStatus.Open);
         }
 
         /// <summary>

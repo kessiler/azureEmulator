@@ -2248,7 +2248,7 @@ namespace Azure.Messages.Handlers
                     Answered.AppendString(text);
                     Answered.AppendInteger(0);
                     Session.SendMessage(Answered);
-                    Session.GetHabbo().answeredPool = true;
+                    Session.GetHabbo().AnsweredPool = true;
                     return;
                 }
                 Session.GetHabbo().AnsweredPolls.Add(pollId);

@@ -11,7 +11,7 @@ namespace Azure.HabboHotel.Commands.List
         public WhisperRoom()
         {
             MinRank = 6;
-            Description = "Susurrar a Toda la Sala";
+            Description = "Susurrar para o Quarto Todo";
             Usage = ":whisperroom [MESSAGE]";
             MinParams = -1;
         }
@@ -26,10 +26,10 @@ namespace Azure.HabboHotel.Commands.List
                 serverMessage.AppendInteger(room.RoomId);
                 serverMessage.AppendString(message);
                 serverMessage.AppendInteger(0);
-                serverMessage.AppendInteger(23);
+                serverMessage.AppendInteger(36);
                 serverMessage.AppendInteger(0);
                 serverMessage.AppendInteger(-1);
-                room.SendMessage(serverMessage);
+                client.SendMessage(serverMessage);
             }
             return true;
         }
