@@ -1,5 +1,6 @@
 #region
 
+using System;
 using System.Collections.Generic;
 using Azure.HabboHotel.Items;
 using Azure.Messages;
@@ -54,17 +55,28 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff[0] == null) return false;
-            var user = (RoomUser)stuff[0];
-            var item = (Interaction)stuff[1];
+            if (stuff[0] == null)
+                return false;
+
+            var user = (RoomUser) stuff[0];
+
+            if (stuff[1] == null)
+                return false;
+
+            var item = (Interaction) stuff[1];
+
             if (_mBanned.Contains(item))
                 return false;
 
             if (user == null)
                 return false;
 
-            var amountLeft = int.Parse(OtherExtraString2);
-            var often = int.Parse(OtherExtraString);
+            if (OtherExtraString2 == null)
+                return false;
+
+            var amountLeft = Convert.ToInt32(OtherExtraString2);
+
+        
             var unique = OtherBool;
 
             bool premied = false;

@@ -149,10 +149,12 @@ namespace Azure.Messages.Handlers
         {
             if (Session == null)
                 return;
+
             Session.TimePingedReceived = DateTime.Now;
             GetResponse().Init(LibraryParser.OutgoingRequest("LatencyTestResponseMessageComposer"));
             GetResponse().AppendInteger(Request.GetIntegerFromString());
             SendResponse();
+
             Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AllTimeHotelPresence", 1, true);
         }
 

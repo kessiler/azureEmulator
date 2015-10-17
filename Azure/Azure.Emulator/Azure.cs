@@ -575,10 +575,13 @@ namespace Azure
 
         internal static int DifferenceInMilliSeconds(DateTime time, DateTime from)
         {
-            return
-                Convert.ToInt32((from.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds -
-                                 time.Subtract(
-                                     new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds));
+
+            var time1 = from.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            var time2 = time.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+            var tempus = (((time1 > 0) ? time1 : 0) - ((time2 > 0) ? time2 : 0));
+
+            return Convert.ToInt32((tempus >= 0) ? tempus : 0);
         }
 
         /// <summary>

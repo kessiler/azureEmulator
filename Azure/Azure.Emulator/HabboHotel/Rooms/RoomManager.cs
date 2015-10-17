@@ -592,15 +592,15 @@ namespace Azure.HabboHotel.Rooms
                             queryReactor.AddParameter("id", current.BotData.BotId);
                             queryReactor.RunQuery();
 
-                            if (current.BotAI == null)
-                                continue;
-                            current.BotAI.Dispose();
+                            current.BotAI?.Dispose();
                         }
                         else
                         {
-                            if (current.GetClient() == null) continue;
-                            room.GetRoomUserManager().RemoveUserFromRoom(current.GetClient(), true, false);
-                            current.GetClient().CurrentRoomUserId = -1;
+                            if (current.GetClient() != null)
+                            {
+                                room.GetRoomUserManager().RemoveUserFromRoom(current.GetClient(), true, false);
+                                current.GetClient().CurrentRoomUserId = -1;
+                            }
                         }
                     }
                 }

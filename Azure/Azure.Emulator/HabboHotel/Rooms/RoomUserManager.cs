@@ -719,17 +719,20 @@ namespace Azure.HabboHotel.Rooms
                                 if (item.ExtraData != "0")
                                 {
                                     var num2 = Convert.ToInt32(item.ExtraData);
-                                    user.Statusses.Add("sit",
-                                        item.GetBaseItem().ToggleHeight[num2].ToString(CultureInfo.InvariantCulture)
+                                    if (!user.Statusses.ContainsKey("sit"))
+                                        user.Statusses.Add("sit",
+                                            item.GetBaseItem().ToggleHeight[num2].ToString(CultureInfo.InvariantCulture)
                                             .Replace(',', '.'));
                                 }
                                 else
                                 {
-                                    user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
+                                    if(!user.Statusses.ContainsKey("sit"))
+                                        user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
                                 }
                             else
                             {
-                                user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
+                                if (!user.Statusses.ContainsKey("sit"))
+                                    user.Statusses.Add("sit", Convert.ToString(item.GetBaseItem().Height));
                             }
                         }
 
