@@ -153,7 +153,7 @@ namespace Azure.Messages.Handlers
             GetResponse().Init(LibraryParser.OutgoingRequest("LatencyTestResponseMessageComposer"));
             GetResponse().AppendInteger(Request.GetIntegerFromString());
             SendResponse();
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AllTimeHotelPresence", 1);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AllTimeHotelPresence", 1, true);
         }
 
         /// <summary>

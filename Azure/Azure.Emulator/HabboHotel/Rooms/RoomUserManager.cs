@@ -987,8 +987,10 @@ namespace Azure.HabboHotel.Rooms
 
             if ((!RoomUsers.IsOwner()) && (RoomUsers.IdleTime >= 300) && (!RoomUsers.IsBot) && (!RoomUsers.IsPet))
             {
-                GameClient OwnerAchievementMessage = Azure.GetGame().GetClientManager().GetClientByUserId((uint)UserRoom.RoomData.OwnerId);
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(OwnerAchievementMessage, "ACH_RoomDecoHosting", 1, false);
+                var ownerAchievementMessage = Azure.GetGame().GetClientManager().GetClientByUserId((uint)UserRoom.RoomData.OwnerId);
+
+                if(ownerAchievementMessage != null)
+                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(ownerAchievementMessage, "ACH_RoomDecoHosting", 1, true);
             }
         }
 

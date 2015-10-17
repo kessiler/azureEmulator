@@ -406,7 +406,7 @@ namespace Azure.Messages.Handlers
                     }
                 }
                 Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace, 0u);
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoFurniCount", 1, false);
+                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoFurniCount", 1, true);
                 return;
 
             CannotSetItem:

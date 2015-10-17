@@ -168,10 +168,10 @@ namespace Azure.Messages.Handlers
                 roomUserByHabbo.IsBot)
                 return;
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialRespect, 0u);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RespectGiven", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RespectGiven", 1, true);
             Azure.GetGame()
                 .GetAchievementManager()
-                .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_RespectEarned", 1, false);
+                .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_RespectEarned", 1, true);
 
             {
                 Session.GetHabbo().DailyRespectPoints--;

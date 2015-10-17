@@ -199,7 +199,7 @@ namespace Azure.HabboHotel.Users.Messenger
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO messenger_friendships (user_one_id,user_two_id) VALUES (", _userId, ",", friendId, ")"));
             OnNewFriendship(friendId);
             var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_FriendListSize", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_FriendListSize", 1, true);
             if (clientByUserId != null && clientByUserId.GetHabbo().GetMessenger() != null)
                 clientByUserId.GetHabbo().GetMessenger().OnNewFriendship(_userId);
         }

@@ -388,7 +388,7 @@ namespace Azure.Messages.Handlers
             var roomId = Request.GetUInteger();
             var current = Request.GetBool();
             var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Spr", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Spr", 1, true);
             if (room == null) return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {

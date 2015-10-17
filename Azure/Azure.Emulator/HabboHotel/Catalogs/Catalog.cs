@@ -757,7 +757,7 @@ namespace Azure.HabboHotel.Catalogs
                         {
                             Azure.GetGame()
                                 .GetAchievementManager()
-                                .ProgressUserAchievement(session, "ACH_GiftGiver", 1, false);
+                                .ProgressUserAchievement(session, "ACH_GiftGiver", 1, true);
                             Azure.GetGame()
                                 .GetQuestManager()
                                 .ProgressUserQuest(session, QuestType.GiftOthers, 0u);
@@ -777,7 +777,7 @@ namespace Azure.HabboHotel.Catalogs
                         if (clientByUserId.GetHabbo().Id != session.GetHabbo().Id)
                             Azure.GetGame()
                                 .GetAchievementManager()
-                                .ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, false);
+                                .ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, true);
                     }
                     session.GetHabbo().LastGiftPurchaseTime = DateTime.Now;
                     continue;
