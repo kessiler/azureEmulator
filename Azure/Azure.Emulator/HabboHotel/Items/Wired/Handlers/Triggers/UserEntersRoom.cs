@@ -75,7 +75,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
                     WiredHandler.OnEvent(current);
                 }
             }
-            if (effects.Any()) foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type))) WiredHandler.OnEvent(current2);
+            if (effects.Any())
+                foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type))) WiredHandler.OnEvent(current2);
             WiredHandler.OnEvent(this);
             return true;
         }

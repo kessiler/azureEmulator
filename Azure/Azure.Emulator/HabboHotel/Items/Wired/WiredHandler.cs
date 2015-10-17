@@ -148,7 +148,9 @@ namespace Azure.HabboHotel.Rooms.Wired
                         var item = wiredItem as IWiredCycler;
                         if (item == null) continue;
                         var wiredCycler = item;
-                        if (!wiredCycler.OnCycle()) queue.Enqueue(item);
+                        if (!wiredCycler.OnCycle())
+                            if (!queue.Contains(item))
+                                queue.Enqueue(item);
                     }
                 }
 

@@ -1124,20 +1124,20 @@ namespace Azure.HabboHotel.Rooms
         {
             try
             {
-                var highestStack = (double)Model.SqFloorHeight[x][y];
+                double[] highestStack = {(double)Model.SqFloorHeight[x][y]};
                 var deductable = 0.0;
 
                 foreach (
                     var item in
                         itemsOnSquare.Where(
-                            item => item != null && item.GetBaseItem() != null && item.TotalHeight > highestStack))
+                            item => (item?.GetBaseItem() != null && item.TotalHeight > highestStack[0])))
                 {
                     if (item.GetBaseItem().IsSeat || item.GetBaseItem().InteractionType == Interaction.Bed) deductable = item.GetBaseItem().Height;
-                    highestStack = item.TotalHeight;
+                    highestStack[0] = item.TotalHeight;
                 }
 
-                highestStack -= deductable;
-                return highestStack < 0 ? 0 : highestStack;
+                highestStack[0] -= deductable;
+                return highestStack[0] < 0 ? 0 : highestStack[0];
             }
             catch (Exception e)
             {
