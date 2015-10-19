@@ -27,6 +27,9 @@ namespace Azure.HabboHotel.Commands.List
 
         public override bool Execute(GameClient session, string[] pms)
         {
+            if (!session.GetHabbo().Look.Contains("hd-"))
+                return true;
+
             var head = session.GetHabbo().Look.Split('.').FirstOrDefault(element => element.StartsWith("hd-"));
             var color = "1";
             if (!string.IsNullOrEmpty(head))

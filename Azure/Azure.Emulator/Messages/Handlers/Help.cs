@@ -20,26 +20,25 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void InitHelpTool()
         {
-            SupportTicket ticket = Azure.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
-
-            if (ticket == null) // null check to be sure
-                return;
-
             Response.Init(LibraryParser.OutgoingRequest("OpenHelpToolMessageComposer"));
 
             if (!Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
             {
                 Response.AppendInteger(0); // It's okay, the user may send an new issue
-            }
-            else
-            {
-                Response.AppendInteger(1); // the user has an pending issue
-
-                Response.AppendString(ticket.TicketId.ToString());
-                Response.AppendString(ticket.Timestamp.ToString(CultureInfo.InvariantCulture));
-                Response.AppendString(ticket.Message);
+                SendResponse();
+                return;
             }
 
+            SupportTicket ticket = Azure.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
+
+            if (ticket == null) // null check to be sure
+                return;
+
+            Response.AppendInteger(1); // the user has an pending issue
+
+            Response.AppendString(ticket.TicketId.ToString());
+            Response.AppendString(ticket.Timestamp.ToString(CultureInfo.InvariantCulture));
+            Response.AppendString(ticket.Message);
             SendResponse();
         }
 

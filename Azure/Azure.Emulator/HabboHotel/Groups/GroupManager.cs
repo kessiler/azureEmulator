@@ -284,7 +284,8 @@ namespace Azure.HabboHotel.Groups
                     break;
                 case 1:
                     response.AppendInteger(group.Admins.Count);
-                    if (group.Admins.Count > 0 && list.Count > 0 && list[page] != null)
+                    var paging = (page <= list.Count) ? list[page] : null;
+                    if ((group.Admins.Count > 0) && (list.Count > 0) && paging != null)
                     {
                         response.AppendInteger(list[page].Count);
                         using (var enumerator = list[page].GetEnumerator())

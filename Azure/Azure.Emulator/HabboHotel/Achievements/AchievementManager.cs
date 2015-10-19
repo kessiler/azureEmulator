@@ -206,6 +206,11 @@ namespace Azure.HabboHotel.Achievements
 
                 AchievementLevel targetLevelData = achievement.Levels[acount];
 
+                UserAchievement achievementColoc = session.GetHabbo().GetAchievementData(achievementGroup);
+
+                if ((achievementColoc != null) && (fromZero))
+                    fromZero = false;
+
                 int progress = (fromZero) ? progressAmount : ((userAchievement.Progress + progressAmount));
 
                 int level = userAchievement.Level;

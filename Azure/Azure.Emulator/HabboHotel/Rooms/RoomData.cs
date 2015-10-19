@@ -307,7 +307,8 @@ namespace Azure.HabboHotel.Rooms
 
                     OwnerId = integer != uint.MinValue ? Convert.ToInt32(integer) : 0;
 
-                    queryReactor.SetQuery(string.Format("SELECT user_id, message, timestamp FROM users_chatlogs WHERE room_id= '{0}' ORDER BY timestamp ASC LIMIT 150", Id));
+                    queryReactor.SetQuery(
+                        $"SELECT user_id, message, timestamp FROM users_chatlogs WHERE room_id = '{Id}' ORDER BY timestamp ASC LIMIT 150");
                     var table = queryReactor.GetTable();
                     foreach (DataRow dataRow in table.Rows)
                     {

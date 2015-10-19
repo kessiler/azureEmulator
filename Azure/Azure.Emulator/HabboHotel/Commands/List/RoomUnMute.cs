@@ -33,12 +33,15 @@ namespace Azure.HabboHotel.Commands.List
                 return true;
             }
 
-            session.GetHabbo().CurrentRoom.RoomMuted = false;
+            /*session.GetHabbo().CurrentRoom.RoomMuted = false;
             var message = new ServerMessage();
             message.Init(LibraryParser.OutgoingRequest("AlertNotificationMessageComposer"));
             message.AppendString("Room is now UnMuted.");
             message.AppendString("");
-            room.SendMessage(message);
+            room.SendMessage(message);*/
+
+            room.SendMessage(GameClient.GetBytesNotif("Este quarto foi des-selenciado."));
+
             Azure.GetGame()
                 .GetModerationTool().LogStaffEntry(session.GetHabbo().UserName, string.Empty,
                     "Room Unmute", "Room UnMuted");

@@ -20,13 +20,17 @@ namespace Azure.HabboHotel.Commands.List
         public override bool Execute(GameClient session, string[] pms)
         {
             var alert = string.Join(" ", pms);
-            foreach (
+
+            /*foreach (
                 var user in
                     session.GetHabbo()
                         .CurrentRoom.GetRoomUserManager()
                         .GetRoomUsers()
                         .Where(user => !user.IsBot && user.GetClient() != null))
-                user.GetClient().SendNotif(alert);
+                user.GetClient().SendNotif(alert);*/
+
+            session.GetHabbo().CurrentRoom.SendMessage(GameClient.GetBytesNotif(alert));
+
             return true;
         }
     }

@@ -385,7 +385,7 @@ namespace Azure.HabboHotel.GameClients
         /// <param name="message">The message.</param>
         /// <param name="title">The title.</param>
         /// <param name="picture">The picture.</param>
-        internal void SendNotif(string message, string title = "Notification", string picture = "")
+        internal void SendNotif(string message, string title = "Aviso", string picture = "")
         {
             SendMessage(GetBytesNotif(message, title, picture));
         }
@@ -397,11 +397,9 @@ namespace Azure.HabboHotel.GameClients
         /// <param name="title">The title.</param>
         /// <param name="picture">The picture.</param>
         /// <returns>System.Byte[].</returns>
-        public static byte[] GetBytesNotif(string message, string title = "Notification", string picture = "")
+        public static byte[] GetBytesNotif(string message, string title = "Aviso", string picture = "")
         {
-            using (
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"))
-                )
+            using (var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer")))
             {
                 serverMessage.AppendString(picture);
                 serverMessage.AppendInteger(4);

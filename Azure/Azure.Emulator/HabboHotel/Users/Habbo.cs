@@ -572,6 +572,7 @@ namespace Azure.HabboHotel.Users
             TalentStatus = citizenShip;
             CurrentTalentLevel = GetCurrentTalentLevel();
             DailyCompetitionVotes = dailyCompetitionVotes;
+            DisableEventAlert = false;
         }
 
         /// <summary>

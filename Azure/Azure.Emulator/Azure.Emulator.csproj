@@ -181,6 +181,7 @@
     <Compile Include="HabboHotel\Commands\Command.cs" />
     <Compile Include="HabboHotel\Commands\CommandsManager.cs" />
     <Compile Include="HabboHotel\Commands\List\AddVideo.cs" />
+    <Compile Include="HabboHotel\Commands\List\DisableEvent.cs" />
     <Compile Include="HabboHotel\Commands\List\DisablePush.cs" />
     <Compile Include="HabboHotel\Commands\List\DisconnectUser.cs" />
     <Compile Include="HabboHotel\Commands\List\FloodUser.cs" />

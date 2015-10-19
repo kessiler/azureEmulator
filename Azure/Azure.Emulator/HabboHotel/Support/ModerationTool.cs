@@ -203,7 +203,7 @@ namespace Azure.HabboHotel.Support
             if (soft) return;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {0}", userId));
+                queryReactor.RunFastQuery($"UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {userId}");
         }
 
         /// <summary>
@@ -243,7 +243,8 @@ namespace Azure.HabboHotel.Support
             clientByUserId.SendNotif(message);
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE users SET trade_lock = '1', trade_lock_expire = '{0}' WHERE id = '{1}'", clientByUserId.GetHabbo().TradeLockExpire, clientByUserId.GetHabbo().Id));
+                queryReactor.RunFastQuery(
+                    $"UPDATE users SET trade_lock = '1', trade_lock_expire = '{clientByUserId.GetHabbo().TradeLockExpire}' WHERE id = '{clientByUserId.GetHabbo().Id}'");
         }
 
         /// <summary>
@@ -371,7 +372,7 @@ namespace Azure.HabboHotel.Support
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
-                    $"SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = {userId} ORDER BY timestamp DESC LIMIT 4");
+                    $"SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = '{userId}' ORDER BY timestamp DESC LIMIT 4");
                 DataTable table = queryReactor.GetTable();
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserChatlogMessageComposer"));
                 serverMessage.AppendInteger(userId);
@@ -385,7 +386,8 @@ namespace Azure.HabboHotel.Support
                         while (enumerator.MoveNext())
                         {
                             var dataRow = (DataRow)enumerator.Current;
-                            queryReactor.SetQuery(string.Concat("SELECT user_id,timestamp,message FROM users_chatlogs WHERE room_id = ", (uint)dataRow["room_id"], " AND user_id = ", userId, " ORDER BY timestamp DESC LIMIT 30"));
+                            queryReactor.SetQuery(
+                                $"SELECT user_id,timestamp,message FROM users_chatlogs WHERE room_id = {dataRow["room_id"]} AND user_id = {userId} ORDER BY timestamp DESC LIMIT 30");
                             DataTable table2 = queryReactor.GetTable();
                             RoomData roomData = Azure.GetGame().GetRoomManager().GenerateRoomData((uint)dataRow["room_id"]);
                             if (table2 != null)
@@ -460,13 +462,12 @@ namespace Azure.HabboHotel.Support
         /// <exception cref="System.NullReferenceException">No room found.</exception>
         internal static ServerMessage SerializeTicketChatlog(SupportTicket ticket, RoomData roomData, double timestamp)
         {
-            var message = new ServerMessage();
+            ServerMessage message = new ServerMessage();
 
             RoomData room = Azure.GetGame().GetRoomManager().GenerateRoomData(ticket.RoomId);
 
             if (room != null)
             {
-
                 message.Init(LibraryParser.OutgoingRequest("ModerationToolIssueChatlogMessageComposer"));
 
                 message.AppendInteger(ticket.TicketId);
@@ -485,7 +486,7 @@ namespace Azure.HabboHotel.Support
 
                 var tempChatlogs = room.RoomChat.Reverse().Skip(Math.Max(0, room.RoomChat.Count() - 60)).Take(60).ToList();
 
-                message.AppendShort(tempChatlogs.Count());
+                message.AppendShort(tempChatlogs.Count);
 
                 foreach (var chatLog in tempChatlogs)
                     chatLog.Serialize(ref message);
@@ -504,6 +505,7 @@ namespace Azure.HabboHotel.Support
         internal static ServerMessage SerializeRoomChatlog(uint roomId)
         {
             var message = new ServerMessage();
+
             Room room = Azure.GetGame().GetRoomManager().LoadRoom(roomId);
 
             if (room?.RoomData != null)
@@ -518,9 +520,9 @@ namespace Azure.HabboHotel.Support
                 message.AppendByte(1);
                 message.AppendInteger(room.RoomData.Id);
 
-                var tempChatlogs = room.RoomData.RoomChat.Reverse().Skip(Math.Max(0, room.RoomData.RoomChat.Count() - 60)).Take(60).ToList();
+                var tempChatlogs = room.RoomData.RoomChat.Reverse().Skip(Math.Max(0, room.RoomData.RoomChat.Count - 60)).Take(60).ToList();
 
-                message.AppendShort(tempChatlogs.Count());
+                message.AppendShort(tempChatlogs.Count);
 
                 foreach (var chatLog in tempChatlogs)
                     chatLog.Serialize(ref message);
@@ -631,9 +633,7 @@ namespace Azure.HabboHotel.Support
                     }
                 }
                 else
-                {
                     UserMessagePresets.Add(item);
-                }
 
             }
 

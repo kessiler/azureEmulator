@@ -28,7 +28,7 @@ namespace Azure.HabboHotel.Commands.List
         {
             var str = string.Join(" ", pms);
             var message = new ServerMessage(LibraryParser.OutgoingRequest("BroadcastNotifMessageComposer"));
-            message.AppendString(string.Format("{0}\r\n- {1}", str, session.GetHabbo().UserName));
+            message.AppendString($"{str}\r\n- {session.GetHabbo().UserName}");
             Azure.GetGame().GetClientManager().QueueBroadcaseMessage(message);
 
             return true;

@@ -18,7 +18,8 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CallGuide()
         {
-            /*Request.GetBool();
+            Request.GetBool();
+
             var userId = Request.GetIntegerFromString();
             var message = Request.GetString();
             var guideManager = Azure.GetGame().GetGuideManager();
@@ -31,12 +32,14 @@ namespace Azure.Messages.Handlers
             }
 
             var guide = guideManager.GetRandomGuide();
+
             var onGuideSessionAttached = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
             onGuideSessionAttached.AppendBool(false);
             onGuideSessionAttached.AppendInteger(userId);
             onGuideSessionAttached.AppendString(message);
             onGuideSessionAttached.AppendInteger(30);
             Session.SendMessage(onGuideSessionAttached);
+
             var onGuideSessionAttached2 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
             onGuideSessionAttached2.AppendBool(true);
             onGuideSessionAttached2.AppendInteger(userId);
@@ -44,7 +47,7 @@ namespace Azure.Messages.Handlers
             onGuideSessionAttached2.AppendInteger(15);
             guide.SendMessage(onGuideSessionAttached2);
             guide.GetHabbo().GuideOtherUser = Session;
-            Session.GetHabbo().GuideOtherUser = guide;*/
+            Session.GetHabbo().GuideOtherUser = guide;
         }
 
         /// <summary>
@@ -73,8 +76,18 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CancelCallGuide()
         {
-            Response.Init(3485); ///BUG: IMPORTANT 
-            SendResponse();
+            //Response.Init(3485); ///BUG: IMPORTANT 
+            //SendResponse();
+
+            Request.GetBool();
+
+            var requester = Session.GetHabbo().GuideOtherUser;
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            message.AppendInteger(2);
+            requester.SendMessage(message);
+
+            requester.GetHabbo().GuideOtherUser = null;
+            Session.GetHabbo().GuideOtherUser = null;
         }
 
         /// <summary>
