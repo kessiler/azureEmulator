@@ -575,20 +575,38 @@ namespace Azure
 
         internal static int DifferenceInMilliSeconds(DateTime time, DateTime from)
         {
-            double time1 = from.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-            double time2 = time.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            double time1 = 0.0;
+            double time2 = 0.0;
 
-            if ((time1 >= double.MaxValue) || (time1 <= double.MinValue))
+            try
+            {
+                time1 = from.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                time2 = time.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            }
+            catch (Exception)
+            {
+                time1 = 0.0;
+                time2 = 0.0;
+            }
+
+            if ((time1 >= double.MaxValue) || (time1 <= double.MinValue) || time1 <= 0.0)
                 time1 = 0.0;
 
-            if ((time2 >= double.MaxValue) || (time2 <= double.MinValue))
+            if ((time2 >= double.MaxValue) || (time2 <= double.MinValue) || time2 <= 0.0)
                 time2 = 0.0;
 
-            double tempus = ((time1 >= 0.0) ? time1 : 0.0) - ((time2 >= 0.0) ? time2 : 0.0);
+            double tempus = time1- time2;
 
             int tempusNovo = 0;
 
-            tempusNovo = int.Parse(Convert.ToString((tempus >= 0.0) ? tempus : 0.0, CultureInfo.InvariantCulture));
+            try
+            {
+                tempusNovo = Convert.ToInt32(tempus);
+            }
+            catch (Exception)
+            {
+                return tempusNovo;
+            }
 
             return tempusNovo;
         }

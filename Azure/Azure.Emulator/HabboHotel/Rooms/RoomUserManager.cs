@@ -765,8 +765,10 @@ namespace Azure.HabboHotel.Rooms
                                 if (!user.Statusses.ContainsKey("lay"))
                                     user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
                                 else
+                                {
                                     if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
                                         user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
+                                }   
 
                                 user.Z = item.Z;
                                 user.RotHead = item.Rot;
@@ -783,8 +785,10 @@ namespace Azure.HabboHotel.Rooms
 
                         case Interaction.Guillotine:
                             {
-                                if (!user.Statusses.ContainsKey("lay")) user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
-                                else if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height)) user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
+                                if (!user.Statusses.ContainsKey("lay"))
+                                    user.Statusses.Add("lay", TextHandling.GetString(item.GetBaseItem().Height));
+                                else if (user.Statusses["lay"] != TextHandling.GetString(item.GetBaseItem().Height))
+                                    user.Statusses["lay"] = TextHandling.GetString(item.GetBaseItem().Height);
 
                                 user.Z = item.Z;
                                 user.RotBody = item.Rot;

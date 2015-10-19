@@ -33,6 +33,14 @@ namespace Azure.Messages.Handlers
 
             var guide = guideManager.GetRandomGuide();
 
+            if (guide == null)
+            {
+                Response.Init(LibraryParser.OutgoingRequest("OnGuideSessionError"));
+                Response.AppendInteger(0);
+                SendResponse();
+                return;
+            }
+
             var onGuideSessionAttached = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionAttachedMessageComposer"));
             onGuideSessionAttached.AppendBool(false);
             onGuideSessionAttached.AppendInteger(userId);
@@ -79,15 +87,14 @@ namespace Azure.Messages.Handlers
             //Response.Init(3485); ///BUG: IMPORTANT 
             //SendResponse();
 
-            Request.GetBool();
+           // Request.GetBool();
 
-            var requester = Session.GetHabbo().GuideOtherUser;
+            //var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
-            message.AppendInteger(2);
-            requester.SendMessage(message);
 
-            requester.GetHabbo().GuideOtherUser = null;
-            Session.GetHabbo().GuideOtherUser = null;
+            message.AppendInteger(2);
+            Session.SendMessage(message);
+
         }
 
         /// <summary>
@@ -171,10 +178,13 @@ namespace Azure.Messages.Handlers
         internal void CloseGuideRequest()
         {
             Request.GetBool();
+
             var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+
             message.AppendInteger(2);
             requester.SendMessage(message);
+
             requester.GetHabbo().GuideOtherUser = null;
             Session.GetHabbo().GuideOtherUser = null;
         }
