@@ -33,7 +33,9 @@ namespace Azure.HabboHotel.Commands.List
                 return true;
             }
 
-            /*session.GetHabbo().CurrentRoom.RoomMuted = false;
+            session.GetHabbo().CurrentRoom.RoomMuted = false;
+
+            /*
             var message = new ServerMessage();
             message.Init(LibraryParser.OutgoingRequest("AlertNotificationMessageComposer"));
             message.AppendString("Room is now UnMuted.");

@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using Azure.HabboHotel.GameClients;
 using Azure.Messages;
 using Azure.Messages.Parsers;
@@ -33,13 +34,16 @@ namespace Azure.HabboHotel.Commands.List
                 return true;
             }
 
-            /*session.GetHabbo().CurrentRoom.RoomMuted = true;
+            session.GetHabbo().CurrentRoom.RoomMuted = true;
+
+            /*
             var message = new ServerMessage(LibraryParser.OutgoingRequest("AlertNotificationMessageComposer"));
             message.AppendString(string.Format("The room was muted due to:\r{0}", string.Join(" ", pms)));
             message.AppendString(string.Empty);
             room.SendMessage(message);*/
 
-            room.SendMessage(GameClient.GetBytesNotif("Este quarto foi silenciado pelo motivo:\r{0}", string.Join(" ", pms)));
+            room.SendMessage(GameClient.GetBytesNotif(
+                $"Este quarto foi silenciado pelo motivo:\r{string.Join(" ", pms)}"));
 
             Azure.GetGame()
                 .GetModerationTool().LogStaffEntry(session.GetHabbo().UserName, string.Empty,
