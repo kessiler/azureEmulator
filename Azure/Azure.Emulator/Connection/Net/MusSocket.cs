@@ -33,7 +33,6 @@ namespace Azure.Connection.Net
                 MsSocket.Listen(backlog);
                 MsSocket.BeginAccept(OnEvent_NewConnection, MsSocket);
 
-
                 Out.WriteLine(
                     "Asynchronous sockets server for MUS connections running on port " +
                     musPort + Environment.NewLine,
@@ -41,7 +40,7 @@ namespace Azure.Connection.Net
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(string.Format("No se pudo iniciar el Socket MUS:\n{0}", ex));
+                throw new ArgumentException($"No se pudo iniciar el Socket MUS:\n{ex}");
             }
         }
 
@@ -49,11 +48,13 @@ namespace Azure.Connection.Net
         {
             try
             {
-                var socket = ((Socket) iAr.AsyncState).EndAccept(iAr);
+                var socket = ((Socket)iAr.AsyncState).EndAccept(iAr);
                 var ip = socket.RemoteEndPoint.ToString().Split(':')[0];
 
-                if (AllowedIps.Contains(ip) || ip == "127.0.0.1") new MusConnection(socket);
-                else socket.Close();
+                if (AllowedIps.Contains(ip) || ip == "127.0.0.1")
+                    new MusConnection(socket);
+                else
+                    socket.Close();
             }
             catch (Exception e)
             {

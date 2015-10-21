@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.Messages;
 
 #endregion
@@ -13,12 +15,12 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Navigators
 {
     /// <summary>
-    /// Class SearchResultList.
+    ///     Class SearchResultList.
     /// </summary>
     internal class SearchResultList
     {
         /// <summary>
-        /// Serializes the search result list flatcats.
+        ///     Serializes the search result list flatcats.
         /// </summary>
         /// <param name="flatCatId">The flat cat identifier.</param>
         /// <param name="direct">if set to <c>true</c> [direct].</param>
@@ -26,12 +28,16 @@ namespace Azure.HabboHotel.Navigators
         internal static void SerializeSearchResultListFlatcats(int flatCatId, bool direct, ServerMessage message)
         {
             var flatCat = Azure.GetGame().GetNavigator().GetFlatCat(flatCatId);
-            if (flatCat == null) return;
-            message.AppendString(string.Format("category__{0}", flatCat.Caption));
+
+            if (flatCat == null)
+                return;
+
+            message.AppendString($"category__{flatCat.Caption}");
             message.AppendString(flatCat.Caption);
             message.AppendInteger(0);
             message.AppendBool(true);
             message.AppendInteger(-1);
+
             try
             {
                 var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
@@ -46,7 +52,7 @@ namespace Azure.HabboHotel.Navigators
         }
 
         /// <summary>
-        /// Serializes the promotions result list flatcats.
+        ///     Serializes the promotions result list flatcats.
         /// </summary>
         /// <param name="flatCatId">The flat cat identifier.</param>
         /// <param name="direct">if set to <c>true</c> [direct].</param>
@@ -73,14 +79,14 @@ namespace Azure.HabboHotel.Navigators
         }
 
         /// <summary>
-        /// Serializes the search result list statics.
+        ///     Serializes the search result list statics.
         /// </summary>
         /// <param name="staticId">The static identifier.</param>
         /// <param name="direct">if set to <c>true</c> [direct].</param>
         /// <param name="message">The message.</param>
         /// <param name="session">The session.</param>
         internal static void SerializeSearchResultListStatics(string staticId, bool direct, ServerMessage message,
-                                                              GameClient session)
+            GameClient session)
         {
             if (string.IsNullOrEmpty(staticId) || staticId == "official") staticId = "official_view";
             if (staticId != "hotel_view" && staticId != "roomads_view" && staticId != "myworld_view" &&
@@ -89,205 +95,209 @@ namespace Azure.HabboHotel.Navigators
                 message.AppendString(staticId); // code
                 message.AppendString(""); // title
                 message.AppendInteger(1); // 0 : no button - 1 : Show More - 2 : Show Back button
-                message.AppendBool(staticId != "my" && staticId != "popular" && staticId != "official-root"); // collapsed
+                message.AppendBool(staticId != "my" && staticId != "popular" && staticId != "official-root");
+                // collapsed
                 message.AppendInteger(staticId == "official-root" ? 1 : 0); // 0 : list - 1 : thumbnail
             }
             KeyValuePair<RoomData, uint>[] rooms;
             switch (staticId)
             {
                 case "hotel_view":
-                    {
-                        SerializeSearchResultListStatics("popular", false, message, session);
-                        foreach (FlatCat flat in Azure.GetGame().GetNavigator().PrivateCategories.Values) SerializeSearchResultListFlatcats(flat.Id, false, message);
-                        break;
-                    }
+                {
+                    SerializeSearchResultListStatics("popular", false, message, session);
+                    foreach (FlatCat flat in Azure.GetGame().GetNavigator().PrivateCategories.Values)
+                        SerializeSearchResultListFlatcats(flat.Id, false, message);
+                    break;
+                }
                 case "myworld_view":
-                    {
-                        SerializeSearchResultListStatics("my", false, message, session);
-                        SerializeSearchResultListStatics("favorites", false, message, session);
-                        SerializeSearchResultListStatics("my_groups", false, message, session);
-                        SerializeSearchResultListStatics("history", false, message, session);
-                        SerializeSearchResultListStatics("friends_rooms", false, message, session);
-                        break;
-                    }
+                {
+                    SerializeSearchResultListStatics("my", false, message, session);
+                    SerializeSearchResultListStatics("favorites", false, message, session);
+                    SerializeSearchResultListStatics("my_groups", false, message, session);
+                    SerializeSearchResultListStatics("history", false, message, session);
+                    SerializeSearchResultListStatics("friends_rooms", false, message, session);
+                    break;
+                }
                 case "roomads_view":
-                    {
-                        foreach (FlatCat flat in Azure.GetGame().GetNavigator().PrivateCategories.Values) SerializePromotionsResultListFlatcats(flat.Id, false, message);
-                        SerializeSearchResultListStatics("top_promotions", false, message, session);
-                        break;
-                    }
+                {
+                    foreach (FlatCat flat in Azure.GetGame().GetNavigator().PrivateCategories.Values)
+                        SerializePromotionsResultListFlatcats(flat.Id, false, message);
+                    SerializeSearchResultListStatics("top_promotions", false, message, session);
+                    break;
+                }
                 case "official_view":
-                    {
-                        SerializeSearchResultListStatics("official-root", false, message, session);
-                        SerializeSearchResultListStatics("staffpicks", false, message, session);
-                        break;
-                    }
+                {
+                    SerializeSearchResultListStatics("official-root", false, message, session);
+                    SerializeSearchResultListStatics("staffpicks", false, message, session);
+                    break;
+                }
                 case "official-root":
-                    {
-                        message.AppendServerMessage(Azure.GetGame().GetNavigator().NewPublicRooms);
-                        break;
-                    }
+                {
+                    message.AppendServerMessage(Azure.GetGame().GetNavigator().NewPublicRooms);
+                    break;
+                }
                 case "staffpicks":
-                    {
-                        message.AppendServerMessage(Azure.GetGame().GetNavigator().NewStaffPicks);
-                        break;
-                    }
+                {
+                    message.AppendServerMessage(Azure.GetGame().GetNavigator().NewStaffPicks);
+                    break;
+                }
                 case "my":
+                {
+                    var i = 0;
+                    message.StartArray();
+                    foreach (var data in session.GetHabbo().UsersRooms.Where(data => data != null))
                     {
-                        var i = 0;
-                        message.StartArray();
-                        foreach (var data in session.GetHabbo().UsersRooms.Where(data => data != null))
-                        {
-                            data.Serialize(message, false);
-                            message.SaveArray();
-                            if (i++ == (direct ? 100 : 8)) break;
-                        }
-                        message.EndArray();
-                        break;
+                        data.Serialize(message);
+                        message.SaveArray();
+                        if (i++ == (direct ? 100 : 8)) break;
                     }
+                    message.EndArray();
+                    break;
+                }
                 case "favorites":
+                {
+                    if (session.GetHabbo().FavoriteRooms == null)
                     {
-                        if (session.GetHabbo().FavoriteRooms == null)
-                        {
-                            message.AppendInteger(0);
-                            return;
-                        }
-
-                        var i = 0;
-                        message.AppendInteger(session.GetHabbo().FavoriteRooms.Count > (direct ? 40 : 8)
-                            ? (direct ? 40 : 8)
-                            : session.GetHabbo().FavoriteRooms.Count);
-                        foreach (
-                            var data in
-                                session.GetHabbo()
-                                    .FavoriteRooms.Select(
-                                        dataId => Azure.GetGame().GetRoomManager().GenerateRoomData(dataId))
-                                    .Where(data => data != null))
-                        {
-                            data.Serialize(message, false);
-                            i++;
-                            if (i == (direct ? 40 : 8)) break;
-                        }
-                        break;
+                        message.AppendInteger(0);
+                        return;
                     }
-                case "friends_rooms":
-                    {
-                        var i = 0;
-                        if (session == null || session.GetHabbo() == null || session.GetHabbo().GetMessenger() == null ||
-                            session.GetHabbo().GetMessenger().GetActiveFriendsRooms() == null)
-                        {
-                            message.AppendInteger(0);
-                            return;
-                        }
-                        var roomsFriends =
+
+                    var i = 0;
+                    message.AppendInteger(session.GetHabbo().FavoriteRooms.Count > (direct ? 40 : 8)
+                        ? (direct ? 40 : 8)
+                        : session.GetHabbo().FavoriteRooms.Count);
+                    foreach (
+                        var data in
                             session.GetHabbo()
-                                .GetMessenger()
-                                .GetActiveFriendsRooms()
-                                .OrderByDescending(p => p.UsersNow)
-                                .Take((direct ? 40 : 8))
-                                .ToList();
-                        message.AppendInteger(roomsFriends.Count);
-                        foreach (var data in roomsFriends.Where(data => data != null))
-                        {
-                            data.Serialize(message, false);
-
-                            i++;
-                            if (i == (direct ? 40 : 8)) break;
-                        }
-                        break;
+                                .FavoriteRooms.Select(
+                                    dataId => Azure.GetGame().GetRoomManager().GenerateRoomData(dataId))
+                                .Where(data => data != null))
+                    {
+                        data.Serialize(message);
+                        i++;
+                        if (i == (direct ? 40 : 8)) break;
                     }
+                    break;
+                }
+                case "friends_rooms":
+                {
+                    var i = 0;
+                    if (session == null || session.GetHabbo() == null || session.GetHabbo().GetMessenger() == null ||
+                        session.GetHabbo().GetMessenger().GetActiveFriendsRooms() == null)
+                    {
+                        message.AppendInteger(0);
+                        return;
+                    }
+                    var roomsFriends =
+                        session.GetHabbo()
+                            .GetMessenger()
+                            .GetActiveFriendsRooms()
+                            .OrderByDescending(p => p.UsersNow)
+                            .Take((direct ? 40 : 8))
+                            .ToList();
+                    message.AppendInteger(roomsFriends.Count);
+                    foreach (var data in roomsFriends.Where(data => data != null))
+                    {
+                        data.Serialize(message);
+
+                        i++;
+                        if (i == (direct ? 40 : 8)) break;
+                    }
+                    break;
+                }
                 case "recommended":
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
                 case "popular":
+                {
+                    try
                     {
-                        try
+                        rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+                        if (rooms == null)
                         {
-                            rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
-                            if (rooms == null)
-                            {
-                                message.AppendInteger(0);
-                                break;
-                            }
-                            message.AppendInteger(rooms.Length);
-                            foreach (var room in rooms) room.Key.Serialize(message, false);
-                        }
-                        catch (Exception e)
-                        {
-                            Writer.Writer.LogException(e.ToString());
                             message.AppendInteger(0);
+                            break;
                         }
-                        break;
+                        message.AppendInteger(rooms.Length);
+                        foreach (var room in rooms) room.Key.Serialize(message);
                     }
+                    catch (Exception e)
+                    {
+                        Writer.Writer.LogException(e.ToString());
+                        message.AppendInteger(0);
+                    }
+                    break;
+                }
                 case "top_promotions":
+                {
+                    try
                     {
-                        try
-                        {
-                            rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
-                            message.AppendInteger(rooms.Length);
-                            foreach (var room in rooms) room.Key.Serialize(message, false);
-                        }
-                        catch
-                        {
-                            message.AppendInteger(0);
-                        }
-                        break;
+                        rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
+                        message.AppendInteger(rooms.Length);
+                        foreach (var room in rooms) room.Key.Serialize(message);
                     }
+                    catch
+                    {
+                        message.AppendInteger(0);
+                    }
+                    break;
+                }
                 case "my_groups":
+                {
+                    var i = 0;
+                    message.StartArray();
+                    foreach (var data in from xGroupId in session.GetHabbo().MyGroups
+                        select Azure.GetGame().GetGroupManager().GetGroup(xGroupId)
+                        into xGroup
+                        where xGroup != null
+                        select Azure.GetGame().GetRoomManager().GenerateRoomData(xGroup.RoomId)
+                        into data
+                        where data != null
+                        select data)
                     {
-                        var i = 0;
-                        message.StartArray();
-                        foreach (var data in from xGroupId in session.GetHabbo().MyGroups
-                                             select Azure.GetGame().GetGroupManager().GetGroup(xGroupId)
-                                                 into xGroup
-                                             where xGroup != null
-                                             select Azure.GetGame().GetRoomManager().GenerateRoomData(xGroup.RoomId)
-                                                     into data
-                                             where data != null
-                                             select data)
-                        {
-                            data.Serialize(message, false);
-                            message.SaveArray();
-                            if (i++ == (direct ? 40 : 8)) break;
-                        }
-                        message.EndArray();
-                        break;
+                        data.Serialize(message);
+                        message.SaveArray();
+                        if (i++ == (direct ? 40 : 8)) break;
                     }
+                    message.EndArray();
+                    break;
+                }
                 case "history":
+                {
+                    var i = 0;
+                    message.StartArray();
+                    foreach (var roomData in session.GetHabbo()
+                        .RecentlyVisitedRooms.Select(
+                            roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId))
+                        .Where(roomData => roomData != null))
                     {
-                        var i = 0;
-                        message.StartArray();
-                        foreach (var roomData in session.GetHabbo()
-                            .RecentlyVisitedRooms.Select(
-                                roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId)).Where(roomData => roomData != null))
-                        {
-                            roomData.Serialize(message, false);
-                            message.SaveArray();
+                        roomData.Serialize(message);
+                        message.SaveArray();
 
-                            if (i++ == (direct ? 40 : 8)) break;
-                        }
-
-                        message.EndArray();
-                        break;
+                        if (i++ == (direct ? 40 : 8)) break;
                     }
+
+                    message.EndArray();
+                    break;
+                }
                 default:
+                {
+                    if (staticId.StartsWith("category__"))
                     {
-                        if (staticId.StartsWith("category__"))
-                        {
-                            SerializeSearchResultListFlatcats(
-                                Azure.GetGame()
-                                    .GetNavigator()
-                                    .GetFlatCatIdByName(staticId.Replace("category__", "")), true, message);
-                        }
-                        else message.AppendInteger(0);
-                        break;
+                        SerializeSearchResultListFlatcats(
+                            Azure.GetGame()
+                                .GetNavigator()
+                                .GetFlatCatIdByName(staticId.Replace("category__", "")), true, message);
                     }
+                    else message.AppendInteger(0);
+                    break;
+                }
             }
         }
 
         /// <summary>
-        /// Serializes the searches.
+        ///     Serializes the searches.
         /// </summary>
         /// <param name="searchQuery">The search query.</param>
         /// <param name="message">The message.</param>
@@ -329,7 +339,8 @@ namespace Azure.HabboHotel.Navigators
                 {
                     foreach (var rms in Azure.GetGame().GetRoomManager().GetActiveRooms())
                     {
-                        if (rms.Key.Name.ToLower().Contains(searchQuery.ToLower()) && rooms.Count <= 50) rooms.Add(rms.Key);
+                        if (rms.Key.Name.ToLower().Contains(searchQuery.ToLower()) && rooms.Count <= 50)
+                            rooms.Add(rms.Key);
                         else break;
                     }
                 }
@@ -376,7 +387,7 @@ namespace Azure.HabboHotel.Navigators
                 }
             }
             message.AppendInteger(rooms.Count);
-            foreach (var data in rooms.Where(data => data != null)) data.Serialize(message, false);
+            foreach (var data in rooms.Where(data => data != null)) data.Serialize(message);
         }
     }
 }

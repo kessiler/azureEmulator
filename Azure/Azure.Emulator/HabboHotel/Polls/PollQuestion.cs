@@ -9,37 +9,37 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Polls
 {
     /// <summary>
-    /// Class PollQuestion.
+    ///     Class PollQuestion.
     /// </summary>
     internal class PollQuestion
     {
         /// <summary>
-        /// The index
-        /// </summary>
-        internal uint Index;
-
-        /// <summary>
-        /// The question
-        /// </summary>
-        internal string Question;
-
-        /// <summary>
-        /// a type
-        /// </summary>
-        internal PollAnswerType AType;
-
-        /// <summary>
-        /// The answers
+        ///     The answers
         /// </summary>
         internal List<string> Answers = new List<string>();
 
         /// <summary>
-        /// The correct answer
+        ///     a type
+        /// </summary>
+        internal PollAnswerType AType;
+
+        /// <summary>
+        ///     The correct answer
         /// </summary>
         internal string CorrectAnswer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PollQuestion"/> class.
+        ///     The index
+        /// </summary>
+        internal uint Index;
+
+        /// <summary>
+        ///     The question
+        /// </summary>
+        internal string Question;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="PollQuestion" /> class.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <param name="question">The question.</param>
@@ -50,34 +50,13 @@ namespace Azure.HabboHotel.Polls
         {
             Index = index;
             Question = question;
-            AType = (PollAnswerType)aType;
+            AType = (PollAnswerType) aType;
             Answers = answers.ToList();
             CorrectAnswer = correctAnswer;
         }
 
         /// <summary>
-        /// Enum PollAnswerType
-        /// </summary>
-        internal enum PollAnswerType
-        {
-            /// <summary>
-            /// The radio selection
-            /// </summary>
-            RadioSelection = 1,
-
-            /// <summary>
-            /// The selection
-            /// </summary>
-            Selection = 2,
-
-            /// <summary>
-            /// The text
-            /// </summary>
-            Text = 3
-        }
-
-        /// <summary>
-        /// Serializes the specified message.
+        ///     Serializes the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="questionNumber">The question number.</param>
@@ -85,7 +64,7 @@ namespace Azure.HabboHotel.Polls
         {
             message.AppendInteger(Index);
             message.AppendInteger(questionNumber);
-            message.AppendInteger((int)AType);
+            message.AppendInteger((int) AType);
             message.AppendString(Question);
             if (AType != PollAnswerType.Selection && AType != PollAnswerType.RadioSelection)
             {
@@ -93,11 +72,32 @@ namespace Azure.HabboHotel.Polls
             }
             message.AppendInteger(1);
             message.AppendInteger(Answers.Count);
-            foreach (string current in Answers)
+            foreach (var current in Answers)
             {
                 message.AppendString(current);
                 message.AppendString(current);
             }
+        }
+
+        /// <summary>
+        ///     Enum PollAnswerType
+        /// </summary>
+        internal enum PollAnswerType
+        {
+            /// <summary>
+            ///     The radio selection
+            /// </summary>
+            RadioSelection = 1,
+
+            /// <summary>
+            ///     The selection
+            /// </summary>
+            Selection = 2,
+
+            /// <summary>
+            ///     The text
+            /// </summary>
+            Text = 3
         }
     }
 }

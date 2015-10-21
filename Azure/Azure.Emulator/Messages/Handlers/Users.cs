@@ -8,6 +8,7 @@ using Azure.Configuration;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Users;
 using Azure.HabboHotel.Users.Badges;
 using Azure.HabboHotel.Users.Relationships;
@@ -116,7 +117,7 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().Tags.Count >= 5)
                 Azure.GetGame()
                     .GetAchievementManager()
-                    .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_UserTags", 5, false);
+                    .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_UserTags", 5);
         }
 
         /// <summary>
@@ -167,7 +168,7 @@ namespace Azure.Messages.Handlers
             if (roomUserByHabbo == null || roomUserByHabbo.GetClient().GetHabbo().Id == Session.GetHabbo().Id ||
                 roomUserByHabbo.IsBot)
                 return;
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialRespect, 0u);
+            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialRespect);
             Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RespectGiven", 1, true);
             Azure.GetGame()
                 .GetAchievementManager()
@@ -241,7 +242,7 @@ namespace Azure.Messages.Handlers
             Request.GetUInteger();
             var num2 = Request.GetUInteger();
             var currentRoom = Session.GetHabbo().CurrentRoom;
-            if (currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true, false)) ||
+            if (currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) ||
                 (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session)) || Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
             var roomUserByHabbo = currentRoom.GetRoomUserManager()
@@ -346,6 +347,7 @@ namespace Azure.Messages.Handlers
             Session.GetHabbo().Preferences.IgnoreRoomInvite = enable;
             Session.GetHabbo().Preferences.Save();
         }
+
         internal void SetRoomCameraPreferences()
         {
             bool enable = Request.GetBool();
@@ -385,7 +387,7 @@ namespace Azure.Messages.Handlers
                     queryreactor2.RunQuery();
                 }
             }
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileBadge, 0u);
+            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileBadge);
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
             serverMessage.AppendInteger(Session.GetHabbo().Id);
 
@@ -527,7 +529,7 @@ namespace Azure.Messages.Handlers
             var text2 = Request.GetString();
             text2 = Azure.FilterFigure(text2);
 
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook, 0u);
+            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook);
             Session.GetHabbo().Look = text2;
             Session.GetHabbo().Gender = text.ToLower() == "f" ? "f" : "m";
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
@@ -538,9 +540,9 @@ namespace Azure.Messages.Handlers
                 queryReactor.AddParameter("gender", text);
                 queryReactor.RunQuery();
             }
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AvatarLooks", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AvatarLooks", 1);
             if (Session.GetHabbo().Look.Contains("ha-1006"))
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.WearHat, 0u);
+                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.WearHat);
             Session.GetMessageHandler()
                 .GetResponse()
                 .Init(LibraryParser.OutgoingRequest("UpdateAvatarAspectMessageComposer"));
@@ -592,7 +594,7 @@ namespace Azure.Messages.Handlers
                 queryReactor.AddParameter("motto", text);
                 queryReactor.RunQuery();
             }
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeMotto, 0u);
+            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeMotto);
             if (Session.GetHabbo().InRoom)
             {
                 var currentRoom = Session.GetHabbo().CurrentRoom;
@@ -610,7 +612,7 @@ namespace Azure.Messages.Handlers
                 serverMessage.AppendInteger(Session.GetHabbo().AchievementPoints);
                 currentRoom.SendMessage(serverMessage);
             }
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Motto", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Motto", 1);
         }
 
         /// <summary>
@@ -999,7 +1001,7 @@ namespace Azure.Messages.Handlers
             }
             if (roomData != null)
             {
-                roomData.SerializeRoomData(Response, Session, true, false);
+                roomData.SerializeRoomData(Response, Session, true);
                 Session.GetMessageHandler().PrepareRoomForUser(roomData.Id, "");
                 return;
             }
@@ -1011,7 +1013,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void ReceiveNuxGifts()
         {
-            if (!ExtraSettings.NEW_users_gifts_ENABLED)
+            if (!ExtraSettings.NewUsersGiftsEnabled)
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_1"));
                 return;
@@ -1022,7 +1024,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ExtraSettings.NEW_USER_GIFT_YTTV2_ID, "", 0, true, false, 0, 0);
+            var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
             Session.GetHabbo().Diamonds += 25;
@@ -1031,7 +1033,7 @@ namespace Azure.Messages.Handlers
                 Session.GetHabbo().GetInventoryComponent().SendNewItems(item.Id);
 
             using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
-                if (Session.GetHabbo().VIP)
+                if (Session.GetHabbo().Vip)
                     dbClient.RunFastQuery(
                         string.Format(
                             "UPDATE users SET vip = '1', vip_expire = DATE_ADD(vip_expire, INTERVAL 1 DAY), nux_passed = '1' WHERE id = {0}",
@@ -1043,7 +1045,7 @@ namespace Azure.Messages.Handlers
                             Session.GetHabbo().Id));
 
             Session.GetHabbo().NuxPassed = true;
-            Session.GetHabbo().VIP = true;
+            Session.GetHabbo().Vip = true;
         }
 
         /// <summary>
@@ -1051,7 +1053,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void AcceptNuxGifts()
         {
-            if (ExtraSettings.NEW_users_gifts_ENABLED == false || Request.GetInteger() != 0)
+            if (ExtraSettings.NewUsersGiftsEnabled == false || Request.GetInteger() != 0)
                 return;
 
             var nuxGifts = new ServerMessage(LibraryParser.OutgoingRequest("NuxListGiftsMessageComposer"));
@@ -1098,8 +1100,10 @@ namespace Azure.Messages.Handlers
             var trackType = Request.GetString();
             var talents = Azure.GetGame().GetTalentManager().GetTalents(trackType, -1);
             var failLevel = -1;
+
             if (talents == null)
                 return;
+
             Response.Init(LibraryParser.OutgoingRequest("TalentsTrackMessageComposer"));
             Response.AppendString(trackType);
             Response.AppendInteger(talents.Count);
@@ -1110,35 +1114,22 @@ namespace Azure.Messages.Handlers
                 Response.AppendInteger(nm);
                 var talents2 = Azure.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
                 Response.AppendInteger(talents2.Count);
+
                 foreach (var current2 in talents2)
                 {
-                    if (current2.GetAchievement() == null)
-                        throw new NullReferenceException(
-                            string.Format("The following talent achievement can't be found: {0}",
-                                current2.AchievementGroup));
-
-                    var num = (failLevel != -1 && failLevel < current2.Level)
-                        ? 0
-                        : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null)
-                            ? 1
-                            : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Level >=
-                               current2.AchievementLevel)
-                                ? 2
-                                : 1;
+                    var num = (failLevel != -1 && failLevel < current2.Level) ? 0 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null) ? 1 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Level >= current2.AchievementLevel) ? 2 : 1;
                     Response.AppendInteger(current2.GetAchievement().Id);
                     Response.AppendInteger(0);
-                    Response.AppendString(string.Format("{0}{1}", current2.AchievementGroup, current2.AchievementLevel));
+                    Response.AppendString($"{current2.AchievementGroup}{current2.AchievementLevel}");
                     Response.AppendInteger(num);
-                    Response.AppendInteger((Session.GetHabbo().GetAchievementData(current2.AchievementGroup) != null)
-                        ? Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Progress
-                        : 0);
-                    Response.AppendInteger((current2.GetAchievement() == null)
-                        ? 0
-                        : current2.GetAchievement().Levels[current2.AchievementLevel].Requirement);
+                    Response.AppendInteger((Session.GetHabbo().GetAchievementData(current2.AchievementGroup) != null) ? Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Progress : 0);
+                    Response.AppendInteger(current2.GetAchievement().Levels[current2.AchievementLevel].Requirement);
                     if (num != 2 && failLevel == -1)
                         failLevel = current2.Level;
                 }
+
                 Response.AppendInteger(0);
+
                 if (current.Type == "citizenship" && current.Level == 4)
                 {
                     Response.AppendInteger(2);
@@ -1154,6 +1145,7 @@ namespace Azure.Messages.Handlers
                     Response.AppendInteger(0);
                 }
             }
+
             SendResponse();
         }
 
@@ -1162,7 +1154,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CompleteSafetyQuiz()
         {
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_SafetyQuizGraduate", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_SafetyQuizGraduate", 1);
         }
 
         /// <summary>
@@ -1209,6 +1201,7 @@ namespace Azure.Messages.Handlers
                 Session.SendMessage(roomFwd);
             }
         }
+
         internal void HotelViewRequestBadge()
         {
             string name = Request.GetString();
@@ -1218,6 +1211,7 @@ namespace Azure.Messages.Handlers
             var badge = hotelViewBadges[name];
             Session.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, Session, true);
         }
+
         internal void GetCameraPrice()
         {
             GetResponse().Init(LibraryParser.OutgoingRequest("SetCameraPriceMessageComposer"));
@@ -1225,15 +1219,16 @@ namespace Azure.Messages.Handlers
             GetResponse().AppendInteger(10);//duckets
             SendResponse();
         }
+
         internal void GetHotelViewHallOfFame()
         {
             string code = Request.GetString();
             GetResponse().Init(LibraryParser.OutgoingRequest("HotelViewHallOfFameMessageComposer"));
             GetResponse().AppendString(code);
-            IEnumerable<HallOfFameElement> Rankings = Azure.GetGame().GetHallOfFame().Rankings.Where(e => e.Competition == code);
+            IEnumerable<HallOfFameElement> rankings = Azure.GetGame().GetHallOfFame().Rankings.Where(e => e.Competition == code);
             GetResponse().StartArray();
             int rank = 1;
-            foreach (HallOfFameElement element in Rankings)
+            foreach (HallOfFameElement element in rankings)
             {
                 Habbo user = Azure.GetHabboById(element.UserId);
                 if (user == null) continue;
@@ -1249,6 +1244,7 @@ namespace Azure.Messages.Handlers
             GetResponse().EndArray();
             SendResponse();
         }
+
         internal void FriendRequestListLoad()
         {
         }

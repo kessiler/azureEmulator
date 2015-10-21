@@ -4,27 +4,28 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.HabboHotel.Commands.List;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.Commands.Controllers;
+using Azure.HabboHotel.Commands.Interfaces;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
 namespace Azure.HabboHotel.Commands
 {
     /// <summary>
-    /// Class CommandsManager.
+    ///     Class CommandsManager.
     /// </summary>
     public static class CommandsManager
     {
         #region Definitions
 
         /// <summary>
-        /// The commands dictionary
+        ///     The commands dictionary
         /// </summary>
         internal static SortedDictionary<string, Command> CommandsDictionary;
 
         /// <summary>
-        /// The alias dictionary
+        ///     The alias dictionary
         /// </summary>
         internal static Dictionary<string, string> AliasDictionary;
 
@@ -33,7 +34,7 @@ namespace Azure.HabboHotel.Commands
         #region Initialization
 
         /// <summary>
-        /// Registers this instance.
+        ///     Registers this instance.
         /// </summary>
         public static void Register()
         {
@@ -95,9 +96,8 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("makeprivate", new MakePrivate());
             CommandsDictionary.Add("sayall", new SayAll());
 
-
             CommandsDictionary.Add("refresh_navigator", new RefreshNavigator());
-            CommandsDictionary.Add("ltd", new LTD());
+            CommandsDictionary.Add("ltd", new Ltd());
             CommandsDictionary.Add("refresh_quests", new RefreshQuests());
             CommandsDictionary.Add("refresh_polls", new RefreshPolls());
             CommandsDictionary.Add("refresh_achievements", new RefreshAchievements());
@@ -180,7 +180,7 @@ namespace Azure.HabboHotel.Commands
         }
 
         /// <summary>
-        /// Updates the information.
+        ///     Updates the information.
         /// </summary>
         public static void UpdateInfo()
         {
@@ -196,8 +196,10 @@ namespace Azure.HabboHotel.Commands
 
                     var command = CommandsDictionary[key];
 
-                    if (!string.IsNullOrEmpty(commandRow["description"].ToString())) command.Description = commandRow["description"].ToString();
-                    if (!string.IsNullOrEmpty(commandRow["params"].ToString())) command.Usage = ':' + key + " [" + commandRow["params"] + "]";
+                    if (!string.IsNullOrEmpty(commandRow["description"].ToString()))
+                        command.Description = commandRow["description"].ToString();
+                    if (!string.IsNullOrEmpty(commandRow["params"].ToString()))
+                        command.Usage = ':' + key + " [" + commandRow["params"] + "]";
                     if (!string.IsNullOrEmpty(commandRow["alias"].ToString()))
                     {
                         var aliasStr = commandRow["alias"].ToString().Replace(" ", "").Replace(";", ",");
@@ -205,12 +207,14 @@ namespace Azure.HabboHotel.Commands
                         {
                             if (AliasDictionary.ContainsKey(alias))
                             {
-                                Out.WriteLine("Duplicate alias key: " + alias, "Azure.HabboHotel.CommandsManager", ConsoleColor.DarkRed);
+                                Out.WriteLine("Duplicate alias key: " + alias, "Azure.HabboHotel.CommandsManager",
+                                    ConsoleColor.DarkRed);
                                 continue;
                             }
                             if (CommandsDictionary.ContainsKey(alias))
                             {
-                                Out.WriteLine("An alias cannot have same name as a normal command", "Azure.HabboHotel.CommandsManager", ConsoleColor.DarkRed);
+                                Out.WriteLine("An alias cannot have same name as a normal command",
+                                    "Azure.HabboHotel.CommandsManager", ConsoleColor.DarkRed);
                                 continue;
                             }
                             AliasDictionary.Add(alias, key);
@@ -228,7 +232,7 @@ namespace Azure.HabboHotel.Commands
         #region Methods
 
         /// <summary>
-        /// Tries the execute.
+        ///     Tries the execute.
         /// </summary>
         /// <param name="str">The string.</param>
         /// <param name="client">The client.</param>
@@ -247,7 +251,8 @@ namespace Azure.HabboHotel.Commands
 
             if (!CanUse(command.MinRank, client)) return false;
 
-            if (command.MinParams == -2 || (command.MinParams == -1 && pms.Count() > 1) || command.MinParams != -1 && command.MinParams == pms.Count() - 1)
+            if (command.MinParams == -2 || (command.MinParams == -1 && pms.Length > 1) ||
+                command.MinParams != -1 && command.MinParams == pms.Length - 1)
             {
                 return command.Execute(client, pms.Skip(1).ToArray());
             }
@@ -256,7 +261,7 @@ namespace Azure.HabboHotel.Commands
         }
 
         /// <summary>
-        /// Determines whether this instance can use the specified minimum rank.
+        ///     Determines whether this instance can use the specified minimum rank.
         /// </summary>
         /// <param name="minRank">The minimum rank.</param>
         /// <param name="user">The user.</param>
@@ -271,14 +276,15 @@ namespace Azure.HabboHotel.Commands
             switch (minRank)
             {
                 case -3:
-                    return habbo.HasFuse("fuse_vip_commands") || habbo.VIP;
+                    return habbo.HasFuse("fuse_vip_commands") || habbo.Vip;
 
                 case -2:
                     return staff ||
                            habbo.CurrentRoom.RoomData.OwnerId == habbo.Id;
 
                 case -1:
-                    return staff || habbo.CurrentRoom.RoomData.OwnerId == habbo.Id || habbo.CurrentRoom.CheckRights(user);
+                    return staff || habbo.CurrentRoom.RoomData.OwnerId == habbo.Id ||
+                           habbo.CurrentRoom.CheckRights(user);
 
                 case 0: //disabled
                     return false;

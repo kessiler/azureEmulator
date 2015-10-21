@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -19,10 +21,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             OtherBool = false;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.TriggerOnUserSay; }
-        }
+        public Interaction Type => Interaction.TriggerOnUserSay;
 
         public RoomItem Item { get; set; }
 
@@ -61,7 +60,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             var roomUser = (RoomUser)stuff[0];
             var text = (string)stuff[1];
             if (string.IsNullOrEmpty(OtherString)) return false;
-            if (!String.Equals(text, OtherString, StringComparison.CurrentCultureIgnoreCase)) return false;
+            if (!string.Equals(text, OtherString, StringComparison.CurrentCultureIgnoreCase)) return false;
             var conditions = Room.GetWiredHandler().GetConditions(this);
             var effects = Room.GetWiredHandler().GetEffects(this);
             if (conditions.Any())
@@ -74,7 +73,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             }
 
             roomUser.GetClient().SendWhisper(text);
-            if (effects.Any()) foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type))) WiredHandler.OnEvent(current2);
+            if (effects.Any())
+                foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
+                    WiredHandler.OnEvent(current2);
 
             WiredHandler.OnEvent(this);
             return true;

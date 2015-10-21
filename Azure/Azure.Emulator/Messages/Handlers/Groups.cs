@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Catalogs;
-using Azure.HabboHotel.Groups;
-using Azure.HabboHotel.Groups.Structs;
+using Azure.HabboHotel.Catalogs.Composers;
+using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
+using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Users;
 using Azure.Messages.Parsers;
 
@@ -20,7 +21,7 @@ namespace Azure.Messages.Handlers
     /// </summary>
     internal partial class GameClientMessageHandler
     {
-        internal readonly ushort TOTAL_PER_PAGE = 20;
+        internal readonly ushort TotalPerPage = 20;
 
         /// <summary>
         /// Serializes the group purchase page.
@@ -115,6 +116,7 @@ namespace Azure.Messages.Handlers
             var guildBaseColor = Request.GetInteger();
             var num6 = Request.GetInteger();
             var roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomid);
+
             if (roomData.Owner != Session.GetHabbo().UserName)
                 return;
 
@@ -135,14 +137,14 @@ namespace Azure.Messages.Handlers
                     (!Azure.GetGame().GetGroupManager().BackGroundColours.Contains(num3)) ? 1 : num3,
                     out group);
 
-            Session.SendMessage(CatalogPacket.PurchaseOk(0u, "CREATE_GUILD", 10));
+            Session.SendMessage(CatalogPageComposer.PurchaseOk(0u, "CREATE_GUILD", 10));
             Response.Init(LibraryParser.OutgoingRequest("GroupRoomMessageComposer"));
             Response.AppendInteger(roomid);
             Response.AppendInteger(group.Id);
             SendResponse();
             roomData.Group = group;
             roomData.GroupId = group.Id;
-            roomData.SerializeRoomData(Response, Session, true, false);
+            roomData.SerializeRoomData(Response, Session, true);
 
             if (!Session.GetHabbo().InRoom || Session.GetHabbo().CurrentRoom.RoomId != roomData.Id)
             {
@@ -227,7 +229,7 @@ namespace Azure.Messages.Handlers
             group.Members[num2].Rank = 1;
             group.Admins.Add(num2, group.Members[num2]);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 1u, Session, "", 0);
+            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 1u, Session);
             SendResponse();
             Room room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
 
@@ -263,7 +265,7 @@ namespace Azure.Messages.Handlers
             group.Members[num2].Rank = 0;
             group.Admins.Remove(num2);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session, "", 0);
+            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
             Room room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
             if (room != null)
@@ -290,39 +292,39 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AcceptMembership()
         {
-            uint GroupId = Request.GetUInteger();
-            uint UserId = Request.GetUInteger();
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(UserId))
+            uint groupId = Request.GetUInteger();
+            uint userId = Request.GetUInteger();
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(userId))
                 return;
-            if (group.Members.ContainsKey(UserId))
+            if (group.Members.ContainsKey(userId))
             {
-                group.Requests.Remove(UserId);
+                group.Requests.Remove(userId);
                 using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.RunFastQuery(string.Format("DELETE FROM groups_requests WHERE group_id = '{0}' AND user_id = '{1}' LIMIT 1", GroupId, UserId));
+                    queryReactor.RunFastQuery(string.Format("DELETE FROM groups_requests WHERE group_id = '{0}' AND user_id = '{1}' LIMIT 1", groupId, userId));
                 }
                 return;
             }
 
-            GroupMember memberGroup = group.Requests[UserId];
+            GroupMember memberGroup = group.Requests[userId];
             memberGroup.DateJoin = Azure.GetUnixTimeStamp();
-            group.Members.Add(UserId, memberGroup);
-            group.Requests.Remove(UserId);
-            group.Admins.Add(UserId, group.Members[UserId]);
+            group.Members.Add(userId, memberGroup);
+            group.Requests.Remove(userId);
+            group.Admins.Add(userId, group.Members[userId]);
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session, "", 0);
+            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(string.Format("DELETE FROM groups_requests WHERE group_id = '{0}' AND user_id = '{1}' LIMIT 1", GroupId, UserId));
+                queryReactor.RunFastQuery(string.Format("DELETE FROM groups_requests WHERE group_id = '{0}' AND user_id = '{1}' LIMIT 1", groupId, userId));
             }
             using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryreactor2.RunFastQuery(string.Format("INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{0}','{1}','0','{2}')", GroupId, UserId, Azure.GetUnixTimeStamp()));
+                queryreactor2.RunFastQuery(string.Format("INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{0}','{1}','0','{2}')", groupId, userId, Azure.GetUnixTimeStamp()));
             }
         }
 
@@ -336,12 +338,13 @@ namespace Azure.Messages.Handlers
             var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) &&
-                !group.Requests.ContainsKey(userId)) return;
+                !group.Requests.ContainsKey(userId))
+                return;
 
             group.Requests.Remove(userId);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 2u, Session, "", 0);
+            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 2u, Session);
             SendResponse();
             var room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
             if (room != null)
@@ -353,7 +356,7 @@ namespace Azure.Messages.Handlers
                     roomUserByHabbo.UpdateNeeded = true;
                 }
             }
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery("DELETE FROM groups_requests WHERE group_id=" + groupId + " AND user_id=" + userId);
@@ -365,19 +368,18 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void JoinGroup()
         {
-            uint GroupId = Request.GetUInteger();
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
+            uint groupId = Request.GetUInteger();
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
             Habbo user = Session.GetHabbo();
 
             if (!group.Members.ContainsKey(user.Id))
             {
-
                 if (group.State == 0)
                 {
                     using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", user.Id, ",", GroupId, ",", Azure.GetUnixTimeStamp(), ")"));
-                        queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group=", GroupId, " WHERE id= ", user.Id, " LIMIT 1"));
+                        queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", user.Id, ",", groupId, ",", Azure.GetUnixTimeStamp(), ")"));
+                        queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group=", groupId, " WHERE id= ", user.Id, " LIMIT 1"));
                     }
                     group.Members.Add(user.Id, new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp()));
                     Session.GetHabbo().UserGroups.Add(group.Members[user.Id]);
@@ -388,14 +390,14 @@ namespace Azure.Messages.Handlers
                     {
                         using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                         {
-                            queryreactor2.RunFastQuery(string.Concat("INSERT INTO groups_requests (user_id, group_id) VALUES (", Session.GetHabbo().Id, ",", GroupId, ")"));
+                            queryreactor2.RunFastQuery(string.Concat("INSERT INTO groups_requests (user_id, group_id) VALUES (", Session.GetHabbo().Id, ",", groupId, ")"));
                         }
                         GroupMember groupRequest = new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp());
                         group.Requests.Add(user.Id, groupRequest);
                     }
                 }
 
-                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             }
         }
 
@@ -417,7 +419,7 @@ namespace Azure.Messages.Handlers
                 {
                     queryReactor.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE user_id=", num2, " AND group_id=", num, " LIMIT 1"));
                 }
-                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
                 if (Session.GetHabbo().FavouriteGroup == num)
                 {
                     Session.GetHabbo().FavouriteGroup = 0u;
@@ -450,9 +452,9 @@ namespace Azure.Messages.Handlers
             group.Members.Remove(num2);
             if (group.Admins.ContainsKey(num2))
                 group.Admins.Remove(num2);
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session, "", 0);
+            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
             using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
             {
@@ -472,7 +474,7 @@ namespace Azure.Messages.Handlers
             if (!group.Members.ContainsKey(Session.GetHabbo().Id))
                 return;
             Session.GetHabbo().FavouriteGroup = group.Id;
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group =", @group.Id, " WHERE id=", Session.GetHabbo().Id, " LIMIT 1;"));
@@ -543,9 +545,9 @@ namespace Azure.Messages.Handlers
                 if (threadId != 0)
                 {
                     dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE id = {0}", threadId));
-                    DataRow Row = dbClient.GetRow();
-                    var Post = new GroupForumPost(Row);
-                    if (Post.Locked || Post.Hidden)
+                    DataRow row = dbClient.GetRow();
+                    var post = new GroupForumPost(row);
+                    if (post.Locked || post.Hidden)
                     {
                         Session.SendNotif(Azure.GetLanguage().GetVar("forums_cancel"));
                         return;
@@ -571,44 +573,44 @@ namespace Azure.Messages.Handlers
             group.UpdateForum();
             if (threadId == 0)
             {
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumNewThreadMessageComposer"));
-                Message.AppendInteger(groupId);
-                Message.AppendInteger(threadId);
-                Message.AppendInteger(Session.GetHabbo().Id);
-                Message.AppendString(subject);
-                Message.AppendString(content);
-                Message.AppendBool(false);
-                Message.AppendBool(false);
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
-                Message.AppendInteger(1);
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Message.AppendInteger(1);
-                Message.AppendString("");
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
-                Message.AppendByte(1);
-                Message.AppendInteger(1);
-                Message.AppendString("");
-                Message.AppendInteger(42);//useless
-                Session.SendMessage(Message);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumNewThreadMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(threadId);
+                message.AppendInteger(Session.GetHabbo().Id);
+                message.AppendString(subject);
+                message.AppendString(content);
+                message.AppendBool(false);
+                message.AppendBool(false);
+                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendInteger(1);
+                message.AppendInteger(0);
+                message.AppendInteger(0);
+                message.AppendInteger(1);
+                message.AppendString("");
+                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendByte(1);
+                message.AppendInteger(1);
+                message.AppendString("");
+                message.AppendInteger(42);//useless
+                Session.SendMessage(message);
             }
             else
             {
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumNewResponseMessageComposer"));
-                Message.AppendInteger(groupId);
-                Message.AppendInteger(threadId);
-                Message.AppendInteger(group.ForumMessagesCount);
-                Message.AppendInteger(0);
-                Message.AppendInteger(Session.GetHabbo().Id);
-                Message.AppendString(Session.GetHabbo().UserName);
-                Message.AppendString(Session.GetHabbo().Look);
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
-                Message.AppendString(content);
-                Message.AppendByte(0);
-                Message.AppendInteger(0);
-                Message.AppendString("");
-                Message.AppendInteger(0);
-                Session.SendMessage(Message);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumNewResponseMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(threadId);
+                message.AppendInteger(group.ForumMessagesCount);
+                message.AppendInteger(0);
+                message.AppendInteger(Session.GetHabbo().Id);
+                message.AppendString(Session.GetHabbo().UserName);
+                message.AppendString(Session.GetHabbo().Look);
+                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendString(content);
+                message.AppendByte(0);
+                message.AppendInteger(0);
+                message.AppendString("");
+                message.AppendInteger(0);
+                Session.SendMessage(message);
             }
         }
 
@@ -617,63 +619,63 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void UpdateThreadState()
         {
-            uint GroupId = Request.GetUInteger();
-            uint ThreadId = Request.GetUInteger();
-            bool Pin = Request.GetBool();
+            uint groupId = Request.GetUInteger();
+            uint threadId = Request.GetUInteger();
+            bool pin = Request.GetBool();
             bool Lock = Request.GetBool();
             using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND id = '{1}' LIMIT 1;", GroupId, ThreadId));
-                DataRow Row = dbClient.GetRow();
-                Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-                if (Row != null)
+                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND id = '{1}' LIMIT 1;", groupId, threadId));
+                DataRow row = dbClient.GetRow();
+                Guild @group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                if (row != null)
                 {
-                    if ((uint)Row["poster_id"] == Session.GetHabbo().Id || Group.Admins.ContainsKey(Session.GetHabbo().Id))
+                    if ((uint)row["poster_id"] == Session.GetHabbo().Id || @group.Admins.ContainsKey(Session.GetHabbo().Id))
                     {
-                        dbClient.SetQuery(string.Format("UPDATE groups_forums_posts SET pinned = @pin , locked = @lock WHERE id = {0};", ThreadId));
-                        dbClient.AddParameter("pin", (Pin) ? "1" : "0");
+                        dbClient.SetQuery(string.Format("UPDATE groups_forums_posts SET pinned = @pin , locked = @lock WHERE id = {0};", threadId));
+                        dbClient.AddParameter("pin", (pin) ? "1" : "0");
                         dbClient.AddParameter("lock", (Lock) ? "1" : "0");
                         dbClient.RunQuery();
                     }
                 }
 
-                var Thread = new GroupForumPost(Row);
-                if (Thread.Pinned != Pin)
+                var thread = new GroupForumPost(row);
+                if (thread.Pinned != pin)
                 {
-                    var Notif = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                    Notif.AppendString((Pin) ? "forums.thread.pinned" : "forums.thread.unpinned");
-                    Notif.AppendInteger(0);
-                    Session.SendMessage(Notif);
+                    var notif = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                    notif.AppendString((pin) ? "forums.thread.pinned" : "forums.thread.unpinned");
+                    notif.AppendInteger(0);
+                    Session.SendMessage(notif);
                 }
-                if (Thread.Locked != Lock)
+                if (thread.Locked != Lock)
                 {
-                    var Notif2 = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                    Notif2.AppendString((Lock) ? "forums.thread.locked" : "forums.thread.unlocked");
-                    Notif2.AppendInteger(0);
-                    Session.SendMessage(Notif2);
+                    var notif2 = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                    notif2.AppendString((Lock) ? "forums.thread.locked" : "forums.thread.unlocked");
+                    notif2.AppendInteger(0);
+                    Session.SendMessage(notif2);
                 }
-                if (Thread.ParentId != 0)
+                if (thread.ParentId != 0)
                     return;
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadUpdateMessageComposer"));
-                Message.AppendInteger(GroupId);
-                Message.AppendInteger(Thread.Id);
-                Message.AppendInteger(Thread.PosterId);
-                Message.AppendString(Thread.PosterName);
-                Message.AppendString(Thread.Subject);
-                Message.AppendBool(Pin);
-                Message.AppendBool(Lock);
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                Message.AppendInteger(Thread.MessageCount + 1);
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Message.AppendInteger(1);
-                Message.AppendString("");
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                Message.AppendByte((Thread.Hidden) ? 10 : 1);
-                Message.AppendInteger(1);
-                Message.AppendString(Thread.Hider);
-                Message.AppendInteger(0);
-                Session.SendMessage(Message);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadUpdateMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(thread.Id);
+                message.AppendInteger(thread.PosterId);
+                message.AppendString(thread.PosterName);
+                message.AppendString(thread.Subject);
+                message.AppendBool(pin);
+                message.AppendBool(Lock);
+                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger(thread.MessageCount + 1);
+                message.AppendInteger(0);
+                message.AppendInteger(0);
+                message.AppendInteger(1);
+                message.AppendString("");
+                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendByte((thread.Hidden) ? 10 : 1);
+                message.AppendInteger(1);
+                message.AppendString(thread.Hider);
+                message.AppendInteger(0);
+                Session.SendMessage(message);
             }
         }
 
@@ -682,50 +684,50 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AlterForumThreadState()
         {
-            uint GroupId = Request.GetUInteger();
-            uint ThreadId = Request.GetUInteger();
-            int StateToSet = Request.GetInteger();
+            uint groupId = Request.GetUInteger();
+            uint threadId = Request.GetUInteger();
+            int stateToSet = Request.GetInteger();
             using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND id = '{1}' LIMIT 1;", GroupId, ThreadId));
-                DataRow Row = dbClient.GetRow();
-                Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-                if (Row != null)
+                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND id = '{1}' LIMIT 1;", groupId, threadId));
+                DataRow row = dbClient.GetRow();
+                Guild @group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                if (row != null)
                 {
-                    if ((uint)Row["poster_id"] == Session.GetHabbo().Id || Group.Admins.ContainsKey(Session.GetHabbo().Id))
+                    if ((uint)row["poster_id"] == Session.GetHabbo().Id || @group.Admins.ContainsKey(Session.GetHabbo().Id))
                     {
-                        dbClient.SetQuery(string.Format("UPDATE groups_forums_posts SET hidden = @hid WHERE id = {0};", ThreadId));
-                        dbClient.AddParameter("hid", (StateToSet == 20) ? "1" : "0");
+                        dbClient.SetQuery(string.Format("UPDATE groups_forums_posts SET hidden = @hid WHERE id = {0};", threadId));
+                        dbClient.AddParameter("hid", (stateToSet == 20) ? "1" : "0");
                         dbClient.RunQuery();
                     }
                 }
-                var Thread = new GroupForumPost(Row);
-                var Notif = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                Notif.AppendString((StateToSet == 20) ? "forums.thread.hidden" : "forums.thread.restored");
-                Notif.AppendInteger(0);
-                Session.SendMessage(Notif);
-                if (Thread.ParentId != 0)
+                var thread = new GroupForumPost(row);
+                var notif = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                notif.AppendString((stateToSet == 20) ? "forums.thread.hidden" : "forums.thread.restored");
+                notif.AppendInteger(0);
+                Session.SendMessage(notif);
+                if (thread.ParentId != 0)
                     return;
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadUpdateMessageComposer"));
-                Message.AppendInteger(GroupId);
-                Message.AppendInteger(Thread.Id);
-                Message.AppendInteger(Thread.PosterId);
-                Message.AppendString(Thread.PosterName);
-                Message.AppendString(Thread.Subject);
-                Message.AppendBool(Thread.Pinned);
-                Message.AppendBool(Thread.Locked);
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                Message.AppendInteger(Thread.MessageCount + 1);
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Message.AppendInteger(0);
-                Message.AppendString("");
-                Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                Message.AppendByte(StateToSet);
-                Message.AppendInteger(0);
-                Message.AppendString(Thread.Hider);
-                Message.AppendInteger(0);
-                Session.SendMessage(Message);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadUpdateMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(thread.Id);
+                message.AppendInteger(thread.PosterId);
+                message.AppendString(thread.PosterName);
+                message.AppendString(thread.Subject);
+                message.AppendBool(thread.Pinned);
+                message.AppendBool(thread.Locked);
+                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger(thread.MessageCount + 1);
+                message.AppendInteger(0);
+                message.AppendInteger(0);
+                message.AppendInteger(0);
+                message.AppendString("");
+                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendByte(stateToSet);
+                message.AppendInteger(0);
+                message.AppendString(thread.Hider);
+                message.AppendInteger(0);
+                Session.SendMessage(message);
             }
         }
 
@@ -734,58 +736,58 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ReadForumThread()
         {
-            uint GroupId = Request.GetUInteger();
-            uint ThreadId = Request.GetUInteger();
-            int StartIndex = Request.GetInteger();
-            int EndIndex = Request.GetInteger();
-            Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Group == null || !Group.HasForum)
+            uint groupId = Request.GetUInteger();
+            uint threadId = Request.GetUInteger();
+            int startIndex = Request.GetInteger();
+            int endIndex = Request.GetInteger();
+            Guild @group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            if (@group == null || !@group.HasForum)
                 return;
             using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = '{1}' OR id = '{2}' ORDER BY timestamp ASC;", GroupId, ThreadId, ThreadId));
-                DataTable Table = dbClient.GetTable();
-                if (Table == null)
+                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = '{1}' OR id = '{2}' ORDER BY timestamp ASC;", groupId, threadId, threadId));
+                DataTable table = dbClient.GetTable();
+                if (table == null)
                     return;
-                int b = (Table.Rows.Count <= 20) ? Table.Rows.Count : 20;
+                int b = (table.Rows.Count <= 20) ? table.Rows.Count : 20;
                 var posts = new List<GroupForumPost>();
                 int i = 1;
                 while (i <= b)
                 {
-                    DataRow Row = Table.Rows[i - 1];
-                    if (Row == null)
+                    DataRow row = table.Rows[i - 1];
+                    if (row == null)
                     {
                         b--;
                         continue;
                     }
-                    var thread = new GroupForumPost(Row);
+                    var thread = new GroupForumPost(row);
                     if (thread.ParentId == 0 && thread.Hidden)
                         return;
                     posts.Add(thread);
                     i++;
                 }
 
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumReadThreadMessageComposer"));
-                Message.AppendInteger(GroupId);
-                Message.AppendInteger(ThreadId);
-                Message.AppendInteger(StartIndex);
-                Message.AppendInteger(b);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumReadThreadMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(threadId);
+                message.AppendInteger(startIndex);
+                message.AppendInteger(b);
                 int indx = 0;
-                foreach (GroupForumPost Post in posts)
+                foreach (GroupForumPost post in posts)
                 {
-                    Message.AppendInteger(indx++ - 1);
-                    Message.AppendInteger(indx - 1);
-                    Message.AppendInteger(Post.PosterId);
-                    Message.AppendString(Post.PosterName);
-                    Message.AppendString(Post.PosterLook);
-                    Message.AppendInteger((Azure.GetUnixTimeStamp() - Post.Timestamp));
-                    Message.AppendString(Post.PostContent);
-                    Message.AppendByte(0);
-                    Message.AppendInteger(0);
-                    Message.AppendString(Post.Hider);
-                    Message.AppendInteger(0);
+                    message.AppendInteger(indx++ - 1);
+                    message.AppendInteger(indx - 1);
+                    message.AppendInteger(post.PosterId);
+                    message.AppendString(post.PosterName);
+                    message.AppendString(post.PosterLook);
+                    message.AppendInteger((Azure.GetUnixTimeStamp() - post.Timestamp));
+                    message.AppendString(post.PostContent);
+                    message.AppendByte(0);
+                    message.AppendInteger(0);
+                    message.AppendString(post.Hider);
+                    message.AppendInteger(0);
                 }
-                Session.SendMessage(Message);
+                Session.SendMessage(message);
             }
         }
 
@@ -794,47 +796,48 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetGroupForumThreadRoot()
         {
-            uint GroupId = Request.GetUInteger();
-            int StartIndex = Request.GetInteger();
+            uint groupId = Request.GetUInteger();
+            int startIndex = Request.GetInteger();
             using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(string.Format("SELECT count(id) FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0", GroupId));
+                dbClient.SetQuery(string.Format("SELECT count(id) FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0", groupId));
                 int totalThreads = dbClient.GetInteger();
-                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0 ORDER BY timestamp DESC, pinned DESC LIMIT @startIndex, @totalPerPage;", GroupId));
-                dbClient.AddParameter("startIndex", StartIndex);
-                dbClient.AddParameter("totalPerPage", TOTAL_PER_PAGE);
-                DataTable Table = dbClient.GetTable();
-                int threadCount = (Table.Rows.Count <= TOTAL_PER_PAGE) ? Table.Rows.Count : TOTAL_PER_PAGE;
-                var Threads = new List<GroupForumPost>();
-                foreach(DataRow row in Table.Rows) {
-                    var thread = new GroupForumPost(row);
-                    Threads.Add(thread);
-                }
-                var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadRootMessageComposer"));
-                Message.AppendInteger(GroupId);
-                Message.AppendInteger(StartIndex);
-                Message.AppendInteger(threadCount);
-                foreach (GroupForumPost Thread in Threads)
+                dbClient.SetQuery(string.Format("SELECT * FROM groups_forums_posts WHERE group_id = '{0}' AND parent_id = 0 ORDER BY timestamp DESC, pinned DESC LIMIT @startIndex, @totalPerPage;", groupId));
+                dbClient.AddParameter("startIndex", startIndex);
+                dbClient.AddParameter("totalPerPage", TotalPerPage);
+                DataTable table = dbClient.GetTable();
+                int threadCount = (table.Rows.Count <= TotalPerPage) ? table.Rows.Count : TotalPerPage;
+                var threads = new List<GroupForumPost>();
+                foreach (DataRow row in table.Rows)
                 {
-                    Message.AppendInteger(Thread.Id);
-                    Message.AppendInteger(Thread.PosterId);
-                    Message.AppendString(Thread.PosterName);
-                    Message.AppendString(Thread.Subject);
-                    Message.AppendBool(Thread.Pinned);
-                    Message.AppendBool(Thread.Locked);
-                    Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                    Message.AppendInteger(Thread.MessageCount + 1);
-                    Message.AppendInteger(0);
-                    Message.AppendInteger(0);
-                    Message.AppendInteger(0);
-                    Message.AppendString("");
-                    Message.AppendInteger((Azure.GetUnixTimeStamp() - Thread.Timestamp));
-                    Message.AppendByte((Thread.Hidden) ? 10 : 1);
-                    Message.AppendInteger(0);
-                    Message.AppendString(Thread.Hider);
-                    Message.AppendInteger(0);
+                    var thread = new GroupForumPost(row);
+                    threads.Add(thread);
                 }
-                Session.SendMessage(Message);
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumThreadRootMessageComposer"));
+                message.AppendInteger(groupId);
+                message.AppendInteger(startIndex);
+                message.AppendInteger(threadCount);
+                foreach (GroupForumPost thread in threads)
+                {
+                    message.AppendInteger(thread.Id);
+                    message.AppendInteger(thread.PosterId);
+                    message.AppendString(thread.PosterName);
+                    message.AppendString(thread.Subject);
+                    message.AppendBool(thread.Pinned);
+                    message.AppendBool(thread.Locked);
+                    message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                    message.AppendInteger(thread.MessageCount + 1);
+                    message.AppendInteger(0);
+                    message.AppendInteger(0);
+                    message.AppendInteger(0);
+                    message.AppendString("");
+                    message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                    message.AppendByte((thread.Hidden) ? 10 : 1);
+                    message.AppendInteger(0);
+                    message.AppendString(thread.Hider);
+                    message.AppendInteger(0);
+                }
+                Session.SendMessage(message);
             }
         }
 
@@ -843,11 +846,11 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetGroupForumData()
         {
-            uint GroupId = Request.GetUInteger();
-            Guild Group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Group != null && Group.HasForum)
+            uint groupId = Request.GetUInteger();
+            Guild @group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            if (@group != null && @group.HasForum)
             {
-                Session.SendMessage(Group.ForumDataMessage(Session.GetHabbo().Id));
+                Session.SendMessage(@group.ForumDataMessage(Session.GetHabbo().Id));
             }
         }
 
@@ -856,12 +859,12 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetGroupForums()
         {
-            int SelectType = Request.GetInteger();
-            int StartIndex = Request.GetInteger();
-            var Message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumListingsMessageComposer"));
-            Message.AppendInteger(SelectType);
-            var GroupList = new List<Guild>();
-            switch (SelectType)
+            int selectType = Request.GetInteger();
+            int startIndex = Request.GetInteger();
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumListingsMessageComposer"));
+            message.AppendInteger(selectType);
+            var groupList = new List<Guild>();
+            switch (selectType)
             {
                 case 0:
                 case 1:
@@ -870,45 +873,47 @@ namespace Azure.Messages.Handlers
                         dbClient.SetQuery("SELECT count(id) FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0");
                         int qtdForums = dbClient.GetInteger();
                         dbClient.SetQuery("SELECT id FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0 ORDER BY forum_Messages_count DESC LIMIT @startIndex, @totalPerPage;");
-                        dbClient.AddParameter("startIndex", StartIndex);
-                        dbClient.AddParameter("totalPerPage", TOTAL_PER_PAGE);
-                        DataTable Table = dbClient.GetTable();
-                        Message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
-                        Message.AppendInteger(StartIndex);
-                        foreach(DataRow rowGroupData in Table.Rows) {
-                            uint GroupId = uint.Parse(rowGroupData["id"].ToString());
-                            Guild Guild = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-                            GroupList.Add(Guild);
+                        dbClient.AddParameter("startIndex", startIndex);
+                        dbClient.AddParameter("totalPerPage", TotalPerPage);
+                        DataTable table = dbClient.GetTable();
+                        message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
+                        message.AppendInteger(startIndex);
+                        foreach (DataRow rowGroupData in table.Rows)
+                        {
+                            uint groupId = uint.Parse(rowGroupData["id"].ToString());
+                            Guild guild = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                            groupList.Add(guild);
                         }
-                        Message.AppendInteger(Table.Rows.Count);
-                        foreach (Guild Group in GroupList) 
-                            Group.SerializeForumRoot(Message);
-                        Session.SendMessage(Message);
+                        message.AppendInteger(table.Rows.Count);
+                        foreach (Guild @group in groupList)
+                            @group.SerializeForumRoot(message);
+                        Session.SendMessage(message);
                     }
                     break;
 
                 case 2:
                     foreach (GroupMember groupUser in Session.GetHabbo().UserGroups)
                     {
-                        Guild AGroup = Azure.GetGame().GetGroupManager().GetGroup(groupUser.GroupId);
-                        if (AGroup != null && AGroup.HasForum)
+                        Guild aGroup = Azure.GetGame().GetGroupManager().GetGroup(groupUser.GroupId);
+                        if (aGroup != null && aGroup.HasForum)
                         {
-                            GroupList.Add(AGroup);
+                            groupList.Add(aGroup);
                         }
                     }
-                    Message.AppendInteger(GroupList.Count == 0 ? 1 : GroupList.Count);
-                    GroupList = GroupList.OrderByDescending(x => x.ForumMessagesCount).Skip(StartIndex).Take(20).ToList();
-                    Message.AppendInteger(StartIndex);
-                    Message.AppendInteger(GroupList.Count);
-                    foreach (Guild Group in GroupList)
-                        Group.SerializeForumRoot(Message);
-                    Session.SendMessage(Message);
+                    message.AppendInteger(groupList.Count == 0 ? 1 : groupList.Count);
+                    groupList = groupList.OrderByDescending(x => x.ForumMessagesCount).Skip(startIndex).Take(20).ToList();
+                    message.AppendInteger(startIndex);
+                    message.AppendInteger(groupList.Count);
+                    foreach (Guild @group in groupList)
+                        @group.SerializeForumRoot(message);
+                    Session.SendMessage(message);
                     break;
+
                 default:
-                    Message.AppendInteger(1);
-                    Message.AppendInteger(StartIndex);
-                    Message.AppendInteger(0);
-                    Session.SendMessage(Message);
+                    message.AppendInteger(1);
+                    message.AppendInteger(startIndex);
+                    message.AppendInteger(0);
+                    Session.SendMessage(message);
                     break;
             }
         }
@@ -993,7 +998,7 @@ namespace Azure.Messages.Handlers
             }
             group.Name = text;
             group.Description = text2;
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1029,7 +1034,7 @@ namespace Azure.Messages.Handlers
                         Response.AppendString(current2.Value);
                     }
                     room.SendMessage(Response);
-                    Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, room, false);
+                    Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, room);
                     using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery(string.Format("UPDATE groups_data SET badge = @badgi WHERE id = {0}", guildId));
@@ -1048,7 +1053,7 @@ namespace Azure.Messages.Handlers
                             Response.AppendString(current.Value);
                         }
                         Session.GetHabbo().CurrentRoom.SendMessage(Response);
-                        Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, Session.GetHabbo().CurrentRoom, false);
+                        Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, Session.GetHabbo().CurrentRoom);
                     }
                 }
             }
@@ -1073,7 +1078,7 @@ namespace Azure.Messages.Handlers
             }
             group.Colour1 = num;
             group.Colour2 = num2;
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1123,7 +1128,7 @@ namespace Azure.Messages.Handlers
                     }
                 }
             }
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom, false);
+            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1131,15 +1136,15 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void RequestLeaveGroup()
         {
-            uint GroupId = Request.GetUInteger();
-            uint UserId = Request.GetUInteger();
-            Guild Guild = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
-            if (Guild == null || Guild.CreatorId == UserId)
+            uint groupId = Request.GetUInteger();
+            uint userId = Request.GetUInteger();
+            Guild guild = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            if (guild == null || guild.CreatorId == userId)
                 return;
-            if (UserId == Session.GetHabbo().Id || Guild.Admins.ContainsKey(Session.GetHabbo().Id))
+            if (userId == Session.GetHabbo().Id || guild.Admins.ContainsKey(Session.GetHabbo().Id))
             {
                 Response.Init(LibraryParser.OutgoingRequest("GroupAreYouSureMessageComposer"));
-                Response.AppendInteger(UserId);
+                Response.AppendInteger(userId);
                 Response.AppendInteger(0);
                 SendResponse();
             }
@@ -1150,45 +1155,45 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ConfirmLeaveGroup()
         {
-            uint Guild = Request.GetUInteger();
-            uint UserId = Request.GetUInteger();
-            Guild byeGuild = Azure.GetGame().GetGroupManager().GetGroup(Guild);
+            uint guild = Request.GetUInteger();
+            uint userId = Request.GetUInteger();
+            Guild byeGuild = Azure.GetGame().GetGroupManager().GetGroup(guild);
             if (byeGuild == null)
                 return;
-            if (byeGuild.CreatorId == UserId)
+            if (byeGuild.CreatorId == userId)
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("user_room_video_true"));
                 return;
             }
             int type = 3;
-            if (UserId == Session.GetHabbo().Id || byeGuild.Admins.ContainsKey(Session.GetHabbo().Id))
+            if (userId == Session.GetHabbo().Id || byeGuild.Admins.ContainsKey(Session.GetHabbo().Id))
             {
                 GroupMember memberShip;
-                if (byeGuild.Members.ContainsKey(UserId))
+                if (byeGuild.Members.ContainsKey(userId))
                 {
-                    memberShip = byeGuild.Members[UserId];
+                    memberShip = byeGuild.Members[userId];
                     type = 3;
                     Session.GetHabbo().UserGroups.Remove(memberShip);
-                    byeGuild.Members.Remove(UserId);
+                    byeGuild.Members.Remove(userId);
                 }
-                else if (byeGuild.Admins.ContainsKey(UserId))
+                else if (byeGuild.Admins.ContainsKey(userId))
                 {
-                    memberShip = byeGuild.Admins[UserId];
+                    memberShip = byeGuild.Admins[userId];
                     type = 1;
                     Session.GetHabbo().UserGroups.Remove(memberShip);
-                    byeGuild.Admins.Remove(UserId);
+                    byeGuild.Admins.Remove(userId);
                 }
                 else
                     return;
                 using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE user_id=", UserId, " AND group_id=", Guild, " LIMIT 1"));
+                    queryReactor.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE user_id=", userId, " AND group_id=", guild, " LIMIT 1"));
                 }
-                Habbo byeUser = Azure.GetHabboById(UserId);
+                Habbo byeUser = Azure.GetHabboById(userId);
                 if (byeUser != null)
                 {
                     Response.Init(LibraryParser.OutgoingRequest("GroupConfirmLeaveMessageComposer"));
-                    Response.AppendInteger(Guild);
+                    Response.AppendInteger(guild);
                     Response.AppendInteger(type);
                     Response.AppendInteger(byeUser.Id);
                     Response.AppendString(byeUser.UserName);
@@ -1196,23 +1201,23 @@ namespace Azure.Messages.Handlers
                     Response.AppendString("");
                     SendResponse();
                 }
-                if (byeUser != null && byeUser.FavouriteGroup == Guild)
+                if (byeUser != null && byeUser.FavouriteGroup == guild)
                 {
                     byeUser.FavouriteGroup = 0;
                     using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                        queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET favourite_group=0 WHERE id={0} LIMIT 1", UserId));
-                    Room Room = Session.GetHabbo().CurrentRoom;
+                        queryreactor2.RunFastQuery(string.Format("UPDATE users_stats SET favourite_group=0 WHERE id={0} LIMIT 1", userId));
+                    Room room = Session.GetHabbo().CurrentRoom;
 
                     Response.Init(LibraryParser.OutgoingRequest("FavouriteGroupMessageComposer"));
                     Response.AppendInteger(byeUser.Id);
-                    if (Room != null)
-                        Room.SendMessage(Response);
+                    if (room != null)
+                        room.SendMessage(Response);
                     else
                         SendResponse();
                 }
 
                 Response.Init(LibraryParser.OutgoingRequest("GroupRequestReloadMessageComposer"));
-                Response.AppendInteger(Guild);
+                Response.AppendInteger(guild);
                 SendResponse();
             }
         }
@@ -1227,6 +1232,7 @@ namespace Azure.Messages.Handlers
             Response.AppendString(current2.Name);
             Response.AppendBool(false);
         }
+
         internal void UpdateForumSettings()
         {
             uint guild = Request.GetUInteger();
@@ -1252,6 +1258,7 @@ namespace Azure.Messages.Handlers
             }
             Session.SendMessage(group.ForumDataMessage(Session.GetHabbo().Id));
         }
+
         internal void DeleteGroup()
         {
             uint groupId = Request.GetUInteger();
@@ -1294,7 +1301,7 @@ namespace Azure.Messages.Handlers
                 var roomData2 = (
                     from p in Session.GetHabbo().UsersRooms
                     where p.Id == roomId
-                    select p).SingleOrDefault<RoomData>();
+                    select p).SingleOrDefault();
                 if (roomData2 != null)
                     Session.GetHabbo().UsersRooms.Remove(roomData2);
             }

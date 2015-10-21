@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -11,8 +13,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {
     public class KickUser : IWiredItem
     {
-        private readonly List<RoomUser> _mUsers;
         private readonly List<Interaction> _mBanned;
+        private readonly List<RoomUser> _mUsers;
         private Timer _mTimer;
 
         public KickUser(RoomItem item, Room room)
@@ -28,10 +30,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             };
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionKickUser; }
-        }
+        public Interaction Type => Interaction.ActionKickUser;
 
         public RoomItem Item { get; set; }
 
@@ -81,7 +80,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             if (roomUser != null && roomUser.GetClient() != null && roomUser.GetClient().GetHabbo() != null &&
                 !string.IsNullOrWhiteSpace(OtherString))
             {
-                if (roomUser.GetClient().GetHabbo().HasFuse("fuse_mod") || Room.RoomData.Owner == roomUser.GetUserName()) return false;
+                if (roomUser.GetClient().GetHabbo().HasFuse("fuse_mod") || Room.RoomData.Owner == roomUser.GetUserName())
+                    return false;
                 roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(4, false);
                 roomUser.GetClient().SendWhisper(OtherString);
                 _mUsers.Add(roomUser);
@@ -104,12 +104,15 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
                 lock (_mUsers)
                 {
-                    foreach (var user in _mUsers) Room.GetRoomUserManager().RemoveUserFromRoom(user.GetClient(), true, false);
+                    foreach (var user in _mUsers)
+                        Room.GetRoomUserManager().RemoveUserFromRoom(user.GetClient(), true, false);
                 }
                 _mUsers.Clear();
                 _mTimer = null;
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+            }
         }
     }
 }

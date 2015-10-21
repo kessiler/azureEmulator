@@ -16,8 +16,8 @@ using Azure.Connection.Net;
 using Azure.Database;
 using Azure.Encryption;
 using Azure.HabboHotel;
-using Azure.HabboHotel.GameClients;
-using Azure.HabboHotel.Groups;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Misc;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.Users;
@@ -25,9 +25,11 @@ using Azure.HabboHotel.Users.Messenger;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Manager;
 using Azure.Messages;
+using Azure.Messages.Factorys;
 using Azure.Messages.Parsers;
 using Azure.Util;
 using MySql.Data.MySqlClient;
+using Timer = System.Timers.Timer;
 
 #endregion
 
@@ -97,7 +99,7 @@ namespace Azure
         /// <summary>
         /// The timer
         /// </summary>
-        internal static System.Timers.Timer Timer;
+        internal static Timer Timer;
 
         /// <summary>
         /// The culture information
@@ -107,7 +109,7 @@ namespace Azure
         /// <summary>
         /// The _plugins
         /// </summary>
-        private static Dictionary<string, IPlugin> plugins;
+        private static Dictionary<string, IPlugin> _plugins;
 
         /// <summary>
         /// The users cached
@@ -117,27 +119,27 @@ namespace Azure
         /// <summary>
         /// The _connection manager
         /// </summary>
-        private static ConnectionHandling connectionManager;
+        private static ConnectionHandling _connectionManager;
 
         /// <summary>
         /// The _default encoding
         /// </summary>
-        private static Encoding defaultEncoding;
+        private static Encoding _defaultEncoding;
 
         /// <summary>
         /// The _game
         /// </summary>
-        private static Game game;
+        private static Game _game;
 
         /// <summary>
         /// The _languages
         /// </summary>
-        private static Languages languages;
+        private static Languages _languages;
 
         /// <summary>
         /// The allowed special chars
         /// </summary>
-        private static readonly HashSet<char> allowedSpecialChars = new HashSet<char>(new[]
+        private static readonly HashSet<char> AllowedSpecialChars = new HashSet<char>(new[]
         {
             '-', '.', ' ', 'Ã', '©', '¡', '­', 'º', '³', 'Ã', '‰', '_'
         });
@@ -160,17 +162,14 @@ namespace Azure
         public static ICollection<IPlugin> LoadPlugins()
         {
             string path = Application.StartupPath + "Plugins";
+
             if (!Directory.Exists(path))
-            {
                 return null;
-            }
 
             string[] files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
 
             if (files.Length == 0)
-            {
                 return null;
-            }
 
             List<Assembly> assemblies =
                 files.Select(AssemblyName.GetAssemblyName)
@@ -218,23 +217,19 @@ namespace Azure
                 else
                 {
                     if (UsersCached.ContainsKey(userId))
-                    {
                         return UsersCached[userId];
-                    }
 
                     UserData userData = UserDataFactory.GetUserData((int)userId);
-                    if (UsersCached.ContainsKey(userId))
-                    {
-                        return UsersCached[userId];
-                    }
 
-                    if (userData == null || userData.User == null)
-                    {
+                    if (UsersCached.ContainsKey(userId))
+                        return UsersCached[userId];
+
+                    if (userData?.User == null)
                         return null;
-                    }
 
                     UsersCached.TryAdd(userId, userData.User);
                     userData.User.InitInformation(userData);
+
                     return userData.User;
                 }
             }
@@ -255,7 +250,7 @@ namespace Azure
             Console.Clear();
             Console.WriteLine();
             Out.WriteLine(
-                string.Format("Console Cleared in: {0} Next Time on: {1} Seconds ", DateTime.Now, ConsoleTimer), "Azure.Boot", ConsoleColor.DarkGreen);
+                $"Console Cleared in: {DateTime.Now} Next Time on: {ConsoleTimer} Seconds ", "Azure.Boot", ConsoleColor.DarkGreen);
             Console.WriteLine();
             GC.Collect();
             Timer.Start();
@@ -268,7 +263,7 @@ namespace Azure
         {
             Console.Title = "Azure Emulator | Loading [...]";
             ServerStarted = DateTime.Now;
-            defaultEncoding = Encoding.Default;
+            _defaultEncoding = Encoding.Default;
             MutedUsersByFilter = new Dictionary<uint, uint>();
             ChatEmotions.Initialize();
 
@@ -277,7 +272,7 @@ namespace Azure
             CultureInfo = CultureInfo.CreateSpecificCulture("en-GB");
             try
             {
-                ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/main.ini"), false);
+                ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/main.ini"));
                 ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/Welcome/settings.ini"), true);
 
                 DatabaseConnectionType = ConfigurationData.Data["db.type"];
@@ -306,14 +301,13 @@ namespace Azure
                     OfflineMessage.InitOfflineMessages(queryReactor);
                 }
 
-            #endregion Database Connection
+                #endregion Database Connection
 
                 #region Packets Registering
 
                 ConsoleTimer = (int.Parse(ConfigurationData.Data["console.clear.time"]));
                 ConsoleTimerOn = (bool.Parse(ConfigurationData.Data["console.clear.enabled"]));
                 FriendRequestLimit = ((uint)int.Parse(ConfigurationData.Data["client.maxrequests"]));
-
 
                 LibraryParser.Incoming = new Dictionary<int, LibraryParser.StaticRequestHandler>();
                 LibraryParser.Library = new Dictionary<string, string>();
@@ -329,14 +323,17 @@ namespace Azure
 
                 #region Start Plugins
 
-                Azure.plugins = new Dictionary<string, IPlugin>();
+                _plugins = new Dictionary<string, IPlugin>();
+
                 ICollection<IPlugin> plugins = LoadPlugins();
+
                 if (plugins != null)
                 {
                     foreach (var item in plugins.Where(item => item != null))
                     {
-                        Azure.plugins.Add(item.plugin_name, item);
-                        Out.WriteLine("Loaded Plugin: " + item.plugin_name + " Version: " + item.plugin_version, "Azure.Plugins", ConsoleColor.DarkBlue);
+                        _plugins.Add(item.PluginName, item);
+
+                        Out.WriteLine("Loaded Plugin: " + item.PluginName + " Version: " + item.PluginVersion, "Azure.Plugins", ConsoleColor.DarkBlue);
                     }
                 }
 
@@ -347,9 +344,9 @@ namespace Azure
                 ExtraSettings.RunExtraSettings();
                 FurniDataParser.SetCache();
                 CrossDomainPolicy.Set();
-                game = new Game(int.Parse(ConfigurationData.Data["game.tcp.conlimit"]));
-                game.GetNavigator().LoadNewPublicRooms();
-                game.ContinueLoading();
+                _game = new Game(int.Parse(ConfigurationData.Data["game.tcp.conlimit"]));
+                _game.GetNavigator().LoadNewPublicRooms();
+                _game.ContinueLoading();
                 FurniDataParser.Clear();
 
                 #endregion Game Initalizer
@@ -357,8 +354,8 @@ namespace Azure
                 #region Languages Parser
 
                 ServerLanguage = (Convert.ToString(ConfigurationData.Data["system.lang"]));
-                languages = new Languages(ServerLanguage);
-                Out.WriteLine("Loaded " + languages.Count() + " Languages Vars", "Azure.Lang");
+                _languages = new Languages(ServerLanguage);
+                Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Lang");
 
                 #endregion Languages Parser
 
@@ -389,7 +386,7 @@ namespace Azure
                 Out.WriteLine(
                     "Starting up asynchronous sockets server for game connections for port " +
                     int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
-                connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
+                _connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conlimit"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conperip"]),
                    ConfigurationData.Data["game.tcp.antiddos"].ToLower() == "true",
@@ -414,9 +411,9 @@ namespace Azure
                     int.Parse(ConfigurationData.Data["game.tcp.port"]) + Environment.NewLine, "Server.AsyncSocketListener");
 
                 string[] allowedIps = ConfigurationData.Data["mus.tcp.allowedaddr"].Split(';');
+
                 new MusSocket(ConfigurationData.Data["mus.tcp.bindip"],
                     int.Parse(ConfigurationData.Data["mus.tcp.port"]), allowedIps, 0);
-
 
                 LibraryParser.Initialize();
                 Console.WriteLine();
@@ -427,7 +424,7 @@ namespace Azure
 
                 if (ConsoleTimerOn)
                 {
-                    Timer = new System.Timers.Timer { Interval = ConsoleTimer };
+                    Timer = new Timer { Interval = ConsoleTimer };
                     Timer.Elapsed += TimerElapsed;
                     Timer.Start();
                 }
@@ -467,7 +464,7 @@ namespace Azure
                     Environment.Exit(1);
             }
 
-                #endregion Tasks and MusSystem
+            #endregion Tasks and MusSystem
         }
 
         /// <summary>
@@ -575,8 +572,8 @@ namespace Azure
 
         internal static int DifferenceInMilliSeconds(DateTime time, DateTime from)
         {
-            double time1 = 0.0;
-            double time2 = 0.0;
+            double time1;
+            double time2;
 
             try
             {
@@ -595,7 +592,7 @@ namespace Azure
             if ((time2 >= double.MaxValue) || (time2 <= double.MinValue) || time2 <= 0.0)
                 time2 = 0.0;
 
-            double tempus = time1- time2;
+            double tempus = time1 - time2;
 
             int tempusNovo = 0;
 
@@ -658,7 +655,10 @@ namespace Azure
                     }
                 }
             }
-            catch { }
+            catch (Exception)
+            {
+                // ignored
+            }
             return null;
         }
 
@@ -688,7 +688,7 @@ namespace Azure
         /// <returns>Encoding.</returns>
         internal static Encoding GetDefaultEncoding()
         {
-            return defaultEncoding;
+            return _defaultEncoding;
         }
 
         /// <summary>
@@ -697,7 +697,7 @@ namespace Azure
         /// <returns>ConnectionHandling.</returns>
         internal static ConnectionHandling GetConnectionManager()
         {
-            return connectionManager;
+            return _connectionManager;
         }
 
         /// <summary>
@@ -706,7 +706,7 @@ namespace Azure
         /// <returns>Game.</returns>
         internal static Game GetGame()
         {
-            return game;
+            return _game;
         }
 
         /// <summary>
@@ -715,7 +715,7 @@ namespace Azure
         /// <returns>Languages.</returns>
         internal static Languages GetLanguage()
         {
-            return languages;
+            return _languages;
         }
 
         /// <summary>
@@ -800,13 +800,13 @@ namespace Azure
             GetGame().GetClientManager().QueueBroadcaseMessage(serverMessage);
             Console.Title = "Azure Emulator | Shutting down...";
 
-            game.StopGameLoop();
-            game.GetRoomManager().RemoveAllRooms();
+            _game.StopGameLoop();
+            _game.GetRoomManager().RemoveAllRooms();
             GetGame().GetClientManager().CloseAll();
 
             GetConnectionManager().Destroy();
 
-            foreach (Guild group in game.GetGroupManager().Groups.Values) group.UpdateForum();
+            foreach (Guild group in _game.GetGroupManager().Groups.Values) group.UpdateForum();
 
             using (var queryReactor = Manager.GetQueryReactor())
             {
@@ -815,8 +815,8 @@ namespace Azure
                 queryReactor.RunFastQuery("TRUNCATE TABLE users_rooms_visits");
             }
 
-            connectionManager.Destroy();
-            game.Destroy();
+            _connectionManager.Destroy();
+            _game.Destroy();
 
             try
             {
@@ -863,7 +863,7 @@ namespace Azure
         /// <returns><c>true</c> if the specified c is valid; otherwise, <c>false</c>.</returns>
         private static bool IsValid(char c)
         {
-            return char.IsLetterOrDigit(c) || allowedSpecialChars.Contains(c);
+            return char.IsLetterOrDigit(c) || AllowedSpecialChars.Contains(c);
         }
 
         /// <summary>

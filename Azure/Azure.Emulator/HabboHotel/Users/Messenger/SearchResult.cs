@@ -7,37 +7,37 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Users.Messenger
 {
     /// <summary>
-    /// Struct SearchResult
+    ///     Struct SearchResult
     /// </summary>
     internal struct SearchResult
     {
         /// <summary>
-        /// The user identifier
+        ///     The user identifier
         /// </summary>
         internal uint UserId;
 
         /// <summary>
-        /// The user name
+        ///     The user name
         /// </summary>
         internal string UserName;
 
         /// <summary>
-        /// The motto
+        ///     The motto
         /// </summary>
         internal string Motto;
 
         /// <summary>
-        /// The look
+        ///     The look
         /// </summary>
         internal string Look;
 
         /// <summary>
-        /// The last online
+        ///     The last online
         /// </summary>
         internal string LastOnline;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SearchResult"/> struct.
+        ///     Initializes a new instance of the <see cref="SearchResult" /> struct.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="userName">Name of the user.</param>
@@ -54,7 +54,7 @@ namespace Azure.HabboHotel.Users.Messenger
         }
 
         /// <summary>
-        /// Searializes the specified reply.
+        ///     Searializes the specified reply.
         /// </summary>
         /// <param name="reply">The reply.</param>
         internal void Searialize(ServerMessage reply)

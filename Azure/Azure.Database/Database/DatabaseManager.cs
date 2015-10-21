@@ -25,6 +25,8 @@ namespace Azure.Database
             return databaseClient.GetQueryReactor();
         }
 
-        public void Destroy() { }
+        public void Destroy()
+        {
+        }
     }
 }

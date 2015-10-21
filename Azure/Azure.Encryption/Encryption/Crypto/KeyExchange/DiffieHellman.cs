@@ -15,7 +15,10 @@ namespace Azure.Encryption.Crypto.KeyExchange
 
         private BigInteger _privateKey;
 
-        public DiffieHellman() { Initialize(); }
+        public DiffieHellman()
+        {
+            Initialize();
+        }
 
         public DiffieHellman(int b)
         {
@@ -38,7 +41,10 @@ namespace Azure.Encryption.Crypto.KeyExchange
 
         public BigInteger PublicKey { get; private set; }
 
-        public BigInteger CalculateSharedKey(BigInteger m) { return BigInteger.ModPow(m, _privateKey, Prime); }
+        public BigInteger CalculateSharedKey(BigInteger m)
+        {
+            return BigInteger.ModPow(m, _privateKey, Prime);
+        }
 
         private void Initialize(bool ignoreBaseKeys = false)
         {

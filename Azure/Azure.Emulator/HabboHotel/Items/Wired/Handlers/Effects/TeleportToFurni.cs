@@ -5,7 +5,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -32,71 +34,15 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             };
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionTeleportTo; }
-        }
-
-        public RoomItem Item { get; set; }
-
-        public Room Room { get; set; }
-
-        public List<RoomItem> Items { get; set; }
-
-        public string OtherString
-        {
-            get { return ""; }
-            set { }
-        }
-
-        public string OtherExtraString
-        {
-            get { return ""; }
-            set { }
-        }
-
-        public string OtherExtraString2
-        {
-            get { return ""; }
-            set { }
-        }
-
-        public bool OtherBool
-        {
-            get { return true; }
-            set { }
-        }
-
-        public int Delay { get; set; }
-
         public Queue ToWork { get; set; }
 
         public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
 
-        public bool Execute(params object[] stuff)
-        {
-            if (stuff[0] == null) return false;
-            var roomUser = (RoomUser)stuff[0];
-            var item = (Interaction)stuff[1];
-
-            if (_mBanned.Contains(item)) return false;
-            if (!Items.Any()) return false;
-
-            if (!ToWorkConcurrentQueue.Contains(roomUser)) ToWorkConcurrentQueue.Enqueue(roomUser);
-            if (Delay < 500) Delay = 500;
-
-            if (Room.GetWiredHandler().IsCycleQueued(this)) return false;
-
-            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
-
-            Room.GetWiredHandler().EnqueueCycle(this);
-            return true;
-        }
-
         public bool OnCycle()
         {
             if (!ToWorkConcurrentQueue.Any()) return true;
-            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null) return false;
+            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
+                return false;
 
             var num = Azure.Now();
             var toAdd = new List<RoomUser>();
@@ -130,6 +76,60 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             return true;
         }
 
+        public Interaction Type => Interaction.ActionTeleportTo;
+
+        public RoomItem Item { get; set; }
+
+        public Room Room { get; set; }
+
+        public List<RoomItem> Items { get; set; }
+
+        public string OtherString
+        {
+            get { return ""; }
+            set { }
+        }
+
+        public string OtherExtraString
+        {
+            get { return ""; }
+            set { }
+        }
+
+        public string OtherExtraString2
+        {
+            get { return ""; }
+            set { }
+        }
+
+        public bool OtherBool
+        {
+            get { return true; }
+            set { }
+        }
+
+        public int Delay { get; set; }
+
+        public bool Execute(params object[] stuff)
+        {
+            if (stuff[0] == null) return false;
+            var roomUser = (RoomUser)stuff[0];
+            var item = (Interaction)stuff[1];
+
+            if (_mBanned.Contains(item)) return false;
+            if (!Items.Any()) return false;
+
+            if (!ToWorkConcurrentQueue.Contains(roomUser)) ToWorkConcurrentQueue.Enqueue(roomUser);
+            if (Delay < 500) Delay = 500;
+
+            if (Room.GetWiredHandler().IsCycleQueued(this)) return false;
+
+            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
+
+            Room.GetWiredHandler().EnqueueCycle(this);
+            return true;
+        }
+
         private bool Teleport(RoomUser user)
         {
             if (!Items.Any()) return true;
@@ -138,7 +138,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             Items = (
                 from x in Items
                 orderby rnd.Next()
-                select x).ToList<RoomItem>();
+                select x).ToList();
             RoomItem roomItem = null;
             foreach (
                 var current in

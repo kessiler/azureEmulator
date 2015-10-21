@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Azure.HabboHotel.GameClients;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -12,12 +12,12 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.SoundMachine.Composers
 {
     /// <summary>
-    /// Class JukeboxComposer.
+    ///     Class JukeboxComposer.
     /// </summary>
     internal class JukeboxComposer
     {
         /// <summary>
-        /// Composes the specified songs.
+        ///     Composes the specified songs.
         /// </summary>
         /// <param name="songs">The songs.</param>
         /// <returns>ServerMessage.</returns>
@@ -25,7 +25,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SongsMessageComposer"));
             serverMessage.AppendInteger(songs.Count);
-            foreach (SongData current in songs)
+            foreach (var current in songs)
             {
                 serverMessage.AppendInteger(current.Id);
                 serverMessage.AppendString(current.CodeName);
@@ -38,7 +38,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         }
 
         /// <summary>
-        /// Composes the playing composer.
+        ///     Composes the playing composer.
         /// </summary>
         /// <param name="songId">The song identifier.</param>
         /// <param name="playlistItemNumber">The playlist item number.</param>
@@ -67,7 +67,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         }
 
         /// <summary>
-        /// Composes the specified session.
+        ///     Composes the specified session.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns>ServerMessage.</returns>
@@ -77,7 +77,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         }
 
         /// <summary>
-        /// Composes the specified playlist capacity.
+        ///     Composes the specified playlist capacity.
         /// </summary>
         /// <param name="playlistCapacity">The playlist capacity.</param>
         /// <param name="playlist">The playlist.</param>
@@ -87,7 +87,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("JukeboxPlaylistMessageComposer"));
             serverMessage.AppendInteger(playlistCapacity);
             serverMessage.AppendInteger(playlist.Count);
-            foreach (SongInstance current in playlist)
+            foreach (var current in playlist)
             {
                 serverMessage.AppendInteger(current.DiskItem.ItemId);
                 serverMessage.AppendInteger(current.SongData.Id);
@@ -96,7 +96,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         }
 
         /// <summary>
-        /// Composes the specified song identifier.
+        ///     Composes the specified song identifier.
         /// </summary>
         /// <param name="songId">The song identifier.</param>
         /// <param name="playlistItemNumber">The playlist item number.</param>
@@ -125,7 +125,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         }
 
         /// <summary>
-        /// Serializes the song inventory.
+        ///     Serializes the song inventory.
         /// </summary>
         /// <param name="songs">The songs.</param>
         /// <returns>ServerMessage.</returns>

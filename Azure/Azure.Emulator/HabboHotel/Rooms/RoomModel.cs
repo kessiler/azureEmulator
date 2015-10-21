@@ -1,95 +1,97 @@
 #region
 
 using System;
+using Azure.HabboHotel.Rooms.Chat;
+using Azure.HabboHotel.Rooms.Chat.Enums;
 
 #endregion
 
 namespace Azure.HabboHotel.Rooms
 {
     /// <summary>
-    /// Class RoomModel.
+    ///     Class RoomModel.
     /// </summary>
     internal class RoomModel
     {
         private const string Letters = "abcdefghijklmnopqrstuvw";
 
         /// <summary>
-        /// The door x
-        /// </summary>
-        internal int DoorX;
-
-        /// <summary>
-        /// The door y
-        /// </summary>
-        internal int DoorY;
-
-        /// <summary>
-        /// The door z
-        /// </summary>
-        internal double DoorZ;
-
-        /// <summary>
-        /// The door orientation
-        /// </summary>
-        internal int DoorOrientation;
-
-        /// <summary>
-        /// The heightmap
-        /// </summary>
-        internal string Heightmap;
-
-        /// <summary>
-        /// The sq state
-        /// </summary>
-        internal SquareState[][] SqState;
-
-        /// <summary>
-        /// The sq floor height
-        /// </summary>
-        internal short[][] SqFloorHeight;
-
-        /// <summary>
-        /// The sq seat rot
-        /// </summary>
-        internal byte[][] SqSeatRot;
-
-        /// <summary>
-        /// The sq character
-        /// </summary>
-        internal char[][] SqChar;
-
-        /// <summary>
-        /// The m room modelfx
-        /// </summary>
-        internal byte[][] MRoomModelfx;
-
-        /// <summary>
-        /// The map size x
-        /// </summary>
-        internal int MapSizeX;
-
-        /// <summary>
-        /// The map size y
-        /// </summary>
-        internal int MapSizeY;
-
-        /// <summary>
-        /// The static furni map
-        /// </summary>
-        internal string StaticFurniMap;
-
-        /// <summary>
-        /// The club only
+        ///     The club only
         /// </summary>
         internal bool ClubOnly;
 
         /// <summary>
-        /// The got public pool
+        ///     The door orientation
+        /// </summary>
+        internal int DoorOrientation;
+
+        /// <summary>
+        ///     The door x
+        /// </summary>
+        internal int DoorX;
+
+        /// <summary>
+        ///     The door y
+        /// </summary>
+        internal int DoorY;
+
+        /// <summary>
+        ///     The door z
+        /// </summary>
+        internal double DoorZ;
+
+        /// <summary>
+        ///     The got public pool
         /// </summary>
         internal bool GotPublicPool;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoomModel"/> class.
+        ///     The heightmap
+        /// </summary>
+        internal string Heightmap;
+
+        /// <summary>
+        ///     The map size x
+        /// </summary>
+        internal int MapSizeX;
+
+        /// <summary>
+        ///     The map size y
+        /// </summary>
+        internal int MapSizeY;
+
+        /// <summary>
+        ///     The m room modelfx
+        /// </summary>
+        internal byte[][] MRoomModelfx;
+
+        /// <summary>
+        ///     The sq character
+        /// </summary>
+        internal char[][] SqChar;
+
+        /// <summary>
+        ///     The sq floor height
+        /// </summary>
+        internal short[][] SqFloorHeight;
+
+        /// <summary>
+        ///     The sq seat rot
+        /// </summary>
+        internal byte[][] SqSeatRot;
+
+        /// <summary>
+        ///     The sq state
+        /// </summary>
+        internal SquareState[][] SqState;
+
+        /// <summary>
+        ///     The static furni map
+        /// </summary>
+        internal string StaticFurniMap;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RoomModel" /> class.
         /// </summary>
         /// <param name="doorX">The door x.</param>
         /// <param name="doorY">The door y.</param>
@@ -100,7 +102,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="clubOnly">if set to <c>true</c> [club only].</param>
         /// <param name="poolmap">The poolmap.</param>
         internal RoomModel(int doorX, int doorY, double doorZ, int doorOrientation, string heightmap,
-                           string staticFurniMap, bool clubOnly, string poolmap)
+            string staticFurniMap, bool clubOnly, string poolmap)
         {
             try
             {
@@ -112,7 +114,7 @@ namespace Azure.HabboHotel.Rooms
                 StaticFurniMap = staticFurniMap;
                 GotPublicPool = !string.IsNullOrEmpty(poolmap);
 
-                heightmap = heightmap.Replace(string.Format("{0}", Convert.ToChar(10)), "");
+                heightmap = heightmap.Replace($"{Convert.ToChar(10)}", "");
                 var array = heightmap.Split(Convert.ToChar(13));
                 MapSizeX = array[0].Length;
                 MapSizeY = array.Length;
@@ -135,8 +137,8 @@ namespace Azure.HabboHotel.Rooms
                 for (var y = 0; y < MapSizeY; y++)
                 {
                     var text2 =
-                        array[y].Replace(string.Format("{0}", Convert.ToChar(13)), "")
-                            .Replace(string.Format("{0}", Convert.ToChar(10)), "");
+                        array[y].Replace($"{Convert.ToChar(13)}", "")
+                            .Replace($"{Convert.ToChar(10)}", "");
 
                     for (var x = 0; x < MapSizeX; x++)
                     {
@@ -150,7 +152,7 @@ namespace Azure.HabboHotel.Rooms
                         }
                         if (x == doorX && y == doorY)
                         {
-                            SqFloorHeight[x][y] = (short)DoorZ;
+                            SqFloorHeight[x][y] = (short) DoorZ;
                             SqState[x][y] = SquareState.Open;
                             if (SqFloorHeight[x][y] > 9) SqChar[x][y] = Letters[(SqFloorHeight[x][y] - 10)];
                             else SqChar[x][y] = char.Parse(DoorZ.ToString());

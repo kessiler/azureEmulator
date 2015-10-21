@@ -10,8 +10,14 @@ namespace Azure.Database.Manager.Database.Database_Exceptions
     {
         private readonly string _query;
 
-        public QueryException(string message, string query) : base(message) { _query = query; }
+        public QueryException(string message, string query) : base(message)
+        {
+            _query = query;
+        }
 
-        public string GetQuery() { return _query; }
+        public string GetQuery()
+        {
+            return _query;
+        }
     }
 }

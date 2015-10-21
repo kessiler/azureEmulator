@@ -12,142 +12,47 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Class Pet.
+    ///     Class Pet.
     /// </summary>
     internal class Pet
     {
         /// <summary>
-        /// The pet identifier
+        ///     The anyone can ride
         /// </summary>
-        internal uint PetId;
+        internal int AnyoneCanRide;
 
         /// <summary>
-        /// The owner identifier
-        /// </summary>
-        internal uint OwnerId;
-
-        /// <summary>
-        /// The virtual identifier
-        /// </summary>
-        internal int VirtualId;
-
-        /// <summary>
-        /// The type
-        /// </summary>
-        internal uint Type;
-
-        /// <summary>
-        /// The name
-        /// </summary>
-        internal string Name;
-
-        /// <summary>
-        /// The race
-        /// </summary>
-        internal string Race;
-
-        /// <summary>
-        /// The color
-        /// </summary>
-        internal string Color;
-
-        /// <summary>
-        /// The hair dye
-        /// </summary>
-        internal int HairDye;
-
-        /// <summary>
-        /// The pet hair
-        /// </summary>
-        internal int PetHair;
-
-        /// <summary>
-        /// The experience
-        /// </summary>
-        internal int Experience;
-
-        /// <summary>
-        /// The energy
-        /// </summary>
-        internal int Energy;
-
-        /// <summary>
-        /// The nutrition
-        /// </summary>
-        internal int Nutrition;
-
-        /// <summary>
-        /// The room identifier
-        /// </summary>
-        internal uint RoomId;
-
-        /// <summary>
-        /// The x
-        /// </summary>
-        internal int X;
-
-        /// <summary>
-        /// The y
-        /// </summary>
-        internal int Y;
-
-        /// <summary>
-        /// The z
-        /// </summary>
-        internal double Z;
-
-        /// <summary>
-        /// The respect
-        /// </summary>
-        internal int Respect;
-
-        /// <summary>
-        /// The rarity
-        /// </summary>
-        internal int Rarity;
-
-        /// <summary>
-        /// The creation stamp
-        /// </summary>
-        internal double CreationStamp;
-
-        /// <summary>
-        /// The placed in room
-        /// </summary>
-        internal bool PlacedInRoom;
-
-        /// <summary>
-        /// The last health
-        /// </summary>
-        internal DateTime LastHealth;
-
-        /// <summary>
-        /// The until grown
-        /// </summary>
-        internal DateTime UntilGrown;
-
-        /// <summary>
-        /// The waiting for breading
-        /// </summary>
-        internal uint WaitingForBreading;
-
-        /// <summary>
-        /// The breading tile
+        ///     The breading tile
         /// </summary>
         internal Point BreadingTile;
 
         /// <summary>
-        /// The mopla breed
+        ///     The color
         /// </summary>
-        internal MoplaBreed MoplaBreed;
+        internal string Color;
 
         /// <summary>
-        /// The pet commands
+        ///     The creation stamp
         /// </summary>
-        internal Dictionary<short, bool> PetCommands;
+        internal double CreationStamp;
 
         /// <summary>
-        /// The experience levels
+        ///     The database state
+        /// </summary>
+        internal DatabaseUpdateState DbState;
+
+        /// <summary>
+        ///     The energy
+        /// </summary>
+        internal int Energy;
+
+        /// <summary>
+        ///     The experience
+        /// </summary>
+        internal int Experience;
+
+        /// <summary>
+        ///     The experience levels
         /// </summary>
         internal int[] ExperienceLevels =
         {
@@ -171,22 +76,117 @@ namespace Azure.HabboHotel.Pets
         };
 
         /// <summary>
-        /// The database state
+        ///     The hair dye
         /// </summary>
-        internal DatabaseUpdateState DbState;
+        internal int HairDye;
 
         /// <summary>
-        /// The have saddle
+        ///     The have saddle
         /// </summary>
         internal bool HaveSaddle;
 
         /// <summary>
-        /// The anyone can ride
+        ///     The last health
         /// </summary>
-        internal int AnyoneCanRide;
+        internal DateTime LastHealth;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Pet"/> class.
+        ///     The mopla breed
+        /// </summary>
+        internal MoplaBreed MoplaBreed;
+
+        /// <summary>
+        ///     The name
+        /// </summary>
+        internal string Name;
+
+        /// <summary>
+        ///     The nutrition
+        /// </summary>
+        internal int Nutrition;
+
+        /// <summary>
+        ///     The owner identifier
+        /// </summary>
+        internal uint OwnerId;
+
+        /// <summary>
+        ///     The pet commands
+        /// </summary>
+        internal Dictionary<short, bool> PetCommands;
+
+        /// <summary>
+        ///     The pet hair
+        /// </summary>
+        internal int PetHair;
+
+        /// <summary>
+        ///     The pet identifier
+        /// </summary>
+        internal uint PetId;
+
+        /// <summary>
+        ///     The placed in room
+        /// </summary>
+        internal bool PlacedInRoom;
+
+        /// <summary>
+        ///     The race
+        /// </summary>
+        internal string Race;
+
+        /// <summary>
+        ///     The rarity
+        /// </summary>
+        internal int Rarity;
+
+        /// <summary>
+        ///     The respect
+        /// </summary>
+        internal int Respect;
+
+        /// <summary>
+        ///     The room identifier
+        /// </summary>
+        internal uint RoomId;
+
+        /// <summary>
+        ///     The type
+        /// </summary>
+        internal uint Type;
+
+        /// <summary>
+        ///     The until grown
+        /// </summary>
+        internal DateTime UntilGrown;
+
+        /// <summary>
+        ///     The virtual identifier
+        /// </summary>
+        internal int VirtualId;
+
+        /// <summary>
+        ///     The waiting for breading
+        /// </summary>
+        internal uint WaitingForBreading;
+
+        /// <summary>
+        ///     The x
+        /// </summary>
+        internal int X;
+
+        /// <summary>
+        ///     The y
+        /// </summary>
+        internal int Y;
+
+        /// <summary>
+        ///     The z
+        /// </summary>
+        internal double Z;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Pet" /> class.
         /// </summary>
         /// <param name="petId">The pet identifier.</param>
         /// <param name="ownerId">The owner identifier.</param>
@@ -246,52 +246,37 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Gets the maximum level.
+        ///     Gets the maximum level.
         /// </summary>
         /// <value>The maximum level.</value>
-        internal static int MaxLevel
-        {
-            get { return 20; }
-        }
+        internal static int MaxLevel => 20;
 
         /// <summary>
-        /// Gets the maximum energy.
+        ///     Gets the maximum energy.
         /// </summary>
         /// <value>The maximum energy.</value>
-        internal static int MaxEnergy
-        {
-            get { return 100; }
-        }
+        internal static int MaxEnergy => 100;
 
         /// <summary>
-        /// Gets the maximum nutrition.
+        ///     Gets the maximum nutrition.
         /// </summary>
         /// <value>The maximum nutrition.</value>
-        internal static int MaxNutrition
-        {
-            get { return 150; }
-        }
+        internal static int MaxNutrition => 150;
 
         /// <summary>
-        /// Gets the room.
+        ///     Gets the room.
         /// </summary>
         /// <value>The room.</value>
-        internal Room Room
-        {
-            get { return !IsInRoom ? null : Azure.GetGame().GetRoomManager().GetRoom(RoomId); }
-        }
+        internal Room Room => !IsInRoom ? null : Azure.GetGame().GetRoomManager().GetRoom(RoomId);
 
         /// <summary>
-        /// Gets a value indicating whether this instance is in room.
+        ///     Gets a value indicating whether this instance is in room.
         /// </summary>
         /// <value><c>true</c> if this instance is in room; otherwise, <c>false</c>.</value>
-        internal bool IsInRoom
-        {
-            get { return RoomId > 0u; }
-        }
+        internal bool IsInRoom => RoomId > 0u;
 
         /// <summary>
-        /// Gets the level.
+        ///     Gets the level.
         /// </summary>
         /// <value>The level.</value>
         internal int Level
@@ -308,16 +293,13 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Gets the experience goal.
+        ///     Gets the experience goal.
         /// </summary>
         /// <value>The experience goal.</value>
-        internal int ExperienceGoal
-        {
-            get { return ExperienceLevels[(Level - 1)]; }
-        }
+        internal int ExperienceGoal => ExperienceLevels[(Level - 1)];
 
         /// <summary>
-        /// Gets the age.
+        ///     Gets the age.
         /// </summary>
         /// <value>The age.</value>
         internal int Age
@@ -325,33 +307,24 @@ namespace Azure.HabboHotel.Pets
             get
             {
                 var creation = Azure.UnixToDateTime(CreationStamp);
-                return (int)(DateTime.Now - creation).TotalDays;
+                return (int) (DateTime.Now - creation).TotalDays;
             }
         }
 
         /// <summary>
-        /// Gets the look.
+        ///     Gets the look.
         /// </summary>
         /// <value>The look.</value>
-        internal string Look
-        {
-            get
-            {
-                return string.Concat(Type, " ", Race, " ", Color);
-            }
-        }
+        internal string Look => string.Concat(Type, " ", Race, " ", Color);
 
         /// <summary>
-        /// Gets the name of the owner.
+        ///     Gets the name of the owner.
         /// </summary>
         /// <value>The name of the owner.</value>
-        internal string OwnerName
-        {
-            get { return Azure.GetGame().GetClientManager().GetNameById(OwnerId); }
-        }
+        internal string OwnerName => Azure.GetGame().GetClientManager().GetNameById(OwnerId);
 
         /// <summary>
-        /// Determines whether the specified command has command.
+        ///     Determines whether the specified command has command.
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns><c>true</c> if the specified command has command; otherwise, <c>false</c>.</returns>
@@ -361,15 +334,17 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Called when [respect].
+        ///     Called when [respect].
         /// </summary>
         internal void OnRespect()
         {
             {
                 Respect++;
-                var OwnerSession = Azure.GetGame().GetClientManager().GetClientByUserId(OwnerId);
-                if (OwnerSession != null)
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(OwnerSession, "ACH_PetRespectReceiver", 1, false);
+                var ownerSession = Azure.GetGame().GetClientManager().GetClientByUserId(OwnerId);
+                if (ownerSession != null)
+                    Azure.GetGame()
+                        .GetAchievementManager()
+                        .ProgressUserAchievement(ownerSession, "ACH_PetRespectReceiver", 1);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("RespectPetMessageComposer"));
                 serverMessage.AppendInteger(VirtualId);
                 serverMessage.AppendBool(true);
@@ -392,7 +367,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Adds the experience.
+        ///     Adds the experience.
         /// </summary>
         /// <param name="amount">The amount.</param>
         internal void AddExperience(int amount)
@@ -432,7 +407,7 @@ namespace Azure.HabboHotel.Pets
                 var availableCommands = new List<short>();
 
                 tp.AppendInteger(PetCommands.Count);
-                foreach (short sh in PetCommands.Keys)
+                foreach (var sh in PetCommands.Keys)
                 {
                     tp.AppendInteger(sh);
                     if (PetCommands[sh])
@@ -440,14 +415,14 @@ namespace Azure.HabboHotel.Pets
                 }
 
                 tp.AppendInteger(availableCommands.Count);
-                foreach (short sh in availableCommands)
+                foreach (var sh in availableCommands)
                     tp.AppendInteger(sh);
                 ownerSession.SendMessage(tp);
             }
         }
 
         /// <summary>
-        /// Pets the energy.
+        ///     Pets the energy.
         /// </summary>
         /// <param name="add">if set to <c>true</c> [add].</param>
         internal void PetEnergy(bool add)
@@ -487,7 +462,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Serializes the inventory.
+        ///     Serializes the inventory.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="levelAfterName">if set to <c>true</c> [level after name].</param>
@@ -505,7 +480,7 @@ namespace Azure.HabboHotel.Pets
             {
                 var array = MoplaBreed.PlantData.Substring(12).Split(' ');
                 var array2 = array;
-                foreach (string s in array2)
+                foreach (var s in array2)
                     message.AppendInteger(int.Parse(s));
                 message.AppendInteger(MoplaBreed.GrowingStatus);
                 return;
@@ -515,14 +490,14 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Manages the gestures.
+        ///     Manages the gestures.
         /// </summary>
         internal void ManageGestures()
         {
         }
 
         /// <summary>
-        /// Serializes the information.
+        ///     Serializes the information.
         /// </summary>
         /// <returns>ServerMessage.</returns>
         internal ServerMessage SerializeInfo()
@@ -564,8 +539,8 @@ namespace Azure.HabboHotel.Pets
             if (Type == 16u)
             {
                 serverMessage.AppendInteger(129600);
-                var lastHealthSeconds = (int)(LastHealth - DateTime.Now).TotalSeconds;
-                var untilGrownSeconds = (int)(UntilGrown - DateTime.Now).TotalSeconds;
+                var lastHealthSeconds = (int) (LastHealth - DateTime.Now).TotalSeconds;
+                var untilGrownSeconds = (int) (UntilGrown - DateTime.Now).TotalSeconds;
 
                 if (lastHealthSeconds < 0) lastHealthSeconds = 0;
                 if (untilGrownSeconds < 0) untilGrownSeconds = 0;

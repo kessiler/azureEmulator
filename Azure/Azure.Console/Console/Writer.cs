@@ -60,7 +60,7 @@ namespace Azure.Writer
         {
             WriteToFile("Logs\\CommonLog.txt", logText + "\r\n\r\n");
 
-            if(output)
+            if (output)
                 Console.WriteLine(logText);
         }
 

@@ -4,36 +4,36 @@ namespace Azure.Util
 {
     public class MemoryContainer
     {
-        private readonly Queue container;
-        private readonly int bufferSize;
+        private readonly Queue _container;
+        private readonly int _bufferSize;
 
         public MemoryContainer(int initSize, int bufferSize)
         {
-            container = new Queue(initSize);
-            this.bufferSize = bufferSize;
+            _container = new Queue(initSize);
+            _bufferSize = bufferSize;
 
             for (int i = 0; i < initSize; i++)
-                container.Enqueue(new byte[bufferSize]);
+                _container.Enqueue(new byte[bufferSize]);
         }
 
         public byte[] TakeBuffer()
         {
-            if (container.Count > 0)
+            if (_container.Count > 0)
             {
-                lock (container.SyncRoot)
+                lock (_container.SyncRoot)
                 {
-                    return (byte[])container.Dequeue();
+                    return (byte[])_container.Dequeue();
                 }
             }
 
-            return new byte[bufferSize];
+            return new byte[_bufferSize];
         }
 
         public void GiveBuffer(byte[] buffer)
         {
-            lock (container.SyncRoot)
+            lock (_container.SyncRoot)
             {
-                container.Enqueue(buffer);
+                _container.Enqueue(buffer);
             }
         }
     }

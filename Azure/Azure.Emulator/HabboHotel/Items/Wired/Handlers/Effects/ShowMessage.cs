@@ -1,7 +1,9 @@
 #region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -23,10 +25,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             };
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionShowMessage; }
-        }
+        public Interaction Type => Interaction.ActionShowMessage;
 
         public RoomItem Item { get; set; }
 
@@ -70,7 +69,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             var roomUser = (RoomUser)stuff[0];
             var item = (Interaction)stuff[1];
             if (_mBanned.Contains(item)) return false;
-            if (roomUser != null && roomUser.GetClient() != null && !string.IsNullOrEmpty(OtherString)) roomUser.GetClient().SendWhisper(OtherString, true);
+            if (roomUser != null && roomUser.GetClient() != null && !string.IsNullOrEmpty(OtherString))
+                roomUser.GetClient().SendWhisper(OtherString, true);
             return true;
         }
     }

@@ -58,7 +58,10 @@ namespace Azure.Database.Manager.Database
             }
         }
 
-        public string GetConnectionString() { return _connectionString; }
+        public string GetConnectionString()
+        {
+            return _connectionString;
+        }
 
         public IQueryAdapter GetQueryReactor()
         {
@@ -81,8 +84,7 @@ namespace Azure.Database.Manager.Database
             try
             {
                 CreateNewConnectionString();
-                _databaseClients = new List<MySqlClient>(((int) _maxPoolSize));
-
+                _databaseClients = new List<MySqlClient>(((int)_maxPoolSize));
             }
             catch (MySqlException ex)
             {
@@ -92,7 +94,10 @@ namespace Azure.Database.Manager.Database
             _isConnected = true;
         }
 
-        public bool IsConnectedToDatabase() { return _isConnected; }
+        public bool IsConnectedToDatabase()
+        {
+            return _isConnected;
+        }
 
         public bool SetServerDetails(string host, uint port, string username, string password, string databaseName)
         {
@@ -131,6 +136,9 @@ namespace Azure.Database.Manager.Database
             SetConnectionString(mySqlConnectionStringBuilder2.ToString());
         }
 
-        private void SetConnectionString(string connectionString) { _connectionString = connectionString; }
+        private void SetConnectionString(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
     }
 }

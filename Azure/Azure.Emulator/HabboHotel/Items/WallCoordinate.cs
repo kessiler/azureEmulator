@@ -7,107 +7,107 @@ using Azure.Util;
 namespace Azure.HabboHotel.Items
 {
     /// <summary>
-    /// Class WallCoordinate.
+    ///     Class WallCoordinate.
     /// </summary>
     internal class WallCoordinate
     {
         /// <summary>
-        /// The _width x
+        ///     The _length x
         /// </summary>
-        private readonly int widthX;
+        private readonly int _lengthX;
 
         /// <summary>
-        /// The _width y
+        ///     The _length y
         /// </summary>
-        private readonly int widthY;
+        private readonly int _lengthY;
 
         /// <summary>
-        /// The _length x
+        ///     The _side
         /// </summary>
-        private readonly int lengthX;
+        private readonly char _side;
 
         /// <summary>
-        /// The _length y
+        ///     The _width x
         /// </summary>
-        private readonly int lengthY;
+        private readonly int _widthX;
 
         /// <summary>
-        /// The _side
+        ///     The _width y
         /// </summary>
-        private readonly char side;
+        private readonly int _widthY;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WallCoordinate"/> class.
+        ///     Initializes a new instance of the <see cref="WallCoordinate" /> class.
         /// </summary>
         /// <param name="wallPosition">The wall position.</param>
         public WallCoordinate(string wallPosition)
         {
             var posD = wallPosition.Split(' ');
-            side = posD[2] == "l" ? 'l' : 'r';
+            _side = posD[2] == "l" ? 'l' : 'r';
             var widD = posD[0].Substring(3).Split(',');
-            widthX = TextHandling.Parse(widD[0]);
-            widthY = TextHandling.Parse(widD[1]);
+            _widthX = TextHandling.Parse(widD[0]);
+            _widthY = TextHandling.Parse(widD[1]);
             var lenD = posD[1].Substring(2).Split(',');
-            lengthX = TextHandling.Parse(lenD[0]);
-            lengthY = TextHandling.Parse(lenD[1]);
+            _lengthX = TextHandling.Parse(lenD[0]);
+            _lengthY = TextHandling.Parse(lenD[1]);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WallCoordinate"/> class.
+        ///     Initializes a new instance of the <see cref="WallCoordinate" /> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="n">The n.</param>
         public WallCoordinate(double x, double y, sbyte n)
         {
-            TextHandling.Split(x, out widthX, out widthY);
-            TextHandling.Split(y, out lengthX, out lengthY);
-            side = n == 7 ? 'r' : 'l';
+            TextHandling.Split(x, out _widthX, out _widthY);
+            TextHandling.Split(y, out _lengthX, out _lengthY);
+            _side = n == 7 ? 'r' : 'l';
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        ///     Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return ":w=" + widthX + "," + widthY + " " + "l=" + lengthX + "," + lengthY + " " + side;
+            return ":w=" + _widthX + "," + _widthY + " " + "l=" + _lengthX + "," + _lengthY + " " + _side;
         }
 
         /// <summary>
-        /// Generates the database shit.
+        ///     Generates the database shit.
         /// </summary>
         /// <returns>System.String.</returns>
         internal string GenerateDbShit()
         {
-            return "x: " + TextHandling.Combine(widthX, widthY) + " y: " + TextHandling.Combine(lengthX, lengthY);
+            return "x: " + TextHandling.Combine(_widthX, _widthY) + " y: " + TextHandling.Combine(_lengthX, _lengthY);
         }
 
         /// <summary>
-        /// Gets the x value.
+        ///     Gets the x value.
         /// </summary>
         /// <returns>System.Double.</returns>
         internal double GetXValue()
         {
-            return TextHandling.Combine(widthX, widthY);
+            return TextHandling.Combine(_widthX, _widthY);
         }
 
         /// <summary>
-        /// Gets the y value.
+        ///     Gets the y value.
         /// </summary>
         /// <returns>System.Double.</returns>
         internal double GetYValue()
         {
-            return TextHandling.Combine(lengthX, lengthY);
+            return TextHandling.Combine(_lengthX, _lengthY);
         }
 
         /// <summary>
-        /// ns this instance.
+        ///     ns this instance.
         /// </summary>
         /// <returns>System.Int32.</returns>
         internal int N()
         {
-            return side == 'l' ? 8 : 7;
+            return _side == 'l' ? 8 : 7;
         }
     }
 }

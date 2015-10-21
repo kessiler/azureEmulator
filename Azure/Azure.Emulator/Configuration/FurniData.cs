@@ -77,7 +77,7 @@ namespace Azure.Configuration
             var xmlParser = new XmlDocument();
             var wC = new WebClient();
 
-             try
+            try
             {
                 xmlParser.LoadXml(wC.DownloadString(ExtraSettings.FurniDataUrl));
                 FloorItems = new Dictionary<string, FurniData>();
@@ -85,7 +85,6 @@ namespace Azure.Configuration
                 {
                     try
                     {
-                    
                         FloorItems.Add(node.Attributes["classname"].Value,
                             new FurniData(int.Parse(node.Attributes["id"].Value), node.SelectSingleNode("name").InnerText,
                                 ushort.Parse(node.SelectSingleNode("xdim").InnerText),
@@ -93,12 +92,11 @@ namespace Azure.Configuration
                                 node.SelectSingleNode("cansiton").InnerText == "1",
                                 node.SelectSingleNode("canstandon").InnerText == "1"));
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         var k = node.Attributes["classname"].Value;
-                        if(!string.IsNullOrEmpty(k))
-                        Console.WriteLine("Errror parsing furnidata by {0} with exception: {1}", k, e.StackTrace);
-
+                        if (!string.IsNullOrEmpty(k))
+                            Console.WriteLine("Errror parsing furnidata by {0} with exception: {1}", k, e.StackTrace);
                     }
                 }
                 WallItems = new Dictionary<string, FurniData>();
@@ -110,7 +108,7 @@ namespace Azure.Configuration
                 Out.WriteLine(
                     string.Format("Error downloading furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData",
                     ConsoleColor.Red);
-                Out.WriteLine("Type a key to close", "", ConsoleColor.Black);
+                Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
@@ -118,14 +116,14 @@ namespace Azure.Configuration
             {
                 Out.WriteLine(string.Format("Error parsing furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData",
                     ConsoleColor.Red);
-                Out.WriteLine("Type a key to close", "", ConsoleColor.Black);
+                Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
             catch (NullReferenceException e)
             {
                 Out.WriteLine(string.Format("Error parsing value null of furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData", ConsoleColor.Red);
-                Out.WriteLine("Type a key to close", "", ConsoleColor.Black);
+                Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }

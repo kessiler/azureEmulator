@@ -71,17 +71,35 @@ namespace Azure.Encryption.Hurlant.Crypto.Rsa
                 BigInteger.Parse(coeff, NumberStyles.HexNumber));
         }
 
-        public int GetBlockSize() { return N.ToByteArray().Length - 1; }
+        public int GetBlockSize()
+        {
+            return N.ToByteArray().Length - 1;
+        }
 
-        public byte[] Encrypt(byte[] src) { return DoEncrypt(DoPublic, src, Pkcs1PadType.FullByte); }
+        public byte[] Encrypt(byte[] src)
+        {
+            return DoEncrypt(DoPublic, src, Pkcs1PadType.FullByte);
+        }
 
-        public byte[] Decrypt(byte[] src) { return DoDecrypt(DoPublic, src, Pkcs1PadType.FullByte); }
+        public byte[] Decrypt(byte[] src)
+        {
+            return DoDecrypt(DoPublic, src, Pkcs1PadType.FullByte);
+        }
 
-        public byte[] Sign(byte[] src) { return DoEncrypt(DoPrivate, src, Pkcs1PadType.FullByte); }
+        public byte[] Sign(byte[] src)
+        {
+            return DoEncrypt(DoPrivate, src, Pkcs1PadType.FullByte);
+        }
 
-        public byte[] Verify(byte[] src) { return DoDecrypt(DoPrivate, src, Pkcs1PadType.FullByte); }
+        public byte[] Verify(byte[] src)
+        {
+            return DoDecrypt(DoPrivate, src, Pkcs1PadType.FullByte);
+        }
 
-        protected BigInteger DoPublic(BigInteger m) { return BigInteger.ModPow(m, E, N); }
+        protected BigInteger DoPublic(BigInteger m)
+        {
+            return BigInteger.ModPow(m, E, N);
+        }
 
         protected BigInteger DoPrivate(BigInteger m)
         {
@@ -159,6 +177,7 @@ namespace Azure.Encryption.Hurlant.Crypto.Rsa
                     case Pkcs1PadType.FullByte:
                         x = 0xFF;
                         break;
+
                     case Pkcs1PadType.RandomByte:
                         x = Randomizer.NextByte(1, 255);
                         break;
@@ -166,7 +185,7 @@ namespace Azure.Encryption.Hurlant.Crypto.Rsa
                 bytes[--n] = x;
             }
 
-            bytes[--n] = (byte) type;
+            bytes[--n] = (byte)type;
             bytes[--n] = 0;
 
             return bytes;

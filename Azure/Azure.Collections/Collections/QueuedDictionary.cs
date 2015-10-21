@@ -82,18 +82,30 @@ namespace Azure.Collections
             _removeQueue.Enqueue(key);
         }
 
-        public TV GetValue(T key) { return Inner.ContainsKey(key) ? Inner[key] : default(TV); }
+        public TV GetValue(T key)
+        {
+            return Inner.ContainsKey(key) ? Inner[key] : default(TV);
+        }
 
-        public bool ContainsKey(T key) { return Inner.ContainsKey(key); }
+        public bool ContainsKey(T key)
+        {
+            return Inner.ContainsKey(key);
+        }
 
-        public void Clear() { Inner.Clear(); }
+        public void Clear()
+        {
+            Inner.Clear();
+        }
 
         public void QueueDelegate(OnCycleDoneDelegate function)
         {
             _onCycleEventQueue.Enqueue(function);
         }
 
-        public List<KeyValuePair<T, TV>> ToList() { return Inner.ToList(); }
+        public List<KeyValuePair<T, TV>> ToList()
+        {
+            return Inner.ToList();
+        }
 
         public void Destroy()
         {

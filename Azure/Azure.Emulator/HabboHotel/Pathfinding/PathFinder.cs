@@ -3,18 +3,20 @@
 using System;
 using System.Collections.Generic;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
+using Azure.HabboHotel.Rooms.User.Path;
 
 #endregion
 
 namespace Azure.HabboHotel.PathFinding
 {
     /// <summary>
-    /// Class PathFinder.
+    ///     Class PathFinder.
     /// </summary>
     internal class PathFinder
     {
         /// <summary>
-        /// The diag move points
+        ///     The diag move points
         /// </summary>
         public static Vector2D[] DiagMovePoints =
         {
@@ -29,7 +31,7 @@ namespace Azure.HabboHotel.PathFinding
         };
 
         /// <summary>
-        /// The no diag move points
+        ///     The no diag move points
         /// </summary>
         public static Vector2D[] NoDiagMovePoints =
         {
@@ -40,7 +42,7 @@ namespace Azure.HabboHotel.PathFinding
         };
 
         /// <summary>
-        /// Finds the path.
+        ///     Finds the path.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="diag">if set to <c>true</c> [diag].</param>
@@ -52,6 +54,7 @@ namespace Azure.HabboHotel.PathFinding
         {
             var list = new List<Vector2D>();
             var pathFinderNode = FindPathReversed(user, diag, map, start, end);
+
             if (pathFinderNode != null)
             {
                 list.Add(end);
@@ -65,89 +68,96 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Finds the path reversed.
+        ///     Finds the path reversed.
         /// </summary>
-        /// <param name="RoomUserable">The user.</param>
-        /// <param name="WhatIsDiag">if set to <c>true</c> [diag].</param>
-        /// <param name="GameLocalMap">The map.</param>
-        /// <param name="StartMap">The start.</param>
-        /// <param name="EndMap">The end.</param>
+        /// <param name="roomUserable">The user.</param>
+        /// <param name="whatIsDiag">if set to <c>true</c> [diag].</param>
+        /// <param name="gameLocalMap">The map.</param>
+        /// <param name="startMap">The start.</param>
+        /// <param name="endMap">The end.</param>
         /// <returns>PathFinderNode.</returns>
-        public static PathFinderNode FindPathReversed(RoomUser RoomUserable, bool WhatIsDiag, Gamemap GameLocalMap, Vector2D StartMap, Vector2D EndMap)
+        public static PathFinderNode FindPathReversed(RoomUser roomUserable, bool whatIsDiag, Gamemap gameLocalMap,
+            Vector2D startMap, Vector2D endMap)
         {
-            MinHeap<PathFinderNode> MinSpanTreeCost = new MinHeap<PathFinderNode>(256);
-            PathFinderNode[,] PathFinderMap = new PathFinderNode[GameLocalMap.Model.MapSizeX, GameLocalMap.Model.MapSizeY];
-            PathFinderNode PathFinderStart = new PathFinderNode(StartMap) { Cost = 0 };
-            PathFinderNode PathFinderEnd = new PathFinderNode(EndMap);
+            var minSpanTreeCost = new MinHeap<PathFinderNode>(256);
+            var pathFinderMap = new PathFinderNode[gameLocalMap.Model.MapSizeX, gameLocalMap.Model.MapSizeY];
+            var pathFinderStart = new PathFinderNode(startMap) {Cost = 0};
+            var pathFinderEnd = new PathFinderNode(endMap);
 
-            PathFinderMap[PathFinderStart.Position.X, PathFinderStart.Position.Y] = PathFinderStart;
-            MinSpanTreeCost.Add(PathFinderStart);
+            pathFinderMap[pathFinderStart.Position.X, pathFinderStart.Position.Y] = pathFinderStart;
+            minSpanTreeCost.Add(pathFinderStart);
 
-            int InternalSpanTreeCost, loop_total_cost;
-
-            while (MinSpanTreeCost.Count > 0)
+            while (minSpanTreeCost.Count > 0)
             {
-                PathFinderStart = MinSpanTreeCost.ExtractFirst();
-                PathFinderStart.InClosed = true;
+                pathFinderStart = minSpanTreeCost.ExtractFirst();
+                pathFinderStart.InClosed = true;
 
-                for (int index = 0; (WhatIsDiag ? (index < DiagMovePoints.Length ? 1 : 0) : (index < NoDiagMovePoints.Length ? 1 : 0)) != 0; index++)
+                for (var index = 0;
+                    (whatIsDiag ? (index < DiagMovePoints.Length ? 1 : 0) : (index < NoDiagMovePoints.Length ? 1 : 0)) !=
+                    0;
+                    index++)
                 {
-                    Vector2D RealEndPosition = PathFinderStart.Position + (WhatIsDiag ? DiagMovePoints[index] : NoDiagMovePoints[index]);
+                    var realEndPosition = pathFinderStart.Position +
+                                          (whatIsDiag ? DiagMovePoints[index] : NoDiagMovePoints[index]);
 
-                    bool IsEndOfPath = ((RealEndPosition.X == EndMap.X) && (RealEndPosition.Y == EndMap.Y));
+                    var isEndOfPath = ((realEndPosition.X == endMap.X) && (realEndPosition.Y == endMap.Y));
 
-                    if (GameLocalMap.IsValidStep(RoomUserable, new Vector2D(PathFinderStart.Position.X, PathFinderStart.Position.Y), RealEndPosition, IsEndOfPath, RoomUserable.AllowOverride))
+                    if (gameLocalMap.IsValidStep(roomUserable,
+                        new Vector2D(pathFinderStart.Position.X, pathFinderStart.Position.Y), realEndPosition,
+                        isEndOfPath, roomUserable.AllowOverride))
                     {
-                        PathFinderNode PathFinderSecondNodeCalculation;
+                        PathFinderNode pathFinderSecondNodeCalculation;
 
-                        if (PathFinderMap[RealEndPosition.X, RealEndPosition.Y] == null)
+                        if (pathFinderMap[realEndPosition.X, realEndPosition.Y] == null)
                         {
-                            PathFinderSecondNodeCalculation = new PathFinderNode(RealEndPosition);
-                            PathFinderMap[RealEndPosition.X, RealEndPosition.Y] = PathFinderSecondNodeCalculation;
+                            pathFinderSecondNodeCalculation = new PathFinderNode(realEndPosition);
+                            pathFinderMap[realEndPosition.X, realEndPosition.Y] = pathFinderSecondNodeCalculation;
                         }
                         else
                         {
-                            PathFinderSecondNodeCalculation = PathFinderMap[RealEndPosition.X, RealEndPosition.Y];
+                            pathFinderSecondNodeCalculation = pathFinderMap[realEndPosition.X, realEndPosition.Y];
                         }
 
-                        if (!PathFinderSecondNodeCalculation.InClosed)
+                        if (!pathFinderSecondNodeCalculation.InClosed)
                         {
-                            InternalSpanTreeCost = 0;
+                            var internalSpanTreeCost = 0;
 
-                            if (PathFinderStart.Position.X != PathFinderSecondNodeCalculation.Position.X)
-                                InternalSpanTreeCost++;
+                            if (pathFinderStart.Position.X != pathFinderSecondNodeCalculation.Position.X)
+                                internalSpanTreeCost++;
 
-                            if (PathFinderStart.Position.Y != PathFinderSecondNodeCalculation.Position.Y)
-                                InternalSpanTreeCost++;
+                            if (pathFinderStart.Position.Y != pathFinderSecondNodeCalculation.Position.Y)
+                                internalSpanTreeCost++;
 
-                            loop_total_cost = PathFinderStart.Cost + InternalSpanTreeCost + PathFinderSecondNodeCalculation.Position.GetDistanceSquared(EndMap);
+                            var loopTotalCost = pathFinderStart.Cost + internalSpanTreeCost +
+                                                pathFinderSecondNodeCalculation.Position.GetDistanceSquared(endMap);
 
-                            if (loop_total_cost < PathFinderSecondNodeCalculation.Cost)
+                            if (loopTotalCost < pathFinderSecondNodeCalculation.Cost)
                             {
-                                PathFinderSecondNodeCalculation.Cost = loop_total_cost;
-                                PathFinderSecondNodeCalculation.Next = PathFinderStart;
+                                pathFinderSecondNodeCalculation.Cost = loopTotalCost;
+                                pathFinderSecondNodeCalculation.Next = pathFinderStart;
                             }
 
-                            if (!PathFinderSecondNodeCalculation.InOpen)
+                            if (!pathFinderSecondNodeCalculation.InOpen)
                             {
-                                if (PathFinderSecondNodeCalculation.Equals(PathFinderEnd))
+                                if (pathFinderSecondNodeCalculation.Equals(pathFinderEnd))
                                 {
-                                    PathFinderSecondNodeCalculation.Next = PathFinderStart;
-                                    return PathFinderSecondNodeCalculation;
+                                    pathFinderSecondNodeCalculation.Next = pathFinderStart;
+                                    return pathFinderSecondNodeCalculation;
                                 }
 
-                                PathFinderSecondNodeCalculation.InOpen = true;
-                                MinSpanTreeCost.Add(PathFinderSecondNodeCalculation);
+                                pathFinderSecondNodeCalculation.InOpen = true;
+                                minSpanTreeCost.Add(pathFinderSecondNodeCalculation);
                             }
                         }
                     }
                 }
             }
+
             return null;
         }
 
         /// <summary>
-        /// Calculates the rotation.
+        ///     Calculates the rotation.
         /// </summary>
         /// <param name="x1">The x1.</param>
         /// <param name="y1">The y1.</param>
@@ -156,15 +166,15 @@ namespace Azure.HabboHotel.PathFinding
         /// <returns>System.Int32.</returns>
         internal static int CalculateRotation(int x1, int y1, int x2, int y2)
         {
-            int dX = x2 - x1;
-            int dY = y2 - y1;
+            var dX = x2 - x1;
+            var dY = y2 - y1;
 
-            double d = Math.Atan2(dY, dX) * 180 / Math.PI;
-            return ((int)d + 90) / 45;
+            var d = Math.Atan2(dY, dX)*180/Math.PI;
+            return ((int) d + 90)/45;
         }
 
         /// <summary>
-        /// Gets the distance.
+        ///     Gets the distance.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>

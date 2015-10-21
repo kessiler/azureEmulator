@@ -1,7 +1,8 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -20,13 +21,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionBotTalk;
-            }
-        }
+        public Interaction Type => Interaction.ActionBotTalk;
 
         public RoomItem Item { get; set; }
 
@@ -34,24 +29,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay
         {
-            get
-            {
-                return 0;
-            }
-            set
-            {
-            }
+            get { return 0; }
+            set { }
         }
 
         public string OtherString { get; set; }
@@ -66,7 +51,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         {
             //RoomUser roomUser = (RoomUser)stuff[0];
             //InteractionType item = (InteractionType)stuff[1];
-            RoomUser bot = Room.GetRoomUserManager().GetBotByName(OtherString);
+            var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
             if (bot == null) return false;
             bot.Chat(null, OtherExtraString, OtherBool, 0);
             return true;

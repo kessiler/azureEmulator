@@ -2,71 +2,57 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
-namespace Azure.HabboHotel.Guides
+namespace Azure.HabboHotel.Users.Helpers
 {
     /// <summary>
-    /// Class GuideManager.
+    ///     Class GuideManager.
     /// </summary>
     internal class GuideManager
     {
         /// <summary>
-        /// The en cours
+        ///     The en cours
         /// </summary>
         public Dictionary<uint, GameClient> EnCours = new Dictionary<uint, GameClient>();
+
+        internal List<GameClient> GuardiansOnDuty = new List<GameClient>();
 
         //internal int HelpersCount = 0;
         //internal int GuardiansCount = 0;
         /// <summary>
-        /// The guides on duty
+        ///     The guides on duty
         /// </summary>
         internal List<GameClient> GuidesOnDuty = new List<GameClient>();
 
         internal List<GameClient> HelpersOnDuty = new List<GameClient>();
-        internal List<GameClient> GuardiansOnDuty = new List<GameClient>();
 
         /// <summary>
-        /// Gets or sets the guides count.
+        ///     Gets or sets the guides count.
         /// </summary>
         /// <value>The guides count.</value>
         public int GuidesCount
         {
-            get
-            {
-                return GuidesOnDuty.Count;
-            }
-            set
-            {
-            }
+            get { return GuidesOnDuty.Count; }
+            set { }
         }
 
         public int HelpersCount
         {
-            get
-            {
-                return HelpersOnDuty.Count;
-            }
-            set
-            {
-            }
+            get { return HelpersOnDuty.Count; }
+            set { }
         }
 
         public int GuardiansCount
         {
-            get
-            {
-                return GuardiansOnDuty.Count;
-            }
-            set
-            {
-            }
+            get { return GuardiansOnDuty.Count; }
+            set { }
         }
 
         /// <summary>
-        /// Gets the random guide.
+        ///     Gets the random guide.
         /// </summary>
         /// <returns>GameClient.</returns>
         public GameClient GetRandomGuide()
@@ -76,7 +62,7 @@ namespace Azure.HabboHotel.Guides
         }
 
         /// <summary>
-        /// Adds the guide.
+        ///     Adds the guide.
         /// </summary>
         /// <param name="guide">The guide.</param>
         public void AddGuide(GameClient guide)
@@ -106,7 +92,7 @@ namespace Azure.HabboHotel.Guides
         }
 
         /// <summary>
-        /// Removes the guide.
+        ///     Removes the guide.
         /// </summary>
         /// <param name="guide">The guide.</param>
         public void RemoveGuide(GameClient guide)

@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -23,10 +25,34 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             _mNext = 0L;
         }
 
-        public Interaction Type
+        public Queue ToWork
         {
-            get { return Interaction.ActionToggleState; }
+            get { return null; }
+            set { }
         }
+
+        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
+
+        public bool OnCycle()
+        {
+            if (!Items.Any()) return true;
+
+            var num = Azure.Now();
+            if (_mNext < num)
+            {
+                foreach (
+                    var current in
+                        Items.Where(
+                            current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id))
+                    )
+                    current.Interactor.OnWiredTrigger(current);
+            }
+            if (_mNext >= num) return false;
+            _mNext = 0L;
+            return true;
+        }
+
+        public Interaction Type => Interaction.ActionToggleState;
 
         public RoomItem Item { get; set; }
 
@@ -60,38 +86,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public int Delay { get; set; }
 
-        public Queue ToWork
-        {
-            get { return null; }
-            set { }
-        }
-
-        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
-
         public bool Execute(params object[] stuff)
         {
             if (!Items.Any()) return false;
             if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
             Room.GetWiredHandler().EnqueueCycle(this);
-            return true;
-        }
-
-        public bool OnCycle()
-        {
-            if (!Items.Any()) return true;
-
-            var num = Azure.Now();
-            if (_mNext < num)
-            {
-                foreach (
-                    var current in
-                        Items.Where(
-                            current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id))
-                    )
-                    current.Interactor.OnWiredTrigger(current);
-            }
-            if (_mNext >= num) return false;
-            _mNext = 0L;
             return true;
         }
     }

@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -18,10 +19,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             Delay = 0;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionChase; }
-        }
+        public Interaction Type => Interaction.ActionChase;
 
         public RoomItem Item { get; set; }
 

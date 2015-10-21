@@ -61,13 +61,16 @@ namespace Azure.Messages
         {
             get
             {
-                if (_onArray) 
+                if (_onArray)
                     return _messageArrayJunk;
-                
+
                 return _message;
             }
             set
             {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
                 if (_onArray) _messageArrayJunk = value;
                 else _message = value;
             }
@@ -104,7 +107,8 @@ namespace Azure.Messages
         /// </summary>
         public void SaveArray()
         {
-            if (_onArray == false || !_messageArrayJunk.Any()) return;
+            if (_onArray == false || !_messageArrayJunk.Any())
+                return;
 
             _messageArray.AddRange(_messageArrayJunk);
             _messageArrayJunk.Clear();
@@ -117,7 +121,8 @@ namespace Azure.Messages
         /// </summary>
         public void Clear()
         {
-            if (_onArray == false) return;
+            if (_onArray == false)
+                return;
 
             _messageArrayJunk.Clear();
         }
@@ -128,7 +133,9 @@ namespace Azure.Messages
         /// </summary>
         public void EndArray()
         {
-            if (_onArray == false) return;
+            if (_onArray == false)
+                return;
+
             _onArray = false;
 
             AppendInteger(_arrayCount);
@@ -156,7 +163,7 @@ namespace Azure.Messages
         /// <param name="messages">The messages.</param>
         public void AppendServerMessages(List<ServerMessage> messages)
         {
-            foreach (ServerMessage message in messages) 
+            foreach (ServerMessage message in messages)
                 AppendServerMessage(message);
         }
 
@@ -166,7 +173,7 @@ namespace Azure.Messages
         /// <param name="i">The i.</param>
         public void AppendShort(int i)
         {
-            Int16 value = (short)i;
+            short value = (short)i;
 
             AppendBytes(BitConverter.GetBytes(value), true);
         }
@@ -200,12 +207,12 @@ namespace Azure.Messages
 
         public void AppendIntegersArray(string str, char delimiter, int lenght, int defaultValue = 0, int maxValue = 0)
         {
-            if (string.IsNullOrEmpty(str)) 
+            if (string.IsNullOrEmpty(str))
                 throw new Exception("String is null or empty");
-            
+
             string[] array = str.Split(delimiter);
 
-            if (array.Length == 0) 
+            if (array.Length == 0)
                 return;
 
             uint i = 0u;
@@ -215,10 +222,10 @@ namespace Azure.Messages
                 i++;
 
                 int value;
-                if (!int.TryParse(text, out value)) 
+                if (!int.TryParse(text, out value))
                     value = defaultValue;
-                
-                if (maxValue != 0 && value > maxValue) 
+
+                if (maxValue != 0 && value > maxValue)
                     value = maxValue;
 
                 AppendInteger(value);
@@ -241,12 +248,7 @@ namespace Azure.Messages
         /// <param name="isUtf8">If string is UTF8</param>
         public void AppendString(string s, bool isUtf8 = false)
         {
-            byte[] toAdd;
-            
-            if (isUtf8) 
-                toAdd = Azure.GetDefaultEncoding().GetBytes(s);
-            else 
-                toAdd = Encoding.UTF8.GetBytes(s);
+            var toAdd = isUtf8 ? Azure.GetDefaultEncoding().GetBytes(s) : Encoding.UTF8.GetBytes(s);
 
             AppendShort(toAdd.Length);
             AppendBytes(toAdd, false);
@@ -328,7 +330,7 @@ namespace Azure.Messages
         /// </summary>
         public void Dispose()
         {
-            if (_disposed) 
+            if (_disposed)
                 return;
 
             _message.Clear();

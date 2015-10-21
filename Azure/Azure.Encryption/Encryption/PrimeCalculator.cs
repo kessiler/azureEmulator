@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace Azure.Encryption.Encryption
 {
-    static class PrimeCalculator
+    internal static class PrimeCalculator
     {
         public static BigInteger GenPseudoPrime(int bits, int confidence, Random rand)
         {

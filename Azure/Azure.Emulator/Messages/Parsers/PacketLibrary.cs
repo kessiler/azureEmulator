@@ -246,9 +246,9 @@ namespace Azure.Messages.Parsers
         /// Retrieves the song identifier.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void RetrieveSongID(GameClientMessageHandler handler)
+        internal static void RetrieveSongId(GameClientMessageHandler handler)
         {
-            handler.RetrieveSongID();
+            handler.RetrieveSongId();
         }
 
         /// <summary>
@@ -309,27 +309,27 @@ namespace Azure.Messages.Parsers
         /// Gets the tv player.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void GetTVPlayer(GameClientMessageHandler handler)
+        internal static void GetTvPlayer(GameClientMessageHandler handler)
         {
-            handler.GetTVPlayer();
+            handler.GetTvPlayer();
         }
 
         /// <summary>
         /// Chooses the tv player video.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void ChooseTVPlayerVideo(GameClientMessageHandler handler)
+        internal static void ChooseTvPlayerVideo(GameClientMessageHandler handler)
         {
-            handler.ChooseTVPlayerVideo();
+            handler.ChooseTvPlayerVideo();
         }
 
         /// <summary>
         /// Gets the tv playlist.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void GetTVPlaylist(GameClientMessageHandler handler)
+        internal static void GetTvPlaylist(GameClientMessageHandler handler)
         {
-            handler.ChooseTVPlaylist();
+            handler.ChooseTvPlaylist();
         }
 
         /// <summary>
@@ -498,7 +498,7 @@ namespace Azure.Messages.Parsers
         /// Deletes the pending CFH.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void DeletePendingCFH(GameClientMessageHandler handler)
+        internal static void DeletePendingCfh(GameClientMessageHandler handler)
         {
             handler.DeletePendingCfh();
         }
@@ -1065,7 +1065,7 @@ namespace Azure.Messages.Parsers
         /// Enters the on room.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void enterOnRoom(GameClientMessageHandler handler)
+        internal static void EnterOnRoom(GameClientMessageHandler handler)
         {
             handler.EnterOnRoom();
         }
@@ -1749,7 +1749,7 @@ namespace Azure.Messages.Parsers
         /// Fuckyous the specified handler.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void fuckyou(GameClientMessageHandler handler)
+        internal static void Fuckyou(GameClientMessageHandler handler)
         {
             handler.Fuckyou();
         }
@@ -2721,18 +2721,18 @@ namespace Azure.Messages.Parsers
         /// Gets the uc panel.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void GetUCPanel(GameClientMessageHandler handler)
+        internal static void GetUcPanel(GameClientMessageHandler handler)
         {
-            handler.GetUCPanel();
+            handler.GetUcPanel();
         }
 
         /// <summary>
         /// Gets the uc panel hotel.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        internal static void GetUCPanelHotel(GameClientMessageHandler handler)
+        internal static void GetUcPanelHotel(GameClientMessageHandler handler)
         {
-            handler.GetUCPanelHotel();
+            handler.GetUcPanelHotel();
         }
 
         /// <summary>
@@ -2771,52 +2771,62 @@ namespace Azure.Messages.Parsers
         {
             handler.FindMoreFriends();
         }
+
         internal static void HotelViewRequestBadge(GameClientMessageHandler handler)
         {
             handler.HotelViewRequestBadge();
         }
+
         internal static void GetCameraPrice(GameClientMessageHandler handler)
         {
             handler.GetCameraPrice();
         }
+
         internal static void ToggleStaffPick(GameClientMessageHandler handler)
         {
             handler.ToggleStaffPick();
         }
+
         internal static void GetHotelViewHallOfFame(GameClientMessageHandler handler)
         {
             handler.GetHotelViewHallOfFame();
         }
+
         internal static void SubmitRoomToCompetition(GameClientMessageHandler handler)
         {
             handler.SubmitRoomToCompetition();
         }
+
         internal static void EnterRoomQueue(GameClientMessageHandler handler)
         {
             handler.EnterRoomQueue();
         }
-        
 
         internal static void GetCameraRequest(GameClientMessageHandler handler)
         {
             handler.GetCameraRequest();
         }
+
         internal static void VoteForRoom(GameClientMessageHandler handler)
         {
             handler.VoteForRoom();
         }
+
         internal static void UpdateForumSettings(GameClientMessageHandler handler)
         {
             handler.UpdateForumSettings();
         }
+
         internal static void FriendRequestListLoad(GameClientMessageHandler handler)
         {
             handler.FriendRequestListLoad();
         }
+
         internal static void SetRoomCameraPreferences(GameClientMessageHandler handler)
         {
             handler.SetRoomCameraPreferences();
         }
+
         internal static void DeleteGroup(GameClientMessageHandler handler)
         {
             handler.DeleteGroup();

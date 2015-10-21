@@ -7,11 +7,16 @@ using System.Drawing;
 using System.Linq;
 using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Datas;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.Wired;
+using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
 
 #endregion
@@ -135,7 +140,7 @@ namespace Azure.Messages.Handlers
                     break;
             }
 
-            var pet = Catalog.CreatePet(Session.GetHabbo().Id, petName,
+            var pet = CatalogManager.CreatePet(Session.GetHabbo().Id, petName,
                 ((item.GetBaseItem().InteractionType == Interaction.BreedingTerrier) ? 25 : 24), petType.ToString(),
                 "ffffff");
             if (pet == null)
@@ -144,7 +149,7 @@ namespace Azure.Messages.Handlers
             var petUser =
                 room.GetRoomUserManager()
                     .DeployBot(
-                        new RoomBot(pet.PetId, pet.OwnerId, pet.RoomId, AIType.Pet, "freeroam", pet.Name, "", pet.Look,
+                        new RoomBot(pet.PetId, pet.OwnerId, pet.RoomId, AiType.Pet, "freeroam", pet.Name, "", pet.Look,
                             item.X, item.Y, 0.0, 4, 0, 0, 0, 0, null, null, "", 0, false), pet);
             if (petUser == null)
                 return;
@@ -339,7 +344,7 @@ namespace Azure.Messages.Handlers
                                 case Interaction.PostIt:
                                 case Interaction.Gate:
                                 case Interaction.None:
-                                case Interaction.HCGate:
+                                case Interaction.HcGate:
                                 case Interaction.Teleport:
                                 case Interaction.QuickTeleport:
                                 case Interaction.Guillotine:
@@ -382,16 +387,16 @@ namespace Azure.Messages.Handlers
                         }
                 }
 
-            PlaceWall:
+                PlaceWall:
                 var coordinate = new WallCoordinate(":" + placementData.Split(':')[1]);
                 var roomItemWall = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData,
                     coordinate, room, Session.GetHabbo().Id, item.GroupId, 0, false);
                 if (room.GetRoomItemHandler().SetWallItem(Session, roomItemWall))
                     Session.GetHabbo().GetInventoryComponent().RemoveItem(itemId, true);
                 return;
-            PlaceFloor:
+                PlaceFloor:
                 if (room.CheckRights(Session))
-                    Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace, 0u);
+                    Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace);
 
                 var roomItem = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData, x, y, z, rot,
                     room, Session.GetHabbo().Id, item.GroupId, item.BaseItem.FlatId, item.SongCode, false);
@@ -410,7 +415,7 @@ namespace Azure.Messages.Handlers
                 Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoFurniCount", 1, true);
                 return;
 
-            CannotSetItem:
+                CannotSetItem:
                 Session.SendMessage(StaticMessage.ErrorCantSetItem);
             }
             catch (Exception e)
@@ -481,10 +486,10 @@ namespace Azure.Messages.Handlers
                 }
             else
             {
-                room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, true);
+                room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
                 Session.GetHabbo()
                     .GetInventoryComponent()
-                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0, "");
+                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0);
                 Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
             }
         }
@@ -511,9 +516,9 @@ namespace Azure.Messages.Handlers
             var flag = item.GetBaseItem().InteractionType == Interaction.Teleport ||
                        item.GetBaseItem().InteractionType == Interaction.Hopper || item.GetBaseItem().InteractionType == Interaction.QuickTeleport;
             if (x != item.X || y != item.Y)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniMove, 0u);
+                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniMove);
             if (rot != item.Rot)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniRotate, 0u);
+                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniRotate);
             var oldCoords = item.GetCoords;
 
             if (!room.GetRoomItemHandler().SetFloorItem(Session, item, x, y, rot, false, false, true, true, false))
@@ -543,7 +548,7 @@ namespace Azure.Messages.Handlers
             }
 
             if (item.Z >= 0.1)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniStack, 0u);
+                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniStack);
 
             var newcoords = item.GetCoords;
             room.GetRoomItemHandler().OnHeightMapUpdate(oldCoords, newcoords);
@@ -551,7 +556,7 @@ namespace Azure.Messages.Handlers
             if (!flag)
                 return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                room.GetRoomItemHandler().SaveFurniture(queryReactor, null);
+                room.GetRoomItemHandler().SaveFurniture(queryReactor);
         }
 
         internal void MoveWallItem()
@@ -593,7 +598,7 @@ namespace Azure.Messages.Handlers
             if (item == null)
                 return;
             var hasRightsOne = room.CheckRights(Session, false, true);
-            var hasRightsTwo = room.CheckRights(Session, true, false);
+            var hasRightsTwo = room.CheckRights(Session, true);
 
             switch (item.GetBaseItem().InteractionType)
             {
@@ -691,12 +696,12 @@ namespace Azure.Messages.Handlers
         internal void DeletePostit()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false))
+            if (room == null || !room.CheckRights(Session, true))
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
             if (item == null || item.GetBaseItem().InteractionType != Interaction.PostIt)
                 return;
-            room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, true);
+            room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
         }
 
         internal void OpenGift()
@@ -712,7 +717,7 @@ namespace Azure.Messages.Handlers
                 Session.SendWhisper(Azure.GetLanguage().GetVar("gift_two"));
                 return;
             }
-            if (!currentRoom.CheckRights(Session, true, false))
+            if (!currentRoom.CheckRights(Session, true))
             {
                 Session.SendWhisper(Azure.GetLanguage().GetVar("gift_three"));
                 return;
@@ -751,7 +756,7 @@ namespace Azure.Messages.Handlers
                 var extraData = row["extradata"].ToString();
                 var num = uint.Parse(row["item_id"].ToString());
                 queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET base_item='{0}' WHERE id='{1}'", num, item.Id));
-                queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " +  item.Id);
+                queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", extraData);
                 queryReactor.RunQuery();
                 queryReactor.RunFastQuery(string.Format("DELETE FROM users_gifts WHERE gift_id='{0}'", item.Id));
@@ -809,7 +814,7 @@ namespace Azure.Messages.Handlers
         {
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false))
+            if (room == null || !room.CheckRights(Session, true))
                 return;
             if (room.MoodlightData == null)
                 foreach (
@@ -844,7 +849,7 @@ namespace Azure.Messages.Handlers
         {
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false) || room.MoodlightData == null)
+            if (room == null || !room.CheckRights(Session, true) || room.MoodlightData == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId);
             if (item == null || item.GetBaseItem().InteractionType != Interaction.Dimmer)
@@ -857,7 +862,7 @@ namespace Azure.Messages.Handlers
 
             room.MoodlightData.Enabled = true;
             room.MoodlightData.CurrentPreset = num;
-            room.MoodlightData.UpdatePreset(num, color, intensity, bgOnly, false);
+            room.MoodlightData.UpdatePreset(num, color, intensity, bgOnly);
             item.ExtraData = room.MoodlightData.GenerateExtraData();
             item.UpdateState();
         }
@@ -866,7 +871,7 @@ namespace Azure.Messages.Handlers
         {
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false) || room.MoodlightData == null)
+            if (room == null || !room.CheckRights(Session, true) || room.MoodlightData == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId);
             if (item == null || item.GetBaseItem().InteractionType != Interaction.Dimmer)
@@ -882,7 +887,7 @@ namespace Azure.Messages.Handlers
         internal void SaveRoomBg()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false))
+            if (room == null || !room.CheckRights(Session, true))
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.TonerData.ItemId);
             if (item == null || item.GetBaseItem().InteractionType != Interaction.RoomBg)
@@ -1096,7 +1101,7 @@ namespace Azure.Messages.Handlers
 
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false)) return;
+            if (room == null || !room.CheckRights(Session, true)) return;
             if (Azure.GetDbConfig().DbData["exchange_enabled"] != "1")
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("bliep_wisselkoers_uitgeschakeld"));
@@ -1157,8 +1162,6 @@ namespace Azure.Messages.Handlers
                     default:
                         return;
                 }
-
-               
 
                 var roomUserOne = loveLock.GetRoom().GetRoomUserManager().GetUserForSquare(pointOne.X, pointOne.Y);
                 var roomUserTwo = loveLock.GetRoom().GetRoomUserManager().GetUserForSquare(pointTwo.X, pointTwo.Y);
@@ -1234,8 +1237,8 @@ namespace Azure.Messages.Handlers
                 Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_4"));
                 return;
             }
-            var X = pet.X;
-            var Y = pet.Y;
+            var x = pet.X;
+            var y = pet.Y;
             var z = pet.Z;
             room.GetRoomUserManager().RemoveBot(pet.VirtualId, false);
             using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
@@ -1245,13 +1248,13 @@ namespace Azure.Messages.Handlers
                 dbClient.AddParameter("uid", Session.GetHabbo().Id);
                 dbClient.AddParameter("rid", room.RoomId);
                 dbClient.AddParameter("bit", compostItem.ItemId);
-                dbClient.AddParameter("ex", X);
-                dbClient.AddParameter("wai", Y);
+                dbClient.AddParameter("ex", x);
+                dbClient.AddParameter("wai", y);
                 dbClient.AddParameter("zed", z);
                 var itemId = (uint)dbClient.InsertQuery();
-                var roomItem = new RoomItem(itemId, room.RoomId, compostItem.ItemId, "0", X, Y, z, 0, room,
+                var roomItem = new RoomItem(itemId, room.RoomId, compostItem.ItemId, "0", x, y, z, 0, room,
                     Session.GetHabbo().Id, 0, -1, "", false);
-                if (!room.GetRoomItemHandler().SetFloorItem(Session, roomItem, X, Y, 0, true, false, true))
+                if (!room.GetRoomItemHandler().SetFloorItem(Session, roomItem, x, y, 0, true, false, true))
                 {
                     Session.GetHabbo().GetInventoryComponent().AddItem(roomItem);
                     Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_5"));
@@ -1288,7 +1291,7 @@ namespace Azure.Messages.Handlers
 
             if ((x != oldX) && (y != oldY))
             {
-                if (!room.GetGameMap().CanWalk(x, y, false, 0u))
+                if (!room.GetGameMap().CanWalk(x, y, false))
                 {
                     Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_8"));
                     return;
@@ -1299,7 +1302,7 @@ namespace Azure.Messages.Handlers
             {
                 rot = pet.RotBody;
             }
-                
+
             pet.PetData.X = x;
             pet.PetData.Y = y;
             pet.X = x;
@@ -1311,7 +1314,7 @@ namespace Azure.Messages.Handlers
             {
                 pet.PetData.DbState = DatabaseUpdateState.NeedsUpdate;
             }
-                
+
             pet.UpdateNeeded = true;
             room.GetGameMap().UpdateUserMovement(new Point(oldX, oldY), new Point(x, y), pet);
         }
@@ -1323,7 +1326,7 @@ namespace Azure.Messages.Handlers
             if (Session == null || Session.GetHabbo() == null ||
                 Session.GetHabbo().GetInventoryComponent() == null)
                 return;
-            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true, false)))
+            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
             var petId = Request.GetUInteger();
             var pet = room.GetRoomUserManager().GetPet(petId);
@@ -1364,17 +1367,17 @@ namespace Azure.Messages.Handlers
 
             {
                 if (pet.PetData.Type == 16)
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_MonsterPlantTreater", 1, false);
+                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_MonsterPlantTreater", 1);
                 else
                 {
                     Session.GetHabbo().DailyPetRespectPoints--;
                     Azure.GetGame()
                         .GetAchievementManager()
-                        .ProgressUserAchievement(Session, "ACH_PetRespectGiver", 1, false);
+                        .ProgressUserAchievement(Session, "ACH_PetRespectGiver", 1);
                     var value = PetLocale.GetValue("pet.respected");
                     var message = value[new Random().Next(0, (value.Length - 1))];
 
-                    pet.Chat(null, message, false, 0, 0);
+                    pet.Chat(null, message, false, 0);
                     using (
                         var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery(
@@ -1450,7 +1453,7 @@ namespace Azure.Messages.Handlers
         {
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true, false)))
+            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
             var pId = Request.GetUInteger();
             var item = room.GetRoomItemHandler().GetItem(pId);
@@ -1545,7 +1548,7 @@ namespace Azure.Messages.Handlers
                         queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1", item.Id));
                     }
                 }
-            IL_40C:
+                IL_40C:
                 room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SetRoomUserMessageComposer"));
                 serverMessage.AppendInteger(1);
@@ -1595,7 +1598,7 @@ namespace Azure.Messages.Handlers
         {
             var room =
                 Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true, false)))
+            if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
             var petId = Request.GetUInteger();
             var pet = room.GetRoomUserManager().GetPet(petId);
@@ -1680,7 +1683,7 @@ namespace Azure.Messages.Handlers
             if (roomUserByHabbo.CarryItemId == 8)
                 Azure.GetGame()
                     .GetQuestManager()
-                    .ProgressUserQuest(Session, QuestType.GiveCoffee, 0u);
+                    .ProgressUserQuest(Session, QuestType.GiveCoffee);
             roomUserByHabbo2.CarryItem(roomUserByHabbo.CarryItemId);
             roomUserByHabbo.CarryItem(0);
             roomUserByHabbo2.DanceId = 0;
@@ -1762,7 +1765,7 @@ namespace Azure.Messages.Handlers
                 {
                     var value = PetLocale.GetValue("pet.alreadymounted");
                     var random = new Random();
-                    pet.Chat(null, value[random.Next(0, (value.Length - 1))], false, 0, 0);
+                    pet.Chat(null, value[random.Next(0, (value.Length - 1))], false, 0);
                 }
                 else if (!roomUserByHabbo.RidingHorse)
                 {
@@ -1819,10 +1822,9 @@ namespace Azure.Messages.Handlers
             {
                 if (clientByUserId != null)
                 {
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_HorseRent", 1, false);
+                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_HorseRent", 1);
                 }
             }
-                
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SerializePetMessageComposer"));
             serverMessage.AppendInteger(pet.PetData.VirtualId);
@@ -1870,7 +1872,7 @@ namespace Azure.Messages.Handlers
             WiredSaver.SaveWired(Session, item, Request);
         }
 
-        internal void ChooseTVPlaylist()
+        internal void ChooseTvPlaylist()
         {
             var num = Request.GetUInteger();
             var video = Request.GetString();
@@ -1894,12 +1896,11 @@ namespace Azure.Messages.Handlers
             SendResponse();
         }
 
-        internal void ChooseTVPlayerVideo()
+        internal void ChooseTvPlayerVideo()
         {
-
         }
 
-        internal void GetTVPlayer()
+        internal void GetTvPlayer()
         {
             var itemId = Request.GetUInteger();
             var item = Session.GetHabbo().CurrentRoom.GetRoomItemHandler().GetItem(itemId);
@@ -1929,7 +1930,7 @@ namespace Azure.Messages.Handlers
         internal void PlaceBot()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null || !room.CheckRights(Session, true, false))
+            if (room == null || !room.CheckRights(Session, true))
                 return;
             var num = Request.GetUInteger();
             var bot = Session.GetHabbo().GetInventoryComponent().GetBot(num);
@@ -1939,7 +1940,7 @@ namespace Azure.Messages.Handlers
             var x = Request.GetInteger(); // coords
             var y = Request.GetInteger();
 
-            if (!room.GetGameMap().CanWalk(x, y, false, 0u) || !room.GetGameMap().ValidTile(x, y))
+            if (!room.GetGameMap().CanWalk(x, y, false) || !room.GetGameMap().ValidTile(x, y))
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("bot_error_1"));
                 return;
@@ -2252,7 +2253,7 @@ namespace Azure.Messages.Handlers
                 return;
             if (!item.ExtraData.Contains(Convert.ToChar(5)))
                 return;
-            if (!Session.GetHabbo().CurrentRoom.CheckRights(Session, true, false))
+            if (!Session.GetHabbo().CurrentRoom.CheckRights(Session, true))
                 return;
             var array = item.ExtraData.Split(Convert.ToChar(5));
             array[2] = text;
@@ -2275,7 +2276,7 @@ namespace Azure.Messages.Handlers
                 return;
             if (!item.ExtraData.Contains(Convert.ToChar(5)))
                 return;
-            if (!Session.GetHabbo().CurrentRoom.CheckRights(Session, true, false))
+            if (!Session.GetHabbo().CurrentRoom.CheckRights(Session, true))
                 return;
             var array = item.ExtraData.Split(Convert.ToChar(5));
             array[0] = Session.GetHabbo().Gender.ToLower();
@@ -2320,14 +2321,14 @@ namespace Azure.Messages.Handlers
                 return;
             if (clientByUserId != null)
             {
-                room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, true);
+                room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
                 clientByUserId.GetHabbo()
                     .GetInventoryComponent()
-                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0, "");
+                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0);
                 clientByUserId.GetHabbo().GetInventoryComponent().UpdateItems(true);
                 return;
             }
-            room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, true);
+            room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET room_id='0' WHERE id='{0}' LIMIT 1", item.Id));
         }
@@ -2342,10 +2343,10 @@ namespace Azure.Messages.Handlers
             if (item.GetBaseItem().InteractionType != Interaction.Clothing) return;
             var clothes = Azure.GetGame().GetClothingManager().GetClothesInFurni(item.GetBaseItem().Name);
             if (clothes == null) return;
-            if (Session.GetHabbo()._clothingManager.Clothing.Contains(clothes.ItemName)) return;
-            Session.GetHabbo()._clothingManager.Add(clothes.ItemName);
+            if (Session.GetHabbo().ClothingManager.Clothing.Contains(clothes.ItemName)) return;
+            Session.GetHabbo().ClothingManager.Add(clothes.ItemName);
             GetResponse().Init(LibraryParser.OutgoingRequest("FigureSetIdsMessageComposer"));
-            Session.GetHabbo()._clothingManager.Serialize(GetResponse());
+            Session.GetHabbo().ClothingManager.Serialize(GetResponse());
             SendResponse();
             room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
             Session.SendMessage(StaticMessage.FiguresetRedeemed);

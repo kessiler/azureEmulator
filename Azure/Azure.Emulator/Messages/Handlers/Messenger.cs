@@ -20,7 +20,6 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void InitMessenger()
         {
-            
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace Azure.Messages.Handlers
         internal void RequestBuddy()
         {
             if (Session.GetHabbo().GetMessenger() == null) return;
-            if (Session.GetHabbo().GetMessenger().RequestBuddy(Request.GetString())) Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialFriend, 0u);
+            if (Session.GetHabbo().GetMessenger().RequestBuddy(Request.GetString())) Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialFriend);
         }
 
         /// <summary>
@@ -161,7 +160,8 @@ namespace Azure.Messages.Handlers
                                             where Session.GetHabbo().GetMessenger().FriendshipExists(current)
                                             select Azure.GetGame().GetClientManager().GetClientByUserId(current))
                 .TakeWhile(
-                    clientByUserId => clientByUserId != null)) clientByUserId.SendMessage(serverMessage);
+                    clientByUserId => clientByUserId != null))
+                clientByUserId.SendMessage(serverMessage);
         }
     }
 }

@@ -30,17 +30,20 @@ namespace Azure.Database
                     _adapter = new NormalQueryReactor(this);
                     _type = 4;
                     break;
+
                 case "ingress":
                 case "ingres":
                     _ingressConnection = new IngresConnection(connectionStr);
                     _adapter = new NormalQueryReactor(this);
                     _type = 3;
                     break;
+
                 case "firebird":
                     _firebirdConnection = new FbConnection(connectionStr);
                     _adapter = new NormalQueryReactor(this);
                     _type = 2;
                     break;
+
                 default: // mySql
                     _mysqlConnection = new MySqlConnection(connectionStr);
                     _adapter = new NormalQueryReactor(this);
@@ -83,6 +86,7 @@ namespace Azure.Database
                         _mysqlConnection.Close();
                     }
                     break;
+
                 case 2:
                     if (_firebirdConnection.State == ConnectionState.Open)
                     {
@@ -90,6 +94,7 @@ namespace Azure.Database
                     }
                     _firebirdConnection.Dispose();
                     break;
+
                 case 3:
                     if (_ingressConnection.State == ConnectionState.Open)
                     {
@@ -97,6 +102,7 @@ namespace Azure.Database
                     }
                     _ingressConnection.Dispose();
                     break;
+
                 case 4:
                     if (_pgsqlConnection.State == ConnectionState.Open)
                     {
@@ -107,28 +113,54 @@ namespace Azure.Database
             }
         }
 
-        public void Connect() { Open(); }
+        public void Connect()
+        {
+            Open();
+        }
 
-        public void Disconnect() { Close(); }
+        public void Disconnect()
+        {
+            Close();
+        }
 
-        public IQueryAdapter GetQueryReactor() { return _adapter; }
+        public IQueryAdapter GetQueryReactor()
+        {
+            return _adapter;
+        }
 
-        public bool IsAvailable() { return false; }
+        public bool IsAvailable()
+        {
+            return false;
+        }
 
-        public void Prepare() { }
+        public void Prepare()
+        {
+        }
 
-        public void ReportDone() { Dispose(); }
+        public void ReportDone()
+        {
+            Dispose();
+        }
 
         public FbCommand CreateNewCommandFireBird()
         {
             return _firebirdConnection.CreateCommand();
         }
 
-        public IngresCommand CreateNewCommandIngress() { return _ingressConnection.CreateCommand(); }
+        public IngresCommand CreateNewCommandIngress()
+        {
+            return _ingressConnection.CreateCommand();
+        }
 
-        public NpgsqlCommand CreateNewCommandPgSql() { return _pgsqlConnection.CreateCommand(); }
+        public NpgsqlCommand CreateNewCommandPgSql()
+        {
+            return _pgsqlConnection.CreateCommand();
+        }
 
-        public MySqlCommand CreateNewCommandMySql() { return _mysqlConnection.CreateCommand(); }
+        public MySqlCommand CreateNewCommandMySql()
+        {
+            return _mysqlConnection.CreateCommand();
+        }
 
         public MySqlTransaction GetTransactionMySql()
         {
@@ -140,8 +172,14 @@ namespace Azure.Database
             return _firebirdConnection.BeginTransaction();
         }
 
-        public IngresTransaction GetTransactionIngress() { return _ingressConnection.BeginTransaction(); }
+        public IngresTransaction GetTransactionIngress()
+        {
+            return _ingressConnection.BeginTransaction();
+        }
 
-        public NpgsqlTransaction GetTransactionPgSql() { return _pgsqlConnection.BeginTransaction(); }
+        public NpgsqlTransaction GetTransactionPgSql()
+        {
+            return _pgsqlConnection.BeginTransaction();
+        }
     }
 }

@@ -1,8 +1,8 @@
 #region
 
 using System;
-using System.Globalization;
 using System.Text;
+using Azure.Messages.Factorys;
 
 #endregion
 
@@ -34,10 +34,7 @@ namespace Azure.Messages
         /// <value>The identifier.</value>
         internal int Id { get; private set; }
 
-        public int Length
-        {
-            get { return _length; }
-        }
+        public int Length => _length;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientMessage"/> class.
@@ -67,7 +64,7 @@ namespace Azure.Messages
             stringValue += Encoding.Default.GetString(_body);
 
             for (int i = 0; i < 13; i++)
-                stringValue = stringValue.Replace(char.ToString((char)(i)), string.Format("[{0}]", i));
+                stringValue = stringValue.Replace(char.ToString((char)(i)), $"[{i}]");
 
             return stringValue;
         }

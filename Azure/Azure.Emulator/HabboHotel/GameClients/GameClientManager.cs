@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using Azure.Configuration;
 using Azure.Connection.Connection;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Users.Messenger;
 using Azure.Messages;
 using Azure.Messages.Parsers;
@@ -18,57 +19,57 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.GameClients
 {
     /// <summary>
-    /// Class GameClientManager..
+    ///     Class GameClientManager..
     /// </summary>
     internal class GameClientManager
     {
         /// <summary>
-        /// The clients
-        /// </summary>
-        internal ConcurrentDictionary<uint, GameClient> Clients;
-
-        /// <summary>
-        /// The _badge queue
+        ///     The _badge queue
         /// </summary>
         private readonly Queue _badgeQueue;
 
         /// <summary>
-        /// The _broadcast queue
+        ///     The _broadcast queue
         /// </summary>
         private readonly ConcurrentQueue<byte[]> _broadcastQueue;
 
-        /// <summary>
-        /// The _user name register
-        /// </summary>
-        private readonly HybridDictionary _userNameRegister;
+        private readonly ConcurrentQueue<GameClient> _clientsAddQueue;
+
+        private readonly ConcurrentQueue<GameClient> _clientsToRemove;
 
         /// <summary>
-        /// The _user identifier register
+        ///     The _id user name register
+        /// </summary>
+        private readonly HybridDictionary _idUserNameRegister;
+
+        /// <summary>
+        ///     The _user identifier register
         /// </summary>
         private readonly HybridDictionary _userIdRegister;
 
         /// <summary>
-        /// The _user name identifier register
+        ///     The _user name identifier register
         /// </summary>
         private readonly HybridDictionary _userNameIdRegister;
 
         /// <summary>
-        /// The _id user name register
+        ///     The _user name register
         /// </summary>
-        private readonly HybridDictionary _idUserNameRegister;
-
-        private readonly ConcurrentQueue<GameClient> clientsAddQueue;
-
-        private readonly ConcurrentQueue<GameClient> clientsToRemove;
+        private readonly HybridDictionary _userNameRegister;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GameClientManager"/> class.
+        ///     The clients
+        /// </summary>
+        internal ConcurrentDictionary<uint, GameClient> Clients;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="GameClientManager" /> class.
         /// </summary>
         internal GameClientManager()
         {
             Clients = new ConcurrentDictionary<uint, GameClient>();
-            clientsAddQueue = new ConcurrentQueue<GameClient>();
-            clientsToRemove = new ConcurrentQueue<GameClient>();
+            _clientsAddQueue = new ConcurrentQueue<GameClient>();
+            _clientsToRemove = new ConcurrentQueue<GameClient>();
             _badgeQueue = new Queue();
             _broadcastQueue = new ConcurrentQueue<byte[]>();
             _userNameRegister = new HybridDictionary();
@@ -78,7 +79,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Gets the client count.
+        ///     Gets the client count.
         /// </summary>
         /// <value>The client count.</value>
         internal int ClientCount()
@@ -86,9 +87,8 @@ namespace Azure.HabboHotel.GameClients
             return Clients.Count;
         }
 
-
         /// <summary>
-        /// Gets the client by user identifier.
+        ///     Gets the client by user identifier.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <returns>GameClient.</returns>
@@ -98,7 +98,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Gets the name of the client by user.
+        ///     Gets the name of the client by user.
         /// </summary>
         /// <param name="userName">Name of the user.</param>
         /// <returns>GameClient.</returns>
@@ -110,7 +110,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Gets the client.
+        ///     Gets the client.
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
         /// <returns>GameClient.</returns>
@@ -120,26 +120,30 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Gets the name by identifier.
+        ///     Gets the name by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>System.String.</returns>
         internal string GetNameById(uint id)
         {
             var clientByUserId = GetClientByUserId(id);
+
             if (clientByUserId != null)
                 return clientByUserId.GetHabbo().UserName;
+
             string String;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT username FROM users WHERE id = " + id);
                 String = queryReactor.GetString();
             }
+
             return string.IsNullOrEmpty(String) ? "Unknown User" : String;
         }
 
         /// <summary>
-        /// Gets the clients by identifier.
+        ///     Gets the clients by identifier.
         /// </summary>
         /// <param name="users">The users.</param>
         /// <returns>IEnumerable&lt;GameClient&gt;.</returns>
@@ -149,7 +153,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Sends the super notif.
+        ///     Sends the super notif.
         /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="notice">The notice.</param>
@@ -174,13 +178,14 @@ namespace Azure.HabboHotel.GameClients
                     var text1 = Azure.GetLanguage().GetVar("ha_event_one");
                     var text2 = Azure.GetLanguage().GetVar("ha_event_two");
                     var text3 = Azure.GetLanguage().GetVar("ha_event_three");
-                    serverMessage.AppendString(string.Format("<b>{0} {1}!</b>\r\n {2} .\r\n<b>{3}</b>\r\n{4}", text1,
-                        client.GetHabbo().CurrentRoom.RoomData.Owner, text2, text3, notice));
+                    serverMessage.AppendString(
+                        $"<b>{text1} {client.GetHabbo().CurrentRoom.RoomData.Owner}!</b>\r\n {text2} .\r\n<b>{text3}</b>\r\n{notice}");
                 }
                 else
                 {
                     var text4 = Azure.GetLanguage().GetVar("ha_title");
-                    serverMessage.AppendString(string.Concat("<b>" + text4 + "</b>\r\n", notice, "\r\n- <i>", client.GetHabbo().UserName, "</i>"));
+                    serverMessage.AppendString(string.Concat("<b>" + text4 + "</b>\r\n", notice, "\r\n- <i>",
+                        client.GetHabbo().UserName, "</i>"));
                 }
             else
                 serverMessage.AppendString(notice);
@@ -208,7 +213,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Called when [cycle].
+        ///     Called when [cycle].
         /// </summary>
         internal void OnCycle()
         {
@@ -227,7 +232,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Staffs the alert.
+        ///     Staffs the alert.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="exclude">The exclude.</param>
@@ -244,53 +249,47 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Mods the alert.
+        ///     Mods the alert.
         /// </summary>
         /// <param name="message">The message.</param>
         internal void ModAlert(ServerMessage message)
         {
             var bytes = message.GetReversedBytes();
-            foreach (
-                var current in
-                    Clients.Values.Where(current => current != null && current.GetHabbo() != null))
+
+            foreach (var current in Clients.Values.Where(current => current?.GetHabbo() != null))
             {
-                if (current.GetHabbo().Rank != 4u && current.GetHabbo().Rank != 5u)
-                    if (current.GetHabbo().Rank != 6u)
-                        continue;
-                try
-                {
-                    current.GetConnection().SendData(bytes);
-                }
-                catch
-                {
-                }
+                if ((current.GetHabbo().Rank != 4u && current.GetHabbo().Rank != 5u) && current.GetHabbo().Rank != 6u)
+                    continue;
+
+                current.GetConnection().SendData(bytes);
             }
         }
 
         /// <summary>
-        /// Creates the and start client.
+        ///     Creates the and start client.
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
         /// <param name="connection">The connection.</param>
         internal void CreateAndStartClient(uint clientId, ConnectionInformation connection)
         {
             var gameClient = new GameClient(clientId, connection);
+
             Clients.AddOrUpdate(clientId, gameClient, (key, value) => gameClient);
-            clientsAddQueue.Enqueue(gameClient);
+            _clientsAddQueue.Enqueue(gameClient);
         }
 
         /// <summary>
-        /// Disposes the connection.
+        ///     Disposes the connection.
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
         internal void DisposeConnection(uint clientId)
         {
-            GameClient client = GetClient(clientId);
-            clientsToRemove.Enqueue(client);
+            var client = GetClient(clientId);
+            _clientsToRemove.Enqueue(client);
         }
 
         /// <summary>
-        /// Queues the broadcase message.
+        ///     Queues the broadcase message.
         /// </summary>
         /// <param name="message">The message.</param>
         internal void QueueBroadcaseMessage(ServerMessage message)
@@ -299,7 +298,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Queues the badge update.
+        ///     Queues the badge update.
         /// </summary>
         /// <param name="badge">The badge.</param>
         internal void QueueBadgeUpdate(string badge)
@@ -309,18 +308,17 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Logs the clones out.
+        ///     Logs the clones out.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         internal void LogClonesOut(uint userId)
         {
             var clientByUserId = GetClientByUserId(userId);
-            if (clientByUserId != null)
-                clientByUserId.Disconnect("user null LogClonesOut");
+            clientByUserId?.Disconnect("user null LogClonesOut");
         }
 
         /// <summary>
-        /// Registers the client.
+        ///     Registers the client.
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="userId">The user identifier.</param>
@@ -335,16 +333,19 @@ namespace Azure.HabboHotel.GameClients
                 _userIdRegister[userId] = client;
             else
                 _userIdRegister.Add(userId, client);
+
             if (!_userNameIdRegister.Contains(userName))
                 _userNameIdRegister.Add(userName, userId);
+
             if (!_idUserNameRegister.Contains(userId))
                 _idUserNameRegister.Add(userId, userName);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.SetQuery(string.Format("UPDATE users SET online='1' WHERE id={0} LIMIT 1", userId));
+                queryReactor.SetQuery($"UPDATE users SET online='1' WHERE id={userId} LIMIT 1");
         }
 
         /// <summary>
-        /// Unregisters the client.
+        ///     Unregisters the client.
         /// </summary>
         /// <param name="userid">The userid.</param>
         /// <param name="userName">The username.</param>
@@ -352,12 +353,13 @@ namespace Azure.HabboHotel.GameClients
         {
             _userIdRegister.Remove(userid);
             _userNameRegister.Remove(userName.ToLower());
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.SetQuery(string.Format("UPDATE users SET online='0' WHERE id={0} LIMIT 1", userid));
+                queryReactor.SetQuery($"UPDATE users SET online='0' WHERE id={userid} LIMIT 1");
         }
 
         /// <summary>
-        /// Closes all.
+        ///     Closes all.
         /// </summary>
         internal void CloseAll()
         {
@@ -365,43 +367,36 @@ namespace Azure.HabboHotel.GameClients
             var flag = false;
 
             Out.WriteLine("Saving Inventary Content....", "Azure.Boot", ConsoleColor.DarkCyan);
+
             foreach (var current2 in Clients.Values.Where(current2 => current2.GetHabbo() != null))
             {
-                try
+                current2.GetHabbo().GetInventoryComponent().RunDbUpdate();
+                current2.GetHabbo().RunDbUpdate(Azure.GetDatabaseManager().GetQueryReactor());
+                stringBuilder.Append(current2.GetHabbo().GetQueryString);
+                flag = true;
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            }
+
+            Out.WriteLine("Inventary Content Saved!", "Azure.Boot", ConsoleColor.DarkCyan);
+
+            if (flag)
+            {
+                if (stringBuilder.Length > 0)
                 {
-                    current2.GetHabbo().GetInventoryComponent().RunDbUpdate();
-                    current2.GetHabbo().RunDbUpdate(Azure.GetDatabaseManager().GetQueryReactor());
-                    stringBuilder.Append(current2.GetHabbo().GetQueryString);
-                    flag = true;
-                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                }
-                catch
-                {
+                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        queryReactor.RunFastQuery(stringBuilder.ToString());
                 }
             }
-            Out.WriteLine("Inventary Content Saved!", "Azure.Boot", ConsoleColor.DarkCyan);
-            if (flag)
-                try
-                {
-                    if (stringBuilder.Length > 0) using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor()) queryReactor.RunFastQuery(stringBuilder.ToString());
-                }
-                catch (Exception pException)
-                {
-                    Logging.HandleException(pException, "GameClientManager.CloseAll()");
-                }
             try
             {
                 Out.WriteLine("Closing Connection Manager...", "Azure.Boot", ConsoleColor.DarkMagenta);
-                foreach (GameClient current3 in Clients.Values.Where(current3 => current3.GetConnection() != null))
+
+                foreach (var current3 in Clients.Values.Where(current3 => current3.GetConnection() != null))
                 {
-                    try
-                    {
-                        current3.GetConnection().Dispose();
-                    }
-                    catch
-                    {
-                    }
+                    current3.GetConnection().Dispose();
+
                     Console.ForegroundColor = ConsoleColor.DarkMagenta;
+
                     Out.WriteLine("Connection Manager Closed!", "Azure.Boot", ConsoleColor.DarkMagenta);
                 }
             }
@@ -409,12 +404,13 @@ namespace Azure.HabboHotel.GameClients
             {
                 Logging.LogCriticalException(ex.ToString());
             }
+
             Clients.Clear();
             Out.WriteLine("Connections closed", "Azure.Conn", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
-        /// Updates the client.
+        ///     Updates the client.
         /// </summary>
         /// <param name="oldName">The old name.</param>
         /// <param name="newName">The new name.</param>
@@ -422,6 +418,7 @@ namespace Azure.HabboHotel.GameClients
         {
             if (!_userNameRegister.Contains(oldName.ToLower()))
                 return;
+
             var old = (GameClient)_userNameRegister[oldName.ToLower()];
             _userNameRegister.Remove(oldName.ToLower());
             _userNameRegister.Add(newName.ToLower(), old);
@@ -429,22 +426,20 @@ namespace Azure.HabboHotel.GameClients
 
         private void AddClients()
         {
-            if (clientsAddQueue.Count > 0)
+            if (_clientsAddQueue.Count > 0)
             {
                 GameClient client;
-                while (clientsAddQueue.TryDequeue(out client))
-                {
+                while (_clientsAddQueue.TryDequeue(out client))
                     client.StartConnection();
-                }
             }
         }
 
         private void RemoveClients()
         {
-            if (clientsToRemove.Count > 0)
+            if (_clientsToRemove.Count > 0)
             {
                 GameClient client;
-                while (clientsToRemove.TryDequeue(out client))
+                while (_clientsToRemove.TryDequeue(out client))
                 {
                     if (client != null)
                     {
@@ -456,31 +451,32 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Gives the badges.
+        ///     Gives the badges.
         /// </summary>
         private void GiveBadges()
         {
             try
             {
                 var now = DateTime.Now;
+
                 if (_badgeQueue.Count > 0)
+                {
                     lock (_badgeQueue.SyncRoot)
+                    {
                         while (_badgeQueue.Count > 0)
                         {
                             var badge = (string)_badgeQueue.Dequeue();
-                            foreach (
-                                var current in
-                                    Clients.Values.Where(current => current.GetHabbo() != null))
-                                try
-                                {
-                                    current.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, current, false);
-                                    current.SendNotif(Azure.GetLanguage().GetVar("user_earn_badge"));
-                                }
-                                catch
-                                {
-                                }
+                            foreach (var current in Clients.Values.Where(current => current.GetHabbo() != null))
+                            {
+                                current.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, current);
+                                current.SendNotif(Azure.GetLanguage().GetVar("user_earn_badge"));
+                            }
                         }
+                    }
+                }
+
                 var timeSpan = DateTime.Now - now;
+
                 if (timeSpan.TotalSeconds > 3.0)
                     Console.WriteLine("GameClientManager.GiveBadges spent: {0} seconds in working.",
                         timeSpan.TotalSeconds);
@@ -492,7 +488,7 @@ namespace Azure.HabboHotel.GameClients
         }
 
         /// <summary>
-        /// Broadcasts the packets.
+        ///     Broadcasts the packets.
         /// </summary>
         private void BroadcastPackets()
         {
@@ -504,14 +500,12 @@ namespace Azure.HabboHotel.GameClients
 
                 _broadcastQueue.TryDequeue(out bytes);
 
-                foreach (GameClient current in Clients.Values)
-                {
-                    if (current == null || current.GetConnection() == null)
-                        continue;
+                foreach (
+                    var current in Clients.Values.Where(current => current?.GetConnection() != null))
                     current.GetConnection().SendData(bytes);
-                }
 
                 var timeSpan = DateTime.Now - now;
+
                 if (timeSpan.TotalSeconds > 3.0)
                     Console.WriteLine("GameClientManager.BroadcastPackets spent: {0} seconds in working.",
                         timeSpan.TotalSeconds);

@@ -10,29 +10,29 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Class PetCommandHandler.
+    ///     Class PetCommandHandler.
     /// </summary>
     internal class PetCommandHandler
     {
         /// <summary>
-        /// The _table
+        ///     The _table
         /// </summary>
         private static DataTable _table;
 
         /// <summary>
-        /// The _pet commands
+        ///     The _pet commands
         /// </summary>
         private static Dictionary<string, PetCommand> _petCommands;
 
         /// <summary>
-        /// Gets the pet commands.
+        ///     Gets the pet commands.
         /// </summary>
         /// <param name="pet">The pet.</param>
         /// <returns>Dictionary&lt;System.Int16, System.Boolean&gt;.</returns>
         internal static Dictionary<short, bool> GetPetCommands(Pet pet)
         {
             var output = new Dictionary<short, bool>();
-            var qLevel = (short)pet.Level;
+            var qLevel = (short) pet.Level;
 
             switch (pet.Type)
             {
@@ -47,33 +47,33 @@ namespace Azure.HabboHotel.Pets
                     case 6: // lion
                     case 7: // rhino
                     */
-                    {
-                        output.Add(0, true); // SIÉNTATE sit
-                        output.Add(1, true); // DESCANSA free
-                        output.Add(13, true); // A CASA
-                        output.Add(2, qLevel >= 2); // TÚMBATE lay
-                        output.Add(4, qLevel >= 3); // PIDE beg
-                        output.Add(3, qLevel >= 4); // VEN AQUÍ comehere
-                        output.Add(5, qLevel >= 4); // HAZ EL MUERTO play dead
-                        output.Add(43, qLevel >= 5); // COMER
-                        output.Add(14, qLevel >= 5); // BEBE
-                        output.Add(6, qLevel >= 6); // QUIETO
-                        output.Add(17, qLevel >= 6); // FÚTBOL
-                        output.Add(8, qLevel >= 8); // LEVANTA
-                        output.Add(7, qLevel >= 9); // SÍGUEME
-                        output.Add(9, qLevel >= 11); // SALTA
-                        output.Add(11, qLevel >= 11); // JUEGA
-                        output.Add(12, qLevel >= 12); // CALLA
-                        output.Add(10, qLevel >= 12); // HABLA
-                        output.Add(15, qLevel >= 16); // IZQUIERDA
-                        output.Add(16, qLevel >= 16); // DERECHA
-                        output.Add(24, qLevel >= 17); // ADELANTE
+                {
+                    output.Add(0, true); // SIÉNTATE sit
+                    output.Add(1, true); // DESCANSA free
+                    output.Add(13, true); // A CASA
+                    output.Add(2, qLevel >= 2); // TÚMBATE lay
+                    output.Add(4, qLevel >= 3); // PIDE beg
+                    output.Add(3, qLevel >= 4); // VEN AQUÍ comehere
+                    output.Add(5, qLevel >= 4); // HAZ EL MUERTO play dead
+                    output.Add(43, qLevel >= 5); // COMER
+                    output.Add(14, qLevel >= 5); // BEBE
+                    output.Add(6, qLevel >= 6); // QUIETO
+                    output.Add(17, qLevel >= 6); // FÚTBOL
+                    output.Add(8, qLevel >= 8); // LEVANTA
+                    output.Add(7, qLevel >= 9); // SÍGUEME
+                    output.Add(9, qLevel >= 11); // SALTA
+                    output.Add(11, qLevel >= 11); // JUEGA
+                    output.Add(12, qLevel >= 12); // CALLA
+                    output.Add(10, qLevel >= 12); // HABLA
+                    output.Add(15, qLevel >= 16); // IZQUIERDA
+                    output.Add(16, qLevel >= 16); // DERECHA
+                    output.Add(24, qLevel >= 17); // ADELANTE
 
-                        if (pet.Type == 3 || pet.Type == 4)
-                        {
-                            output.Add(46, true);//Breed
-                        }
+                    if (pet.Type == 3 || pet.Type == 4)
+                    {
+                        output.Add(46, true); //Breed
                     }
+                }
                     break;
 
                 case 8: // Spider
@@ -107,7 +107,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Initializes the specified database client.
+        ///     Initializes the specified database client.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal static void Init(IQueryAdapter dbClient)
@@ -117,12 +117,13 @@ namespace Azure.HabboHotel.Pets
             _petCommands = new Dictionary<string, PetCommand>();
             foreach (DataRow row in _table.Rows)
             {
-                _petCommands.Add(row[1].ToString(), new PetCommand(Convert.ToInt32(row[0].ToString()), row[1].ToString()));
+                _petCommands.Add(row[1].ToString(),
+                    new PetCommand(Convert.ToInt32(row[0].ToString()), row[1].ToString()));
             }
         }
 
         /// <summary>
-        /// Tries the invoke.
+        ///     Tries the invoke.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>System.Int32.</returns>

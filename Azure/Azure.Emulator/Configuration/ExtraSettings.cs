@@ -17,62 +17,62 @@ namespace Azure.Configuration
         /// <summary>
         /// The currenc y_ loo p_ enabled
         /// </summary>
-        internal static bool CURRENCY_LOOP_ENABLED = true;
+        internal static bool CurrencyLoopEnabled = true;
 
         /// <summary>
         /// The current y_ loo p_ tim e_ i n_ minutes
         /// </summary>
-        internal static int CURRENTY_LOOP_TIME_IN_MINUTES = 15;
+        internal static int CurrentyLoopTimeInMinutes = 15;
 
         /// <summary>
         /// The credit s_ t o_ give
         /// </summary>
-        internal static int CREDITS_TO_GIVE = 3000;
+        internal static int CreditsToGive = 3000;
 
         /// <summary>
         /// The pixel s_ t o_ give
         /// </summary>
-        internal static int PIXELS_TO_GIVE = 100;
+        internal static int PixelsToGive = 100;
 
         /// <summary>
         /// The youtub e_ thumbnai l_ suburl
         /// </summary>
-        internal static string YOUTUBE_THUMBNAIL_SUBURL = "youtubethumbnail.php?Video";
+        internal static string YoutubeThumbnailSuburl = "youtubethumbnail.php?Video";
 
         /// <summary>
         /// The diamond s_ loo p_ enabled
         /// </summary>
-        internal static bool DIAMONDS_LOOP_ENABLED = true;
+        internal static bool DiamondsLoopEnabled = true;
 
         /// <summary>
         /// The diamond s_ vi p_ only
         /// </summary>
-        internal static bool DIAMONDS_VIP_ONLY = true;
+        internal static bool DiamondsVipOnly = true;
 
         /// <summary>
         /// The diamond s_ t o_ give
         /// </summary>
-        internal static int DIAMONDS_TO_GIVE = 1;
+        internal static int DiamondsToGive = 1;
 
         /// <summary>
         /// The chang e_ nam e_ staff
         /// </summary>
-        internal static bool CHANGE_NAME_STAFF = true;
+        internal static bool ChangeNameStaff = true;
 
         /// <summary>
         /// The chang e_ nam e_ vip
         /// </summary>
-        internal static bool CHANGE_NAME_VIP = true;
+        internal static bool ChangeNameVip = true;
 
         /// <summary>
         /// The chang e_ nam e_ everyone
         /// </summary>
-        internal static bool CHANGE_NAME_EVERYONE = true;
+        internal static bool ChangeNameEveryone = true;
 
         /// <summary>
         /// The ne w_users_gifts_ enabled
         /// </summary>
-        internal static bool NEW_users_gifts_ENABLED = true;
+        internal static bool NewUsersGiftsEnabled = true;
 
         /// <summary>
         /// The ServerCamera from Stories
@@ -92,17 +92,17 @@ namespace Azure.Configuration
         /// <summary>
         /// The enabl e_ bet a_ camera
         /// </summary>
-        internal static bool ENABLE_BETA_CAMERA = true;
+        internal static bool EnableBetaCamera = true;
 
         /// <summary>
         /// The ne w_ use r_ GIF t_ ytt V2_ identifier
         /// </summary>
-        internal static uint NEW_USER_GIFT_YTTV2_ID = 4930;
+        internal static uint NewUserGiftYttv2Id = 4930;
 
         /// <summary>
         /// The everyon e_ us e_ floor
         /// </summary>
-        internal static bool EVERYONE_USE_FLOOR = true;
+        internal static bool EveryoneUseFloor = true;
 
         /// <summary>
         /// The new page commands
@@ -122,7 +122,7 @@ namespace Azure.Configuration
         /// <summary>
         /// The admin can use HTML
         /// </summary>
-        internal static bool AdminCanUseHTML = true, CryptoClientSide;
+        internal static bool AdminCanUseHtml = true, CryptoClientSide;
 
         internal static string WelcomeMessage = "";
         internal static string GameCenterStoriesUrl;
@@ -142,11 +142,11 @@ namespace Azure.Configuration
                 switch (@params[0])
                 {
                     case "currency.loop.enabled":
-                        CURRENCY_LOOP_ENABLED = @params[1] == "true";
+                        CurrencyLoopEnabled = @params[1] == "true";
                         break;
 
                     case "youtube.thumbnail.suburl":
-                        YOUTUBE_THUMBNAIL_SUBURL = @params[1];
+                        YoutubeThumbnailSuburl = @params[1];
                         break;
 
                     case "gamecenter.stories.url":
@@ -156,63 +156,63 @@ namespace Azure.Configuration
                     case "currency.loop.time.in.minutes":
                         int i;
                         if (int.TryParse(@params[1], out i))
-                            CURRENTY_LOOP_TIME_IN_MINUTES = i;
+                            CurrentyLoopTimeInMinutes = i;
                         break;
 
                     case "credits.to.give":
                         int j;
                         if (int.TryParse(@params[1], out j))
-                            CREDITS_TO_GIVE = j;
+                            CreditsToGive = j;
                         break;
 
                     case "pixels.to.give":
                         int k;
                         if (int.TryParse(@params[1], out k))
-                            PIXELS_TO_GIVE = k;
+                            PixelsToGive = k;
                         break;
 
                     case "diamonds.loop.enabled":
-                        DIAMONDS_LOOP_ENABLED = @params[1] == "true";
+                        DiamondsLoopEnabled = @params[1] == "true";
                         break;
 
                     case "diamonds.to.give":
                         int l;
                         if (int.TryParse(@params[1], out l))
-                            DIAMONDS_TO_GIVE = l;
+                            DiamondsToGive = l;
                         break;
 
                     case "diamonds.vip.only":
-                        DIAMONDS_VIP_ONLY = @params[1] == "true";
+                        DiamondsVipOnly = @params[1] == "true";
                         break;
 
                     case "change.name.staff":
-                        CHANGE_NAME_STAFF = @params[1] == "true";
+                        ChangeNameStaff = @params[1] == "true";
                         break;
 
                     case "change.name.vip":
-                        CHANGE_NAME_VIP = @params[1] == "true";
+                        ChangeNameVip = @params[1] == "true";
                         break;
 
                     case "change.name.everyone":
-                        CHANGE_NAME_EVERYONE = @params[1] == "true";
+                        ChangeNameEveryone = @params[1] == "true";
                         break;
 
                     case "enable.beta.camera":
-                        ENABLE_BETA_CAMERA = @params[1] == "true";
+                        EnableBetaCamera = @params[1] == "true";
                         break;
 
                     case "newuser.gifts.enabled":
-                        NEW_users_gifts_ENABLED = @params[1] == "true";
+                        NewUsersGiftsEnabled = @params[1] == "true";
                         break;
 
                     case "newuser.gift.yttv2.id":
                         uint u;
                         if (uint.TryParse(@params[1], out u))
-                            NEW_USER_GIFT_YTTV2_ID = u;
+                            NewUserGiftYttv2Id = u;
                         break;
 
                     case "everyone.use.floor":
-                        EVERYONE_USE_FLOOR = @params[1] == "true";
+                        EveryoneUseFloor = @params[1] == "true";
                         break;
 
                     case "figuredata.url":
@@ -224,13 +224,13 @@ namespace Azure.Configuration
                         break;
 
                     case "admin.can.useHTML":
-                        AdminCanUseHTML = @params[1] == "true";
+                        AdminCanUseHtml = @params[1] == "true";
                         break;
 
                     case "commands.new.page":
                         NewPageCommands = @params[1] == "true";
                         break;
-                     
+
                     case "stories.api.url":
                         StoriesApiServerUrl = @params[1];
                         break;

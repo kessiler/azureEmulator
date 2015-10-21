@@ -8,45 +8,45 @@ using System.Collections.Generic;
 namespace Azure.HabboHotel.PathFinding
 {
     /// <summary>
-    /// Class MinHeap.
+    ///     Class MinHeap.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class MinHeap<T> where T : IComparable<T>
     {
         /// <summary>
-        /// The _capacity
-        /// </summary>
-        private int _capacity;
-
-        /// <summary>
-        /// The _temp
-        /// </summary>
-        private T _temp;
-
-        /// <summary>
-        /// The _m heap
-        /// </summary>
-        private T _mHeap;
-
-        /// <summary>
-        /// The _array
+        ///     The _array
         /// </summary>
         private T[] _array;
 
         /// <summary>
-        /// The _temp array
+        ///     The _capacity
+        /// </summary>
+        private int _capacity;
+
+        /// <summary>
+        ///     The _m heap
+        /// </summary>
+        private T _mHeap;
+
+        /// <summary>
+        ///     The _temp
+        /// </summary>
+        private T _temp;
+
+        /// <summary>
+        ///     The _temp array
         /// </summary>
         private T[] _tempArray;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MinHeap{T}"/> class.
+        ///     Initializes a new instance of the <see cref="MinHeap{T}" /> class.
         /// </summary>
         public MinHeap() : this(16)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MinHeap{T}"/> class.
+        ///     Initializes a new instance of the <see cref="MinHeap{T}" /> class.
         /// </summary>
         /// <param name="capacity">The capacity.</param>
         public MinHeap(int capacity)
@@ -57,13 +57,13 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Gets the count.
+        ///     Gets the count.
         /// </summary>
         /// <value>The count.</value>
         public int Count { get; private set; }
 
         /// <summary>
-        /// Builds the head.
+        ///     Builds the head.
         /// </summary>
         public void BuildHead()
         {
@@ -74,7 +74,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Adds the specified item.
+        ///     Adds the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
         public void Add(T item)
@@ -86,6 +86,7 @@ namespace Azure.HabboHotel.PathFinding
                 _array[Count - 1] = item;
                 var num = Count - 1;
                 var num2 = num - 1 >> 1;
+
                 while (num > 0 && _array[num2].CompareTo(_array[num]) > 0)
                 {
                     _temp = _array[num];
@@ -98,7 +99,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Peeks this instance.
+        ///     Peeks this instance.
         /// </summary>
         /// <returns>T.</returns>
         /// <exception cref="System.InvalidOperationException">Heap is empty</exception>
@@ -110,7 +111,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Extracts the first.
+        ///     Extracts the first.
         /// </summary>
         /// <returns>T.</returns>
         /// <exception cref="System.InvalidOperationException">Heap is empty</exception>
@@ -129,7 +130,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Copies the array.
+        ///     Copies the array.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="destination">The destination.</param>
@@ -142,7 +143,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Doubles the array.
+        ///     Doubles the array.
         /// </summary>
         private void DoubleArray()
         {
@@ -153,30 +154,31 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Minimums the heapify.
+        ///     Minimums the heapify.
         /// </summary>
         /// <param name="position">The position.</param>
         private void MinHeapify(int position)
         {
+            while (true)
             {
-                while (true)
-                {
-                    var num = (position << 1) + 1;
-                    var num2 = num + 1;
-                    int num3;
-                    if (num < Count && _array[num].CompareTo(_array[position]) < 0)
-                        num3 = num;
-                    else
-                        num3 = position;
-                    if (num2 < Count && _array[num2].CompareTo(_array[num3]) < 0)
-                        num3 = num2;
-                    if (num3 == position)
-                        break;
-                    _mHeap = _array[position];
-                    _array[position] = _array[num3];
-                    _array[num3] = _mHeap;
-                    position = num3;
-                }
+                var num = (position << 1) + 1;
+                var num2 = num + 1;
+                int num3;
+
+                if (num < Count && _array[num].CompareTo(_array[position]) < 0)
+                    num3 = num;
+                else
+                    num3 = position;
+
+                if (num2 < Count && _array[num2].CompareTo(_array[num3]) < 0)
+                    num3 = num2;
+                if (num3 == position)
+                    break;
+
+                _mHeap = _array[position];
+                _array[position] = _array[num3];
+                _array[num3] = _mHeap;
+                position = num3;
             }
         }
     }

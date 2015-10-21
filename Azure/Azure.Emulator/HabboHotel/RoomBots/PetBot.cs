@@ -1,14 +1,14 @@
 #region
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Azure.Configuration;
-using Azure.HabboHotel.GameClients;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
@@ -18,27 +18,27 @@ using Azure.Util;
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Class PetBot.
+    ///     Class PetBot.
     /// </summary>
-    internal class PetBot : BotAI
+    internal class PetBot : BotAi
     {
         /// <summary>
-        /// The _speech timer
-        /// </summary>
-        private int _speechTimer;
-
-        /// <summary>
-        /// The _action timer
+        ///     The _action timer
         /// </summary>
         private int _actionTimer;
 
         /// <summary>
-        /// The _energy timer
+        ///     The _energy timer
         /// </summary>
         private int _energyTimer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PetBot"/> class.
+        ///     The _speech timer
+        /// </summary>
+        private int _speechTimer;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="PetBot" /> class.
         /// </summary>
         /// <param name="virtualId">The virtual identifier.</param>
         internal PetBot(int virtualId)
@@ -51,11 +51,11 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [self enter room].
+        ///     Called when [self enter room].
         /// </summary>
         internal override void OnSelfEnterRoom()
         {
-            Point randomWalkableSquare = GetRoom().GetGameMap().GetRandomWalkableSquare();
+            var randomWalkableSquare = GetRoom().GetGameMap().GetRandomWalkableSquare();
             if (GetRoomUser() != null && GetRoomUser().PetData.Type != 16u)
             {
                 GetRoomUser().MoveTo(randomWalkableSquare.X, randomWalkableSquare.Y);
@@ -63,7 +63,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [self leave room].
+        ///     Called when [self leave room].
         /// </summary>
         /// <param name="kicked">if set to <c>true</c> [kicked].</param>
         internal override void OnSelfLeaveRoom(bool kicked)
@@ -75,14 +75,14 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Modifieds this instance.
+        ///     Modifieds this instance.
         /// </summary>
         internal override void Modified()
         {
         }
 
         /// <summary>
-        /// Called when [user enter room].
+        ///     Called when [user enter room].
         /// </summary>
         /// <param name="user">The user.</param>
         internal override void OnUserEnterRoom(RoomUser user)
@@ -90,20 +90,20 @@ namespace Azure.HabboHotel.RoomBots
             if (user.GetClient() == null || user.GetClient().GetHabbo() == null)
                 return;
 
-            RoomUser roomUser = GetRoomUser();
+            var roomUser = GetRoomUser();
             if (roomUser == null || user.GetClient().GetHabbo().UserName != roomUser.PetData.OwnerName)
                 return;
 
             var random = new Random();
-            string[] value = PetLocale.GetValue("welcome.speech.pet");
-            string message = value[random.Next(0, (value.Length - 1))];
+            var value = PetLocale.GetValue("welcome.speech.pet");
+            var message = value[random.Next(0, (value.Length - 1))];
 
             message += user.GetUserName();
-            roomUser.Chat(null, message, false, 0, 0);
+            roomUser.Chat(null, message, false, 0);
         }
 
         /// <summary>
-        /// Called when [user leave room].
+        ///     Called when [user leave room].
         /// </summary>
         /// <param name="client">The client.</param>
         internal override void OnUserLeaveRoom(GameClient client)
@@ -111,13 +111,13 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [user say].
+        ///     Called when [user say].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="msg">The MSG.</param>
         internal override void OnUserSay(RoomUser user, string msg)
         {
-            RoomUser roomUser = GetRoomUser();
+            var roomUser = GetRoomUser();
 
             if (roomUser.PetData.OwnerId != user.GetClient().GetHabbo().Id)
             {
@@ -129,12 +129,12 @@ namespace Azure.HabboHotel.RoomBots
             }
             msg = msg.Substring(1);
 
-            bool lazy = false;
-            bool unknown = false;
-            bool sleeping = false;
+            var lazy = false;
+            var unknown = false;
+            var sleeping = false;
             try
             {
-                int command = PetCommandHandler.TryInvoke(msg);
+                var command = PetCommandHandler.TryInvoke(msg);
                 switch (command)
                 {
                     case 1:
@@ -353,15 +353,18 @@ namespace Azure.HabboHotel.RoomBots
                     case 10:
                         RemovePetStatus();
 
-                        IEnumerable<RoomItem> petNest = GetRoom().GetRoomItemHandler().FloorItems.Values.Where(x => x.GetBaseItem().InteractionType == Interaction.PetNest);
+                        var petNest =
+                            GetRoom()
+                                .GetRoomItemHandler()
+                                .FloorItems.Values.Where(x => x.GetBaseItem().InteractionType == Interaction.PetNest);
                         if (!petNest.Any())
                         {
                             lazy = true;
                         }
-                        RoomItem roomItems = petNest.FirstOrDefault();
+                        var roomItems = petNest.FirstOrDefault();
                         roomUser.MoveTo(roomItems.X, roomItems.Y);
                         roomUser.PetData.AddExperience(40);
-                        int rndmEnergy = new Random().Next(25, 51);
+                        var rndmEnergy = new Random().Next(25, 51);
                         if (roomUser.PetData.Energy < (Pet.MaxEnergy - rndmEnergy))
                         {
                             roomUser.PetData.Energy += rndmEnergy;
@@ -421,36 +424,36 @@ namespace Azure.HabboHotel.RoomBots
 
             if (sleeping)
             {
-                string[] value = PetLocale.GetValue("tired");
-                string message = value[new Random().Next(0, (value.Length - 1))];
+                var value = PetLocale.GetValue("tired");
+                var message = value[new Random().Next(0, (value.Length - 1))];
 
-                roomUser.Chat(null, message, false, 0, 0);
+                roomUser.Chat(null, message, false, 0);
             }
             else if (unknown)
             {
-                string[] value = PetLocale.GetValue("pet.unknowncommand");
-                string message = value[new Random().Next(0, (value.Length - 1))];
+                var value = PetLocale.GetValue("pet.unknowncommand");
+                var message = value[new Random().Next(0, (value.Length - 1))];
 
-                roomUser.Chat(null, message, false, 0, 0);
+                roomUser.Chat(null, message, false, 0);
             }
             else if (lazy)
             {
-                string[] value = PetLocale.GetValue("pet.lazy");
-                string message = value[new Random().Next(0, (value.Length - 1))];
+                var value = PetLocale.GetValue("pet.lazy");
+                var message = value[new Random().Next(0, (value.Length - 1))];
 
-                roomUser.Chat(null, message, false, 0, 0);
+                roomUser.Chat(null, message, false, 0);
             }
             else
             {
-                string[] value = PetLocale.GetValue("pet.done");
-                string message = value[new Random().Next(0, (value.Length - 1))];
+                var value = PetLocale.GetValue("pet.done");
+                var message = value[new Random().Next(0, (value.Length - 1))];
 
-                roomUser.Chat(null, message, false, 0, 0);
+                roomUser.Chat(null, message, false, 0);
             }
         }
 
         /// <summary>
-        /// Called when [user shout].
+        ///     Called when [user shout].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="message">The message.</param>
@@ -459,21 +462,22 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [timer tick].
+        ///     Called when [timer tick].
         /// </summary>
         internal override void OnTimerTick()
         {
             if (_speechTimer <= 0)
             {
-                RoomUser roomUser = GetRoomUser();
+                var roomUser = GetRoomUser();
                 if (roomUser != null)
                 {
-                    if (roomUser.PetData.DbState != DatabaseUpdateState.NeedsInsert) roomUser.PetData.DbState = DatabaseUpdateState.NeedsUpdate;
+                    if (roomUser.PetData.DbState != DatabaseUpdateState.NeedsInsert)
+                        roomUser.PetData.DbState = DatabaseUpdateState.NeedsUpdate;
                     var random = new Random();
                     RemovePetStatus();
-                    string[] value = PetLocale.GetValue(string.Format("speech.pet{0}", roomUser.PetData.Type));
-                    string text = value[random.Next(0, value.Length - 1)];
-                    if (GetRoom() != null && !GetRoom().MutedPets) roomUser.Chat(null, text, false, 0, 0);
+                    var value = PetLocale.GetValue(string.Format("speech.pet{0}", roomUser.PetData.Type));
+                    var text = value[random.Next(0, value.Length - 1)];
+                    if (GetRoom() != null && !GetRoom().MutedPets) roomUser.Chat(null, text, false, 0);
                     else roomUser.Statusses.Add(text, TextHandling.GetString(roomUser.Z));
                 }
                 _speechTimer = Azure.GetRandomNumber(20, 120);
@@ -503,11 +507,11 @@ namespace Azure.HabboHotel.RoomBots
                             GetRoomUser().MoveTo(nextCoord.X, nextCoord.Y);
                         }
                     }
-                    if (new Random().Next(2, 15) % 2 == 0)
+                    if (new Random().Next(2, 15)%2 == 0)
                     {
                         if (GetRoomUser().PetData.Type == 16)
                         {
-                            MoplaBreed breed = GetRoomUser().PetData.MoplaBreed;
+                            var breed = GetRoomUser().PetData.MoplaBreed;
                             GetRoomUser().PetData.Energy--;
                             GetRoomUser().AddStatus("gst", (breed.LiveState == MoplaState.Dead) ? "sad" : "sml");
                             GetRoomUser()
@@ -534,7 +538,7 @@ namespace Azure.HabboHotel.RoomBots
                 }
             }
             _actionTimer--;
-        IL_1B5:
+            IL_1B5:
             if (_energyTimer <= 0)
             {
                 RemovePetStatus();
@@ -547,11 +551,11 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Removes the pet status.
+        ///     Removes the pet status.
         /// </summary>
         private void RemovePetStatus()
         {
-            RoomUser roomUser = GetRoomUser();
+            var roomUser = GetRoomUser();
 
             if (roomUser == null) return;
             roomUser.Statusses.Clear();
@@ -559,11 +563,11 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Subtracts the attributes.
+        ///     Subtracts the attributes.
         /// </summary>
         private void SubtractAttributes()
         {
-            RoomUser roomUser = GetRoomUser();
+            var roomUser = GetRoomUser();
             if (roomUser == null) return;
 
             if (roomUser.PetData.Energy < 11)

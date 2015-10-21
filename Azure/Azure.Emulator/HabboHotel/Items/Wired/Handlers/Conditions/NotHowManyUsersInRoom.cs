@@ -1,8 +1,8 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -18,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             OtherString = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionNegativeHowManyUsers; }
-        }
+        public Interaction Type => Interaction.ConditionNegativeHowManyUsers;
 
         public RoomItem Item { get; set; }
 
@@ -62,7 +59,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             var minimum = 1;
             var maximum = 50;
 
-            if (!String.IsNullOrWhiteSpace(OtherString))
+            if (!string.IsNullOrWhiteSpace(OtherString))
             {
                 var integers = OtherString.Split(',');
                 minimum = int.Parse(integers[0]);

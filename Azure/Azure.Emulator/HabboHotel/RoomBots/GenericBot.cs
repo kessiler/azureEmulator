@@ -3,55 +3,57 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
+using Azure.HabboHotel.Rooms.User.Path;
 
 #endregion
 
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Class GenericBot.
+    ///     Class GenericBot.
     /// </summary>
-    internal class GenericBot : BotAI
+    internal class GenericBot : BotAi
     {
         /// <summary>
-        /// The random
+        ///     The random
         /// </summary>
         private static readonly Random Random = new Random();
 
         /// <summary>
-        /// The _id
+        ///     The _id
         /// </summary>
         private readonly int _id;
 
         /// <summary>
-        /// The _virtual identifier
-        /// </summary>
-        private readonly int _virtualId;
-
-        /// <summary>
-        /// The _is bartender
+        ///     The _is bartender
         /// </summary>
         private readonly bool _isBartender;
 
         /// <summary>
-        /// The _action count
+        ///     The _virtual identifier
+        /// </summary>
+        private readonly int _virtualId;
+
+        /// <summary>
+        ///     The _action count
         /// </summary>
         private int _actionCount;
 
         /// <summary>
-        /// The _speech interval
-        /// </summary>
-        private int _speechInterval;
-
-        /// <summary>
-        /// The _chat timer
+        ///     The _chat timer
         /// </summary>
         private Timer _chatTimer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericBot"/> class.
+        ///     The _speech interval
+        /// </summary>
+        private int _speechInterval;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="GenericBot" /> class.
         /// </summary>
         /// <param name="roomBot">The room bot.</param>
         /// <param name="virtualId">The virtual identifier.</param>
@@ -59,22 +61,23 @@ namespace Azure.HabboHotel.RoomBots
         /// <param name="type">The type.</param>
         /// <param name="isBartender">if set to <c>true</c> [is bartender].</param>
         /// <param name="speechInterval">The speech interval.</param>
-        internal GenericBot(RoomBot roomBot, int virtualId, int botId, AIType type, bool isBartender, int speechInterval)
+        internal GenericBot(RoomBot roomBot, int virtualId, int botId, AiType type, bool isBartender, int speechInterval)
         {
             _id = botId;
             _virtualId = virtualId;
             _isBartender = isBartender;
-            _speechInterval = speechInterval < 2 ? 2000 : speechInterval * 1000;
+            _speechInterval = speechInterval < 2 ? 2000 : speechInterval*1000;
 
             // Get random speach
             // @issue #80
             //if (roomBot != null && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any()) _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
-            if (roomBot != null && roomBot.AutomaticChat && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any()) _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
+            if (roomBot != null && roomBot.AutomaticChat && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any())
+                _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
             _actionCount = Random.Next(10, 30 + virtualId);
         }
 
         /// <summary>
-        /// Modifieds this instance.
+        ///     Modifieds this instance.
         /// </summary>
         internal override void Modified()
         {
@@ -86,7 +89,7 @@ namespace Azure.HabboHotel.RoomBots
                 StopTimerTick();
                 return;
             }
-            _speechInterval = GetBotData().SpeechInterval < 2 ? 2000 : GetBotData().SpeechInterval * 1000;
+            _speechInterval = GetBotData().SpeechInterval < 2 ? 2000 : GetBotData().SpeechInterval*1000;
 
             if (_chatTimer == null)
             {
@@ -97,7 +100,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [timer tick].
+        ///     Called when [timer tick].
         /// </summary>
         internal override void OnTimerTick()
         {
@@ -113,34 +116,34 @@ namespace Azure.HabboHotel.RoomBots
             switch (GetBotData().WalkingMode.ToLower())
             {
                 case "freeroam":
-                    {
-                        var randomPoint = GetRoom().GetGameMap().GetRandomWalkableSquare();
-                        if (randomPoint.X == 0 || randomPoint.Y == 0) return;
+                {
+                    var randomPoint = GetRoom().GetGameMap().GetRandomWalkableSquare();
+                    if (randomPoint.X == 0 || randomPoint.Y == 0) return;
 
-                        GetRoomUser().MoveTo(randomPoint.X, randomPoint.Y);
-                        break;
-                    }
+                    GetRoomUser().MoveTo(randomPoint.X, randomPoint.Y);
+                    break;
+                }
                 case "specified_range":
-                    {
-                        var list = GetRoom().GetGameMap().WalkableList.ToList();
-                        if (!list.Any()) return;
+                {
+                    var list = GetRoom().GetGameMap().WalkableList.ToList();
+                    if (!list.Any()) return;
 
-                        var randomNumber = new Random(DateTime.Now.Millisecond + _virtualId ^ 2).Next(0, list.Count - 1);
-                        GetRoomUser().MoveTo(list[randomNumber].X, list[randomNumber].Y);
-                        break;
-                    }
+                    var randomNumber = new Random(DateTime.Now.Millisecond + _virtualId ^ 2).Next(0, list.Count - 1);
+                    GetRoomUser().MoveTo(list[randomNumber].X, list[randomNumber].Y);
+                    break;
+                }
             }
         }
 
         /// <summary>
-        /// Called when [self enter room].
+        ///     Called when [self enter room].
         /// </summary>
         internal override void OnSelfEnterRoom()
         {
         }
 
         /// <summary>
-        /// Called when [self leave room].
+        ///     Called when [self leave room].
         /// </summary>
         /// <param name="kicked">if set to <c>true</c> [kicked].</param>
         internal override void OnSelfLeaveRoom(bool kicked)
@@ -148,7 +151,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [user enter room].
+        ///     Called when [user enter room].
         /// </summary>
         /// <param name="user">The user.</param>
         internal override void OnUserEnterRoom(RoomUser user)
@@ -156,7 +159,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [user leave room].
+        ///     Called when [user leave room].
         /// </summary>
         /// <param name="client">The client.</param>
         internal override void OnUserLeaveRoom(GameClient client)
@@ -164,7 +167,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [user say].
+        ///     Called when [user say].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="message">The message.</param>
@@ -193,7 +196,7 @@ namespace Azure.HabboHotel.RoomBots
                 case "venha":
                 case "venha aqui":
                 case "vem aquí":
-                    GetRoomUser().Chat(null, "Estou Indo!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Estou Indo!", false, 0);
                     GetRoomUser().MoveTo(user.SquareInFront);
                     return;
 
@@ -202,8 +205,9 @@ namespace Azure.HabboHotel.RoomBots
                 case "sirva":
                     if (GetRoom().CheckRights(user.GetClient()))
                     {
-                        foreach (var current in GetRoom().GetRoomUserManager().GetRoomUsers()) current.CarryItem(Random.Next(1, 38));
-                        GetRoomUser().Chat(null, "Worth. Agora você tem algo para devorar todos.", false, 0, 0);
+                        foreach (var current in GetRoom().GetRoomUserManager().GetRoomUsers())
+                            current.CarryItem(Random.Next(1, 38));
+                        GetRoomUser().Chat(null, "Worth. Agora você tem algo para devorar todos.", false, 0);
                         return;
                     }
                     return;
@@ -216,7 +220,7 @@ namespace Azure.HabboHotel.RoomBots
                 case "juice":
                 case "water":
                 case "zumo":
-                    GetRoomUser().Chat(null, "Aqui você vai.", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui você vai.", false, 0);
                     user.CarryItem(Random.Next(1, 3));
                     return;
 
@@ -224,26 +228,27 @@ namespace Azure.HabboHotel.RoomBots
                 case "icecream":
                 case "sorvete":
                 case "ice cream":
-                    GetRoomUser().Chat(null, "Aqui você vai. Isso não é o idioma que se encaixam perto, hehe!", false, 0, 0);
+                    GetRoomUser()
+                        .Chat(null, "Aqui você vai. Isso não é o idioma que se encaixam perto, hehe!", false, 0);
                     user.CarryItem(4);
                     return;
 
                 case "rose":
                 case "rosa":
-                    GetRoomUser().Chat(null, "Aqui você vai ... você faz bem em sua nomeação.", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui você vai ... você faz bem em sua nomeação.", false, 0);
                     user.CarryItem(Random.Next(1000, 1002));
                     return;
 
                 case "girasol":
                 case "girassol":
                 case "sunflower":
-                    GetRoomUser().Chat(null, "Aqui estão algumas muito agradável natureza.", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui estão algumas muito agradável natureza.", false, 0);
                     user.CarryItem(1002);
                     return;
 
                 case "flor":
                 case "flower":
-                    GetRoomUser().Chat(null, "Aqui estão algumas muito agradável da natureza.", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui estão algumas muito agradável da natureza.", false, 0);
                     if (Random.Next(1, 3) == 2)
                     {
                         user.CarryItem(Random.Next(1019, 1024));
@@ -256,7 +261,7 @@ namespace Azure.HabboHotel.RoomBots
                 case "zana":
                 case "carrot":
                 case "cenoura":
-                    GetRoomUser().Chat(null, "Aqui está um bom vegetal. Divirta-se!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um bom vegetal. Divirta-se!", false, 0);
                     user.CarryItem(3);
                     return;
 
@@ -268,20 +273,20 @@ namespace Azure.HabboHotel.RoomBots
                 case "mocha":
                 case "espresso":
                 case "expreso":
-                    GetRoomUser().Chat(null, "Aqui está o seu café. É espumante!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está o seu café. É espumante!", false, 0);
                     user.CarryItem(Random.Next(11, 18));
                     return;
 
                 case "fruta":
                 case "fruit":
-                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0);
                     user.CarryItem(Random.Next(36, 40));
                     return;
 
                 case "naranja":
                 case "orange":
                 case "laranja":
-                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0);
                     user.CarryItem(38);
                     return;
 
@@ -291,7 +296,7 @@ namespace Azure.HabboHotel.RoomBots
                 case "maçã":
                 case "maca":
                 case "macã":
-                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0);
                     user.CarryItem(37);
                     return;
 
@@ -300,14 +305,14 @@ namespace Azure.HabboHotel.RoomBots
                 case "habbo cola":
                 case "coca cola":
                 case "cocacola":
-                    GetRoomUser().Chat(null, "Aqui é uma bebida muito famosa macio.", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui é uma bebida muito famosa macio.", false, 0);
                     user.CarryItem(19);
                     return;
 
                 case "pear":
                 case "pera":
                 case "pêra":
-                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0);
                     user.CarryItem(36);
                     return;
 
@@ -315,7 +320,7 @@ namespace Azure.HabboHotel.RoomBots
                 case "pineapple":
                 case "piña":
                 case "rodaja de piña":
-                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0, 0);
+                    GetRoomUser().Chat(null, "Aqui está um pouco saudável, fresco e natural. Aproveite!", false, 0);
                     user.CarryItem(39);
                     return;
 
@@ -340,15 +345,15 @@ namespace Azure.HabboHotel.RoomBots
                 case "feiosa":
                 case "filha da puta":
                 case "gostosa":
-                    GetRoomUser().Chat(null, "Não me trate mal, eh!", true, 0, 0);
+                    GetRoomUser().Chat(null, "Não me trate mal, eh!", true, 0);
                     return;
 
                 case "case comigo":
-                    GetRoomUser().Chat(null, "Irei agora!", true, 0, 0);
+                    GetRoomUser().Chat(null, "Irei agora!", true, 0);
                     return;
 
                 case "protocolo destruir":
-                    GetRoomUser().Chat(null, "Iniciando Auto Destruição do Mundo!", true, 0, 0);
+                    GetRoomUser().Chat(null, "Iniciando Auto Destruição do Mundo!", true, 0);
                     return;
 
                 case "lindo":
@@ -365,18 +370,19 @@ namespace Azure.HabboHotel.RoomBots
                 case "te amo":
                 case "amor":
                 case "mi amor":
-                    GetRoomUser().Chat(null, "Eu sou um bot, err ... isto está a ficar desconfortável, você sabe?", false, 0, 0);
+                    GetRoomUser()
+                        .Chat(null, "Eu sou um bot, err ... isto está a ficar desconfortável, você sabe?", false, 0);
                     return;
 
                 case "tyrex":
-                    GetRoomUser().Chat(null, "Por favor, me chame de Deus Tyrex!", true, 0, 0);
+                    GetRoomUser().Chat(null, "Por favor, me chame de Deus Tyrex!", true, 0);
                     return;
             }
-            GetRoomUser().Chat(null, "Precisa de Algo?", false, 0, 0);
+            GetRoomUser().Chat(null, "Precisa de Algo?", false, 0);
         }
 
         /// <summary>
-        /// Called when [user shout].
+        ///     Called when [user shout].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="message">The message.</param>
@@ -385,12 +391,12 @@ namespace Azure.HabboHotel.RoomBots
             if (_isBartender)
             {
                 GetRoomUser()
-                    .Chat(null, "Não precisa gritar, caramba! Se precisa de algo basta vir aqui.", false, 0, 0);
+                    .Chat(null, "Não precisa gritar, caramba! Se precisa de algo basta vir aqui.", false, 0);
             }
         }
 
         /// <summary>
-        /// Stops the timer tick.
+        ///     Stops the timer tick.
         /// </summary>
         private void StopTimerTick()
         {
@@ -402,8 +408,9 @@ namespace Azure.HabboHotel.RoomBots
 
         internal override void OnChatTick()
         {
-            if (GetBotData() == null || GetRoomUser() == null || GetBotData().WasPicked || GetBotData().RandomSpeech == null ||
-                 !GetBotData().RandomSpeech.Any())
+            if (GetBotData() == null || GetRoomUser() == null || GetBotData().WasPicked ||
+                GetBotData().RandomSpeech == null ||
+                !GetBotData().RandomSpeech.Any())
             {
                 StopTimerTick();
                 return;
@@ -419,36 +426,36 @@ namespace Azure.HabboHotel.RoomBots
                 switch (randomSpeech)
                 {
                     case ":sit":
-                        {
-                            var user = GetRoomUser();
-                            if (user.RotBody % 2 != 0) user.RotBody--;
+                    {
+                        var user = GetRoomUser();
+                        if (user.RotBody%2 != 0) user.RotBody--;
 
-                            user.Z = GetRoom().GetGameMap().SqAbsoluteHeight(user.X, user.Y);
-                            if (!user.Statusses.ContainsKey("sit"))
-                            {
-                                user.UpdateNeeded = true;
-                                user.Statusses.Add("sit", "0.55");
-                            }
-                            user.IsSitting = true;
-                            return;
-                        }
-                    case ":stand":
+                        user.Z = GetRoom().GetGameMap().SqAbsoluteHeight(user.X, user.Y);
+                        if (!user.Statusses.ContainsKey("sit"))
                         {
-                            var user = GetRoomUser();
-                            if (user.IsSitting)
-                            {
-                                user.Statusses.Remove("sit");
-                                user.IsSitting = false;
-                                user.UpdateNeeded = true;
-                            }
-                            else if (user.IsLyingDown)
-                            {
-                                user.Statusses.Remove("lay");
-                                user.IsLyingDown = false;
-                                user.UpdateNeeded = true;
-                            }
-                            return;
+                            user.UpdateNeeded = true;
+                            user.Statusses.Add("sit", "0.55");
                         }
+                        user.IsSitting = true;
+                        return;
+                    }
+                    case ":stand":
+                    {
+                        var user = GetRoomUser();
+                        if (user.IsSitting)
+                        {
+                            user.Statusses.Remove("sit");
+                            user.IsSitting = false;
+                            user.UpdateNeeded = true;
+                        }
+                        else if (user.IsLyingDown)
+                        {
+                            user.Statusses.Remove("lay");
+                            user.IsLyingDown = false;
+                            user.UpdateNeeded = true;
+                        }
+                        return;
+                    }
                 }
 
                 if (GetRoom() != null)
@@ -469,10 +476,9 @@ namespace Azure.HabboHotel.RoomBots
                     }
                 }
 
-
                 if (GetBotData() != null) randomSpeech = randomSpeech.Replace("%name%", GetBotData().Name);
 
-                GetRoomUser().Chat(null, randomSpeech, false, 0, 0);
+                GetRoomUser().Chat(null, randomSpeech, false, 0);
             }
             catch (Exception e)
             {
@@ -481,7 +487,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Chats the timer tick.
+        ///     Chats the timer tick.
         /// </summary>
         /// <param name="o">The o.</param>
         private void ChatTimerTick(object o)

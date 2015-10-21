@@ -1,12 +1,12 @@
 namespace Azure.HabboHotel.Quests
 {
     /// <summary>
-    /// Class QuestTypeUtillity.
+    ///     Class QuestTypeUtillity.
     /// </summary>
     internal class QuestTypeUtillity
     {
         /// <summary>
-        /// Gets the string.
+        ///     Gets the string.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>System.String.</returns>

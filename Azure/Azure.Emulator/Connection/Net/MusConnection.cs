@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
@@ -39,6 +39,7 @@ namespace Azure.Connection.Net
             }
             catch
             {
+                // ignored
             }
             _socket = null;
             _buffer = null;
@@ -59,9 +60,9 @@ namespace Azure.Connection.Net
                     return;
                 }
                 var @string = Encoding.Default.GetString(_buffer, 0, lenght);
-                if (@string.Contains(((char) 0).ToString()))
+                if (@string.Contains(((char)0).ToString()))
                 {
-                    var strArray = @string.Split((char) 0);
+                    var strArray = @string.Split((char)0);
                     foreach (var str in strArray) ProcessCommand(@str);
                 }
             }
@@ -74,9 +75,9 @@ namespace Azure.Connection.Net
 
         internal void ProcessCommand(string data)
         {
-            if (!data.Contains(((char) 1).ToString())) return;
+            if (!data.Contains(((char)1).ToString())) return;
 
-            var parts = data.Split((char) 1);
+            var parts = data.Split((char)1);
             var header = parts[1].ToLower();
             if (header == string.Empty) return;
             parts = parts.Skip(1).ToArray();
@@ -91,10 +92,11 @@ namespace Azure.Connection.Net
 
                     clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
                     if (clientByUserId == null || clientByUserId.GetHabbo() == null ||
-                        clientByUserId.GetHabbo().GetInventoryComponent() == null) return;
+                        clientByUserId.GetHabbo().GetInventoryComponent() == null)
+                        return;
 
                     clientByUserId.GetHabbo().GetInventoryComponent().UpdateItems(true);
-                    clientByUserId.GetHabbo().GetInventoryComponent().SendNewItems((uint) furniId);
+                    clientByUserId.GetHabbo().GetInventoryComponent().SendNewItems((uint)furniId);
 
                     break;
 

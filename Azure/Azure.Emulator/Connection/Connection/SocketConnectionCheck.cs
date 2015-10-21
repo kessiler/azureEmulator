@@ -12,49 +12,49 @@ namespace Azure.Connection.Connection
         private static string[] _mConnectionStorage;
         private static string _mLastIpBlocked;
 
-        internal static bool CheckConnection(Socket Sock, int MaxIpConnectionCount, bool AntiDDosStatus)
+        internal static bool CheckConnection(Socket sock, int maxIpConnectionCount, bool antiDDosStatus)
         {
-            if (!AntiDDosStatus)
+            if (!antiDDosStatus)
                 return true;
 
-            string iP = Sock.RemoteEndPoint.ToString().Split(':')[0];
+            string iP = sock.RemoteEndPoint.ToString().Split(':')[0];
             if (iP == _mLastIpBlocked)
             {
                 iP = null;
                 return false;
             }
-            if ((GetConnectionAmount(iP) > MaxIpConnectionCount))
+            if ((GetConnectionAmount(iP) > maxIpConnectionCount))
             {
                 Out.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.TcpAntiDDoS", ConsoleColor.Blue);
                 _mLastIpBlocked = iP;
                 iP = null;
                 return false;
             }
-            int freeConnectionID = GetFreeConnectionID();
-            if (freeConnectionID < 0)
+            int freeConnectionId = GetFreeConnectionId();
+            if (freeConnectionId < 0)
                 return false;
-            _mConnectionStorage[freeConnectionID] = iP;
+            _mConnectionStorage[freeConnectionId] = iP;
             iP = null;
             return true;
         }
 
-        internal static void FreeConnection(string IP)
+        internal static void FreeConnection(string ip)
         {
             for (int i = 0; i < _mConnectionStorage.Length; i++)
-                if (_mConnectionStorage[i] == IP)
+                if (_mConnectionStorage[i] == ip)
                     _mConnectionStorage[i] = null;
         }
 
-        private static int GetConnectionAmount(string IP)
+        private static int GetConnectionAmount(string ip)
         {
             int count = 0;
             for (int i = 0; i < _mConnectionStorage.Length; i++)
-                if (_mConnectionStorage[i] == IP)
+                if (_mConnectionStorage[i] == ip)
                     count++;
             return count;
         }
 
-        private static int GetFreeConnectionID()
+        private static int GetFreeConnectionId()
         {
             for (int i = 0; i < _mConnectionStorage.Length; i++)
                 if (_mConnectionStorage[i] == null)
@@ -62,10 +62,9 @@ namespace Azure.Connection.Connection
             return -1;
         }
 
-        internal static void SetupTcpAuthorization(int ConnectionCount)
+        internal static void SetupTcpAuthorization(int connectionCount)
         {
-            _mConnectionStorage = new string[ConnectionCount];
+            _mConnectionStorage = new string[connectionCount];
         }
     }
 }
-

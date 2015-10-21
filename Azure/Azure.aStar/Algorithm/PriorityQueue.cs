@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Azure.AStar.Algorithm
 {
-    class PriorityQueue<T, TX> where T : IWeightAddable<TX>
+    internal class PriorityQueue<T, TX> where T : IWeightAddable<TX>
     {
         public List<T> InnerList;
         protected IComparer<T> MComparer;
@@ -18,7 +18,10 @@ namespace Azure.AStar.Algorithm
             InnerList = new List<T>(size);
         }
 
-        protected virtual int OnCompare(int i, int j) { return MComparer.Compare(InnerList[i], InnerList[j]); }
+        protected virtual int OnCompare(int i, int j)
+        {
+            return MComparer.Compare(InnerList[i], InnerList[j]);
+        }
 
         private int BinarySearch(T value)
         {

@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -17,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionFurnisHaveUsers; }
-        }
+        public Interaction Type => Interaction.ConditionFurnisHaveUsers;
 
         public RoomItem Item { get; set; }
 

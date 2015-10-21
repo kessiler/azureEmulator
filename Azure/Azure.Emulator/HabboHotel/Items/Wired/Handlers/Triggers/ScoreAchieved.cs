@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -21,10 +23,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             OtherExtraString2 = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.TriggerScoreAchieved; }
-        }
+        public Interaction Type => Interaction.TriggerScoreAchieved;
 
         public RoomItem Item { get; set; }
 
@@ -66,7 +65,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
                     WiredHandler.OnEvent(current);
                 }
             }
-            if (effects.Any()) foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type))) WiredHandler.OnEvent(current2);
+            if (effects.Any())
+                foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
+                    WiredHandler.OnEvent(current2);
             WiredHandler.OnEvent(this);
             return true;
         }

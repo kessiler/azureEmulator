@@ -63,7 +63,7 @@ namespace Azure.Updater
 
         public void DoUpdate()
         {
-            Update.installUpdateRestart(info[3], info[4], string.Format("\"{0}\\", Application.StartupPath), processToEnd, postProcess, "updated", updater);           
+            Update.installUpdateRestart(info[3], info[4], string.Format("\"{0}\\", Application.StartupPath), processToEnd, postProcess, "updated", updater);
         }
 
         private void unpackCommandline()

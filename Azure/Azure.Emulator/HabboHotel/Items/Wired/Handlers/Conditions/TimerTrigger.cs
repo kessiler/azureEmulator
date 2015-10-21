@@ -1,8 +1,8 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -17,10 +17,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.TriggerTimer; }
-        }
+        public Interaction Type => Interaction.TriggerTimer;
 
         public RoomItem Item { get; set; }
 

@@ -25,12 +25,12 @@ namespace Azure.Configuration
         /// <param name="maxConnections">The maximum connections.</param>
         /// <param name="connectionsPerIp">The connections per ip.</param>
         /// <param name="enabeNagles">if set to <c>true</c> [enabe nagles].</param>
-        public ConnectionHandling(int port, int maxConnections, int connectionsPerIp, bool antiDDoS, bool enabeNagles)
+        public ConnectionHandling(int port, int maxConnections, int connectionsPerIp, bool antiDdoS, bool enabeNagles)
         {
             Manager = new SocketManager();
             Manager.OnClientConnected += OnClientConnected;
             Manager.OnClientDisconnected += OnClientDisconnected;
-            Manager.Init(port, maxConnections, connectionsPerIp, antiDDoS, new InitialPacketParser(), !enabeNagles);
+            Manager.Init(port, maxConnections, connectionsPerIp, antiDdoS, new InitialPacketParser(), !enabeNagles);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Azure.Configuration
         {
             try
             {
-                Azure.GetGame().GetClientManager().CreateAndStartClient((uint)connection.GetConnectionId(), connection);
+                Azure.GetGame().GetClientManager().CreateAndStartClient(connection.GetConnectionId(), connection);
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace Azure.Configuration
         {
             try
             {
-                Azure.GetGame().GetClientManager().DisposeConnection((uint)connection.GetConnectionId());
+                Azure.GetGame().GetClientManager().DisposeConnection(connection.GetConnectionId());
             }
             catch (Exception ex)
             {

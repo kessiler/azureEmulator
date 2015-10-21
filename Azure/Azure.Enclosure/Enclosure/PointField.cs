@@ -24,7 +24,10 @@ namespace Azure.Enclosure
 
         public byte ForValue { get; private set; }
 
-        public List<Point> GetPoints() { return _pointList; }
+        public List<Point> GetPoints()
+        {
+            return _pointList;
+        }
 
         public void Add(Point p)
         {

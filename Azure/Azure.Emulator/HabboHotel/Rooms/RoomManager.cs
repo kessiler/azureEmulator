@@ -10,90 +10,85 @@ using System.Linq;
 using Azure.Configuration;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Events;
-using Azure.HabboHotel.GameClients;
-using Azure.HabboHotel.Navigators;
-using Azure.Util;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Navigators.Interfaces;
+using Azure.HabboHotel.Rooms.Data;
 
 #endregion
 
 namespace Azure.HabboHotel.Rooms
 {
     /// <summary>
-    /// Class RoomManager.
+    ///     Class RoomManager.
     /// </summary>
     internal class RoomManager
     {
         /// <summary>
-        /// The active rooms remove queue
-        /// </summary>
-        public Queue ActiveRoomsRemoveQueue;
-
-        /// <summary>
-        /// The loaded rooms
-        /// </summary>
-        internal ConcurrentDictionary<uint, Room> LoadedRooms;
-
-        internal readonly ConcurrentDictionary<uint, RoomData> LoadedRoomData;
-
-        /// <summary>
-        /// The _voted rooms add queue
-        /// </summary>
-        private readonly Queue _votedRoomsAddQueue;
-
-        /// <summary>
-        /// The _voted rooms remove queue
-        /// </summary>
-        private readonly Queue _votedRoomsRemoveQueue;
-
-        /// <summary>
-        /// The _active rooms update queue
-        /// </summary>
-        private readonly Queue _activeRoomsUpdateQueue;
-
-        /// <summary>
-        /// The _active rooms add queue
-        /// </summary>
-        private readonly Queue _activeRoomsAddQueue;
-
-        /// <summary>
-        /// The _room models
-        /// </summary>
-        private readonly HybridDictionary _roomModels;
-
-        /// <summary>
-        /// The _voted rooms
-        /// </summary>
-        private readonly Dictionary<RoomData, int> _votedRooms;
-
-        /// <summary>
-        /// The _active rooms
+        ///     The _active rooms
         /// </summary>
         private readonly Dictionary<RoomData, uint> _activeRooms;
 
         /// <summary>
-        /// The _event manager
+        ///     The _active rooms add queue
+        /// </summary>
+        private readonly Queue _activeRoomsAddQueue;
+
+        /// <summary>
+        ///     The _active rooms update queue
+        /// </summary>
+        private readonly Queue _activeRoomsUpdateQueue;
+
+        /// <summary>
+        ///     The _event manager
         /// </summary>
         private readonly EventManager _eventManager;
 
+        /// <summary>
+        ///     The _room models
+        /// </summary>
+        private readonly HybridDictionary _roomModels;
+
+        /// <summary>
+        ///     The _voted rooms
+        /// </summary>
+        private readonly Dictionary<RoomData, int> _votedRooms;
+
+        /// <summary>
+        ///     The _voted rooms add queue
+        /// </summary>
+        private readonly Queue _votedRoomsAddQueue;
+
+        /// <summary>
+        ///     The _voted rooms remove queue
+        /// </summary>
+        private readonly Queue _votedRoomsRemoveQueue;
+
+        internal readonly ConcurrentDictionary<uint, RoomData> LoadedRoomData;
+
         private RoomCompetitionManager _competitionManager;
 
-        internal RoomCompetitionManager GetCompetitionManager()
-        {
-            return _competitionManager;
-        }
-
         /// <summary>
-        /// The _ordered voted rooms
-        /// </summary>
-        private IEnumerable<KeyValuePair<RoomData, int>> _orderedVotedRooms;
-
-        /// <summary>
-        /// The _ordered active rooms
+        ///     The _ordered active rooms
         /// </summary>
         private IEnumerable<KeyValuePair<RoomData, uint>> _orderedActiveRooms;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoomManager"/> class.
+        ///     The _ordered voted rooms
+        /// </summary>
+        private IEnumerable<KeyValuePair<RoomData, int>> _orderedVotedRooms;
+
+        /// <summary>
+        ///     The active rooms remove queue
+        /// </summary>
+        public Queue ActiveRoomsRemoveQueue;
+
+        /// <summary>
+        ///     The loaded rooms
+        /// </summary>
+        internal ConcurrentDictionary<uint, Room> LoadedRooms;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RoomManager" /> class.
         /// </summary>
         internal RoomManager()
         {
@@ -110,22 +105,24 @@ namespace Azure.HabboHotel.Rooms
             _eventManager = new EventManager();
         }
 
+        /// <summary>
+        ///     Gets the loaded rooms count.
+        /// </summary>
+        /// <value>The loaded rooms count.</value>
+        internal int LoadedRoomsCount => LoadedRooms.Count;
+
+        internal RoomCompetitionManager GetCompetitionManager()
+        {
+            return _competitionManager;
+        }
+
         internal void LoadCompetitionManager()
         {
             _competitionManager = new RoomCompetitionManager();
         }
 
         /// <summary>
-        /// Gets the loaded rooms count.
-        /// </summary>
-        /// <value>The loaded rooms count.</value>
-        internal int LoadedRoomsCount
-        {
-            get { return LoadedRooms.Count; }
-        }
-
-        /// <summary>
-        /// Gets the active rooms.
+        ///     Gets the active rooms.
         /// </summary>
         /// <returns>KeyValuePair&lt;RoomData, System.UInt32&gt;[].</returns>
         internal KeyValuePair<RoomData, uint>[] GetActiveRooms()
@@ -134,31 +131,31 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Gets the voted rooms.
+        ///     Gets the voted rooms.
         /// </summary>
         /// <returns>KeyValuePair&lt;RoomData, System.Int32&gt;[].</returns>
         internal KeyValuePair<RoomData, int>[] GetVotedRooms()
         {
-            return _orderedVotedRooms == null ? null : _orderedVotedRooms.ToArray();
+            return _orderedVotedRooms?.ToArray();
         }
 
         /// <summary>
-        /// Gets the model.
+        ///     Gets the model.
         /// </summary>
         /// <param name="model">The model.</param>
         /// <param name="roomId">The room identifier.</param>
         /// <returns>RoomModel.</returns>
         internal RoomModel GetModel(string model, uint roomId)
         {
-            if (model == "custom" && _roomModels.Contains(string.Format("custom_{0}", roomId)))
-                return (RoomModel)_roomModels[string.Format("custom_{0}", roomId)];
+            if (model == "custom" && _roomModels.Contains($"custom_{roomId}"))
+                return (RoomModel) _roomModels[$"custom_{roomId}"];
             if (_roomModels.Contains(model))
-                return (RoomModel)_roomModels[model];
+                return (RoomModel) _roomModels[model];
             return null;
         }
 
         /// <summary>
-        /// Generates the nullable room data.
+        ///     Generates the nullable room data.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <returns>RoomData.</returns>
@@ -166,18 +163,18 @@ namespace Azure.HabboHotel.Rooms
         {
             if (GenerateRoomData(roomId) != null)
                 return GenerateRoomData(roomId);
-            RoomData roomData = new RoomData();
+            var roomData = new RoomData();
             roomData.FillNull(roomId);
             return roomData;
         }
 
-        private bool IsRoomLoaded(uint RoomId)
+        private bool IsRoomLoaded(uint roomId)
         {
-            return LoadedRooms.ContainsKey(RoomId);
+            return LoadedRooms.ContainsKey(roomId);
         }
 
         /// <summary>
-        /// Generates the room data.
+        ///     Generates the room data.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <returns>RoomData.</returns>
@@ -195,9 +192,9 @@ namespace Azure.HabboHotel.Rooms
             var roomData = new RoomData();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(string.Format("SELECT * FROM rooms_data WHERE id = {0} LIMIT 1", roomId));
+                queryReactor.SetQuery($"SELECT * FROM rooms_data WHERE id = {roomId} LIMIT 1");
 
-                DataRow dataRow = queryReactor.GetRow();
+                var dataRow = queryReactor.GetRow();
                 if (dataRow == null)
                     return null;
 
@@ -209,7 +206,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Gets the event rooms.
+        ///     Gets the event rooms.
         /// </summary>
         /// <returns>KeyValuePair&lt;RoomData, System.UInt32&gt;[].</returns>
         internal KeyValuePair<RoomData, uint>[] GetEventRooms()
@@ -218,7 +215,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Loads the room.
+        ///     Loads the room.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Room.</returns>
@@ -235,7 +232,7 @@ namespace Azure.HabboHotel.Rooms
             LoadedRooms.AddOrUpdate(id, room, (key, value) => room);
             room.Start(roomData, forceLoad);
 
-            Out.WriteLine(string.Format("Room #{0} was loaded", id), "Azure.Room.Manager", ConsoleColor.DarkCyan);
+            Out.WriteLine($"Room #{id} was loaded", "Azure.Room.Manager", ConsoleColor.DarkCyan);
 
             room.InitBots();
             room.InitPets();
@@ -249,7 +246,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Fetches the room data.
+        ///     Fetches the room data.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <param name="dRow">The d row.</param>
@@ -268,7 +265,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Gets the room.
+        ///     Gets the room.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <returns>Room.</returns>
@@ -279,7 +276,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Creates the room.
+        ///     Creates the room.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="name">The name.</param>
@@ -290,7 +287,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="tradeState">State of the trade.</param>
         /// <returns>RoomData.</returns>
         internal RoomData CreateRoom(GameClient session, string name, string desc, string model, int category,
-                                     int maxVisitors, int tradeState)
+            int maxVisitors, int tradeState)
         {
             if (!_roomModels.Contains(model))
             {
@@ -311,7 +308,7 @@ namespace Azure.HabboHotel.Rooms
                 dbClient.AddParameter("cat", category);
                 dbClient.AddParameter("usmax", maxVisitors);
                 dbClient.AddParameter("tstate", tradeState.ToString());
-                roomId = (uint)dbClient.InsertQuery();
+                roomId = (uint) dbClient.InsertQuery();
             }
             var data = GenerateRoomData(roomId);
             if (data == null) return null;
@@ -321,7 +318,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Initializes the voted rooms.
+        ///     Initializes the voted rooms.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void InitVotedRooms(IQueryAdapter dbClient)
@@ -336,18 +333,18 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Loads the models.
+        ///     Loads the models.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         /// <param name="loadedModel">The loaded model.</param>
         internal void LoadModels(IQueryAdapter dbClient, out uint loadedModel)
         {
             LoadModels(dbClient);
-            loadedModel = (uint)_roomModels.Count;
+            loadedModel = (uint) _roomModels.Count;
         }
 
         /// <summary>
-        /// Loads the models.
+        ///     Loads the models.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void LoadModels(IQueryAdapter dbClient)
@@ -358,13 +355,13 @@ namespace Azure.HabboHotel.Rooms
             if (table == null) return;
             foreach (DataRow dataRow in table.Rows)
             {
-                var key = (string)dataRow["id"];
+                var key = (string) dataRow["id"];
                 if (key.StartsWith("model_floorplan_")) continue;
-                var staticFurniMap = (string)dataRow["public_items"];
+                var staticFurniMap = (string) dataRow["public_items"];
                 _roomModels.Add(key,
-                    new RoomModel((int)dataRow["door_x"], (int)dataRow["door_y"], (double)dataRow["door_z"],
-                        (int)dataRow["door_dir"], (string)dataRow["heightmap"], staticFurniMap,
-                        Azure.EnumToBool(dataRow["club_only"].ToString()), (string)dataRow["poolmap"]));
+                    new RoomModel((int) dataRow["door_x"], (int) dataRow["door_y"], (double) dataRow["door_z"],
+                        (int) dataRow["door_dir"], (string) dataRow["heightmap"], staticFurniMap,
+                        Azure.EnumToBool(dataRow["club_only"].ToString()), (string) dataRow["poolmap"]));
             }
             dbClient.SetQuery("SELECT * FROM rooms_models_customs");
             var dataCustom = dbClient.GetTable();
@@ -373,21 +370,21 @@ namespace Azure.HabboHotel.Rooms
 
             foreach (DataRow row in dataCustom.Rows)
             {
-                var modelName = string.Format("custom_{0}", row["roomid"]);
+                var modelName = $"custom_{row["roomid"]}";
                 _roomModels.Add(modelName,
-                    new RoomModel((int)row["door_x"], (int)row["door_y"], (double)row["door_z"],
-                        (int)row["door_dir"],
-                        (string)row["heightmap"], "", false, ""));
+                    new RoomModel((int) row["door_x"], (int) row["door_y"], (double) row["door_z"],
+                        (int) row["door_dir"],
+                        (string) row["heightmap"], "", false, ""));
             }
         }
 
         /// <summary>
-        /// Update the existent model.
+        ///     Update the existent model.
         /// </summary>
         /// <param name="model">The model.</param>
         internal void UpdateCustomModel(uint roomId, RoomModel modelData)
         {
-            string modelId = string.Format("custom_{0}", roomId);
+            var modelId = $"custom_{roomId}";
             if (_roomModels.Contains(modelId))
             {
                 _roomModels[modelId] = modelData;
@@ -399,7 +396,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Called when [cycle].
+        ///     Called when [cycle].
         /// </summary>
         internal void OnCycle()
         {
@@ -422,7 +419,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Queues the vote add.
+        ///     Queues the vote add.
         /// </summary>
         /// <param name="data">The data.</param>
         internal void QueueVoteAdd(RoomData data)
@@ -434,7 +431,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Queues the vote remove.
+        ///     Queues the vote remove.
         /// </summary>
         /// <param name="data">The data.</param>
         internal void QueueVoteRemove(RoomData data)
@@ -446,7 +443,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Queues the active room update.
+        ///     Queues the active room update.
         /// </summary>
         /// <param name="data">The data.</param>
         internal void QueueActiveRoomUpdate(RoomData data)
@@ -458,7 +455,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Queues the active room add.
+        ///     Queues the active room add.
         /// </summary>
         /// <param name="data">The data.</param>
         internal void QueueActiveRoomAdd(RoomData data)
@@ -470,7 +467,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Queues the active room remove.
+        ///     Queues the active room remove.
         /// </summary>
         /// <param name="data">The data.</param>
         internal void QueueActiveRoomRemove(RoomData data)
@@ -482,7 +479,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Removes all rooms.
+        ///     Removes all rooms.
         /// </summary>
         internal void RemoveAllRooms()
         {
@@ -493,7 +490,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Unloads the room.
+        ///     Unloads the room.
         /// </summary>
         /// <param name="room">The room.</param>
         /// <param name="reason">The reason.</param>
@@ -506,7 +503,8 @@ namespace Azure.HabboHotel.Rooms
 
             if (Azure.GetGame().GetNavigator().PrivateCategories.Contains(room.RoomData.Category))
             {
-                ((FlatCat)Azure.GetGame().GetNavigator().PrivateCategories[room.RoomData.Category]).UsersNow -= room.UserCount;
+                ((FlatCat) Azure.GetGame().GetNavigator().PrivateCategories[room.RoomData.Category]).UsersNow -=
+                    room.UserCount;
             }
 
             room.RoomData.UsersNow = 0;
@@ -572,15 +570,17 @@ namespace Azure.HabboHotel.Rooms
                             queryReactor.AddParameter("id", current.PetData.PetId);
                             queryReactor.RunQuery();
 
-                            if (current.BotAI == null)
+                            if (current.BotAi == null)
                                 continue;
-                            current.BotAI.Dispose();
+
+                            current.BotAi.Dispose();
                         }
                         else if (current.IsBot)
                         {
                             if (current.BotData == null)
                                 continue;
-                            queryReactor.SetQuery("UPDATE bots SET x=@x, y=@y, z=@z, name=@name, motto=@motto, look=@look, rotation=@rotation, dance=@dance WHERE id=@id LIMIT 1");
+                            queryReactor.SetQuery(
+                                "UPDATE bots SET x=@x, y=@y, z=@z, name=@name, motto=@motto, look=@look, rotation=@rotation, dance=@dance WHERE id=@id LIMIT 1");
                             queryReactor.AddParameter("name", current.BotData.Name);
                             queryReactor.AddParameter("motto", current.BotData.Motto);
                             queryReactor.AddParameter("look", current.BotData.Look);
@@ -592,7 +592,7 @@ namespace Azure.HabboHotel.Rooms
                             queryReactor.AddParameter("id", current.BotData.BotId);
                             queryReactor.RunQuery();
 
-                            current.BotAI?.Dispose();
+                            current.BotAi?.Dispose();
                         }
                         else
                         {
@@ -618,7 +618,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Sorts the active rooms.
+        ///     Sorts the active rooms.
         /// </summary>
         private void SortActiveRooms()
         {
@@ -626,7 +626,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Sorts the voted rooms.
+        ///     Sorts the voted rooms.
         /// </summary>
         private void SortVotedRooms()
         {
@@ -634,7 +634,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Works the active rooms update queue.
+        ///     Works the active rooms update queue.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool WorkActiveRoomsUpdateQueue()
@@ -644,7 +644,7 @@ namespace Azure.HabboHotel.Rooms
             {
                 while (_activeRoomsUpdateQueue.Count > 0)
                 {
-                    var roomData = (RoomData)_activeRoomsUpdateQueue.Dequeue();
+                    var roomData = (RoomData) _activeRoomsUpdateQueue.Dequeue();
                     if (roomData == null || roomData.ModelName.Contains("snowwar")) continue;
                     if (!_activeRooms.ContainsKey(roomData)) _activeRooms.Add(roomData, roomData.UsersNow);
                     else _activeRooms[roomData] = roomData.UsersNow;
@@ -654,7 +654,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Works the active rooms add queue.
+        ///     Works the active rooms add queue.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool WorkActiveRoomsAddQueue()
@@ -664,15 +664,16 @@ namespace Azure.HabboHotel.Rooms
             {
                 while (_activeRoomsAddQueue.Count > 0)
                 {
-                    var roomData = (RoomData)_activeRoomsAddQueue.Dequeue();
-                    if (!_activeRooms.ContainsKey(roomData) && !roomData.ModelName.Contains("snowwar")) _activeRooms.Add(roomData, roomData.UsersNow);
+                    var roomData = (RoomData) _activeRoomsAddQueue.Dequeue();
+                    if (!_activeRooms.ContainsKey(roomData) && !roomData.ModelName.Contains("snowwar"))
+                        _activeRooms.Add(roomData, roomData.UsersNow);
                 }
             }
             return true;
         }
 
         /// <summary>
-        /// Works the active rooms remove queue.
+        ///     Works the active rooms remove queue.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool WorkActiveRoomsRemoveQueue()
@@ -682,7 +683,7 @@ namespace Azure.HabboHotel.Rooms
             {
                 while (ActiveRoomsRemoveQueue.Count > 0)
                 {
-                    var key = (RoomData)ActiveRoomsRemoveQueue.Dequeue();
+                    var key = (RoomData) ActiveRoomsRemoveQueue.Dequeue();
                     _activeRooms.Remove(key);
                 }
             }
@@ -690,7 +691,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Works the voted rooms add queue.
+        ///     Works the voted rooms add queue.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool WorkVotedRoomsAddQueue()
@@ -700,7 +701,7 @@ namespace Azure.HabboHotel.Rooms
             {
                 while (_votedRoomsAddQueue.Count > 0)
                 {
-                    var roomData = (RoomData)_votedRoomsAddQueue.Dequeue();
+                    var roomData = (RoomData) _votedRoomsAddQueue.Dequeue();
                     if (!_votedRooms.ContainsKey(roomData)) _votedRooms.Add(roomData, roomData.Score);
                     else _votedRooms[roomData] = roomData.Score;
                 }
@@ -709,7 +710,7 @@ namespace Azure.HabboHotel.Rooms
         }
 
         /// <summary>
-        /// Works the voted rooms remove queue.
+        ///     Works the voted rooms remove queue.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool WorkVotedRoomsRemoveQueue()
@@ -719,7 +720,7 @@ namespace Azure.HabboHotel.Rooms
             {
                 while (_votedRoomsRemoveQueue.Count > 0)
                 {
-                    var key = (RoomData)_votedRoomsRemoveQueue.Dequeue();
+                    var key = (RoomData) _votedRoomsRemoveQueue.Dequeue();
                     _votedRooms.Remove(key);
                 }
             }

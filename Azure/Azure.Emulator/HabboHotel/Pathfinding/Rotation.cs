@@ -1,12 +1,12 @@
 namespace Azure.HabboHotel.Pathfinding
 {
     /// <summary>
-    /// Class Rotation.
+    ///     Class Rotation.
     /// </summary>
     internal static class Rotation
     {
         /// <summary>
-        /// Calculates the specified x1.
+        ///     Calculates the specified x1.
         /// </summary>
         /// <param name="x1">The x1.</param>
         /// <param name="y1">The y1.</param>
@@ -36,7 +36,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Calculates the specified x1.
+        ///     Calculates the specified x1.
         /// </summary>
         /// <param name="x1">The x1.</param>
         /// <param name="y1">The y1.</param>
@@ -51,7 +51,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Rotations the iverse.
+        ///     Rotations the iverse.
         /// </summary>
         /// <param name="rot">The rot.</param>
         /// <returns>System.Int32.</returns>

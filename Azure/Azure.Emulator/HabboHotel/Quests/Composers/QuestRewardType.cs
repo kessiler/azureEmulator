@@ -1,32 +1,32 @@
 namespace Azure.HabboHotel.Quests.Composer
 {
     /// <summary>
-    /// Enum QuestRewardType
+    ///     Enum QuestRewardType
     /// </summary>
     internal enum QuestRewardType
     {
         /// <summary>
-        /// The pixels
+        ///     The pixels
         /// </summary>
         Pixels,
 
         /// <summary>
-        /// The snowflakes
+        ///     The snowflakes
         /// </summary>
         Snowflakes,
 
         /// <summary>
-        /// The love
+        ///     The love
         /// </summary>
         Love,
 
         /// <summary>
-        /// The pixels broken
+        ///     The pixels broken
         /// </summary>
-        PixelsBROKEN,
+        PixelsBroken,
 
         /// <summary>
-        /// The seashells
+        ///     The seashells
         /// </summary>
         Seashells
     }

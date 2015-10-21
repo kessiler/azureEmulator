@@ -1,8 +1,10 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
-using Azure.HabboHotel.Rooms.Games;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -10,24 +12,16 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {
     public class JoinTeam : IWiredItem
     {
-        private int _mDelay;
-
         //private List<InteractionType> mBanned;
         public JoinTeam(RoomItem item, Room room)
         {
             Item = item;
             Room = room;
-            _mDelay = 0;
+            Delay = 0;
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionJoinTeam;
-            }
-        }
+        public Interaction Type => Interaction.ActionJoinTeam;
 
         public RoomItem Item { get; set; }
 
@@ -35,26 +29,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
-        public int Delay
-        {
-            get
-            {
-                return _mDelay;
-            }
-            set
-            {
-                _mDelay = value;
-            }
-        }
+        public int Delay { get; set; }
 
         public string OtherString { get; set; }
 
@@ -67,30 +46,30 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         public bool Execute(params object[] stuff)
         {
             if (stuff[0] == null) return false;
-            RoomUser roomUser = (RoomUser)stuff[0];
-            int team = _mDelay / 500;
-            TeamManager t = roomUser.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
-            if (roomUser.Team != Team.none)
+            var roomUser = (RoomUser)stuff[0];
+            var team = Delay / 500;
+            var t = roomUser.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
+            if (roomUser.Team != Team.None)
             {
                 t.OnUserLeave(roomUser);
-                roomUser.Team = Team.none;
+                roomUser.Team = Team.None;
             }
             switch (team)
             {
                 case 1:
-                    roomUser.Team = Team.red;
+                    roomUser.Team = Team.Red;
                     break;
 
                 case 2:
-                    roomUser.Team = Team.green;
+                    roomUser.Team = Team.Green;
                     break;
 
                 case 3:
-                    roomUser.Team = Team.blue;
+                    roomUser.Team = Team.Blue;
                     break;
 
                 case 4:
-                    roomUser.Team = Team.yellow;
+                    roomUser.Team = Team.Yellow;
                     break;
             }
             t.AddUser(roomUser);

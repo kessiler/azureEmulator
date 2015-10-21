@@ -1,9 +1,10 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
-using Azure.HabboHotel.Rooms.Games;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -22,10 +23,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionGiveScore; }
-        }
+        public Interaction Type => Interaction.ActionGiveScore;
 
         public RoomItem Item { get; set; }
 
@@ -60,7 +58,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             if (roomUser == null)
                 return false;
-            if (roomUser.Team == Team.none)
+            if (roomUser.Team == Team.None)
                 return false;
 
             int timesDone;
@@ -69,7 +67,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             var scoreToAchieve = 10;
             var maxTimes = 1;
 
-            if (!String.IsNullOrWhiteSpace(OtherString))
+            if (!string.IsNullOrWhiteSpace(OtherString))
             {
                 var integers = OtherString.Split(',');
                 scoreToAchieve = int.Parse(integers[0]);

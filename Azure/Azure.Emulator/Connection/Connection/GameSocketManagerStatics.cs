@@ -9,7 +9,7 @@ namespace Azure.Connection.Connection
         /// The buffer size
         /// </summary>
         public static readonly int BufferSize = 2048; // habbo buffer size (JSON support - camera)
-        
+
         /// <summary>
         /// The maximum packet size
         /// </summary>

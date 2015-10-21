@@ -12,27 +12,27 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 namespace Azure.HabboHotel.Roles
 {
     /// <summary>
-    /// Class RoleManager.
+    ///     Class RoleManager.
     /// </summary>
     internal class RoleManager
     {
         /// <summary>
-        /// The _rights
-        /// </summary>
-        private readonly Dictionary<string, uint> _rights;
-
-        /// <summary>
-        /// The _sub rights
-        /// </summary>
-        private readonly Dictionary<string, int> _subRights;
-
-        /// <summary>
-        /// The _CMD rights
+        ///     The _CMD rights
         /// </summary>
         private readonly Dictionary<string, string> _cmdRights;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoleManager"/> class.
+        ///     The _rights
+        /// </summary>
+        private readonly Dictionary<string, uint> _rights;
+
+        /// <summary>
+        ///     The _sub rights
+        /// </summary>
+        private readonly Dictionary<string, int> _subRights;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RoleManager" /> class.
         /// </summary>
         internal RoleManager()
         {
@@ -42,21 +42,21 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Loads the rights.
+        ///     Loads the rights.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void LoadRights(IQueryAdapter dbClient)
         {
             ClearRights();
             dbClient.SetQuery("SELECT command,rank FROM server_fuses;");
-            DataTable table = dbClient.GetTable();
+            var table = dbClient.GetTable();
             if (table != null)
             {
                 foreach (DataRow dataRow in table.Rows)
                 {
-                    if (!_cmdRights.ContainsKey((string)dataRow[0]))
+                    if (!_cmdRights.ContainsKey((string) dataRow[0]))
                     {
-                        _cmdRights.Add((string)dataRow[0], (string)dataRow[1]);
+                        _cmdRights.Add((string) dataRow[0], (string) dataRow[1]);
                     }
                     else
                     {
@@ -65,18 +65,18 @@ namespace Azure.HabboHotel.Roles
                 }
             }
             dbClient.SetQuery("SELECT * FROM server_fuserights");
-            DataTable table2 = dbClient.GetTable();
+            var table2 = dbClient.GetTable();
             if (table2 == null)
             {
                 return;
             }
             foreach (DataRow dataRow2 in table2.Rows)
             {
-                if ((int)dataRow2[3] == 0)
+                if ((int) dataRow2[3] == 0)
                 {
-                    if (!_rights.ContainsKey((string)dataRow2[0]))
+                    if (!_rights.ContainsKey((string) dataRow2[0]))
                     {
-                        _rights.Add((string)dataRow2[0], Convert.ToUInt32(dataRow2[1]));
+                        _rights.Add((string) dataRow2[0], Convert.ToUInt32(dataRow2[1]));
                     }
                     else
                     {
@@ -85,9 +85,9 @@ namespace Azure.HabboHotel.Roles
                 }
                 else
                 {
-                    if ((int)dataRow2[3] > 0)
+                    if ((int) dataRow2[3] > 0)
                     {
-                        _subRights.Add((string)dataRow2[0], (int)dataRow2[3]);
+                        _subRights.Add((string) dataRow2[0], (int) dataRow2[3]);
                     }
                     else
                     {
@@ -98,7 +98,7 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Ranks the got command.
+        ///     Ranks the got command.
         /// </summary>
         /// <param name="rankId">The rank identifier.</param>
         /// <param name="cmd">The command.</param>
@@ -114,12 +114,13 @@ namespace Azure.HabboHotel.Roles
                 return rankId >= uint.Parse(_cmdRights[cmd]);
             }
 
-            string[] cmdranks = _cmdRights[cmd].Split(';');
-            return cmdranks.Any(rank => rank.Contains(Convert.ToString(rankId))) || _cmdRights[cmd].Contains(Convert.ToString(rankId));
+            var cmdranks = _cmdRights[cmd].Split(';');
+            return cmdranks.Any(rank => rank.Contains(Convert.ToString(rankId))) ||
+                   _cmdRights[cmd].Contains(Convert.ToString(rankId));
         }
 
         /// <summary>
-        /// Ranks the has right.
+        ///     Ranks the has right.
         /// </summary>
         /// <param name="rankId">The rank identifier.</param>
         /// <param name="fuse">The fuse.</param>
@@ -130,7 +131,7 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Determines whether the specified sub has vip.
+        ///     Determines whether the specified sub has vip.
         /// </summary>
         /// <param name="sub">The sub.</param>
         /// <param name="fuse">The fuse.</param>
@@ -141,14 +142,14 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Gets the rights for rank.
+        ///     Gets the rights for rank.
         /// </summary>
         /// <param name="rankId">The rank identifier.</param>
         /// <returns>List&lt;System.String&gt;.</returns>
         internal List<string> GetRightsForRank(uint rankId)
         {
             var list = new List<string>();
-            foreach (KeyValuePair<string, uint> current in _rights.Where(current => rankId >= current.Value && !list.Contains(current.Key)))
+            foreach (var current in _rights.Where(current => rankId >= current.Value && !list.Contains(current.Key)))
             {
                 list.Add(current.Key);
             }
@@ -156,7 +157,7 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Determines whether the specified right contains right.
+        ///     Determines whether the specified right contains right.
         /// </summary>
         /// <param name="right">The right.</param>
         /// <returns><c>true</c> if the specified right contains right; otherwise, <c>false</c>.</returns>
@@ -166,7 +167,7 @@ namespace Azure.HabboHotel.Roles
         }
 
         /// <summary>
-        /// Clears the rights.
+        ///     Clears the rights.
         /// </summary>
         internal void ClearRights()
         {

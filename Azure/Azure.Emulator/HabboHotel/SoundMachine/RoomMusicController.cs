@@ -2,8 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.SoundMachine.Composers;
 
 #endregion
@@ -11,37 +12,37 @@ using Azure.HabboHotel.SoundMachine.Composers;
 namespace Azure.HabboHotel.SoundMachine
 {
     /// <summary>
-    /// Class RoomMusicController.
+    ///     Class RoomMusicController.
     /// </summary>
     internal class RoomMusicController
     {
         /// <summary>
-        /// The _m broadcast needed
+        ///     The _m broadcast needed
         /// </summary>
         private static bool _mBroadcastNeeded;
 
         /// <summary>
-        /// The _m loaded disks
+        ///     The _m loaded disks
         /// </summary>
         private Dictionary<uint, SongItem> _mLoadedDisks;
 
         /// <summary>
-        /// The _m playlist
+        ///     The _m playlist
         /// </summary>
         private SortedDictionary<int, SongInstance> _mPlaylist;
 
         /// <summary>
-        /// The _m started playing timestamp
-        /// </summary>
-        private double _mStartedPlayingTimestamp;
-
-        /// <summary>
-        /// The _m room output item
+        ///     The _m room output item
         /// </summary>
         private RoomItem _mRoomOutputItem;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoomMusicController"/> class.
+        ///     The _m started playing timestamp
+        /// </summary>
+        private double _mStartedPlayingTimestamp;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RoomMusicController" /> class.
         /// </summary>
         public RoomMusicController()
         {
@@ -50,31 +51,25 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Gets the current song.
+        ///     Gets the current song.
         /// </summary>
         /// <value>The current song.</value>
         public SongInstance CurrentSong { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is playing.
+        ///     Gets a value indicating whether this instance is playing.
         /// </summary>
         /// <value><c>true</c> if this instance is playing; otherwise, <c>false</c>.</value>
         public bool IsPlaying { get; private set; }
 
         /// <summary>
-        /// Gets the time playing.
+        ///     Gets the time playing.
         /// </summary>
         /// <value>The time playing.</value>
-        public double TimePlaying
-        {
-            get
-            {
-                return Azure.GetUnixTimeStamp() - _mStartedPlayingTimestamp;
-            }
-        }
+        public double TimePlaying => Azure.GetUnixTimeStamp() - _mStartedPlayingTimestamp;
 
         /// <summary>
-        /// Gets the song synchronize timestamp.
+        ///     Gets the song synchronize timestamp.
         /// </summary>
         /// <value>The song synchronize timestamp.</value>
         public int SongSyncTimestamp
@@ -89,15 +84,15 @@ namespace Azure.HabboHotel.SoundMachine
                 {
                     if (TimePlaying >= CurrentSong.SongData.LengthSeconds)
                     {
-                        return (int)CurrentSong.SongData.LengthSeconds;
+                        return (int) CurrentSong.SongData.LengthSeconds;
                     }
-                    return (int)(TimePlaying * 1000.0);
+                    return (int) (TimePlaying*1000.0);
                 }
             }
         }
 
         /// <summary>
-        /// Gets the playlist.
+        ///     Gets the playlist.
         /// </summary>
         /// <value>The playlist.</value>
         public SortedDictionary<int, SongInstance> Playlist
@@ -107,7 +102,7 @@ namespace Azure.HabboHotel.SoundMachine
                 var sortedDictionary = new SortedDictionary<int, SongInstance>();
                 lock (_mPlaylist)
                 {
-                    foreach (KeyValuePair<int, SongInstance> current in _mPlaylist)
+                    foreach (var current in _mPlaylist)
                     {
                         sortedDictionary.Add(current.Key, current.Value);
                     }
@@ -117,61 +112,37 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Gets the playlist capacity.
+        ///     Gets the playlist capacity.
         /// </summary>
         /// <value>The playlist capacity.</value>
-        public int PlaylistCapacity
-        {
-            get
-            {
-                return 20;
-            }
-        }
+        public int PlaylistCapacity => 20;
 
         /// <summary>
-        /// Gets the size of the playlist.
+        ///     Gets the size of the playlist.
         /// </summary>
         /// <value>The size of the playlist.</value>
-        public int PlaylistSize
-        {
-            get
-            {
-                return _mPlaylist.Count;
-            }
-        }
+        public int PlaylistSize => _mPlaylist.Count;
 
         /// <summary>
-        /// Gets a value indicating whether this instance has linked item.
+        ///     Gets a value indicating whether this instance has linked item.
         /// </summary>
         /// <value><c>true</c> if this instance has linked item; otherwise, <c>false</c>.</value>
-        public bool HasLinkedItem
-        {
-            get
-            {
-                return _mRoomOutputItem != null;
-            }
-        }
+        public bool HasLinkedItem => _mRoomOutputItem != null;
 
         /// <summary>
-        /// Gets the linked item identifier.
+        ///     Gets the linked item identifier.
         /// </summary>
         /// <value>The linked item identifier.</value>
-        public uint LinkedItemId
-        {
-            get
-            {
-                return _mRoomOutputItem == null ? 0u : _mRoomOutputItem.Id;
-            }
-        }
+        public uint LinkedItemId => _mRoomOutputItem == null ? 0u : _mRoomOutputItem.Id;
 
         /// <summary>
-        /// Gets the song queue position.
+        ///     Gets the song queue position.
         /// </summary>
         /// <value>The song queue position.</value>
         public int SongQueuePosition { get; private set; }
 
         /// <summary>
-        /// Links the room output item.
+        ///     Links the room output item.
         /// </summary>
         /// <param name="item">The item.</param>
         public void LinkRoomOutputItem(RoomItem item)
@@ -180,18 +151,18 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Adds the disk.
+        ///     Adds the disk.
         /// </summary>
         /// <param name="diskItem">The disk item.</param>
         /// <returns>System.Int32.</returns>
         public int AddDisk(SongItem diskItem)
         {
-            uint songId = diskItem.SongId;
+            var songId = diskItem.SongId;
             if (songId == 0u)
             {
                 return -1;
             }
-            SongData song = SongManager.GetSong(songId);
+            var song = SongManager.GetSong(songId);
             if (song == null)
             {
                 return -1;
@@ -201,7 +172,7 @@ namespace Azure.HabboHotel.SoundMachine
                 return -1;
             }
             _mLoadedDisks.Add(diskItem.ItemId, diskItem);
-            int count = _mPlaylist.Count;
+            var count = _mPlaylist.Count;
             lock (_mPlaylist)
             {
                 _mPlaylist.Add(count, new SongInstance(diskItem, song));
@@ -210,7 +181,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Removes the disk.
+        ///     Removes the disk.
         /// </summary>
         /// <param name="playlistIndex">Index of the playlist.</param>
         /// <returns>SongItem.</returns>
@@ -239,7 +210,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Updates the specified instance.
+        ///     Updates the specified instance.
         /// </summary>
         /// <param name="instance">The instance.</param>
         public void Update(Room instance)
@@ -265,7 +236,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Repairs the playlist.
+        ///     Repairs the playlist.
         /// </summary>
         public void RepairPlaylist()
         {
@@ -279,14 +250,14 @@ namespace Azure.HabboHotel.SoundMachine
             {
                 _mPlaylist.Clear();
             }
-            foreach (SongItem current in list)
+            foreach (var current in list)
             {
                 AddDisk(current);
             }
         }
 
         /// <summary>
-        /// Sets the next song.
+        ///     Sets the next song.
         /// </summary>
         public void SetNextSong()
         {
@@ -295,7 +266,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Plays the song.
+        ///     Plays the song.
         /// </summary>
         public void PlaySong()
         {
@@ -314,7 +285,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Starts this instance.
+        ///     Starts this instance.
         /// </summary>
         public void Start()
         {
@@ -324,7 +295,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Stops this instance.
+        ///     Stops this instance.
         /// </summary>
         public void Stop()
         {
@@ -335,7 +306,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Resets this instance.
+        ///     Resets this instance.
         /// </summary>
         public void Reset()
         {
@@ -353,21 +324,22 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Broadcasts the current song data.
+        ///     Broadcasts the current song data.
         /// </summary>
         /// <param name="instance">The instance.</param>
         internal void BroadcastCurrentSongData(Room instance)
         {
             if (CurrentSong != null)
             {
-                instance.SendMessage(JukeboxComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition, 0));
+                instance.SendMessage(JukeboxComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition,
+                    0));
                 return;
             }
             instance.SendMessage(JukeboxComposer.ComposePlayingComposer(0u, 0, 0));
         }
 
         /// <summary>
-        /// Called when [new user enter].
+        ///     Called when [new user enter].
         /// </summary>
         /// <param name="user">The user.</param>
         internal void OnNewUserEnter(RoomUser user)
@@ -382,7 +354,7 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Destroys this instance.
+        ///     Destroys this instance.
         /// </summary>
         internal void Destroy()
         {

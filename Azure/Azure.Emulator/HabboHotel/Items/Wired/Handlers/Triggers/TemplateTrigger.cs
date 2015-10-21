@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -21,13 +23,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             OtherExtraString2 = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.TriggerRoomEnter;
-            }
-        }
+        public Interaction Type => Interaction.TriggerRoomEnter;
 
         public RoomItem Item { get; set; }
 
@@ -35,13 +31,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay { get; set; }
@@ -62,11 +53,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
                 return false;
             }
 
-            List<IWiredItem> conditions = Room.GetWiredHandler().GetConditions(this);
-            List<IWiredItem> effects = Room.GetWiredHandler().GetEffects(this);
+            var conditions = Room.GetWiredHandler().GetConditions(this);
+            var effects = Room.GetWiredHandler().GetEffects(this);
             if (conditions.Any())
             {
-                foreach (IWiredItem current in conditions)
+                foreach (var current in conditions)
                 {
                     if (!current.Execute(roomUser))
                     {
@@ -77,7 +68,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             }
             if (effects.Any())
             {
-                foreach (IWiredItem current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
+                foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
                 {
                     WiredHandler.OnEvent(current2);
                 }

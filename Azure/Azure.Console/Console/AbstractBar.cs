@@ -9,7 +9,7 @@ namespace Azure
     public abstract class AbstractBar
     {
         /// <summary>
-        /// Prints a simple message 
+        /// Prints a simple message
         /// </summary>
         /// <param name="msg">Message to print</param>
         public void PrintMessage(string msg)

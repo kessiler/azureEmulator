@@ -3,70 +3,68 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Events.Interfaces;
+using Azure.HabboHotel.Rooms.Data;
 
 #endregion
 
 namespace Azure.HabboHotel.Events
 {
     /// <summary>
-    /// Class EventManager.
+    ///     Class EventManager.
     /// </summary>
     internal class EventManager
     {
         /// <summary>
-        /// The _events
-        /// </summary>
-        private readonly Dictionary<RoomData, uint> _events;
-
-        /// <summary>
-        /// The _add queue
+        ///     The _add queue
         /// </summary>
         private readonly Queue _addQueue;
 
         /// <summary>
-        /// The _remove queue
-        /// </summary>
-        private readonly Queue _removeQueue;
-
-        /// <summary>
-        /// The _update queue
-        /// </summary>
-        private readonly Queue _updateQueue;
-
-        /// <summary>
-        /// The _event categories
+        ///     The _event categories
         /// </summary>
         private readonly Dictionary<int, EventCategory> _eventCategories;
 
         /// <summary>
-        /// The _ordered event rooms
+        ///     The _events
+        /// </summary>
+        private readonly Dictionary<RoomData, uint> _events;
+
+        /// <summary>
+        ///     The _remove queue
+        /// </summary>
+        private readonly Queue _removeQueue;
+
+        /// <summary>
+        ///     The _update queue
+        /// </summary>
+        private readonly Queue _updateQueue;
+
+        /// <summary>
+        ///     The _ordered event rooms
         /// </summary>
         private IOrderedEnumerable<KeyValuePair<RoomData, uint>> _orderedEventRooms;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventManager"/> class.
+        ///     Initializes a new instance of the <see cref="EventManager" /> class.
         /// </summary>
         public EventManager()
         {
             _eventCategories = new Dictionary<int, EventCategory>();
             _events = new Dictionary<RoomData, uint>();
-            _orderedEventRooms =
-                                     from t in _events
-                                     orderby t.Value descending
-                                     select t;
+
+            _orderedEventRooms = _events.OrderByDescending(t => t.Value);
+
             _addQueue = new Queue();
             _removeQueue = new Queue();
             _updateQueue = new Queue();
 
-            {
-                for (int i = 0; i < 30; i++)
-                    _eventCategories.Add(i, new EventCategory(i));
-            }
+            for (var i = 0; i < 30; i++)
+                _eventCategories.Add(i, new EventCategory(i));
         }
 
         /// <summary>
-        /// Gets the rooms.
+        ///     Gets the rooms.
         /// </summary>
         /// <returns>KeyValuePair&lt;RoomData, System.UInt32&gt;[].</returns>
         internal KeyValuePair<RoomData, uint>[] GetRooms()
@@ -75,7 +73,7 @@ namespace Azure.HabboHotel.Events
         }
 
         /// <summary>
-        /// Called when [cycle].
+        ///     Called when [cycle].
         /// </summary>
         internal void OnCycle()
         {
@@ -83,12 +81,13 @@ namespace Azure.HabboHotel.Events
             WorkAddQueue();
             WorkUpdate();
             SortCollection();
-            foreach (EventCategory current in _eventCategories.Values)
+
+            foreach (var current in _eventCategories.Values)
                 current.OnCycle();
         }
 
         /// <summary>
-        /// Queues the add event.
+        ///     Queues the add event.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="roomEventCategory">The room event category.</param>
@@ -96,11 +95,12 @@ namespace Azure.HabboHotel.Events
         {
             lock (_addQueue.SyncRoot)
                 _addQueue.Enqueue(data);
+
             _eventCategories[roomEventCategory].QueueAddEvent(data);
         }
 
         /// <summary>
-        /// Queues the remove event.
+        ///     Queues the remove event.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="roomEventCategory">The room event category.</param>
@@ -108,11 +108,12 @@ namespace Azure.HabboHotel.Events
         {
             lock (_removeQueue.SyncRoot)
                 _removeQueue.Enqueue(data);
+
             _eventCategories[roomEventCategory].QueueRemoveEvent(data);
         }
 
         /// <summary>
-        /// Queues the update event.
+        ///     Queues the update event.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="roomEventCategory">The room event category.</param>
@@ -120,32 +121,32 @@ namespace Azure.HabboHotel.Events
         {
             lock (_updateQueue.SyncRoot)
                 _updateQueue.Enqueue(data);
+
             _eventCategories[roomEventCategory].QueueUpdateEvent(data);
         }
 
         /// <summary>
-        /// Sorts the collection.
+        ///     Sorts the collection.
         /// </summary>
         private void SortCollection()
         {
-            _orderedEventRooms =
-                                     from t in _events.Take(40)
-                                     orderby t.Value descending
-                                     select t;
+            _orderedEventRooms = _events.Take(40).OrderByDescending(t => t.Value);
         }
 
         /// <summary>
-        /// Works the add queue.
+        ///     Works the add queue.
         /// </summary>
         private void WorkAddQueue()
         {
             if (_addQueue.Count <= 0)
                 return;
+
             lock (_addQueue.SyncRoot)
             {
                 while (_addQueue.Count > 0)
                 {
                     var roomData = (RoomData)_addQueue.Dequeue();
+
                     if (!_events.ContainsKey(roomData))
                         _events.Add(roomData, roomData.UsersNow);
                 }
@@ -153,12 +154,13 @@ namespace Azure.HabboHotel.Events
         }
 
         /// <summary>
-        /// Works the remove queue.
+        ///     Works the remove queue.
         /// </summary>
         private void WorkRemoveQueue()
         {
             if (_removeQueue.Count <= 0)
                 return;
+
             lock (_removeQueue.SyncRoot)
             {
                 while (_removeQueue.Count > 0)
@@ -170,19 +172,23 @@ namespace Azure.HabboHotel.Events
         }
 
         /// <summary>
-        /// Works the update.
+        ///     Works the update.
         /// </summary>
         private void WorkUpdate()
         {
             if (_removeQueue.Count <= 0)
                 return;
+
             lock (_removeQueue.SyncRoot)
+            {
                 while (_removeQueue.Count > 0)
                 {
                     var roomData = (RoomData)_updateQueue.Dequeue();
+
                     if (_events.ContainsKey(roomData))
                         _events[roomData] = roomData.UsersNow;
                 }
+            }
         }
     }
 }

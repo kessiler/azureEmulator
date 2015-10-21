@@ -3,35 +3,38 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using Azure.Configuration;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Catalogs;
-using System.Collections.Specialized;
+using Azure.HabboHotel.Catalogs.Wrappers;
+using Azure.HabboHotel.Items.Interactions;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
 namespace Azure.HabboHotel.Items
 {
     /// <summary>
-    /// Class ItemManager.
+    ///     Class ItemManager.
     /// </summary>
     internal class ItemManager
     {
         /// <summary>
-        /// The items
+        ///     The items
         /// </summary>
-        private HybridDictionary _items;
+        private readonly HybridDictionary _items;
 
         /// <summary>
-        /// The photo identifier
+        ///     The photo identifier
         /// </summary>
         internal uint PhotoId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ItemManager"/> class.
+        ///     Initializes a new instance of the <see cref="ItemManager" /> class.
         /// </summary>
         internal ItemManager()
         {
@@ -39,7 +42,7 @@ namespace Azure.HabboHotel.Items
         }
 
         /// <summary>
-        /// Loads the items.
+        ///     Loads the items.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         /// <param name="itemLoaded">The item loaded.</param>
@@ -55,14 +58,14 @@ namespace Azure.HabboHotel.Items
         }
 
         /// <summary>
-        /// Loads the items.
+        ///     Loads the items.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void LoadItems(IQueryAdapter dbClient)
         {
             _items.Clear();
 
-            GiftWrappers.Clear();
+            GiftWrapper.Clear();
 
             dbClient.SetQuery("SELECT * FROM catalog_furnis");
             var table = dbClient.GetTable();
@@ -92,7 +95,7 @@ namespace Azure.HabboHotel.Items
                     var allowInventoryStack = Convert.ToInt32(dataRow["allow_inventory_stack"]) == 1;
                     var typeFromString = InteractionTypes.GetTypeFromString((string)dataRow["interaction_type"]);
 
-                    int sprite = 0;
+                    var sprite = 0;
 
                     ushort x = ushort.MinValue, y = ushort.MinValue;
                     var publicName = Convert.ToString(dataRow["item_name"]);
@@ -129,9 +132,9 @@ namespace Azure.HabboHotel.Items
                     else if (type != 'e' && type != 'h' && type != 'r' && type != 'b') continue;
 
                     if (name.StartsWith("present_gen"))
-                        GiftWrappers.AddOld(sprite);
+                        GiftWrapper.AddOld(sprite);
                     else if (name.StartsWith("present_wrap*"))
-                        GiftWrappers.Add(sprite);
+                        GiftWrapper.Add(sprite);
 
                     // Stack Height Values
                     if (stackHeightStr.Contains(';'))
@@ -149,7 +152,8 @@ namespace Azure.HabboHotel.Items
                     }
 
                     // If Can Walk
-                    if (InteractionTypes.AreFamiliar(GlobalInteractions.Gate, typeFromString) || (typeFromString == Interaction.BanzaiPyramid) || (name.StartsWith("hole")))
+                    if (InteractionTypes.AreFamiliar(GlobalInteractions.Gate, typeFromString) ||
+                        (typeFromString == Interaction.BanzaiPyramid) || (name.StartsWith("hole")))
                         canWalk = false;
 
                     // Add Item
@@ -194,7 +198,7 @@ namespace Azure.HabboHotel.Items
         {
             foreach (DictionaryEntry entry in _items)
             {
-                Item item = (Item)entry.Value;
+                var item = (Item)entry.Value;
                 if (item.Name == name)
                     return item;
             }
@@ -206,7 +210,7 @@ namespace Azure.HabboHotel.Items
         {
             foreach (DictionaryEntry entry in _items)
             {
-                Item item = (Item)entry.Value;
+                var item = (Item)entry.Value;
                 if (item.SpriteId == spriteId)
                     return item;
             }
@@ -214,7 +218,7 @@ namespace Azure.HabboHotel.Items
         }
 
         /// <summary>
-        /// Determines whether the specified identifier contains item.
+        ///     Determines whether the specified identifier contains item.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns><c>true</c> if the specified identifier contains item; otherwise, <c>false</c>.</returns>

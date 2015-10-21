@@ -2,7 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -21,13 +22,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionResetTimer;
-            }
-        }
+        public Interaction Type => Interaction.ActionResetTimer;
 
         public RoomItem Item { get; set; }
 
@@ -35,13 +30,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay { get; set; }

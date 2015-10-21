@@ -1,27 +1,27 @@
 ﻿namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Struct PetCommand
+    ///     Struct PetCommand
     /// </summary>
     internal struct PetCommand
     {
         /// <summary>
-        /// The command identifier
+        ///     The command identifier
         /// </summary>
         internal readonly int CommandId;
 
         /// <summary>
-        /// The command input
+        ///     The command input
         /// </summary>
         internal readonly string CommandInput;
 
         /// <summary>
-        /// The minimum rank
+        ///     The minimum rank
         /// </summary>
         internal readonly int MinRank;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PetCommand"/> struct.
+        ///     Initializes a new instance of the <see cref="PetCommand" /> struct.
         /// </summary>
         /// <param name="commandId">The command identifier.</param>
         /// <param name="commandInput">The command input.</param>

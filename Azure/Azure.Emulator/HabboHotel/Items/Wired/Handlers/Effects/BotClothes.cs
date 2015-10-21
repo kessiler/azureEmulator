@@ -1,7 +1,8 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -22,13 +23,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionBotClothes;
-            }
-        }
+        public Interaction Type => Interaction.ActionBotClothes;
 
         public RoomItem Item { get; set; }
 
@@ -36,24 +31,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay
         {
-            get
-            {
-                return 0;
-            }
-            set
-            {
-            }
+            get { return 0; }
+            set { }
         }
 
         public string OtherString { get; set; }
@@ -68,7 +53,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         {
             //RoomUser roomUser = (RoomUser)stuff[0];
             //InteractionType item = (InteractionType)stuff[1];
-            RoomUser bot = Room.GetRoomUserManager().GetBotByName(OtherString);
+            var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
             if (bot == null || OtherExtraString == "null") return false;
             bot.BotData.Look = OtherExtraString;
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SetRoomUserMessageComposer"));

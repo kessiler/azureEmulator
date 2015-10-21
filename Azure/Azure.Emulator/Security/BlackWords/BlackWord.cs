@@ -15,7 +15,7 @@
         /// </summary>
         public BlackWordType Type;
 
-        public BlackWordTypeSettings TypeSettings { get { return BlackWordsManager.GetSettings(Type); } }
+        public BlackWordTypeSettings TypeSettings => BlackWordsManager.GetSettings(Type);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlackWord"/> struct.

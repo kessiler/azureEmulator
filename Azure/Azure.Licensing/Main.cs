@@ -45,10 +45,10 @@ namespace Azure.Licensing
         }
 
         private string getVolumeSerial(string drive)
-        { 
+        {
             ManagementObject disk = new ManagementObject(string.Format("{0}{1}{2}", @"win32_logicaldisk.deviceid=""", drive, @":"""));
             disk.Get();
-            
+
             string volumeSerial = disk["VolumeSerialNumber"].ToString();
             disk.Dispose();
 
@@ -81,17 +81,14 @@ namespace Azure.Licensing
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
         }
 
         private void txtID_TextChanged(object sender, EventArgs e)
         {
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
     }
 }

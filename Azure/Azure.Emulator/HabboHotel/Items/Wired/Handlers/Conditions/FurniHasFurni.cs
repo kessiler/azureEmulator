@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -17,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionFurniHasFurni; }
-        }
+        public Interaction Type => Interaction.ConditionFurniHasFurni;
 
         public RoomItem Item { get; set; }
 
@@ -46,7 +44,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             set { }
         }
 
-        public bool OtherBool { get; set;}
+        public bool OtherBool { get; set; }
 
         public int Delay
         {
@@ -59,11 +57,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             if (!Items.Any())
                 return true;
 
-            foreach (var current in Items.Where(current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
+            foreach (
+                var current in
+                    Items.Where(
+                        current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
             {
                 var @continue = false;
                 foreach (var current2 in current.AffectedTiles.Values.Where(
-                        current2 => Room.GetGameMap().SquareHasFurni(current2.X, current2.Y)))
+                    current2 => Room.GetGameMap().SquareHasFurni(current2.X, current2.Y)))
                 {
                     @continue =
                         Room.GetGameMap()

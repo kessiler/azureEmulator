@@ -1,7 +1,7 @@
 #region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -10,22 +10,22 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Quests.Composer
 {
     /// <summary>
-    /// Class QuestListComposer.
+    ///     Class QuestListComposer.
     /// </summary>
     internal class QuestListComposer
     {
         /// <summary>
-        /// Composes the specified session.
+        ///     Composes the specified session.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="Quests">The quests.</param>
-        /// <param name="Send">if set to <c>true</c> [send].</param>
+        /// <param name="session">The session.</param>
+        /// <param name="quests">The quests.</param>
+        /// <param name="send">if set to <c>true</c> [send].</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage Compose(GameClient Session, List<Quest> Quests, bool Send)
+        internal static ServerMessage Compose(GameClient session, List<Quest> quests, bool send)
         {
             var dictionary = new Dictionary<string, int>();
             var dictionary2 = new Dictionary<string, Quest>();
-            foreach (Quest current in Quests)
+            foreach (var current in quests)
             {
                 if (!current.Category.Contains("xmas2012"))
                 {
@@ -36,19 +36,20 @@ namespace Azure.HabboHotel.Quests.Composer
                     }
                     if (current.Number >= dictionary[current.Category])
                     {
-                        int questProgress = Session.GetHabbo().GetQuestProgress(current.Id);
-                        if (Session.GetHabbo().CurrentQuestId != current.Id && questProgress >= current.GoalData)
+                        var questProgress = session.GetHabbo().GetQuestProgress(current.Id);
+                        if (session.GetHabbo().CurrentQuestId != current.Id && questProgress >= current.GoalData)
                         {
                             dictionary[current.Category] = (current.Number + 1);
                         }
                     }
                 }
             }
-            foreach (Quest current2 in Quests)
+            foreach (var current2 in quests)
             {
-                foreach (KeyValuePair<string, int> current3 in dictionary)
+                foreach (var current3 in dictionary)
                 {
-                    if (!current2.Category.Contains("xmas2012") && current2.Category == current3.Key && current2.Number == current3.Value)
+                    if (!current2.Category.Contains("xmas2012") && current2.Category == current3.Key &&
+                        current2.Number == current3.Value)
                     {
                         dictionary2[current3.Key] = current2;
                         break;
@@ -57,62 +58,64 @@ namespace Azure.HabboHotel.Quests.Composer
             }
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("QuestListMessageComposer"));
             serverMessage.AppendInteger(dictionary2.Count);
-            foreach (KeyValuePair<string, Quest> current4 in dictionary2)
+            foreach (var current4 in dictionary2)
             {
                 if (current4.Value != null)
                 {
-                    SerializeQuest(serverMessage, Session, current4.Value, current4.Key);
+                    SerializeQuest(serverMessage, session, current4.Value, current4.Key);
                 }
             }
-            foreach (KeyValuePair<string, Quest> current5 in dictionary2)
+            foreach (var current5 in dictionary2)
             {
                 if (current5.Value == null)
                 {
-                    SerializeQuest(serverMessage, Session, current5.Value, current5.Key);
+                    SerializeQuest(serverMessage, session, current5.Value, current5.Key);
                 }
             }
-            serverMessage.AppendBool(Send);
+            serverMessage.AppendBool(send);
             return serverMessage;
         }
 
         /// <summary>
-        /// Serializes the quest.
+        ///     Serializes the quest.
         /// </summary>
-        /// <param name="Message">The message.</param>
-        /// <param name="Session">The session.</param>
-        /// <param name="Quest">The quest.</param>
-        /// <param name="Category">The category.</param>
-        internal static void SerializeQuest(ServerMessage Message, GameClient Session, Quest Quest, string Category)
+        /// <param name="message">The message.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="quest">The quest.</param>
+        /// <param name="category">The category.</param>
+        internal static void SerializeQuest(ServerMessage message, GameClient session, Quest quest, string category)
         {
-            if (Message == null || Session == null)
+            if (message == null || session == null)
             {
                 return;
             }
-            int amountOfQuestsInCategory = Azure.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(Category);
+            var amountOfQuestsInCategory = Azure.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(category);
 
             {
-                int num = (Quest == null) ? amountOfQuestsInCategory : (Quest.Number - 1);
-                int num2 = (Quest == null) ? 0 : Session.GetHabbo().GetQuestProgress(Quest.Id);
-                if (Quest != null && Quest.IsCompleted(num2))
+                var num = (quest == null) ? amountOfQuestsInCategory : (quest.Number - 1);
+                var num2 = (quest == null) ? 0 : session.GetHabbo().GetQuestProgress(quest.Id);
+                if (quest != null && quest.IsCompleted(num2))
                 {
                     num++;
                 }
-                Message.AppendString(Category);
-                Message.AppendInteger((Quest == null) ? 0 : (Quest.Category.Contains("xmas2012") ? 0 : num));
-                Message.AppendInteger((Quest == null) ? 0 : (Quest.Category.Contains("xmas2012") ? 0 : amountOfQuestsInCategory));
-                Message.AppendInteger((Quest == null) ? 3 : Quest.RewardType);
-                Message.AppendInteger((Quest == null) ? 0u : Quest.Id);
-                Message.AppendBool(Quest != null && Session.GetHabbo().CurrentQuestId == Quest.Id);
-                Message.AppendString((Quest == null) ? string.Empty : Quest.ActionName);
-                Message.AppendString((Quest == null) ? string.Empty : Quest.DataBit);
-                Message.AppendInteger((Quest == null) ? 0 : Quest.Reward);
-                Message.AppendString((Quest == null) ? string.Empty : Quest.Name);
-                Message.AppendInteger(num2);
-                Message.AppendInteger((Quest == null) ? 0u : Quest.GoalData);
-                Message.AppendInteger((Quest == null) ? 0 : Quest.TimeUnlock);
-                Message.AppendString("");
-                Message.AppendString("");
-                Message.AppendBool(true);
+                message.AppendString(category);
+                message.AppendInteger((quest == null) ? 0 : (quest.Category.Contains("xmas2012") ? 0 : num));
+                message.AppendInteger((quest == null)
+                    ? 0
+                    : (quest.Category.Contains("xmas2012") ? 0 : amountOfQuestsInCategory));
+                message.AppendInteger((quest == null) ? 3 : quest.RewardType);
+                message.AppendInteger((quest == null) ? 0u : quest.Id);
+                message.AppendBool(quest != null && session.GetHabbo().CurrentQuestId == quest.Id);
+                message.AppendString((quest == null) ? string.Empty : quest.ActionName);
+                message.AppendString((quest == null) ? string.Empty : quest.DataBit);
+                message.AppendInteger((quest == null) ? 0 : quest.Reward);
+                message.AppendString((quest == null) ? string.Empty : quest.Name);
+                message.AppendInteger(num2);
+                message.AppendInteger((quest == null) ? 0u : quest.GoalData);
+                message.AppendInteger((quest == null) ? 0 : quest.TimeUnlock);
+                message.AppendString("");
+                message.AppendString("");
+                message.AppendBool(true);
             }
         }
     }

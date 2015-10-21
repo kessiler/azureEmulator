@@ -15,6 +15,7 @@ namespace Azure.Messages.Parsers
         /// Handles the packet data.
         /// </summary>
         /// <param name="packet">The packet.</param>
+        /// <param name="bytesReceived"></param>
         void HandlePacketData(byte[] packet, int bytesReceived);
     }
 }

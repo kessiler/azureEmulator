@@ -2,7 +2,7 @@
 
 using System;
 using System.Linq;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 
@@ -11,43 +11,43 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Users.Messenger
 {
     /// <summary>
-    /// Class MessengerBuddy.
+    ///     Class MessengerBuddy.
     /// </summary>
     internal class MessengerBuddy
     {
-        /// <summary>
-        /// The user name
-        /// </summary>
-        internal string UserName;
-
-        /// <summary>
-        /// The client
-        /// </summary>
-        internal GameClient Client;
-
-        /// <summary>
-        /// The _look
-        /// </summary>
-        private string _look;
-
-        /// <summary>
-        /// The _motto
-        /// </summary>
-        private string _motto;
-
         //private readonly int _lastOnline;
         /// <summary>
-        /// The _appear offline
+        ///     The _appear offline
         /// </summary>
         private readonly bool _appearOffline;
 
         /// <summary>
-        /// The _hide inroom
+        ///     The _hide inroom
         /// </summary>
         private readonly bool _hideInroom;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessengerBuddy"/> class.
+        ///     The _look
+        /// </summary>
+        private string _look;
+
+        /// <summary>
+        ///     The _motto
+        /// </summary>
+        private string _motto;
+
+        /// <summary>
+        ///     The client
+        /// </summary>
+        internal GameClient Client;
+
+        /// <summary>
+        ///     The user name
+        /// </summary>
+        internal string UserName;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MessengerBuddy" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="userName">Name of the user.</param>
@@ -69,54 +69,49 @@ namespace Azure.HabboHotel.Users.Messenger
         }
 
         /// <summary>
-        /// Gets the identifier.
+        ///     Gets the identifier.
         /// </summary>
         /// <value>The identifier.</value>
         internal uint Id { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is online.
+        ///     Gets a value indicating whether this instance is online.
         /// </summary>
         /// <value><c>true</c> if this instance is online; otherwise, <c>false</c>.</value>
         internal bool IsOnline
-        {
-            get
-            {
-                return Client != null && Client.GetHabbo() != null && Client.GetHabbo().GetMessenger() != null &&
-                       !Client.GetHabbo().GetMessenger().AppearOffline;
-            }
-        }
+            =>
+                Client?.GetHabbo() != null && Client.GetHabbo().GetMessenger() != null &&
+                !Client.GetHabbo().GetMessenger().AppearOffline;
 
         /// <summary>
-        /// Gets a value indicating whether [in room].
+        ///     Gets a value indicating whether [in room].
         /// </summary>
         /// <value><c>true</c> if [in room]; otherwise, <c>false</c>.</value>
-        internal bool InRoom
-        {
-            get { return CurrentRoom != null; }
-        }
+        internal bool InRoom => CurrentRoom != null;
 
         /// <summary>
-        /// Gets or sets the current room.
+        ///     Gets or sets the current room.
         /// </summary>
         /// <value>The current room.</value>
         internal Room CurrentRoom { get; set; }
 
         /// <summary>
-        /// Updates the user.
+        ///     Updates the user.
         /// </summary>
         internal void UpdateUser()
         {
             Client = Azure.GetGame().GetClientManager().GetClientByUserId(Id);
-            if (Client == null || Client.GetHabbo() == null)
+
+            if (Client?.GetHabbo() == null)
                 return;
+
             CurrentRoom = Client.GetHabbo().CurrentRoom;
             _look = Client.GetHabbo().Look;
             _motto = Client.GetHabbo().Motto;
         }
 
         /// <summary>
-        /// Serializes the specified message.
+        ///     Serializes the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="session">The session.</param>
@@ -124,7 +119,9 @@ namespace Azure.HabboHotel.Users.Messenger
         {
             var value =
                 session.GetHabbo().Relationships.FirstOrDefault(x => x.Value.UserId == Convert.ToInt32(Id)).Value;
-            var i = (value == null) ? 0 : value.Type;
+
+            var i = value?.Type ?? 0;
+
             message.AppendInteger(Id);
             message.AppendString(UserName);
             message.AppendInteger(IsOnline || Id == 0);
@@ -133,13 +130,14 @@ namespace Azure.HabboHotel.Users.Messenger
             message.AppendBool(Id != 0 && (!_hideInroom || session.GetHabbo().Rank >= 4) && InRoom);
 
             message.AppendString(IsOnline || Id == 0 ? _look : string.Empty);
+
             message.AppendInteger(0);
             message.AppendString(_motto);
             message.AppendString(string.Empty);
             message.AppendString(string.Empty);
-            message.AppendBool(true); // persistedMessageUser
+            message.AppendBool(true);
             message.AppendBool(false);
-            message.AppendBool(false); // pocketHabboUser
+            message.AppendBool(false);
             message.AppendShort(i);
         }
     }

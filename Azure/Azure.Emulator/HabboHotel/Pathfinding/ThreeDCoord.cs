@@ -7,27 +7,27 @@ using System;
 namespace Azure.HabboHotel.Pathfinding
 {
     /// <summary>
-    /// Struct ThreeDCoord
+    ///     Struct ThreeDCoord
     /// </summary>
     internal struct ThreeDCoord : IEquatable<ThreeDCoord>
     {
         /// <summary>
-        /// The x
+        ///     The x
         /// </summary>
         internal readonly int X;
 
         /// <summary>
-        /// The y
+        ///     The y
         /// </summary>
         internal readonly int Y;
 
         /// <summary>
-        /// The z
+        ///     The z
         /// </summary>
         internal readonly int Z;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ThreeDCoord"/> struct.
+        ///     Initializes a new instance of the <see cref="ThreeDCoord" /> struct.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
@@ -40,7 +40,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Equalses the specified compared coord.
+        ///     Equalses the specified compared coord.
         /// </summary>
         /// <param name="comparedCoord">The compared coord.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
@@ -50,7 +50,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Implements the ==.
+        ///     Implements the ==.
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
@@ -61,7 +61,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Implements the !=.
+        ///     Implements the !=.
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
@@ -72,7 +72,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Returns a hash code for this instance.
+        ///     Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode()
@@ -81,7 +81,7 @@ namespace Azure.HabboHotel.Pathfinding
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
         /// </summary>
         /// <param name="obj">Another object to compare to.</param>
         /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>

@@ -22,8 +22,8 @@ namespace Azure.Util
         /// <param name="b">The b.</param>
         internal static void Split(double k, out int a, out int b)
         {
-            b = (int) Math.Round(k % 1 * 100);
-            a = (((int) Math.Round(k * 100) - b) / 100);
+            b = (int)Math.Round(k % 1 * 100);
+            a = (((int)Math.Round(k * 100) - b) / 100);
         }
 
         /// <summary>
@@ -94,9 +94,9 @@ namespace Azure.Util
         /// <param name="str">The string.</param>
         /// <param name="allow">if set to <c>true</c> [allow].</param>
         /// <returns>System.String.</returns>
-        internal static string FilterHTML(string str, bool allow = false)
+        internal static string FilterHtml(string str, bool allow = false)
         {
-            if (allow && ExtraSettings.AdminCanUseHTML)
+            if (allow && ExtraSettings.AdminCanUseHtml)
                 return str;
 
             return Regex.Replace(str, @"</?(?(?=b|i)notag|[a-zA-Z0-9]+)(?:\s[a-zA-Z0-9\-]+=?(?:(["",']?).*?\1?)?)*\s*/?>", string.Empty);

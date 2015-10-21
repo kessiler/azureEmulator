@@ -1,32 +1,32 @@
 namespace Azure.HabboHotel.Misc
 {
     /// <summary>
-    /// Struct Figure
+    ///     Struct Figure
     /// </summary>
     internal struct Figure
     {
         /// <summary>
-        /// The part
+        ///     The part
         /// </summary>
         internal string Part;
 
         /// <summary>
-        /// The part identifier
+        ///     The part identifier
         /// </summary>
         internal string PartId;
 
         /// <summary>
-        /// The gender
+        ///     The gender
         /// </summary>
         internal string Gender;
 
         /// <summary>
-        /// The colorable
+        ///     The colorable
         /// </summary>
         internal string Colorable;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Figure"/> struct.
+        ///     Initializes a new instance of the <see cref="Figure" /> struct.
         /// </summary>
         /// <param name="part">The part.</param>
         /// <param name="partId">The part identifier.</param>

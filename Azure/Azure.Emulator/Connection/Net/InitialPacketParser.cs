@@ -15,6 +15,7 @@ namespace Azure.Connection.Net
         /// Delegate NoParamDelegate
         /// </summary>
         public delegate void NoParamDelegate();
+
         /// <summary>
         /// Delegate with params
         /// </summary>

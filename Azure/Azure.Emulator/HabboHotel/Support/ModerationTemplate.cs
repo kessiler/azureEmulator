@@ -1,62 +1,62 @@
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Class ModerationTemplate.
+    ///     Class ModerationTemplate.
     /// </summary>
     internal class ModerationTemplate
     {
         /// <summary>
-        /// The identifier
-        /// </summary>
-        internal uint Id;
-
-        /// <summary>
-        /// The category
-        /// </summary>
-        internal short Category;
-
-        /// <summary>
-        /// The c name
-        /// </summary>
-        internal string CName;
-
-        /// <summary>
-        /// The caption
-        /// </summary>
-        internal string Caption;
-
-        /// <summary>
-        /// The warning message
-        /// </summary>
-        internal string WarningMessage;
-
-        /// <summary>
-        /// The ban message
-        /// </summary>
-        internal string BanMessage;
-
-        /// <summary>
-        /// The ban hours
-        /// </summary>
-        internal short BanHours;
-
-        /// <summary>
-        /// The avatar ban
+        ///     The avatar ban
         /// </summary>
         internal bool AvatarBan;
 
         /// <summary>
-        /// The mute
+        ///     The ban hours
+        /// </summary>
+        internal short BanHours;
+
+        /// <summary>
+        ///     The ban message
+        /// </summary>
+        internal string BanMessage;
+
+        /// <summary>
+        ///     The caption
+        /// </summary>
+        internal string Caption;
+
+        /// <summary>
+        ///     The category
+        /// </summary>
+        internal short Category;
+
+        /// <summary>
+        ///     The c name
+        /// </summary>
+        internal string CName;
+
+        /// <summary>
+        ///     The identifier
+        /// </summary>
+        internal uint Id;
+
+        /// <summary>
+        ///     The mute
         /// </summary>
         internal bool Mute;
 
         /// <summary>
-        /// The trade lock
+        ///     The trade lock
         /// </summary>
         internal bool TradeLock;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ModerationTemplate"/> class.
+        ///     The warning message
+        /// </summary>
+        internal string WarningMessage;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModerationTemplate" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="category">The category.</param>
@@ -68,8 +68,8 @@ namespace Azure.HabboHotel.Support
         /// <param name="avatarBan">if set to <c>true</c> [avatar ban].</param>
         /// <param name="mute">if set to <c>true</c> [mute].</param>
         /// <param name="tradeLock">if set to <c>true</c> [trade lock].</param>
-        internal ModerationTemplate(uint id, short category, string cName, string caption, string warningMessage, string banMessage,
-            short banHours, bool avatarBan, bool mute, bool tradeLock)
+        internal ModerationTemplate(uint id, short category, string cName, string caption, string warningMessage,
+            string banMessage, short banHours, bool avatarBan, bool mute, bool tradeLock)
         {
             Id = id;
             Category = category;

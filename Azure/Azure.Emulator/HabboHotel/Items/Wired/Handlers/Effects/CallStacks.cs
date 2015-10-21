@@ -1,7 +1,9 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -18,13 +20,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionCallStacks;
-            }
-        }
+        public Interaction Type => Interaction.ActionCallStacks;
 
         public RoomItem Item { get; set; }
 
@@ -44,9 +40,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            RoomUser roomUser = (RoomUser)stuff[0];
-            List<WiredItem> Effects = new List<WiredItem>();
-            foreach (RoomItem item in Items)
+            var roomUser = (RoomUser)stuff[0];
+            var Effects = new List<WiredItem>();
+            foreach (var item in Items)
             {
                 if (!item.IsWired) continue;
                 var wired = Room.GetWiredHandler().GetWired(item);

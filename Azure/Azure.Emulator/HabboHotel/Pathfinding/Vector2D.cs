@@ -8,22 +8,24 @@ using System.Collections.Generic;
 namespace Azure.HabboHotel.PathFinding
 {
     /// <summary>
-    /// Class Vector2D.
+    ///     Class Vector2D.
     /// </summary>
     internal class Vector2D
     {
         /// <summary>
-        /// The zero
+        ///     The zero
         /// </summary>
         public static Vector2D Zero = new Vector2D(0, 0);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Vector2D"/> class.
+        ///     Initializes a new instance of the <see cref="Vector2D" /> class.
         /// </summary>
-        public Vector2D() { }
+        public Vector2D()
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Vector2D"/> class.
+        ///     Initializes a new instance of the <see cref="Vector2D" /> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
@@ -34,19 +36,19 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Gets or sets the x.
+        ///     Gets or sets the x.
         /// </summary>
         /// <value>The x.</value>
-        public int X { get; set; }
+        public int X { get; }
 
         /// <summary>
-        /// Gets or sets the y.
+        ///     Gets or sets the y.
         /// </summary>
         /// <value>The y.</value>
-        public int Y { get; set; }
+        public int Y { get; }
 
         /// <summary>
-        /// Gets the distance squared.
+        ///     Gets the distance squared.
         /// </summary>
         /// <param name="point">The point.</param>
         /// <returns>System.Int32.</returns>
@@ -55,12 +57,12 @@ namespace Azure.HabboHotel.PathFinding
             {
                 var num = X - point.X;
                 var num2 = Y - point.Y;
-                return num * num + num2 * num2;
+                return num*num + num2*num2;
             }
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
         /// </summary>
         /// <param name="obj">The object to compare with the current object.</param>
         /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
@@ -71,25 +73,25 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Returns a hash code for this instance.
+        ///     Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode()
         {
-            return string.Format("{0} {1}", X, Y).GetHashCode();
+            return $"{X} {Y}".GetHashCode();
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        ///     Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return string.Format("{0}, {1}", X, Y);
+            return $"{X}, {Y}";
         }
 
         /// <summary>
-        /// Implements the +.
+        ///     Implements the +.
         /// </summary>
         /// <param name="one">The one.</param>
         /// <param name="two">The two.</param>
@@ -100,7 +102,7 @@ namespace Azure.HabboHotel.PathFinding
         }
 
         /// <summary>
-        /// Implements the -.
+        ///     Implements the -.
         /// </summary>
         /// <param name="one">The one.</param>
         /// <param name="two">The two.</param>

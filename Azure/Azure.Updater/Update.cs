@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Ionic.Zip;
 
 #endregion
 
@@ -22,7 +21,6 @@ namespace Azure.Updater
         {
             bool update = false;
 
-
             //create download folder if it does not exist
             if (!Directory.Exists(resourceDownloadFolder))
             {
@@ -31,7 +29,6 @@ namespace Azure.Updater
 
             //let's try and download update information from the web
             update = WebData.downloadFromWeb(downloadsURL, versionFile, resourceDownloadFolder);
-
 
             //if the download of the file was successful
             if (update)
@@ -142,7 +139,7 @@ namespace Azure.Updater
             {
                 // Specifying Console.Out here causes diagnostic msgs to be sent to the Console
                 // In a WinForms or WPF or Web app, you could specify nothing, or an alternate
-                // TextWriter to capture diagnostic messages. 
+                // TextWriter to capture diagnostic messages.
                 using (ZipFile zip = ZipFile.Read(file))
                 {
                     // This call to ExtractAll() assumes:

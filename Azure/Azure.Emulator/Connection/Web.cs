@@ -7,17 +7,17 @@ using System.Net;
 
 namespace Azure.Connection
 {
-    static class Web
+    internal static class Web
     {
-        public static string HttpPostJson(string URI, string Json)
+        public static string HttpPostJson(string uri, string json)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(URI);
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
             httpWebRequest.ContentType = "text/json";
             httpWebRequest.Method = "POST";
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                streamWriter.Write(Json);
+                streamWriter.Write(json);
                 streamWriter.Flush();
                 streamWriter.Close();
             }

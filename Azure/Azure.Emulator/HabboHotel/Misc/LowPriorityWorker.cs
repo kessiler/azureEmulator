@@ -1,48 +1,47 @@
 #region
 
 using System;
-using System.Threading;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using System.Diagnostics;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 
 #endregion
 
 namespace Azure.HabboHotel.Misc
 {
     /// <summary>
-    /// Class LowPriorityWorker.
+    ///     Class LowPriorityWorker.
     /// </summary>
     internal class LowPriorityWorker
     {
         /// <summary>
-        /// The _user peak
+        ///     The _user peak
         /// </summary>
         private static int _userPeak;
-        private static bool isExecuted;
-        private static Stopwatch lowPriorityStopWatch;
+
+        private static bool _isExecuted;
+        private static Stopwatch _lowPriorityStopWatch;
 
         /// <summary>
-        /// Initializes the specified database client.
+        ///     Initializes the specified database client.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal static void Init(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT userpeak FROM server_status");
             _userPeak = dbClient.GetInteger();
-            lowPriorityStopWatch = new Stopwatch();
-            lowPriorityStopWatch.Start();
+            _lowPriorityStopWatch = new Stopwatch();
+            _lowPriorityStopWatch.Start();
         }
 
         /// <summary>
-        /// Processes the specified caller.
+        ///     Processes the specified caller.
         /// </summary>
-        /// <param name="caller">The caller.</param>
         internal static void Process()
         {
-            if (lowPriorityStopWatch.ElapsedMilliseconds >= 30000 || !isExecuted)
+            if (_lowPriorityStopWatch.ElapsedMilliseconds >= 30000 || !_isExecuted)
             {
-                isExecuted = true;
-                lowPriorityStopWatch.Restart();
+                _isExecuted = true;
+                _lowPriorityStopWatch.Restart();
                 try
                 {
                     var clientCount = Azure.GetGame().GetClientManager().ClientCount();

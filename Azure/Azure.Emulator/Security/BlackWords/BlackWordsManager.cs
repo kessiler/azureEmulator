@@ -44,7 +44,6 @@ namespace Azure.Security.BlackWords
                     var word = row["word"].ToString();
                     var typeStr = row["type"].ToString();
 
-
                     AddPrivateBlackWord(typeStr, word);
                 }
             }
@@ -100,7 +99,7 @@ namespace Azure.Security.BlackWords
             }
         }
 
-        static void AddPrivateBlackWord(string typeStr, string word)
+        private static void AddPrivateBlackWord(string typeStr, string word)
         {
             BlackWordType type;
             switch (typeStr)
@@ -117,6 +116,7 @@ namespace Azure.Security.BlackWords
                     Out.WriteLine("Word type [all] it's reserved for system. Word: " + word,
                         "Azure.Security.BlackWords", ConsoleColor.DarkRed);
                     return;
+
                 default:
                     Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word,
                         "Azure.Security.BlackWords", ConsoleColor.DarkRed);

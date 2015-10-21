@@ -41,8 +41,8 @@ namespace Azure.Messages.Parsers
 
         public static void Initialize()
         {
-            Out.WriteLine(string.Format("Loaded {0} Habbo Releases", CountReleases), "Azure.Packets");
-            Out.WriteLine(string.Format("Loaded {0} Event Controllers", Incoming.Count), "Azure.Packets");
+            Out.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Packets");
+            Out.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Packets");
         }
 
         public static void HandlePacket(GameClientMessageHandler handler, ClientMessage message)
@@ -59,8 +59,10 @@ namespace Azure.Messages.Parsers
                     Console.Write("HANDLED ");
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write(message.Id + Environment.NewLine + message);
+
                     if (message.Length > 0)
                         Console.WriteLine();
+
                     Console.WriteLine();
                 }
 
@@ -75,8 +77,10 @@ namespace Azure.Messages.Parsers
                 Console.Write("REFUSED ");
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.Write(message.Id + Environment.NewLine + message);
+
                 if (message.Length > 0)
                     Console.WriteLine();
+
                 Console.WriteLine();
             }
         }
@@ -97,31 +101,32 @@ namespace Azure.Messages.Parsers
         internal static void RegisterIncoming()
         {
             CountReleases = 0;
-            var filePaths = Directory.GetFiles(string.Format("{0}\\Packets", Environment.CurrentDirectory), "*.incoming");
+            var filePaths = Directory.GetFiles($"{Environment.CurrentDirectory}\\Packets", "*.incoming");
+
             foreach (var fileContents in filePaths.Select(currentFile => File.ReadAllLines(currentFile, Encoding.UTF8)))
             {
                 CountReleases++;
+
                 foreach (var fields in fileContents.Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("[")).Select(line => line.Replace(" ", string.Empty).Split('=')))
                 {
                     var packetName = fields[0];
-                    if (fields[1].Contains('/')) // anti comments
+
+                    if (fields[1].Contains('/'))
                         fields[1] = fields[1].Split('/')[0];
 
                     var packetId = fields[1].ToLower().Contains('x') ? Convert.ToInt32(fields[1], 16) : Convert.ToInt32(fields[1]);
+
                     if (!Library.ContainsKey(packetName))
                         continue;
+
                     var libValue = Library[packetName];
-                    var del =
-                        (PacketLibrary.GetProperty)
-                            Delegate.CreateDelegate(typeof(PacketLibrary.GetProperty), typeof(PacketLibrary),
-                                libValue);
+                    var del = (PacketLibrary.GetProperty)Delegate.CreateDelegate(typeof(PacketLibrary.GetProperty), typeof(PacketLibrary), libValue);
                     if (Incoming.ContainsKey(packetId))
                     {
                         if (packetId == -1)
                             continue;
 
-                        Console.WriteLine(
-                            "> A Incoming Packet with same Id was found: " + packetId);
+                        Console.WriteLine("> A Incoming Packet with same Id was found: " + packetId);
                     }
                     else
                         Incoming.Add(packetId, new StaticRequestHandler(del));
@@ -129,13 +134,12 @@ namespace Azure.Messages.Parsers
             }
         }
 
-
         internal static void RegisterConfig()
         {
-            var filePaths = Directory.GetFiles(string.Format("{0}\\Packets", Environment.CurrentDirectory), "*.inf");
+            var filePaths = Directory.GetFiles($"{Environment.CurrentDirectory}\\Packets", "*.inf");
             foreach (var fields in filePaths.Select(File.ReadAllLines).SelectMany(fileContents => fileContents.Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("[")).Select(line => line.Split('='))))
             {
-                if (fields[1].Contains('/')) // anti comments
+                if (fields[1].Contains('/'))
                     fields[1] = fields[1].Split('/')[0];
 
                 Config.Add(fields[0], fields[1]);
@@ -146,7 +150,7 @@ namespace Azure.Messages.Parsers
         {
             _registeredOutoings = new List<uint>();
 
-            var filePaths = Directory.GetFiles(string.Format("{0}\\Packets", Environment.CurrentDirectory), "*.outgoing");
+            var filePaths = Directory.GetFiles($"{Environment.CurrentDirectory}\\Packets", "*.outgoing");
             foreach (var fields in filePaths.Select(File.ReadAllLines).SelectMany(fileContents => fileContents.Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("[")).Select(line => line.Replace(" ", string.Empty).Split('='))))
             {
                 if (fields[1].Contains('/'))
@@ -162,6 +166,7 @@ namespace Azure.Messages.Parsers
                     else
                         _registeredOutoings.Add((uint)packetId);
                 }
+
                 Outgoing.Add(packetName, packetId);
             }
 
@@ -171,10 +176,10 @@ namespace Azure.Messages.Parsers
 
         internal static void RegisterLibrary()
         {
-            var filePaths = Directory.GetFiles(string.Format("{0}\\Packets", Environment.CurrentDirectory), "*.library");
+            var filePaths = Directory.GetFiles($"{Environment.CurrentDirectory}\\Packets", "*.library");
             foreach (var fields in filePaths.Select(File.ReadAllLines).SelectMany(fileContents => fileContents.Select(line => line.Split('='))))
             {
-                if (fields[1].Contains('/')) // anti comments
+                if (fields[1].Contains('/'))
                     fields[1] = fields[1].Split('/')[0];
 
                 var incomingName = fields[0];

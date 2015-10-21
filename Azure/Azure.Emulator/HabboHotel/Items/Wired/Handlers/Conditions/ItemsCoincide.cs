@@ -3,7 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -21,10 +22,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             OtherExtraString2 = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionItemsMatches; }
-        }
+        public Interaction Type => Interaction.ConditionItemsMatches;
 
         public RoomItem Item { get; set; }
 
@@ -59,7 +57,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
             try
             {
-                if (String.IsNullOrWhiteSpace(OtherString) || !OtherString.Contains(",") ||
+                if (string.IsNullOrWhiteSpace(OtherString) || !OtherString.Contains(",") ||
                     !OtherExtraString.Contains("|"))
                     return false;
                 var booleans = OtherString.ToLower().Split(',');

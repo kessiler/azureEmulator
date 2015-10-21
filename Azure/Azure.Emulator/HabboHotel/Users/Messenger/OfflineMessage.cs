@@ -9,27 +9,27 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 namespace Azure.HabboHotel.Users.Messenger
 {
     /// <summary>
-    /// Class OfflineMessage.
+    ///     Class OfflineMessage.
     /// </summary>
     internal class OfflineMessage
     {
         /// <summary>
-        /// From identifier
+        ///     From identifier
         /// </summary>
         internal uint FromId;
 
         /// <summary>
-        /// The message
+        ///     The message
         /// </summary>
         internal string Message;
 
         /// <summary>
-        /// The timestamp
+        ///     The timestamp
         /// </summary>
         internal double Timestamp;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OfflineMessage"/> class.
+        ///     Initializes a new instance of the <see cref="OfflineMessage" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="msg">The MSG.</param>
@@ -42,27 +42,30 @@ namespace Azure.HabboHotel.Users.Messenger
         }
 
         /// <summary>
-        /// Initializes the offline messages.
+        ///     Initializes the offline messages.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal static void InitOfflineMessages(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT * FROM messenger_offline_messages");
             var table = dbClient.GetTable();
+
             foreach (DataRow dataRow in table.Rows)
             {
-                var key = (uint)dataRow[1];
-                var id = (uint)dataRow[2];
+                var key = (uint) dataRow[1];
+                var id = (uint) dataRow[2];
                 var msg = dataRow[3].ToString();
-                var ts = (double)dataRow[4];
+                var ts = (double) dataRow[4];
+
                 if (!Azure.OfflineMessages.ContainsKey(key))
                     Azure.OfflineMessages.Add(key, new List<OfflineMessage>());
+
                 Azure.OfflineMessages[key].Add(new OfflineMessage(id, msg, ts));
             }
         }
 
         /// <summary>
-        /// Saves the message.
+        ///     Saves the message.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         /// <param name="toId">To identifier.</param>
@@ -79,13 +82,13 @@ namespace Azure.HabboHotel.Users.Messenger
         }
 
         /// <summary>
-        /// Removes all messages.
+        ///     Removes all messages.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
-        /// <param name="ToId">To identifier.</param>
-        internal static void RemoveAllMessages(IQueryAdapter dbClient, uint ToId)
+        /// <param name="toId">To identifier.</param>
+        internal static void RemoveAllMessages(IQueryAdapter dbClient, uint toId)
         {
-            dbClient.RunFastQuery(string.Format("DELETE FROM messenger_offline_messages WHERE to_id={0}", ToId));
+            dbClient.RunFastQuery($"DELETE FROM messenger_offline_messages WHERE to_id={toId}");
         }
     }
 }

@@ -1,34 +1,34 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Class HelperSession.
+    ///     Class HelperSession.
     /// </summary>
     internal class HelperSession
     {
         /// <summary>
-        /// The helper
-        /// </summary>
-        internal GameClient Helper;
-
-        /// <summary>
-        /// The requester
-        /// </summary>
-        internal GameClient Requester;
-
-        /// <summary>
-        /// The chats
+        ///     The chats
         /// </summary>
         internal List<string> Chats;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HelperSession"/> class.
+        ///     The helper
+        /// </summary>
+        internal GameClient Helper;
+
+        /// <summary>
+        ///     The requester
+        /// </summary>
+        internal GameClient Requester;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HelperSession" /> class.
         /// </summary>
         /// <param name="helper">The helper.</param>
         /// <param name="requester">The requester.</param>
@@ -37,12 +37,12 @@ namespace Azure.HabboHotel.Support
         {
             Helper = helper;
             Requester = requester;
-            Chats = new List<string> { question };
+            Chats = new List<string> {question};
             Response(requester, question);
         }
 
         /// <summary>
-        /// Responses the specified response client.
+        ///     Responses the specified response client.
         /// </summary>
         /// <param name="responseClient">The response client.</param>
         /// <param name="response">The response.</param>

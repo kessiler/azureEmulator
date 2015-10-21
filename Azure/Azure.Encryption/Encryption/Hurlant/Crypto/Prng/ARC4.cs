@@ -8,7 +8,10 @@
 
         private int _i, _j;
 
-        public ARC4() { _bytes = new byte[PoolSize]; }
+        public ARC4()
+        {
+            _bytes = new byte[PoolSize];
+        }
 
         public ARC4(byte[] key)
         {
@@ -22,7 +25,7 @@
             _j = 0;
 
             for (_i = 0; _i < PoolSize; ++_i)
-                _bytes[_i] = (byte) _i;
+                _bytes[_i] = (byte)_i;
 
             for (_i = 0; _i < PoolSize; ++_i)
             {

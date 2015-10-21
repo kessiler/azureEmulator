@@ -18,93 +18,93 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GameCenterLoadGame()
         {
-            ServerMessage Achievements = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterGameAchievementsMessageComposer"));
-            Achievements.AppendInteger(18);
-            Achievements.AppendInteger(1);//count
-            Achievements.AppendInteger(295);//id
-            Achievements.AppendInteger(1);
-            Achievements.AppendString("ACH_StoryChallengeChampion1");
-            Achievements.AppendInteger(0);
-            Achievements.AppendInteger(1);
-            Achievements.AppendInteger(0);
-            Achievements.AppendInteger(0);
-            Achievements.AppendInteger(0);
-            Achievements.AppendBool(false);
-            Achievements.AppendString("games");
-            Achievements.AppendString("elisa_habbo_stories");
-            Achievements.AppendInteger(1);
-            Achievements.AppendInteger(0);
-            Achievements.AppendString("");
-            Session.SendMessage(Achievements);
+            ServerMessage achievements = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterGameAchievementsMessageComposer"));
+            achievements.AppendInteger(18);
+            achievements.AppendInteger(1);//count
+            achievements.AppendInteger(295);//id
+            achievements.AppendInteger(1);
+            achievements.AppendString("ACH_StoryChallengeChampion1");
+            achievements.AppendInteger(0);
+            achievements.AppendInteger(1);
+            achievements.AppendInteger(0);
+            achievements.AppendInteger(0);
+            achievements.AppendInteger(0);
+            achievements.AppendBool(false);
+            achievements.AppendString("games");
+            achievements.AppendString("elisa_habbo_stories");
+            achievements.AppendInteger(1);
+            achievements.AppendInteger(0);
+            achievements.AppendString("");
+            Session.SendMessage(achievements);
 
-            ServerMessage WeeklyLeaderboard = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboardMessageComposer"));
-            WeeklyLeaderboard.AppendInteger(2014);
-            WeeklyLeaderboard.AppendInteger(49);
-            WeeklyLeaderboard.AppendInteger(0);
-            WeeklyLeaderboard.AppendInteger(0);
-            WeeklyLeaderboard.AppendInteger(6526);
-            WeeklyLeaderboard.AppendInteger(1);
-            WeeklyLeaderboard.AppendInteger(Session.GetHabbo().Id);
-            WeeklyLeaderboard.AppendInteger(0);
-            WeeklyLeaderboard.AppendInteger(1);
-            WeeklyLeaderboard.AppendString(Session.GetHabbo().UserName);
-            WeeklyLeaderboard.AppendString(Session.GetHabbo().Look);
-            WeeklyLeaderboard.AppendString(Session.GetHabbo().Gender);
-            WeeklyLeaderboard.AppendInteger(1);
-            WeeklyLeaderboard.AppendInteger(18);
-            Session.SendMessage(WeeklyLeaderboard);
+            ServerMessage weeklyLeaderboard = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboardMessageComposer"));
+            weeklyLeaderboard.AppendInteger(2014);
+            weeklyLeaderboard.AppendInteger(49);
+            weeklyLeaderboard.AppendInteger(0);
+            weeklyLeaderboard.AppendInteger(0);
+            weeklyLeaderboard.AppendInteger(6526);
+            weeklyLeaderboard.AppendInteger(1);
+            weeklyLeaderboard.AppendInteger(Session.GetHabbo().Id);
+            weeklyLeaderboard.AppendInteger(0);
+            weeklyLeaderboard.AppendInteger(1);
+            weeklyLeaderboard.AppendString(Session.GetHabbo().UserName);
+            weeklyLeaderboard.AppendString(Session.GetHabbo().Look);
+            weeklyLeaderboard.AppendString(Session.GetHabbo().Gender);
+            weeklyLeaderboard.AppendInteger(1);
+            weeklyLeaderboard.AppendInteger(18);
+            Session.SendMessage(weeklyLeaderboard);
 
-            ServerMessage WeeklyLeaderboard2 = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboard2MessageComposer"));
-            WeeklyLeaderboard2.AppendInteger(2014);
-            WeeklyLeaderboard2.AppendInteger(49);
-            WeeklyLeaderboard2.AppendInteger(0);
-            WeeklyLeaderboard2.AppendInteger(0);
-            WeeklyLeaderboard2.AppendInteger(6526);
-            WeeklyLeaderboard2.AppendInteger(1);
-            WeeklyLeaderboard2.AppendInteger(Session.GetHabbo().Id);
-            WeeklyLeaderboard2.AppendInteger(0);
-            WeeklyLeaderboard2.AppendInteger(1);
-            WeeklyLeaderboard2.AppendString(Session.GetHabbo().UserName);
-            WeeklyLeaderboard2.AppendString(Session.GetHabbo().Look);
-            WeeklyLeaderboard2.AppendString(Session.GetHabbo().Gender);
-            WeeklyLeaderboard2.AppendInteger(0);
-            WeeklyLeaderboard2.AppendInteger(18);
-            Session.SendMessage(WeeklyLeaderboard2);
+            ServerMessage weeklyLeaderboard2 = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboard2MessageComposer"));
+            weeklyLeaderboard2.AppendInteger(2014);
+            weeklyLeaderboard2.AppendInteger(49);
+            weeklyLeaderboard2.AppendInteger(0);
+            weeklyLeaderboard2.AppendInteger(0);
+            weeklyLeaderboard2.AppendInteger(6526);
+            weeklyLeaderboard2.AppendInteger(1);
+            weeklyLeaderboard2.AppendInteger(Session.GetHabbo().Id);
+            weeklyLeaderboard2.AppendInteger(0);
+            weeklyLeaderboard2.AppendInteger(1);
+            weeklyLeaderboard2.AppendString(Session.GetHabbo().UserName);
+            weeklyLeaderboard2.AppendString(Session.GetHabbo().Look);
+            weeklyLeaderboard2.AppendString(Session.GetHabbo().Gender);
+            weeklyLeaderboard2.AppendInteger(0);
+            weeklyLeaderboard2.AppendInteger(18);
+            Session.SendMessage(weeklyLeaderboard2);
 
-            ServerMessage WeeklyLeaderboard3 = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboard2MessageComposer"));
-            WeeklyLeaderboard3.AppendInteger(2014);
-            WeeklyLeaderboard3.AppendInteger(48);
-            WeeklyLeaderboard3.AppendInteger(0);
-            WeeklyLeaderboard3.AppendInteger(1);
-            WeeklyLeaderboard3.AppendInteger(6526);
-            WeeklyLeaderboard3.AppendInteger(1);
-            WeeklyLeaderboard3.AppendInteger(Session.GetHabbo().Id);
-            WeeklyLeaderboard3.AppendInteger(0);
-            WeeklyLeaderboard3.AppendInteger(1);
-            WeeklyLeaderboard3.AppendString(Session.GetHabbo().UserName);
-            WeeklyLeaderboard3.AppendString(Session.GetHabbo().Look);
-            WeeklyLeaderboard3.AppendString(Session.GetHabbo().Gender);
-            WeeklyLeaderboard3.AppendInteger(0);
-            WeeklyLeaderboard3.AppendInteger(18);
-            Session.SendMessage(WeeklyLeaderboard3);
+            ServerMessage weeklyLeaderboard3 = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLeaderboard2MessageComposer"));
+            weeklyLeaderboard3.AppendInteger(2014);
+            weeklyLeaderboard3.AppendInteger(48);
+            weeklyLeaderboard3.AppendInteger(0);
+            weeklyLeaderboard3.AppendInteger(1);
+            weeklyLeaderboard3.AppendInteger(6526);
+            weeklyLeaderboard3.AppendInteger(1);
+            weeklyLeaderboard3.AppendInteger(Session.GetHabbo().Id);
+            weeklyLeaderboard3.AppendInteger(0);
+            weeklyLeaderboard3.AppendInteger(1);
+            weeklyLeaderboard3.AppendString(Session.GetHabbo().UserName);
+            weeklyLeaderboard3.AppendString(Session.GetHabbo().Look);
+            weeklyLeaderboard3.AppendString(Session.GetHabbo().Gender);
+            weeklyLeaderboard3.AppendInteger(0);
+            weeklyLeaderboard3.AppendInteger(18);
+            Session.SendMessage(weeklyLeaderboard3);
 
-            ServerMessage GamesLeft = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterGamesLeftMessageComposer"));
-            GamesLeft.AppendInteger(18);
-            GamesLeft.AppendInteger(-1);
-            GamesLeft.AppendInteger(0);
-            Session.SendMessage(GamesLeft);
+            ServerMessage gamesLeft = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterGamesLeftMessageComposer"));
+            gamesLeft.AppendInteger(18);
+            gamesLeft.AppendInteger(-1);
+            gamesLeft.AppendInteger(0);
+            Session.SendMessage(gamesLeft);
 
-            ServerMessage PreviousWinner = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterPreviousWinnerMessageComposer"));
-            PreviousWinner.AppendInteger(18);
-            PreviousWinner.AppendInteger(0);
+            ServerMessage previousWinner = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterPreviousWinnerMessageComposer"));
+            previousWinner.AppendInteger(18);
+            previousWinner.AppendInteger(0);
 
-            PreviousWinner.AppendString("name");
-            PreviousWinner.AppendString("figure");
-            PreviousWinner.AppendString("gender");
-            PreviousWinner.AppendInteger(0);
-            PreviousWinner.AppendInteger(0);
+            previousWinner.AppendString("name");
+            previousWinner.AppendString("figure");
+            previousWinner.AppendString("gender");
+            previousWinner.AppendInteger(0);
+            previousWinner.AppendInteger(0);
 
-            Session.SendMessage(PreviousWinner);
+            Session.SendMessage(previousWinner);
 
             /*ServerMessage Products = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterProductsMessageComposer"));
             Products.AppendInteger(18);//gameId
@@ -113,8 +113,8 @@ namespace Azure.Messages.Handlers
             Products.AppendBool(false);
             Session.SendMessage(Products);*/
 
-            ServerMessage AllAchievements = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterAllAchievementsMessageComposer"));
-            AllAchievements.AppendInteger(0);//count
+            ServerMessage allAchievements = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterAllAchievementsMessageComposer"));
+            allAchievements.AppendInteger(0);//count
 
             //For Stories
             /*PacketName5.AppendInteger(18);
@@ -123,18 +123,18 @@ namespace Azure.Messages.Handlers
             PacketName5.AppendString("StoryChallengeChampion");
             PacketName5.AppendInteger(20);*/
 
-            AllAchievements.AppendInteger(0);//gameId
-            AllAchievements.AppendInteger(0);//count
-            AllAchievements.AppendInteger(0);//achId
-            AllAchievements.AppendString("SnowWarTotalScore");//achName
-            AllAchievements.AppendInteger(0);//levels
+            allAchievements.AppendInteger(0);//gameId
+            allAchievements.AppendInteger(0);//count
+            allAchievements.AppendInteger(0);//achId
+            allAchievements.AppendString("SnowWarTotalScore");//achName
+            allAchievements.AppendInteger(0);//levels
 
-            Session.SendMessage(AllAchievements);
+            Session.SendMessage(allAchievements);
 
-            ServerMessage EnterInGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterEnterInGameMessageComposer"));
-            EnterInGame.AppendInteger(18);
-            EnterInGame.AppendInteger(0);
-            Session.SendMessage(EnterInGame);
+            ServerMessage enterInGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterEnterInGameMessageComposer"));
+            enterInGame.AppendInteger(18);
+            enterInGame.AppendInteger(0);
+            Session.SendMessage(enterInGame);
         }
 
         /// <summary>
@@ -142,15 +142,15 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GameCenterJoinQueue()
         {
-            ServerMessage JoinQueue = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterJoinGameQueueMessageComposer"));
-            JoinQueue.AppendInteger(18);
-            Session.SendMessage(JoinQueue);
+            ServerMessage joinQueue = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterJoinGameQueueMessageComposer"));
+            joinQueue.AppendInteger(18);
+            Session.SendMessage(joinQueue);
 
-            ServerMessage LoadGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLoadGameUrlMessageComposer"));
-            LoadGame.AppendInteger(18);
-            LoadGame.AppendString(Convert.ToString(Azure.GetUnixTimeStamp()));
-            LoadGame.AppendString(ExtraSettings.GameCenterStoriesUrl);
-            Session.SendMessage(LoadGame);
+            ServerMessage loadGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLoadGameUrlMessageComposer"));
+            loadGame.AppendInteger(18);
+            loadGame.AppendString(Convert.ToString(Azure.GetUnixTimeStamp()));
+            loadGame.AppendString(ExtraSettings.GameCenterStoriesUrl);
+            Session.SendMessage(loadGame);
         }
     }
 }

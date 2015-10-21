@@ -1,59 +1,69 @@
 #region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
 #endregion
 
-namespace Azure.HabboHotel.Achievements.Composer
+namespace Azure.HabboHotel.Achievements.Composers
 {
     /// <summary>
-    /// Class AchievementListComposer.
+    ///     Class AchievementListComposer.
     /// </summary>
     internal class AchievementListComposer
     {
         /// <summary>
-        /// Composes the specified session.
+        ///     Composes the specified session.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="Achievements">The achievements.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="achievements">The achievements.</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage Compose(GameClient Session, List<Achievement> Achievements)
+        internal static ServerMessage Compose(GameClient session, List<Achievement> achievements)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("AchievementListMessageComposer"));
-            serverMessage.AppendInteger(Achievements.Count);
-            foreach (Achievement achievement in Achievements)
-            {
-                UserAchievement achievementData = Session.GetHabbo().GetAchievementData(achievement.GroupName);
-                int i = achievementData != null ? (achievementData.Level + 1) : 1;
+            serverMessage.AppendInteger(achievements.Count);
 
-                int count = achievement.Levels.Count;
+            foreach (var achievement in achievements)
+            {
+                var achievementData = session.GetHabbo().GetAchievementData(achievement.GroupName);
+
+                var i = achievementData?.Level + 1 ?? 1;
+
+                var count = achievement.Levels.Count;
+
                 if (i > count)
                     i = count;
-                AchievementLevel achievementLevel = achievement.Levels[i];
-                AchievementLevel oldLevel = (achievement.Levels.ContainsKey(i - 1)) ? achievement.Levels[i - 1] : achievementLevel;
+
+                var achievementLevel = achievement.Levels[i];
+                var oldLevel = (achievement.Levels.ContainsKey(i - 1)) ? achievement.Levels[i - 1] : achievementLevel;
+
                 serverMessage.AppendInteger(achievement.Id);
                 serverMessage.AppendInteger(i);
-                serverMessage.AppendString(string.Format("{0}{1}", achievement.GroupName, i));
+                serverMessage.AppendString($"{achievement.GroupName}{i}");
                 serverMessage.AppendInteger(oldLevel.Requirement);
                 serverMessage.AppendInteger(achievementLevel.Requirement);
                 serverMessage.AppendInteger(achievementLevel.RewardPoints);
                 serverMessage.AppendInteger(0);
-                serverMessage.AppendInteger(achievementData != null ? achievementData.Progress : 0);
+                serverMessage.AppendInteger(achievementData?.Progress ?? 0);
+
                 if (achievementData == null)
                     serverMessage.AppendBool(false);
                 else if (achievementData.Level >= count)
                     serverMessage.AppendBool(true);
                 else
                     serverMessage.AppendBool(false);
+
                 serverMessage.AppendString(achievement.Category);
                 serverMessage.AppendString(string.Empty);
                 serverMessage.AppendInteger(count);
                 serverMessage.AppendInteger(0);
             }
-            serverMessage.AppendString("");
+
+            serverMessage.AppendString(string.Empty);
+
             return serverMessage;
         }
     }

@@ -1,7 +1,9 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -22,13 +24,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionBotTalkToAvatar;
-            }
-        }
+        public Interaction Type => Interaction.ActionBotTalkToAvatar;
 
         public RoomItem Item { get; set; }
 
@@ -36,24 +32,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay
         {
-            get
-            {
-                return 0;
-            }
-            set
-            {
-            }
+            get { return 0; }
+            set { }
         }
 
         public string OtherString { get; set; }
@@ -66,9 +52,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            RoomUser roomUser = (RoomUser)stuff[0];
+            var roomUser = (RoomUser)stuff[0];
             //InteractionType item = (InteractionType)stuff[1];
-            RoomUser bot = Room.GetRoomUserManager().GetBotByName(OtherString);
+            var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
             if (bot == null) return false;
             if (OtherBool) // Whisper
             {

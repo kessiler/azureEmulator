@@ -1,7 +1,9 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -16,13 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionTeleportTo;
-            }
-        }
+        public Interaction Type => Interaction.ActionTeleportTo;
 
         public RoomItem Item { get; set; }
 
@@ -42,19 +38,22 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            List<Interaction> list = new List<Interaction> { Interaction.TriggerRepeater };
+            var list = new List<Interaction> { Interaction.TriggerRepeater };
             if (stuff[0] == null) return false;
             var roomUser = (RoomUser)stuff[0];
             var item = (Interaction)stuff[1];
 
-            List<Interaction> ConnetWired = new List<Interaction> { Interaction.ActionEffectUser };
+            var connetWired = new List<Interaction> { Interaction.ActionEffectUser };
             {
-                int effectID = 0;
-                if (int.TryParse(OtherString, out effectID))
+                var effectId = 0;
+                if (int.TryParse(OtherString, out effectId))
                 {
                     if (roomUser != null && !string.IsNullOrEmpty(OtherString))
                     {
-                        roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(effectID);
+                        roomUser.GetClient()
+                            .GetHabbo()
+                            .GetAvatarEffectsInventoryComponent()
+                            .ActivateCustomEffect(effectId);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 
 #endregion
 
@@ -17,11 +18,11 @@ namespace Azure.HabboHotel.Users
 
     internal static class ChatEmotions
     {
-        private static Dictionary<string, ChatEmotion> mEmotions;
+        private static Dictionary<string, ChatEmotion> _mEmotions;
 
         internal static void Initialize()
         {
-            mEmotions = new Dictionary<string, ChatEmotion>
+            _mEmotions = new Dictionary<string, ChatEmotion>
             {
                 // Smile
                 {":)", ChatEmotion.Smile},
@@ -33,7 +34,7 @@ namespace Azure.HabboHotel.Users
                 {"=)", ChatEmotion.Smile},
                 {"=]", ChatEmotion.Smile},
                 {":-)", ChatEmotion.Smile},
-     
+
                 // Angry
                 {">:(", ChatEmotion.Angry},
                 {">:[", ChatEmotion.Angry},
@@ -49,7 +50,7 @@ namespace Azure.HabboHotel.Users
                 {">:o", ChatEmotion.Shocked},
                 {"=o", ChatEmotion.Shocked},
                 {">=o", ChatEmotion.Shocked},
-     
+
                 // Sad
                 {";'(", ChatEmotion.Sad},
                 {";[", ChatEmotion.Sad},
@@ -65,23 +66,20 @@ namespace Azure.HabboHotel.Users
         }
 
         /// <summary>
-        /// Searches the provided text for any emotions that need to be applied and returns the packet number.
+        ///     Searches the provided text for any emotions that need to be applied and returns the packet number.
         /// </summary>
-        /// <param name="Text">The text to search through</param>
+        /// <param name="text">The text to search through</param>
         /// <returns></returns>
-        public static int GetEmotionsForText(string Text)
+        public static int GetEmotionsForText(string text)
         {
-            foreach (KeyValuePair<string, ChatEmotion> Kvp in mEmotions)
-            {
-                if (Text.ToLower().Contains(Kvp.Key.ToLower()))
-                    return GetEmoticonPacketNum(Kvp.Value);
-            }
-
-            return 0;
+            return
+                (from kvp in _mEmotions
+                    where text.ToLower().Contains(kvp.Key.ToLower())
+                    select GetEmoticonPacketNum(kvp.Value)).FirstOrDefault();
         }
 
         /// <summary>
-        /// Trys to get the packet number for the provided chat emotion.
+        ///     Trys to get the packet number for the provided chat emotion.
         /// </summary>
         /// <param name="e">Chat Emotion</param>
         /// <returns></returns>
@@ -101,7 +99,6 @@ namespace Azure.HabboHotel.Users
                 case ChatEmotion.Sad:
                     return 4;
 
-                case ChatEmotion.None:
                 default:
                     return 0;
             }

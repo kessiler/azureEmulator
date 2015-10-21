@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Messages;
 
 #endregion
@@ -10,87 +9,87 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Class SupportTicket.
+    ///     Class SupportTicket.
     /// </summary>
     internal class SupportTicket
     {
         /// <summary>
-        /// The score
-        /// </summary>
-        internal int Score;
-
-        /// <summary>
-        /// The category
-        /// </summary>
-        internal int Category;
-
-        /// <summary>
-        /// The type
-        /// </summary>
-        internal int Type;
-
-        /// <summary>
-        /// The status
-        /// </summary>
-        internal TicketStatus Status;
-
-        /// <summary>
-        /// The sender identifier
-        /// </summary>
-        internal uint SenderId;
-
-        /// <summary>
-        /// The reported identifier
-        /// </summary>
-        internal uint ReportedId;
-
-        /// <summary>
-        /// The moderator identifier
-        /// </summary>
-        internal uint ModeratorId;
-
-        /// <summary>
-        /// The message
-        /// </summary>
-        internal string Message;
-
-        /// <summary>
-        /// The room identifier
-        /// </summary>
-        internal uint RoomId;
-
-        /// <summary>
-        /// The room name
-        /// </summary>
-        internal string RoomName;
-
-        /// <summary>
-        /// The timestamp
-        /// </summary>
-        internal double Timestamp;
-
-        /// <summary>
-        /// The reported chats
-        /// </summary>
-        internal List<string> ReportedChats;
-
-        /// <summary>
-        /// The _sender name
-        /// </summary>
-        private readonly string _senderName;
-
-        /// <summary>
-        /// The _reported name
+        ///     The _reported name
         /// </summary>
         private readonly string _reportedName;
 
         /// <summary>
-        /// The _mod name
+        ///     The _sender name
+        /// </summary>
+        private readonly string _senderName;
+
+        /// <summary>
+        ///     The _mod name
         /// </summary>
         private string _modName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SupportTicket"/> class.
+        ///     The category
+        /// </summary>
+        internal int Category;
+
+        /// <summary>
+        ///     The message
+        /// </summary>
+        internal string Message;
+
+        /// <summary>
+        ///     The moderator identifier
+        /// </summary>
+        internal uint ModeratorId;
+
+        /// <summary>
+        ///     The reported chats
+        /// </summary>
+        internal List<string> ReportedChats;
+
+        /// <summary>
+        ///     The reported identifier
+        /// </summary>
+        internal uint ReportedId;
+
+        /// <summary>
+        ///     The room identifier
+        /// </summary>
+        internal uint RoomId;
+
+        /// <summary>
+        ///     The room name
+        /// </summary>
+        internal string RoomName;
+
+        /// <summary>
+        ///     The score
+        /// </summary>
+        internal int Score;
+
+        /// <summary>
+        ///     The sender identifier
+        /// </summary>
+        internal uint SenderId;
+
+        /// <summary>
+        ///     The status
+        /// </summary>
+        internal TicketStatus Status;
+
+        /// <summary>
+        ///     The timestamp
+        /// </summary>
+        internal double Timestamp;
+
+        /// <summary>
+        ///     The type
+        /// </summary>
+        internal int Type;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SupportTicket" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="score">The score.</param>
@@ -103,7 +102,8 @@ namespace Azure.HabboHotel.Support
         /// <param name="roomName">Name of the room.</param>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="reportedChats">The reported chats.</param>
-        internal SupportTicket(uint id, int score, int category, int type, uint senderId, uint reportedId, string message, uint roomId, string roomName, double timestamp, List<string> reportedChats)
+        internal SupportTicket(uint id, int score, int category, int type, uint senderId, uint reportedId,
+            string message, uint roomId, string roomName, double timestamp, List<string> reportedChats)
         {
             TicketId = id;
             Score = score;
@@ -124,7 +124,7 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Gets the tab identifier.
+        ///     Gets the tab identifier.
         /// </summary>
         /// <value>The tab identifier.</value>
         internal int TabId
@@ -135,7 +135,8 @@ namespace Azure.HabboHotel.Support
                     return 1;
                 if (Status == TicketStatus.Picked)
                     return 2;
-                if ((Status == TicketStatus.Abusive) || (Status == TicketStatus.Invalid) || (Status == TicketStatus.Resolved))
+                if ((Status == TicketStatus.Abusive) || (Status == TicketStatus.Invalid) ||
+                    (Status == TicketStatus.Resolved))
                     return 0;
                 if (Status == TicketStatus.Deleted)
                     return 0;
@@ -144,13 +145,13 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Gets the ticket identifier.
+        ///     Gets the ticket identifier.
         /// </summary>
         /// <value>The ticket identifier.</value>
-        internal uint TicketId { get; private set; }
+        internal uint TicketId { get; }
 
         /// <summary>
-        /// Picks the specified p moderator identifier.
+        ///     Picks the specified p moderator identifier.
         /// </summary>
         /// <param name="pModeratorId">The p moderator identifier.</param>
         /// <param name="updateInDb">if set to <c>true</c> [update in database].</param>
@@ -163,12 +164,14 @@ namespace Azure.HabboHotel.Support
             if (!updateInDb)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("UPDATE moderation_tickets SET status = 'picked', moderator_id = ", pModeratorId, ", timestamp = '", Azure.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                queryReactor.RunFastQuery(
+                    string.Concat("UPDATE moderation_tickets SET status = 'picked', moderator_id = ", pModeratorId,
+                        ", timestamp = '", Azure.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
         }
 
         /// <summary>
-        /// Closes the specified new status.
+        ///     Closes the specified new status.
         /// </summary>
         /// <param name="newStatus">The new status.</param>
         /// <param name="updateInDb">if set to <c>true</c> [update in database].</param>
@@ -186,28 +189,34 @@ namespace Azure.HabboHotel.Support
                 case TicketStatus.Abusive:
                     statusCode = "abusive";
                     break;
+
                 case TicketStatus.Invalid:
                     statusCode = "invalid";
                     break;
+
                 case TicketStatus.Resolved:
                     statusCode = "resolved";
                     break;
+
                 case TicketStatus.Open:
                     break;
+
                 case TicketStatus.Picked:
                     break;
+
                 case TicketStatus.Deleted:
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newStatus), newStatus, null);
             }
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = '{statusCode}' WHERE id = {TicketId}");
         }
 
         /// <summary>
-        /// Releases the specified update in database.
+        ///     Releases the specified update in database.
         /// </summary>
         /// <param name="updateInDb">if set to <c>true</c> [update in database].</param>
         internal void Release(bool updateInDb)
@@ -217,12 +226,12 @@ namespace Azure.HabboHotel.Support
             if (!updateInDb)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'open' WHERE id = {TicketId}");
         }
 
         /// <summary>
-        /// Deletes the specified update in database.
+        ///     Deletes the specified update in database.
         /// </summary>
         /// <param name="updateInDb">if set to <c>true</c> [update in database].</param>
         internal void Delete(bool updateInDb)
@@ -232,12 +241,12 @@ namespace Azure.HabboHotel.Support
             if (!updateInDb)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'deleted' WHERE id = {TicketId}");
         }
 
         /// <summary>
-        /// Serializes the specified message.
+        ///     Serializes the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>ServerMessage.</returns>

@@ -1,11 +1,9 @@
 ﻿#region
 
 using System;
-using System.Collections.Specialized;
 using System.Net;
 using System.Net.Sockets;
 using Azure.Messages.Parsers;
-using Azure.Configuration;
 
 #endregion
 
@@ -24,7 +22,7 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// Count of accepeted connections
         /// </summary>
-        public uint acceptedConnections;
+        public uint AcceptedConnections;
 
         /// <summary>
         /// The _connection listener
@@ -45,11 +43,14 @@ namespace Azure.Connection.Connection
         ///     A client has connected (nothing has been sent or received yet)
         /// </summary>
         public delegate void OnClientConnectedEvent(ConnectionInformation connection);
+
         public event OnClientConnectedEvent OnClientConnected = delegate { };
+
         /// <summary>
         ///     A client has disconnected
         /// </summary>
         public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
+
         public event OnClientDisconnectedEvent OnClientDisconnected = delegate { };
 
         /// <summary>
@@ -75,18 +76,18 @@ namespace Azure.Connection.Connection
         /// <param name="portId">The port identifier.</param>
         /// <param name="maxConnections">The maximum connections.</param>
         /// <param name="connectionsPerIp">The connections per ip.</param>
-        /// <param name="antiDDoS">The antiDDoS status</param>
+        /// <param name="antiDdoS">The antiDDoS status</param>
         /// <param name="parser">The parser.</param>
         /// <param name="disableNaglesAlgorithm">if set to <c>true</c> [disable nagles algorithm].</param>
-        public void Init(int portId, int maxConnections, int connectionsPerIp, bool antiDDoS, IDataParser parser, bool disableNaglesAlgorithm)
+        public void Init(int portId, int maxConnections, int connectionsPerIp, bool antiDdoS, IDataParser parser, bool disableNaglesAlgorithm)
         {
             _parser = parser;
             _disableNagleAlgorithm = disableNaglesAlgorithm;
             MaximumConnections = maxConnections;
             _portInformation = portId;
-            acceptedConnections = 0;
+            AcceptedConnections = 0;
             MaxIpConnectionCount = connectionsPerIp;
-            AntiDDosStatus = antiDDoS;
+            AntiDDosStatus = antiDdoS;
             if (_portInformation < 0)
                 throw new ArgumentOutOfRangeException("port", _portInformation, "Port must be 0 or more.");
             if (_listener != null)
@@ -115,12 +116,10 @@ namespace Azure.Connection.Connection
 
         private void OnChannelDisconnect(ConnectionInformation connection, Exception exception)
         {
-            connection.Disconnected = null;            
+            connection.Disconnected = null;
             OnClientDisconnected(connection, exception);
             connection.Cleanup();
         }
-
-
 
         private void OnAcceptSocket(IAsyncResult ar)
         {
@@ -132,15 +131,14 @@ namespace Azure.Connection.Connection
                     if (SocketConnectionCheck.CheckConnection(socket, MaxIpConnectionCount, AntiDDosStatus))
                     {
                         socket.NoDelay = _disableNagleAlgorithm;
-                        acceptedConnections++;
-                        var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, acceptedConnections);
+                        AcceptedConnections++;
+                        var connectionInfo = new ConnectionInformation(socket, _parser.Clone() as IDataParser, AcceptedConnections);
                         connectionInfo.Disconnected = OnChannelDisconnect;
                         OnClientConnected(connectionInfo);
                     }
                 }
             }
-            catch (Exception){}
-
+            catch (Exception) { }
 
             _listener.BeginAcceptSocket(OnAcceptSocket, _listener);
         }
@@ -152,6 +150,5 @@ namespace Azure.Connection.Connection
         {
             _listener.Stop();
         }
-
     }
 }

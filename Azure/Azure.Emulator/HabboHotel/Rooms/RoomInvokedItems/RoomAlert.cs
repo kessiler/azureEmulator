@@ -3,12 +3,12 @@ namespace Azure.HabboHotel.Rooms.RoomInvokedItems
     internal class RoomAlert
     {
         internal string Message;
-        internal int minrank;
+        internal int Minrank;
 
-        public RoomAlert(string Message, int minrank)
+        public RoomAlert(string message, int minrank)
         {
-            this.Message = Message;
-            this.minrank = minrank;
+            Message = message;
+            Minrank = minrank;
         }
     }
 }

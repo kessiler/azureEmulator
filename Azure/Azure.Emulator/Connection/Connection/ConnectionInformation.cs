@@ -1,12 +1,11 @@
 #region
 
 using System;
+using System.Net;
 using System.Net.Sockets;
-using Azure.Encryption.Hurlant.Crypto.Prng;
-using Azure.Messages;
-using Azure.Messages.Parsers;
 using Azure.Configuration;
-using System.IO;
+using Azure.Encryption.Hurlant.Crypto.Prng;
+using Azure.Messages.Parsers;
 
 #endregion
 
@@ -17,12 +16,12 @@ namespace Azure.Connection.Connection
     /// </summary>
     public class ConnectionInformation : IDisposable
     {
-
         private Socket _socket;
-        private System.Net.EndPoint _remoteEndPoint;
-        public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
-        public event OnClientDisconnectedEvent _disconnectAction = delegate { };
+        private EndPoint _remoteEndPoint;
 
+        public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
+
+        public event OnClientDisconnectedEvent DisconnectAction = delegate { };
 
         /// <summary>
         ///     Identity of this channel
@@ -35,7 +34,7 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// The _is connected
         /// </summary>
-        private bool _connected = false;
+        private bool _connected;
 
         /// <summary>
         /// The _buffer
@@ -51,19 +50,20 @@ namespace Azure.Connection.Connection
         /// <summary>
         /// The ar c4 server side
         /// </summary>
-        internal ARC4 ARC4ServerSide;
+        internal ARC4 Arc4ServerSide;
 
         /// <summary>
         /// The ar c4 client side
         /// </summary>
-        internal ARC4 ARC4ClientSide;
+        internal ARC4 Arc4ClientSide;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInformation"/> class.
         /// </summary>
-        /// <param name="dataStream">The data stream.</param>
+        /// <param name="socket"></param>
         /// <param name="parser">The parser.</param>
-        public ConnectionInformation(Socket socket, IDataParser parser, uint _ChannelId)
+        /// <param name="channelId"></param>
+        public ConnectionInformation(Socket socket, IDataParser parser, uint channelId)
         {
             _socket = socket;
             socket.SendBufferSize = GameSocketManagerStatics.BufferSize;
@@ -71,19 +71,19 @@ namespace Azure.Connection.Connection
             _buffer = new byte[GameSocketManagerStatics.BufferSize];
             _remoteEndPoint = socket.RemoteEndPoint;
             _connected = true;
-            ChannelId = _ChannelId;
+            ChannelId = channelId;
         }
 
         public OnClientDisconnectedEvent Disconnected
         {
-            get { return _disconnectAction; }
+            get { return DisconnectAction; }
 
             set
             {
                 if (value == null)
-                    _disconnectAction = (x, e) => { };
+                    DisconnectAction = (x, e) => { };
                 else
-                    _disconnectAction = value;
+                    DisconnectAction = value;
             }
         }
 
@@ -99,6 +99,10 @@ namespace Azure.Connection.Connection
             }
         }
 
+        private void HandleDisconnect(Exception exception)
+        {
+            HandleDisconnect(SocketError.Success, exception);
+        }
 
         private void HandleDisconnect(SocketError socketError, Exception exception)
         {
@@ -111,12 +115,18 @@ namespace Azure.Connection.Connection
                         _socket.Shutdown(SocketShutdown.Both);
                         _socket.Close();
                     }
-                    catch (Exception) { } // silent
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
                 }
+
                 _connected = false;
                 Parser.Dispose();
+
                 SocketConnectionCheck.FreeConnection(GetIp());
-                _disconnectAction(this, exception);
+
+                DisconnectAction(this, exception);
             }
             catch (Exception ex)
             {
@@ -130,19 +140,21 @@ namespace Azure.Connection.Connection
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
+
                 if (_socket != null && _socket.Connected && _connected)
                 {
                     int bytesReceived = dataSocket.EndReceive(async);
+
                     if (bytesReceived != 0)
                     {
                         byte[] array = new byte[bytesReceived];
+
                         Array.Copy(_buffer, array, bytesReceived);
+
                         HandlePacketData(array, bytesReceived);
                     }
                     else
-                    {
                         Disconnect();
-                    }
                 }
             }
             catch (Exception exception)
@@ -158,20 +170,15 @@ namespace Azure.Connection.Connection
                 try
                 {
                     if (_socket != null && _socket.Connected && _connected)
-                    {
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
-                    }
-                    else
-                    {
-                        Disconnect();
-                    }
+
+                    Disconnect();
                 }
                 catch (Exception exception)
                 {
                     HandleDisconnect(SocketError.ConnectionAborted, exception);
                 }
             }
-
         }
 
         private void OnSendCompleted(IAsyncResult async)
@@ -179,14 +186,11 @@ namespace Azure.Connection.Connection
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
+
                 if (_socket != null && _socket.Connected && _connected)
-                {
                     dataSocket.EndSend(async);
-                }
                 else
-                {
                     Disconnect();
-                }
             }
             catch (Exception exception)
             {
@@ -213,13 +217,9 @@ namespace Azure.Connection.Connection
         public void StartPacketProcessing()
         {
             if (_connected && _socket.Connected)
-            {
                 ReadAsync();
-            }
             else
-            {
                 Dispose();
-            }
         }
 
         /// <summary>
@@ -259,11 +259,12 @@ namespace Azure.Connection.Connection
         /// Handles the packet data.
         /// </summary>
         /// <param name="packet">The packet.</param>
+        /// <param name="bytesReceived"></param>
         private void HandlePacketData(byte[] packet, int bytesReceived)
         {
             if (Parser != null)
             {
-                if (ARC4ServerSide != null) ARC4ServerSide.Parse(ref packet);
+                Arc4ServerSide?.Parse(ref packet);
                 Parser.HandlePacketData(packet, bytesReceived);
             }
         }
@@ -276,8 +277,8 @@ namespace Azure.Connection.Connection
         {
             if (_socket != null && _socket.Connected)
             {
-                if (ARC4ClientSide != null)
-                    ARC4ClientSide.Parse(ref packet);
+                Arc4ClientSide?.Parse(ref packet);
+
                 try
                 {
                     _socket.BeginSend(packet, 0, packet.Length, SocketFlags.None, OnSendCompleted, _socket);
@@ -288,9 +289,7 @@ namespace Azure.Connection.Connection
                 }
             }
             else
-            {
                 Disconnect();
-            }
         }
     }
 }

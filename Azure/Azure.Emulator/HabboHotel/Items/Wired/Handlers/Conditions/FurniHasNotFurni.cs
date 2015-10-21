@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -17,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionFurniHasNotFurni; }
-        }
+        public Interaction Type => Interaction.ConditionFurniHasNotFurni;
 
         public RoomItem Item { get; set; }
 
@@ -64,7 +62,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool AllItemsHaveNotFurni()
         {
-            foreach (var current in Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
+            foreach (
+                var current in
+                    Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
             {
                 if (
                     current.AffectedTiles.Values.Where(
@@ -73,7 +73,10 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
                             square =>
                                 Room.GetGameMap()
                                     .GetRoomItemForSquare(square.X, square.Y)
-                                    .Any(squareItem => squareItem.Id != current.Id && squareItem.Z + squareItem.Height >= current.Z + current.Height)))
+                                    .Any(
+                                        squareItem =>
+                                            squareItem.Id != current.Id &&
+                                            squareItem.Z + squareItem.Height >= current.Z + current.Height)))
 
                     return false;
             }
@@ -83,7 +86,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool AnyItemHaveNotFurni()
         {
-            foreach (var current in Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
+            foreach (
+                var current in
+                    Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
             {
                 if (
                     current.AffectedTiles.Values.Where(
@@ -91,7 +96,10 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
                             square =>
                                 !Room.GetGameMap()
                                     .GetRoomItemForSquare(square.X, square.Y)
-                                    .Any(squareItem => squareItem.Id != current.Id && squareItem.Z + squareItem.Height >= current.Z + current.Height)))
+                                    .Any(
+                                        squareItem =>
+                                            squareItem.Id != current.Id &&
+                                            squareItem.Z + squareItem.Height >= current.Z + current.Height)))
 
                     return true;
             }

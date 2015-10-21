@@ -1,7 +1,8 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -17,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             OtherString = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionDateRangeActive; }
-        }
+        public Interaction Type => Interaction.ConditionDateRangeActive;
 
         public RoomItem Item { get; set; }
 

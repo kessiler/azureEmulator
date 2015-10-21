@@ -14,7 +14,7 @@ namespace Azure
 
         public AnimatedBar()
         {
-            _animation = new List<string> {"/", "-", @"\", "|"};
+            _animation = new List<string> { "/", "-", @"\", "|" };
             _counter = 0;
         }
 

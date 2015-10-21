@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.Messages;
 
@@ -14,22 +14,22 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Quests
 {
     /// <summary>
-    /// Class QuestManager.
+    ///     Class QuestManager.
     /// </summary>
     internal class QuestManager
     {
         /// <summary>
-        /// The _quests
-        /// </summary>
-        private Dictionary<uint, Quest> _quests;
-
-        /// <summary>
-        /// The _count
+        ///     The _count
         /// </summary>
         private Dictionary<string, int> _count;
 
         /// <summary>
-        /// Initializes the specified database client.
+        ///     The _quests
+        /// </summary>
+        private Dictionary<uint, Quest> _quests;
+
+        /// <summary>
+        ///     Initializes the specified database client.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         public void Initialize(IQueryAdapter dbClient)
@@ -40,7 +40,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Reloads the quests.
+        ///     Reloads the quests.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         public void ReloadQuests(IQueryAdapter dbClient)
@@ -51,17 +51,17 @@ namespace Azure.HabboHotel.Quests
             foreach (DataRow dataRow in table.Rows)
             {
                 var id = Convert.ToUInt32(dataRow["id"]);
-                var category = (string)dataRow["type"];
-                var number = (int)dataRow["level_num"];
-                var goalType = (int)dataRow["goal_type"];
+                var category = (string) dataRow["type"];
+                var number = (int) dataRow["level_num"];
+                var goalType = (int) dataRow["goal_type"];
                 var goalData = Convert.ToUInt32(dataRow["goal_data"]);
-                var name = (string)dataRow["action"];
-                var reward = (int)dataRow["pixel_reward"];
-                var dataBit = (string)dataRow["data_bit"];
+                var name = (string) dataRow["action"];
+                var reward = (int) dataRow["pixel_reward"];
+                var dataBit = (string) dataRow["data_bit"];
                 var rewardType = Convert.ToInt32(dataRow["reward_type"].ToString());
-                var timeUnlock = (int)dataRow["timestamp_unlock"];
-                var timeLock = (int)dataRow["timestamp_lock"];
-                var value = new Quest(id, category, number, (QuestType)goalType, goalData, name, reward, dataBit,
+                var timeUnlock = (int) dataRow["timestamp_unlock"];
+                var timeLock = (int) dataRow["timestamp_lock"];
+                var value = new Quest(id, category, number, (QuestType) goalType, goalData, name, reward, dataBit,
                     rewardType, timeUnlock, timeLock);
                 _quests.Add(id, value);
                 AddToCounter(category);
@@ -69,7 +69,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the quests.
+        ///     Gets the quests.
         /// </summary>
         /// <returns>ICollection&lt;Quest&gt;.</returns>
         public ICollection<Quest> GetQuests()
@@ -78,7 +78,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the quest.
+        ///     Gets the quest.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Quest.</returns>
@@ -90,7 +90,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the amount of quests in category.
+        ///     Gets the amount of quests in category.
         /// </summary>
         /// <param name="category">The category.</param>
         /// <returns>System.Int32.</returns>
@@ -102,7 +102,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Progresses the user quest.
+        ///     Progresses the user quest.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="questType">Type of the quest.</param>
@@ -126,7 +126,7 @@ namespace Azure.HabboHotel.Quests
                         case QuestType.GiveItem:
                             if (eventData != quest.GoalData)
                                 return;
-                            num = (int)quest.GoalData;
+                            num = (int) quest.GoalData;
                             flag = true;
                             goto IL_DC;
                         case QuestType.GiveCoffee:
@@ -140,12 +140,13 @@ namespace Azure.HabboHotel.Quests
                     }
                 if (eventData != quest.GoalData)
                     return;
-                num = (int)quest.GoalData;
+                num = (int) quest.GoalData;
                 flag = true;
-            IL_DC:
+                IL_DC:
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.RunFastQuery(string.Concat("UPDATE users_quests_data SET progress = ", num, " WHERE user_id = ", session.GetHabbo().Id, " AND quest_id =  ", quest.Id));
+                    queryReactor.RunFastQuery(string.Concat("UPDATE users_quests_data SET progress = ", num,
+                        " WHERE user_id = ", session.GetHabbo().Id, " AND quest_id =  ", quest.Id));
                     if (flag)
                         queryReactor.RunFastQuery(string.Format("UPDATE users_stats SET quest_id = 0 WHERE id = {0}",
                             session.GetHabbo().Id));
@@ -165,26 +166,31 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the next quest in series.
+        ///     Gets the next quest in series.
         /// </summary>
         /// <param name="category">The category.</param>
         /// <param name="number">The number.</param>
         /// <returns>Quest.</returns>
         internal Quest GetNextQuestInSeries(string category, int number)
-        { return _quests.Values.FirstOrDefault(current => current.Category == category && current.Number == number); }
+        {
+            return _quests.Values.FirstOrDefault(current => current.Category == category && current.Number == number);
+        }
 
         /// <summary>
-        /// Gets the seasonal quests.
+        ///     Gets the seasonal quests.
         /// </summary>
         /// <param name="season">The season.</param>
         /// <returns>List&lt;Quest&gt;.</returns>
         internal List<Quest> GetSeasonalQuests(string season)
         {
-            return _quests.Values.Where(current => current.Category.Contains(season) && (current.TimeUnlock - Azure.GetUnixTimeStamp()) < 0).ToList();
+            return
+                _quests.Values.Where(
+                    current => current.Category.Contains(season) && (current.TimeUnlock - Azure.GetUnixTimeStamp()) < 0)
+                    .ToList();
         }
 
         /// <summary>
-        /// Gets the list.
+        ///     Gets the list.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
@@ -194,7 +200,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Activates the quest.
+        ///     Activates the quest.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
@@ -205,8 +211,10 @@ namespace Azure.HabboHotel.Quests
                 return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (", session.GetHabbo().Id, ", ", quest.Id, ")"));
-                queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET quest_id = ", quest.Id, " WHERE id = ", session.GetHabbo().Id));
+                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (",
+                    session.GetHabbo().Id, ", ", quest.Id, ")"));
+                queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET quest_id = ", quest.Id, " WHERE id = ",
+                    session.GetHabbo().Id));
             }
             session.GetHabbo().CurrentQuestId = quest.Id;
             GetList(session, null);
@@ -214,7 +222,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the current quest.
+        ///     Gets the current quest.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
@@ -229,8 +237,10 @@ namespace Azure.HabboHotel.Quests
                 return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (", session.GetHabbo().Id, ", ", nextQuestInSeries.Id, ")"));
-                queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET quest_id = ", nextQuestInSeries.Id, " WHERE id = ", session.GetHabbo().Id));
+                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (",
+                    session.GetHabbo().Id, ", ", nextQuestInSeries.Id, ")"));
+                queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET quest_id = ", nextQuestInSeries.Id,
+                    " WHERE id = ", session.GetHabbo().Id));
             }
             session.GetHabbo().CurrentQuestId = nextQuestInSeries.Id;
             GetList(session, null);
@@ -238,7 +248,7 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Cancels the quest.
+        ///     Cancels the quest.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
@@ -248,14 +258,16 @@ namespace Azure.HabboHotel.Quests
             if (quest == null)
                 return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_quests_data WHERE user_id = ", session.GetHabbo().Id, " AND quest_id = ", quest.Id, ";UPDATE users_stats SET quest_id=0 WHERE id=", session.GetHabbo().Id));
+                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_quests_data WHERE user_id = ",
+                    session.GetHabbo().Id, " AND quest_id = ", quest.Id, ";UPDATE users_stats SET quest_id=0 WHERE id=",
+                    session.GetHabbo().Id));
             session.GetHabbo().CurrentQuestId = 0u;
             session.SendMessage(QuestAbortedComposer.Compose());
             GetList(session, null);
         }
 
         /// <summary>
-        /// Adds to counter.
+        ///     Adds to counter.
         /// </summary>
         /// <param name="category">The category.</param>
         private void AddToCounter(string category)

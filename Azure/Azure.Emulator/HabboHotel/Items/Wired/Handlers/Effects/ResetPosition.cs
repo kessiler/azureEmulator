@@ -1,8 +1,8 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -26,10 +26,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             _mBanned = new List<Interaction>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionPosReset; }
-        }
+        public Interaction Type => Interaction.ActionPosReset;
 
         public RoomItem Item { get; set; }
 
@@ -51,7 +48,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         {
             if (Room == null) return false;
 
-            if (String.IsNullOrWhiteSpace(OtherString) || String.IsNullOrWhiteSpace(OtherExtraString)) return false;
+            if (string.IsNullOrWhiteSpace(OtherString) || string.IsNullOrWhiteSpace(OtherExtraString)) return false;
 
             var booleans = OtherString.Split(',');
 
@@ -63,7 +60,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             foreach (var itemData in OtherExtraString.Split('/'))
             {
-                if (String.IsNullOrWhiteSpace(itemData)) continue;
+                if (string.IsNullOrWhiteSpace(itemData)) continue;
 
                 var innerData = itemData.Split('|');
                 var itemId = uint.Parse(innerData[0]);

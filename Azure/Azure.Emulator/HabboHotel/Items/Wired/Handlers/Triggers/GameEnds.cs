@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -16,10 +17,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             Room = room;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.TriggerGameEnd; }
-        }
+        public Interaction Type => Interaction.TriggerGameEnd;
 
         public RoomItem Item { get; set; }
 

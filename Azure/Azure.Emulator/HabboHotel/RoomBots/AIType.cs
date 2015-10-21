@@ -1,22 +1,22 @@
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Enum AIType
+    ///     Enum AIType
     /// </summary>
-    internal enum AIType
+    internal enum AiType
     {
         /// <summary>
-        /// The pet
+        ///     The pet
         /// </summary>
         Pet,
 
         /// <summary>
-        /// The guide
+        ///     The guide
         /// </summary>
         Guide,
 
         /// <summary>
-        /// The generic
+        ///     The generic
         /// </summary>
         Generic
     }

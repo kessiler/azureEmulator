@@ -21,7 +21,10 @@ namespace Azure.Database.Manager.Database.Session_Details
         protected IngresCommand CommandIngress;
         protected NpgsqlCommand CommandPgSql;
 
-        public QueryAdapter(IDatabaseClient client) { Client = client; }
+        public QueryAdapter(IDatabaseClient client)
+        {
+            Client = client;
+        }
 
         private static bool DbEnabled
         {
@@ -35,13 +38,16 @@ namespace Azure.Database.Manager.Database.Session_Details
                 case "firebird":
                     CommandFireBird.Parameters.Add(new FbParameter(name, FbDbType.Text, data.Length));
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress.Parameters.Add(new IngresParameter(name, DbType.String, data.Length));
                     break;
+
                 case "pgsql":
                     CommandPgSql.Parameters.Add(new NpgsqlParameter(name, DbType.String, data.Length));
                     break;
+
                 default: // mySql
                     CommandMySql.Parameters.Add(new MySqlParameter(name, MySqlDbType.Blob, data.Length));
                     break;
@@ -55,13 +61,16 @@ namespace Azure.Database.Manager.Database.Session_Details
                 case "firebird":
                     CommandFireBird.Parameters.AddWithValue(parameterName, val);
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress.Parameters.Add(parameterName, val);
                     break;
+
                 case "pgsql":
                     CommandPgSql.Parameters.AddWithValue(parameterName, val);
                     break;
+
                 default: // mySql
                     CommandMySql.Parameters.AddWithValue(parameterName, val);
                     break;
@@ -88,6 +97,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -101,6 +111,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -113,6 +124,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -172,6 +184,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -188,6 +201,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -203,6 +217,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -244,6 +259,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -258,6 +274,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -271,6 +288,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -309,6 +327,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -322,6 +341,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -334,6 +354,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -369,6 +390,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -381,6 +403,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -392,6 +415,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -436,6 +460,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -448,6 +473,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -459,6 +485,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
+
                 default:
                     try
                     {
@@ -482,15 +509,18 @@ namespace Azure.Database.Manager.Database.Session_Details
                     CommandFireBird.Parameters.Clear();
                     CommandFireBird.CommandText = query;
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress.Parameters.Clear();
                     CommandIngress.CommandText = query;
                     break;
+
                 case "pgsql":
                     CommandPgSql.Parameters.Clear();
                     CommandPgSql.CommandText = query;
                     break;
+
                 default: // mySql
                     CommandMySql.Parameters.Clear();
                     CommandMySql.CommandText = query;

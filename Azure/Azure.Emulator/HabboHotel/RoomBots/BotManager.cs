@@ -10,17 +10,17 @@ using System.Linq;
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Class BotManager.
+    ///     Class BotManager.
     /// </summary>
     internal class BotManager
     {
         /// <summary>
-        /// The _bots
+        ///     The _bots
         /// </summary>
         private readonly List<RoomBot> _bots;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BotManager"/> class.
+        ///     Initializes a new instance of the <see cref="BotManager" /> class.
         /// </summary>
         internal BotManager()
         {
@@ -28,7 +28,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Generates the bot from row.
+        ///     Generates the bot from row.
         /// </summary>
         /// <param name="row">The row.</param>
         /// <returns>RoomBot.</returns>
@@ -43,20 +43,21 @@ namespace Azure.HabboHotel.RoomBots
             if (!row.IsNull("speech") && !string.IsNullOrEmpty(row["speech"].ToString()))
                 speeches = row["speech"].ToString().Split(';').ToList();
 
-            var bot = new RoomBot(id, Convert.ToUInt32(row["user_id"]), AIType.Generic,
+            var bot = new RoomBot(id, Convert.ToUInt32(row["user_id"]), AiType.Generic,
                 row["is_bartender"].ToString() == "1");
 
-            bot.Update(Convert.ToUInt32(row["room_id"]), (string)row["walk_mode"], (string)row["name"], (string)row["motto"],
-                (string)row["look"],
+            bot.Update(Convert.ToUInt32(row["room_id"]), (string) row["walk_mode"], (string) row["name"],
+                (string) row["motto"],
+                (string) row["look"],
                 int.Parse(row["x"].ToString()), int.Parse(row["y"].ToString()), int.Parse(row["z"].ToString()), 4, 0, 0,
-                0, 0, speeches, null, (string)row["gender"], (int)row["dance"], (int)row["speaking_interval"],
+                0, 0, speeches, null, (string) row["gender"], (int) row["dance"], (int) row["speaking_interval"],
                 Convert.ToInt32(row["automatic_chat"]) == 1, Convert.ToInt32(row["mix_phrases"]) == 1);
 
             return bot;
         }
 
         /// <summary>
-        /// Gets the bots for room.
+        ///     Gets the bots for room.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <returns>List&lt;RoomBot&gt;.</returns>
@@ -69,7 +70,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets the bot.
+        ///     Gets the bot.
         /// </summary>
         /// <param name="botId">The bot identifier.</param>
         /// <returns>RoomBot.</returns>
@@ -78,7 +79,7 @@ namespace Azure.HabboHotel.RoomBots
             return (
                 from p in _bots
                 where p.BotId == botId
-                select p).FirstOrDefault<RoomBot>();
+                select p).FirstOrDefault();
         }
     }
 }

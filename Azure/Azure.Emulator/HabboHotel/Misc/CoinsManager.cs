@@ -10,32 +10,32 @@ using Azure.Configuration;
 namespace Azure.HabboHotel.Misc
 {
     /// <summary>
-    /// Class CoinsManager.
+    ///     Class CoinsManager.
     /// </summary>
     internal class CoinsManager
     {
         /// <summary>
-        /// The _timer
+        ///     The _timer
         /// </summary>
         private static Timer _timer;
 
         /// <summary>
-        /// Starts the timer.
+        ///     Starts the timer.
         /// </summary>
         internal void StartTimer()
         {
-            if (!ExtraSettings.CURRENCY_LOOP_ENABLED)
+            if (!ExtraSettings.CurrencyLoopEnabled)
                 return;
-            _timer = new Timer(ExtraSettings.CURRENTY_LOOP_TIME_IN_MINUTES * 60000);
+            _timer = new Timer(ExtraSettings.CurrentyLoopTimeInMinutes*60000);
             _timer.Elapsed += GiveCoins;
             _timer.Enabled = true;
         }
 
         /// <summary>
-        /// Gives the coins.
+        ///     Gives the coins.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <param name="e">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="ElapsedEventArgs" /> instance containing the event data.</param>
         internal void GiveCoins(object source, ElapsedEventArgs e)
         {
             try
@@ -44,13 +44,14 @@ namespace Azure.HabboHotel.Misc
                 foreach (
                     var client in clients.Where(client => client != null && client.GetHabbo() != null))
                 {
-                    client.GetHabbo().Credits += ExtraSettings.CREDITS_TO_GIVE;
+                    client.GetHabbo().Credits += ExtraSettings.CreditsToGive;
                     client.GetHabbo().UpdateCreditsBalance();
-                    client.GetHabbo().ActivityPoints += ExtraSettings.PIXELS_TO_GIVE;
-                    if (ExtraSettings.DIAMONDS_LOOP_ENABLED)
-                        if (ExtraSettings.DIAMONDS_VIP_ONLY)
-                            if (client.GetHabbo().VIP || client.GetHabbo().Rank >= 6) client.GetHabbo().Diamonds += ExtraSettings.DIAMONDS_TO_GIVE;
-                            else client.GetHabbo().Diamonds += ExtraSettings.DIAMONDS_TO_GIVE;
+                    client.GetHabbo().ActivityPoints += ExtraSettings.PixelsToGive;
+                    if (ExtraSettings.DiamondsLoopEnabled)
+                        if (ExtraSettings.DiamondsVipOnly)
+                            if (client.GetHabbo().Vip || client.GetHabbo().Rank >= 6)
+                                client.GetHabbo().Diamonds += ExtraSettings.DiamondsToGive;
+                            else client.GetHabbo().Diamonds += ExtraSettings.DiamondsToGive;
                     client.GetHabbo().UpdateSeasonalCurrencyBalance();
                 }
             }
@@ -61,7 +62,7 @@ namespace Azure.HabboHotel.Misc
         }
 
         /// <summary>
-        /// Destroys this instance.
+        ///     Destroys this instance.
         /// </summary>
         internal void Destroy()
         {

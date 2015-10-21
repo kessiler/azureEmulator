@@ -1,37 +1,37 @@
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Enum TicketStatus
+    ///     Enum TicketStatus
     /// </summary>
     internal enum TicketStatus
     {
         /// <summary>
-        /// The open
+        ///     The open
         /// </summary>
         Open,
 
         /// <summary>
-        /// The picked
+        ///     The picked
         /// </summary>
         Picked,
 
         /// <summary>
-        /// The resolved
+        ///     The resolved
         /// </summary>
         Resolved,
 
         /// <summary>
-        /// The abusive
+        ///     The abusive
         /// </summary>
         Abusive,
 
         /// <summary>
-        /// The invalid
+        ///     The invalid
         /// </summary>
         Invalid,
 
         /// <summary>
-        /// The deleted
+        ///     The deleted
         /// </summary>
         Deleted
     }

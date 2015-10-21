@@ -19,7 +19,10 @@ namespace Azure.Database.Manager.Database.Session_Details
         private FbTransaction _transactionfirebird;
         private IngresTransaction _transactioningress;
 
-        public TransactionQueryReactor(IDatabaseClient client) : base(client) { InitTransaction(); }
+        public TransactionQueryReactor(IDatabaseClient client) : base(client)
+        {
+            InitTransaction();
+        }
 
         public void Dispose()
         {
@@ -31,13 +34,16 @@ namespace Azure.Database.Manager.Database.Session_Details
                 case "firebird":
                     CommandFireBird.Dispose();
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress.Dispose();
                     break;
+
                 case "pgsql":
                     CommandPgSql.Dispose();
                     break;
+
                 default: // mySql
                     CommandMySql.Dispose();
                     break;
@@ -54,13 +60,16 @@ namespace Azure.Database.Manager.Database.Session_Details
                     case "pgsql":
                         _transactionpgsql.Commit();
                         break;
+
                     case "ingress":
                     case "ingres":
                         _transactioningress.Commit();
                         break;
+
                     case "firebird":
                         _transactionfirebird.Commit();
                         break;
+
                     default: // mySql
                         _transactionmysql.Commit();
                         break;
@@ -89,6 +98,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw new TransactionException(ex.Message);
                     }
                     break;
+
                 case "ingres":
                 case "ingress":
                     try
@@ -101,6 +111,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw new TransactionException(ex.Message);
                     }
                     break;
+
                 case "pgsql":
                     try
                     {
@@ -112,6 +123,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw new TransactionException(ex.Message);
                     }
                     break;
+
                 default:
                     try
                     {
@@ -126,7 +138,10 @@ namespace Azure.Database.Manager.Database.Session_Details
             }
         }
 
-        public bool GetAutoCommit() { return false; }
+        public bool GetAutoCommit()
+        {
+            return false;
+        }
 
         private void InitTransaction()
         {
@@ -138,18 +153,21 @@ namespace Azure.Database.Manager.Database.Session_Details
                     CommandFireBird.Transaction = _transactionfirebird;
                     CommandFireBird.Connection = _transactionfirebird.Connection;
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress = Client.CreateNewCommandIngress();
                     _transactioningress = Client.GetTransactionIngress();
                     CommandIngress.Transaction = _transactioningress;
                     break;
+
                 case "pgsql":
                     CommandPgSql = Client.CreateNewCommandPgSql();
                     _transactionpgsql = Client.GetTransactionPgSql();
                     CommandPgSql.Transaction = _transactionpgsql;
                     CommandPgSql.Connection = _transactionpgsql.Connection;
                     break;
+
                 default:
                     CommandMySql = Client.CreateNewCommandMySql();
                     _transactionmysql = Client.GetTransactionMySql();

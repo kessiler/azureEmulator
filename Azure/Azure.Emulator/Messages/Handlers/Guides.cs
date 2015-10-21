@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages.Parsers;
 
 #endregion
@@ -84,17 +84,16 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CancelCallGuide()
         {
-            //Response.Init(3485); ///BUG: IMPORTANT 
+            //Response.Init(3485); ///BUG: IMPORTANT
             //SendResponse();
 
-           // Request.GetBool();
+            // Request.GetBool();
 
             //var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
 
             message.AppendInteger(2);
             Session.SendMessage(message);
-
         }
 
         /// <summary>
@@ -153,9 +152,9 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().GuideOtherUser == null)
                 return;
             var requester = Session.GetHabbo().GuideOtherUser;
-            var VisitRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
-            VisitRoom.AppendInteger(requester.GetHabbo().CurrentRoomId);
-            Session.SendMessage(VisitRoom);
+            var visitRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
+            visitRoom.AppendInteger(requester.GetHabbo().CurrentRoomId);
+            Session.SendMessage(visitRoom);
         }
 
         /// <summary>
@@ -196,7 +195,7 @@ namespace Azure.Messages.Handlers
         {
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
             Session.SendMessage(message);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1, false);
+            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1);
         }
 
         /// <summary>

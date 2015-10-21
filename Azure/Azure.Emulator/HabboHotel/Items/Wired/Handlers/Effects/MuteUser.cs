@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -22,13 +24,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //_mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionMuteUser;
-            }
-        }
+        public Interaction Type => Interaction.ActionMuteUser;
 
         public RoomItem Item { get; set; }
 
@@ -36,13 +32,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay { get; set; }
@@ -76,15 +67,15 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 return false;
             }
 
-            int minutes = Delay / 500;
-            uint userId = roomUser.GetClient().GetHabbo().Id;
+            var minutes = Delay / 500;
+            var userId = roomUser.GetClient().GetHabbo().Id;
 
             if (Room.MutedUsers.ContainsKey(userId))
             {
                 Room.MutedUsers.Remove(userId);
             }
             Room.MutedUsers.Add(userId, Convert.ToUInt32((Azure.GetUnixTimeStamp() + (minutes * 60))));
-            if (!String.IsNullOrEmpty(OtherString))
+            if (!string.IsNullOrEmpty(OtherString))
             {
                 roomUser.GetClient().SendWhisper(OtherString);
             }

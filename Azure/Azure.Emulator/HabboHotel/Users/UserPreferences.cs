@@ -8,33 +8,36 @@ using System.Data;
 namespace Azure.HabboHotel.Users.Inventory
 {
     /// <summary>
-    /// Class UserPreferences.
+    ///     Class UserPreferences.
     /// </summary>
     internal class UserPreferences
     {
         /// <summary>
-        /// The _user identifier
+        ///     The _user identifier
         /// </summary>
         private readonly uint _userId;
 
-        internal bool PreferOldChat;
-        internal bool IgnoreRoomInvite;
+        internal int ChatColor;
         internal bool DisableCameraFollow;
-        internal string Volume = "0,0,0";
+        internal bool IgnoreRoomInvite;
+        internal int NewnaviHeight = 600;
+        internal int NewnaviWidth = 580;
         internal int NewnaviX;
         internal int NewnaviY;
-        internal int NewnaviWidth = 580;
-        internal int NewnaviHeight = 600;
-        internal int ChatColor;
+
+        internal bool PreferOldChat;
+        internal string Volume = "0,0,0";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserPreferences"/> class.
+        ///     Initializes a new instance of the <see cref="UserPreferences" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         internal UserPreferences(uint userId)
         {
             _userId = userId;
+
             DataRow row;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM users_preferences WHERE userid = " + _userId);
@@ -43,14 +46,16 @@ namespace Azure.HabboHotel.Users.Inventory
 
                 if (row == null)
                 {
-                    queryReactor.RunFastQuery("REPLACE INTO users_preferences (userid, volume) VALUES (" + _userId + ", '100,100,100')");
+                    queryReactor.RunFastQuery("REPLACE INTO users_preferences (userid, volume) VALUES (" + _userId +
+                                              ", '100,100,100')");
                     return;
                 }
             }
-            PreferOldChat = Azure.EnumToBool((string)row["prefer_old_chat"]);
-            IgnoreRoomInvite = Azure.EnumToBool((string)row["ignore_room_invite"]);
-            DisableCameraFollow = Azure.EnumToBool((string)row["disable_camera_follow"]);
-            Volume = (string)row["volume"];
+
+            PreferOldChat = Azure.EnumToBool((string) row["prefer_old_chat"]);
+            IgnoreRoomInvite = Azure.EnumToBool((string) row["ignore_room_invite"]);
+            DisableCameraFollow = Azure.EnumToBool((string) row["disable_camera_follow"]);
+            Volume = (string) row["volume"];
             NewnaviX = Convert.ToInt32(row["newnavi_x"]);
             NewnaviY = Convert.ToInt32(row["newnavi_y"]);
             NewnaviWidth = Convert.ToInt32(row["newnavi_width"]);

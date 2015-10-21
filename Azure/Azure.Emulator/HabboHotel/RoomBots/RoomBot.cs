@@ -3,179 +3,180 @@
 using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Class RoomBot.
+    ///     Class RoomBot.
     /// </summary>
     internal class RoomBot
     {
         /// <summary>
-        /// The bot identifier
+        ///     The maximum x
         /// </summary>
-        internal uint BotId;
+        private readonly int _maxX;
 
         /// <summary>
-        /// The room identifier
+        ///     The maximum y
         /// </summary>
-        internal uint RoomId;
+        private readonly int _maxY;
 
         /// <summary>
-        /// The virtual identifier
+        ///     The minimum x
         /// </summary>
-        internal int VirtualId;
+        private readonly int _minX;
 
         /// <summary>
-        /// The owner identifier
+        ///     The minimum y
         /// </summary>
-        internal uint OwnerId;
+        private readonly int _minY;
 
         /// <summary>
-        /// The ai type
+        ///     The ai type
         /// </summary>
-        internal AIType AiType;
+        internal AiType AiType;
 
         /// <summary>
-        /// The walking mode
-        /// </summary>
-        internal string WalkingMode;
-
-        /// <summary>
-        /// The name
-        /// </summary>
-        internal string Name;
-
-        /// <summary>
-        /// The motto
-        /// </summary>
-        internal string Motto;
-
-        /// <summary>
-        /// The look
-        /// </summary>
-        internal string Look;
-
-        /// <summary>
-        /// The gender
-        /// </summary>
-        internal string Gender;
-
-        /// <summary>
-        /// The x
-        /// </summary>
-        internal int X;
-
-        /// <summary>
-        /// The y
-        /// </summary>
-        internal int Y;
-
-        /// <summary>
-        /// The z
-        /// </summary>
-        internal double Z;
-
-        /// <summary>
-        /// The rot
-        /// </summary>
-        internal int Rot;
-
-        /// <summary>
-        /// The minimum x
-        /// </summary>
-        internal int MinX;
-
-        /// <summary>
-        /// The maximum x
-        /// </summary>
-        internal int MaxX;
-
-        /// <summary>
-        /// The minimum y
-        /// </summary>
-        internal int MinY;
-
-        /// <summary>
-        /// The maximum y
-        /// </summary>
-        internal int MaxY;
-
-        /// <summary>
-        /// The dance identifier
-        /// </summary>
-        internal int DanceId;
-
-        /// <summary>
-        /// The room user
-        /// </summary>
-        internal RoomUser RoomUser;
-
-        /// <summary>
-        /// The last spoken phrase
-        /// </summary>
-        internal int LastSpokenPhrase;
-
-        /// <summary>
-        /// The was picked
-        /// </summary>
-        internal bool WasPicked;
-
-        /// <summary>
-        /// The is bartender
-        /// </summary>
-        internal bool IsBartender;
-
-        /// <summary>
-        /// The random speech
-        /// </summary>
-        internal List<string> RandomSpeech;
-
-        /// <summary>
-        /// The responses
-        /// </summary>
-        internal List<string> Responses;
-
-        /// <summary>
-        /// The speech interval
-        /// </summary>
-        internal int SpeechInterval;
-
-        /// <summary>
-        /// The automatic chat
+        ///     The automatic chat
         /// </summary>
         internal bool AutomaticChat, MixPhrases;
 
         /// <summary>
-        /// The minimum x
+        ///     The bot identifier
         /// </summary>
-        private readonly int minX;
+        internal uint BotId;
 
         /// <summary>
-        /// The minimum y
+        ///     The dance identifier
         /// </summary>
-        private readonly int minY;
+        internal int DanceId;
 
         /// <summary>
-        /// The maximum x
+        ///     The gender
         /// </summary>
-        private readonly int maxX;
+        internal string Gender;
 
         /// <summary>
-        /// The maximum y
+        ///     The is bartender
         /// </summary>
-        private readonly int maxY;
+        internal bool IsBartender;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoomBot"/> class.
+        ///     The last spoken phrase
+        /// </summary>
+        internal int LastSpokenPhrase;
+
+        /// <summary>
+        ///     The look
+        /// </summary>
+        internal string Look;
+
+        /// <summary>
+        ///     The maximum x
+        /// </summary>
+        internal int MaxX;
+
+        /// <summary>
+        ///     The maximum y
+        /// </summary>
+        internal int MaxY;
+
+        /// <summary>
+        ///     The minimum x
+        /// </summary>
+        internal int MinX;
+
+        /// <summary>
+        ///     The minimum y
+        /// </summary>
+        internal int MinY;
+
+        /// <summary>
+        ///     The motto
+        /// </summary>
+        internal string Motto;
+
+        /// <summary>
+        ///     The name
+        /// </summary>
+        internal string Name;
+
+        /// <summary>
+        ///     The owner identifier
+        /// </summary>
+        internal uint OwnerId;
+
+        /// <summary>
+        ///     The random speech
+        /// </summary>
+        internal List<string> RandomSpeech;
+
+        /// <summary>
+        ///     The responses
+        /// </summary>
+        internal List<string> Responses;
+
+        /// <summary>
+        ///     The room identifier
+        /// </summary>
+        internal uint RoomId;
+
+        /// <summary>
+        ///     The room user
+        /// </summary>
+        internal RoomUser RoomUser;
+
+        /// <summary>
+        ///     The rot
+        /// </summary>
+        internal int Rot;
+
+        /// <summary>
+        ///     The speech interval
+        /// </summary>
+        internal int SpeechInterval;
+
+        /// <summary>
+        ///     The virtual identifier
+        /// </summary>
+        internal int VirtualId;
+
+        /// <summary>
+        ///     The walking mode
+        /// </summary>
+        internal string WalkingMode;
+
+        /// <summary>
+        ///     The was picked
+        /// </summary>
+        internal bool WasPicked;
+
+        /// <summary>
+        ///     The x
+        /// </summary>
+        internal int X;
+
+        /// <summary>
+        ///     The y
+        /// </summary>
+        internal int Y;
+
+        /// <summary>
+        ///     The z
+        /// </summary>
+        internal double Z;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RoomBot" /> class.
         /// </summary>
         /// <param name="botId">The bot identifier.</param>
         /// <param name="ownerId">The owner identifier.</param>
         /// <param name="aiType">Type of the ai.</param>
         /// <param name="bartender">if set to <c>true</c> [bartender].</param>
-        internal RoomBot(uint botId, uint ownerId, AIType aiType, bool bartender)
+        internal RoomBot(uint botId, uint ownerId, AiType aiType, bool bartender)
         {
             OwnerId = ownerId;
             BotId = botId;
@@ -187,7 +188,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoomBot"/> class.
+        ///     Initializes a new instance of the <see cref="RoomBot" /> class.
         /// </summary>
         /// <param name="botId">The bot identifier.</param>
         /// <param name="ownerId">The owner identifier.</param>
@@ -210,7 +211,7 @@ namespace Azure.HabboHotel.RoomBots
         /// <param name="gender">The gender.</param>
         /// <param name="dance">The dance.</param>
         /// <param name="bartender">if set to <c>true</c> [bartender].</param>
-        internal RoomBot(uint botId, uint ownerId, uint roomId, AIType aiType, string walkingMode, string name,
+        internal RoomBot(uint botId, uint ownerId, uint roomId, AiType aiType, string walkingMode, string name,
             string motto, string look, int x, int y, double z, int rot, int minX, int minY, int maxX, int maxY,
             List<string> speeches, List<string> responses, string gender, int dance, bool bartender)
         {
@@ -226,10 +227,10 @@ namespace Azure.HabboHotel.RoomBots
             Y = y;
             Z = z;
             Rot = rot;
-            this.minX = minX;
-            this.minY = minY;
-            this.maxX = maxX;
-            this.maxY = maxY;
+            _minX = minX;
+            _minY = minY;
+            _maxX = maxX;
+            _maxY = maxY;
             Gender = gender.ToUpper();
             VirtualId = -1;
             RoomUser = null;
@@ -242,16 +243,13 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is pet.
+        ///     Gets a value indicating whether this instance is pet.
         /// </summary>
         /// <value><c>true</c> if this instance is pet; otherwise, <c>false</c>.</value>
-        internal bool IsPet
-        {
-            get { return AiType == AIType.Pet; }
-        }
+        internal bool IsPet => AiType == AiType.Pet;
 
         /// <summary>
-        /// Updates the specified room identifier.
+        ///     Updates the specified room identifier.
         /// </summary>
         /// <param name="roomId">The room identifier.</param>
         /// <param name="walkingMode">The walking mode.</param>
@@ -304,7 +302,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets the random speech.
+        ///     Gets the random speech.
         /// </summary>
         /// <param name="mixPhrases">if set to <c>true</c> [mix phrases].</param>
         /// <returns>System.String.</returns>
@@ -325,16 +323,18 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Generates the bot ai.
+        ///     Generates the bot ai.
         /// </summary>
         /// <param name="virtualId">The virtual identifier.</param>
         /// <param name="botId">The bot identifier.</param>
         /// <returns>BotAI.</returns>
-        internal BotAI GenerateBotAI(int virtualId, int botId)
+        internal BotAi GenerateBotAi(int virtualId, int botId)
         {
             var aiType = AiType;
-            if (aiType == AIType.Pet)
+
+            if (aiType == AiType.Pet)
                 return new PetBot(virtualId);
+
             return new GenericBot(this, virtualId, botId, AiType, IsBartender, SpeechInterval);
         }
     }

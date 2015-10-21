@@ -4,7 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Conditions;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Effects;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Triggers;
@@ -15,8 +17,8 @@ namespace Azure.HabboHotel.Rooms.Wired
 {
     public class WiredHandler
     {
-        private readonly List<IWiredItem> _wiredItems;
         private readonly Room _room;
+        private readonly List<IWiredItem> _wiredItems;
         private Queue _cycleItems;
 
         public WiredHandler(Room room)
@@ -55,7 +57,7 @@ namespace Azure.HabboHotel.Rooms.Wired
                 }
                 fItem.OtherString = row["string"].ToString();
                 fItem.OtherBool = (row["bool"].ToString() == "1");
-                fItem.Delay = (int)row["delay"];
+                fItem.Delay = (int) row["delay"];
                 fItem.OtherExtraString = row["extra_string"].ToString();
                 fItem.OtherExtraString2 = row["extra_string_2"].ToString();
                 var array = row["items"].ToString().Split(';');
@@ -111,7 +113,8 @@ namespace Azure.HabboHotel.Rooms.Wired
         {
             lock (_wiredItems)
             {
-                foreach (var current in _wiredItems.Where(current => current != null && current.Type == type)) current.OtherExtraString = "0";
+                foreach (var current in _wiredItems.Where(current => current != null && current.Type == type))
+                    current.OtherExtraString = "0";
             }
         }
 
@@ -126,7 +129,8 @@ namespace Azure.HabboHotel.Rooms.Wired
                         var wiredItem in _wiredItems.Where(wiredItem => wiredItem != null && wiredItem.Type == type))
                         wiredItem.Execute(stuff);
                 }
-                else if (_wiredItems.Any(current => current != null && current.Type == type && current.Execute(stuff))) return true;
+                else if (_wiredItems.Any(current => current != null && current.Type == type && current.Execute(stuff)))
+                    return true;
             }
             catch (Exception e)
             {
@@ -144,7 +148,7 @@ namespace Azure.HabboHotel.Rooms.Wired
                 {
                     while (_cycleItems.Count > 0)
                     {
-                        var wiredItem = (IWiredItem)_cycleItems.Dequeue();
+                        var wiredItem = (IWiredItem) _cycleItems.Dequeue();
                         var item = wiredItem as IWiredCycler;
                         if (item == null) continue;
                         var wiredCycler = item;
@@ -194,7 +198,7 @@ namespace Azure.HabboHotel.Rooms.Wired
                 {
                     while (_cycleItems.Count > 0)
                     {
-                        var wiredItem = (IWiredItem)_cycleItems.Dequeue();
+                        var wiredItem = (IWiredItem) _cycleItems.Dequeue();
                         if (wiredItem.Item.Id != item.Id) queue.Enqueue(wiredItem);
                     }
                 }

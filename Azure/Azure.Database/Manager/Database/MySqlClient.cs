@@ -30,13 +30,16 @@ namespace Azure.Database.Manager.Database
                 case "pgsql":
                     _pgSqlConnection = new NpgsqlConnection(dbManager.GetConnectionString());
                     break;
+
                 case "ingress":
                 case "ingres":
                     _inGressConnection = new IngresConnection(dbManager.GetConnectionString());
                     break;
+
                 case "firebird":
                     _fireBirdConnection = new FbConnection(dbManager.GetConnectionString());
                     break;
+
                 default: // mySql
                     _mySqlConnection = new MySqlConnection(dbManager.GetConnectionString());
                     break;
@@ -50,13 +53,16 @@ namespace Azure.Database.Manager.Database
                 case "pgsql":
                     _pgSqlConnection.Open();
                     break;
+
                 case "ingress":
                 case "ingres":
                     _inGressConnection.Open();
                     break;
+
                 case "firebird":
                     _fireBirdConnection.Open();
                     break;
+
                 default: // mySql
                     _mySqlConnection.Open();
                     break;
@@ -72,13 +78,16 @@ namespace Azure.Database.Manager.Database
                     case "pgsql":
                         _pgSqlConnection.Close();
                         break;
+
                     case "ingress":
                     case "ingres":
                         _inGressConnection.Close();
                         break;
+
                     case "firebird":
                         _fireBirdConnection.Close();
                         break;
+
                     default: // mySql
                         _mySqlConnection.Close();
                         break;

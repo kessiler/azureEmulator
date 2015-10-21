@@ -1,7 +1,9 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -17,10 +19,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             OtherString = "0";
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionUserWearingEffect; }
-        }
+        public Interaction Type => Interaction.ConditionUserWearingEffect;
 
         public RoomItem Item { get; set; }
 

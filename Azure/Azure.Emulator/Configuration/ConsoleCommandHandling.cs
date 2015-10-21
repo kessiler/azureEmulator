@@ -1,12 +1,13 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
+using System.Runtime;
 using Azure.HabboHotel;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
-using System.Runtime;
 
 #endregion
 
@@ -100,18 +101,18 @@ namespace Azure.Configuration
                         break;
 
                     case "status":
-                        TimeSpan Uptime = DateTime.Now - Azure.ServerStarted;
+                        TimeSpan uptime = DateTime.Now - Azure.ServerStarted;
 
                         Console.WriteLine("Server status:");
                         Console.WriteLine();
                         Console.WriteLine("Uptime:");
-                        Console.WriteLine("\tDays:    {0}", Uptime.Days);
-                        Console.WriteLine("\tHours:   {0}", Uptime.Hours);
-                        Console.WriteLine("\tMinutes: {0}", Uptime.Minutes);
+                        Console.WriteLine("\tDays:    {0}", uptime.Days);
+                        Console.WriteLine("\tHours:   {0}", uptime.Hours);
+                        Console.WriteLine("\tMinutes: {0}", uptime.Minutes);
                         Console.WriteLine();
-                        Console.WriteLine("Stats:");                        
-                        Console.WriteLine("\tAccepted Connections: {0}", Azure.GetConnectionManager().Manager.acceptedConnections);
-                        Console.WriteLine("\tActive Threads: {0}", System.Diagnostics.Process.GetCurrentProcess().Threads.Count);
+                        Console.WriteLine("Stats:");
+                        Console.WriteLine("\tAccepted Connections: {0}", Azure.GetConnectionManager().Manager.AcceptedConnections);
+                        Console.WriteLine("\tActive Threads: {0}", Process.GetCurrentProcess().Threads.Count);
                         Console.WriteLine();
                         Console.WriteLine();
                         break;
@@ -172,12 +173,11 @@ namespace Azure.Configuration
                         //            client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), client);
                         //        }).Start();
                         //        if (countable == 150) { System.Threading.Thread.Sleep(5000); countable = 0; }
-                               
+
                         //    }
                         //    Console.WriteLine("Lag Test started");
                         //}
                         break;
-
 
                     case "help":
                         Console.WriteLine("shutdown/close - for safe shutting down AzureEmulator");

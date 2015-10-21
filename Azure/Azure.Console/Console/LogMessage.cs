@@ -1,6 +1,6 @@
 namespace Azure.Writer
 {
-    class LogMessage
+    internal class LogMessage
     {
         internal string Message, Location;
 

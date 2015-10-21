@@ -5,11 +5,9 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using Azure.Configuration;
-using Azure.Connection;
 using Azure.Encryption;
 using Azure.Encryption.Hurlant.Crypto.Prng;
-using Azure.Encryption.Utils;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages.Parsers;
@@ -214,9 +212,9 @@ namespace Azure.Messages.Handlers
 
                 Array.Reverse(data, 0, data.Length);
 
-                Session.GetConnection().ARC4ServerSide = new ARC4(data);
+                Session.GetConnection().Arc4ServerSide = new ARC4(data);
                 if (ExtraSettings.CryptoClientSide)
-                    Session.GetConnection().ARC4ClientSide = new ARC4(data);
+                    Session.GetConnection().Arc4ClientSide = new ARC4(data);
             }
             else
                 Session.Disconnect("crypto error");
@@ -277,7 +275,7 @@ namespace Azure.Messages.Handlers
             Response.AppendInteger(2);
             SendResponse();
             var tradeLocked = Session.GetHabbo().CheckTrading();
-            var canUseFloorEditor = (ExtraSettings.EVERYONE_USE_FLOOR || Session.GetHabbo().VIP || Session.GetHabbo().Rank >= 4);
+            var canUseFloorEditor = (ExtraSettings.EveryoneUseFloor || Session.GetHabbo().Vip || Session.GetHabbo().Rank >= 4);
             Response.Init(LibraryParser.OutgoingRequest("SendPerkAllowancesMessageComposer"));
             Response.AppendInteger(11);
             Response.AppendString("BUILDER_AT_WORK");
@@ -316,7 +314,7 @@ namespace Azure.Messages.Handlers
             Response.AppendBool(tradeLocked);
             Response.AppendString("CAMERA");
             Response.AppendString("");
-            Response.AppendBool(ExtraSettings.ENABLE_BETA_CAMERA);
+            Response.AppendBool(ExtraSettings.EnableBetaCamera);
             Response.AppendString("NAVIGATOR_PHASE_TWO_2014");
             Response.AppendString("");
             Response.AppendBool(true);
@@ -343,7 +341,7 @@ namespace Azure.Messages.Handlers
             GetResponse().AppendInteger(Session.GetHabbo().AchievementPoints);
             SendResponse();
             GetResponse().Init(LibraryParser.OutgoingRequest("FigureSetIdsMessageComposer"));
-            Session.GetHabbo()._clothingManager.Serialize(GetResponse());
+            Session.GetHabbo().ClothingManager.Serialize(GetResponse());
             SendResponse();
             /*Response.Init(LibraryParser.OutgoingRequest("NewbieStatusMessageComposer"));
             Response.AppendInteger(0);// 2 = new - 1 = nothing - 0 = not new
@@ -351,7 +349,7 @@ namespace Azure.Messages.Handlers
             Session.SendMessage(Azure.GetGame().GetNavigator().SerializePromotionCategories());
             if (Azure.GetGame().GetTargetedOfferManager().CurrentOffer != null)
             {
-                Azure.GetGame().GetTargetedOfferManager().CurrentOffer.GenerateMessage(GetResponse());
+                Azure.GetGame().GetTargetedOfferManager().GenerateMessage(GetResponse());
                 SendResponse();
             }
             if (Session.GetHabbo().CurrentQuestId != 0)
@@ -391,27 +389,27 @@ namespace Azure.Messages.Handlers
                         queryReactor2.AddParameter("tags", "");
                         queryReactor2.RunQuery();
 
-                        var new_photo_data = "{\"t\":" + date + ",\"u\":\"" + photo + "\",\"m\":\"\",\"s\":" + room + ",\"w\":\"" + image + "\"}";
-                        var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, Azure.GetGame().GetItemManager().PhotoId, new_photo_data, 0, true, false, 0, 0);
-                        
+                        var newPhotoData = "{\"t\":" + date + ",\"u\":\"" + photo + "\",\"m\":\"\",\"s\":" + room + ",\"w\":\"" + image + "\"}";
+                        var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, Azure.GetGame().GetItemManager().PhotoId, newPhotoData, 0, true, false, 0, 0);
+
                         Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
                         Session.GetHabbo().Credits -= 2;
                         Session.GetHabbo().UpdateCreditsBalance();
                         Session.GetHabbo().GetInventoryComponent().SendNewItems(item.Id);
-
-                    }               
-                }          
+                    }
+                }
             }
 
             var message = new ServerMessage(LibraryParser.OutgoingRequest("CameraPurchaseOk"));
             Session.SendMessage(message);
         }
+
         /// <summary>
         /// Called when [click].
         /// </summary>
         internal void OnClick()
         {
-           //uselss only for debug reasons
+            //uselss only for debug reasons
         }
 
         /// <summary>
@@ -443,9 +441,9 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().Credits < offer.CostCredits * quantity) return;
             if (Session.GetHabbo().ActivityPoints < offer.CostDuckets * quantity) return;
             if (Session.GetHabbo().Diamonds < offer.CostDiamonds * quantity) return;
-            foreach (string Product in offer.Products)
+            foreach (string product in offer.Products)
             {
-                var item = Azure.GetGame().GetItemManager().GetItemByName(Product);
+                var item = Azure.GetGame().GetItemManager().GetItemByName(product);
                 if (item == null) continue;
                 Azure.GetGame().GetCatalog().DeliverItems(Session, item, quantity, string.Empty, 0, 0, string.Empty);
             }
@@ -470,6 +468,7 @@ namespace Azure.Messages.Handlers
                 case "predefined_noob_lobby":
                     roomId = Convert.ToUInt32(Azure.GetDbConfig().DbData["noob.lobby.roomid"]);
                     break;
+
                 case "random_friending_room":
                     var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms().Select(room => room.Key).Where(room => room != null && room.UsersNow > 0).ToList();
                     if (!rooms.Any())
@@ -493,7 +492,7 @@ namespace Azure.Messages.Handlers
         /// <summary>
         /// Gets the uc panel.
         /// </summary>
-        internal void GetUCPanel()
+        internal void GetUcPanel()
         {
             string name = Request.GetString();
             switch (name)
@@ -507,7 +506,7 @@ namespace Azure.Messages.Handlers
         /// <summary>
         /// Gets the uc panel hotel.
         /// </summary>
-        internal void GetUCPanelHotel()
+        internal void GetUcPanelHotel()
         {
             int id = Request.GetInteger();
         }

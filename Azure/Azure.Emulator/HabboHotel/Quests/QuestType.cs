@@ -1,157 +1,157 @@
 namespace Azure.HabboHotel.Quests
 {
     /// <summary>
-    /// Enum QuestType
+    ///     Enum QuestType
     /// </summary>
     public enum QuestType
     {
         /// <summary>
-        /// The furni move
+        ///     The furni move
         /// </summary>
         FurniMove,
 
         /// <summary>
-        /// The furni rotate
+        ///     The furni rotate
         /// </summary>
         FurniRotate,
 
         /// <summary>
-        /// The furni place
+        ///     The furni place
         /// </summary>
         FurniPlace,
 
         /// <summary>
-        /// The furni pick
+        ///     The furni pick
         /// </summary>
         FurniPick,
 
         /// <summary>
-        /// The furni switch
+        ///     The furni switch
         /// </summary>
         FurniSwitch,
 
         /// <summary>
-        /// The furni stack
+        ///     The furni stack
         /// </summary>
         FurniStack,
 
         /// <summary>
-        /// The furni decoration floor
+        ///     The furni decoration floor
         /// </summary>
         FurniDecorationFloor,
 
         /// <summary>
-        /// The furni decoration wall
+        ///     The furni decoration wall
         /// </summary>
         FurniDecorationWall,
 
         /// <summary>
-        /// The social visit
+        ///     The social visit
         /// </summary>
         SocialVisit,
 
         /// <summary>
-        /// The social chat
+        ///     The social chat
         /// </summary>
         SocialChat,
 
         /// <summary>
-        /// The social friend
+        ///     The social friend
         /// </summary>
         SocialFriend,
 
         /// <summary>
-        /// The social respect
+        ///     The social respect
         /// </summary>
         SocialRespect,
 
         /// <summary>
-        /// The social dance
+        ///     The social dance
         /// </summary>
         SocialDance,
 
         /// <summary>
-        /// The social wave
+        ///     The social wave
         /// </summary>
         SocialWave,
 
         /// <summary>
-        /// The profile change look
+        ///     The profile change look
         /// </summary>
         ProfileChangeLook,
 
         /// <summary>
-        /// The profile change motto
+        ///     The profile change motto
         /// </summary>
         ProfileChangeMotto,
 
         /// <summary>
-        /// The profile badge
+        ///     The profile badge
         /// </summary>
         ProfileBadge,
 
         /// <summary>
-        /// The explore find item
+        ///     The explore find item
         /// </summary>
         ExploreFindItem,
 
         /// <summary>
-        /// The summer enter room
+        ///     The summer enter room
         /// </summary>
         SummerEnterRoom,
 
         /// <summary>
-        /// The add friends
+        ///     The add friends
         /// </summary>
         AddFriends,
 
         /// <summary>
-        /// The wave users
+        ///     The wave users
         /// </summary>
         WaveUsers,
 
         /// <summary>
-        /// The kiss users
+        ///     The kiss users
         /// </summary>
         KissUsers,
 
         /// <summary>
-        /// The wear hat
+        ///     The wear hat
         /// </summary>
         WearHat,
 
         /// <summary>
-        /// The mass dance
+        ///     The mass dance
         /// </summary>
         MassDance,
 
         /// <summary>
-        /// The gift others
+        ///     The gift others
         /// </summary>
         GiftOthers,
 
         /// <summary>
-        /// The stand on
+        ///     The stand on
         /// </summary>
         StandOn,
 
         /// <summary>
-        /// The give item
+        ///     The give item
         /// </summary>
         GiveItem,
 
         /// <summary>
-        /// The give coffee
+        ///     The give coffee
         /// </summary>
         GiveCoffee,
 
         /// <summary>
-        /// The wave reindeer
+        ///     The wave reindeer
         /// </summary>
         WaveReindeer,
 
         /// <summary>
-        /// The xmas party
+        ///     The xmas party
         /// </summary>
         XmasParty
     }

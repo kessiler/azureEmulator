@@ -1,12 +1,12 @@
 namespace Azure.HabboHotel.SoundMachine
 {
     /// <summary>
-    /// Class SongInstance.
+    ///     Class SongInstance.
     /// </summary>
     internal class SongInstance
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SongInstance"/> class.
+        ///     Initializes a new instance of the <see cref="SongInstance" /> class.
         /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="songData">The song data.</param>
@@ -17,13 +17,13 @@ namespace Azure.HabboHotel.SoundMachine
         }
 
         /// <summary>
-        /// Gets the disk item.
+        ///     Gets the disk item.
         /// </summary>
         /// <value>The disk item.</value>
         public SongItem DiskItem { get; private set; }
 
         /// <summary>
-        /// Gets the song data.
+        ///     Gets the song data.
         /// </summary>
         /// <value>The song data.</value>
         public SongData SongData { get; private set; }

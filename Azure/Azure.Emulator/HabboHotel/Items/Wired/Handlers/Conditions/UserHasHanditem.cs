@@ -1,7 +1,9 @@
 #region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -16,10 +18,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionUserHasHanditem; }
-        }
+        public Interaction Type => Interaction.ConditionUserHasHanditem;
 
         public RoomItem Item { get; set; }
 
@@ -55,9 +54,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool Execute(params object[] stuff)
         {
-            RoomUser roomUser = (RoomUser)stuff[0];
+            var roomUser = (RoomUser)stuff[0];
             //InteractionType item = (InteractionType)stuff[1];
-            int handitem = Delay / 500;
+            var handitem = Delay / 500;
             if (handitem < 0) return false;
             if (roomUser.CarryItemId == handitem) return true;
             return false;

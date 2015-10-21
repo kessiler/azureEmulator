@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -22,10 +24,40 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             Items = new List<RoomItem>();
         }
 
-        public Interaction Type
+        public Queue ToWork { get; set; }
+
+        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
+
+        public bool OnCycle()
         {
-            get { return Interaction.TriggerWalkOnFurni; }
+            var num = Azure.Now();
+            if (num <= _mNext) return false;
+            lock (ToWork.SyncRoot)
+            {
+                while (ToWork.Count > 0)
+                {
+                    var roomUser = (RoomUser)ToWork.Dequeue();
+                    var conditions = Room.GetWiredHandler().GetConditions(this);
+                    var effects = Room.GetWiredHandler().GetEffects(this);
+                    if (conditions.Any())
+                    {
+                        foreach (var current in conditions)
+                        {
+                            if (!current.Execute(roomUser)) return false;
+                            WiredHandler.OnEvent(current);
+                        }
+                    }
+                    if (!effects.Any()) continue;
+                    foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
+                        WiredHandler.OnEvent(current2);
+                }
+            }
+            _mNext = 0L;
+            WiredHandler.OnEvent(this);
+            return true;
         }
+
+        public Interaction Type => Interaction.TriggerWalkOnFurni;
 
         public RoomItem Item { get; set; }
 
@@ -59,10 +91,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             set { }
         }
 
-        public Queue ToWork { get; set; }
-
-        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
-
         public bool Execute(params object[] stuff)
         {
             var roomUser = (RoomUser)stuff[0];
@@ -70,7 +98,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             if (!Items.Contains(roomItem) || (roomUser.LastItem != 0 && roomUser.LastItem == roomItem.Id)) return false;
             if (roomItem.GetRoom() == null || roomItem.GetRoom().GetRoomItemHandler() == null ||
                 roomItem.GetRoom().GetRoomItemHandler().FloorItems.Values.Any(i =>
-                (i.X == roomItem.X && i.Y == roomItem.Y && i.Z > roomItem.Z)))
+                    (i.X == roomItem.X && i.Y == roomItem.Y && i.Z > roomItem.Z)))
                 return false;
             ToWork.Enqueue(roomUser);
             if (Delay == 0) OnCycle();
@@ -80,34 +108,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
 
                 Room.GetWiredHandler().EnqueueCycle(this);
             }
-            return true;
-        }
-
-        public bool OnCycle()
-        {
-            var num = Azure.Now();
-            if (num <= _mNext) return false;
-            lock (ToWork.SyncRoot)
-            {
-                while (ToWork.Count > 0)
-                {
-                    var roomUser = (RoomUser)ToWork.Dequeue();
-                    var conditions = Room.GetWiredHandler().GetConditions(this);
-                    var effects = Room.GetWiredHandler().GetEffects(this);
-                    if (conditions.Any())
-                    {
-                        foreach (var current in conditions)
-                        {
-                            if (!current.Execute(roomUser)) return false;
-                            WiredHandler.OnEvent(current);
-                        }
-                    }
-                    if (!effects.Any()) continue;
-                    foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type))) WiredHandler.OnEvent(current2);
-                }
-            }
-            _mNext = 0L;
-            WiredHandler.OnEvent(this);
             return true;
         }
     }

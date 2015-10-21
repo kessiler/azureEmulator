@@ -1,67 +1,67 @@
 namespace Azure.HabboHotel.Quests
 {
     /// <summary>
-    /// Class Quest.
+    ///     Class Quest.
     /// </summary>
     public class Quest
     {
         /// <summary>
-        /// The identifier
-        /// </summary>
-        internal readonly uint Id;
-
-        /// <summary>
-        /// The category
+        ///     The category
         /// </summary>
         internal readonly string Category;
 
         /// <summary>
-        /// The number
-        /// </summary>
-        internal readonly int Number;
-
-        /// <summary>
-        /// The goal type
-        /// </summary>
-        internal readonly QuestType GoalType;
-
-        /// <summary>
-        /// The goal data
-        /// </summary>
-        internal readonly uint GoalData;
-
-        /// <summary>
-        /// The name
-        /// </summary>
-        internal readonly string Name;
-
-        /// <summary>
-        /// The reward
-        /// </summary>
-        internal readonly int Reward;
-
-        /// <summary>
-        /// The data bit
+        ///     The data bit
         /// </summary>
         internal readonly string DataBit;
 
         /// <summary>
-        /// The reward type
+        ///     The goal data
         /// </summary>
-        internal readonly int RewardType;
+        internal readonly uint GoalData;
 
         /// <summary>
-        /// The time unlock
+        ///     The goal type
         /// </summary>
-        internal readonly int TimeUnlock;
+        internal readonly QuestType GoalType;
 
         /// <summary>
-        /// The has ended
+        ///     The has ended
         /// </summary>
         internal readonly bool HasEnded;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Quest"/> class.
+        ///     The identifier
+        /// </summary>
+        internal readonly uint Id;
+
+        /// <summary>
+        ///     The name
+        /// </summary>
+        internal readonly string Name;
+
+        /// <summary>
+        ///     The number
+        /// </summary>
+        internal readonly int Number;
+
+        /// <summary>
+        ///     The reward
+        /// </summary>
+        internal readonly int Reward;
+
+        /// <summary>
+        ///     The reward type
+        /// </summary>
+        internal readonly int RewardType;
+
+        /// <summary>
+        ///     The time unlock
+        /// </summary>
+        internal readonly int TimeUnlock;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Quest" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="category">The category.</param>
@@ -91,24 +91,23 @@ namespace Azure.HabboHotel.Quests
         }
 
         /// <summary>
-        /// Gets the name of the action.
+        ///     Gets the name of the action.
         /// </summary>
         /// <value>The name of the action.</value>
-        public string ActionName
-        {
-            get { return QuestTypeUtillity.GetString(GoalType); }
-        }
+        public string ActionName => QuestTypeUtillity.GetString(GoalType);
 
         /// <summary>
-        /// Determines whether the specified user progress is completed.
+        ///     Determines whether the specified user progress is completed.
         /// </summary>
         /// <param name="userProgress">The user progress.</param>
         /// <returns><c>true</c> if the specified user progress is completed; otherwise, <c>false</c>.</returns>
         public bool IsCompleted(int userProgress)
         {
             var goalType = GoalType;
+
             if (goalType != QuestType.ExploreFindItem)
                 return userProgress >= GoalData;
+
             return userProgress >= 1;
         }
     }

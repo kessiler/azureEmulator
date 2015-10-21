@@ -1,27 +1,27 @@
 namespace Azure.HabboHotel.Users.Relationships
 {
     /// <summary>
-    /// Class Relationship.
+    ///     Class Relationship.
     /// </summary>
     internal class Relationship
     {
         /// <summary>
-        /// The identifier
+        ///     The identifier
         /// </summary>
         public int Id;
 
         /// <summary>
-        /// The user identifier
-        /// </summary>
-        public int UserId;
-
-        /// <summary>
-        /// The type
+        ///     The type
         /// </summary>
         public int Type;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Relationship"/> class.
+        ///     The user identifier
+        /// </summary>
+        public int UserId;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Relationship" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="user">The user.</param>

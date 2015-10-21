@@ -1,11 +1,12 @@
 #region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Achievements;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Users.Badges;
 using Azure.HabboHotel.Users.Inventory;
 using Azure.HabboHotel.Users.Messenger;
@@ -17,112 +18,112 @@ using Azure.HabboHotel.Users.Subscriptions;
 namespace Azure.HabboHotel.Users.UserDataManagement
 {
     /// <summary>
-    /// Class UserData.
+    ///     Class UserData.
     /// </summary>
     internal class UserData
     {
         /// <summary>
-        /// The user identifier
-        /// </summary>
-        internal uint UserId;
-
-        /// <summary>
-        /// The achievements
+        ///     The achievements
         /// </summary>
         internal Dictionary<string, UserAchievement> Achievements;
 
         /// <summary>
-        /// The talents
-        /// </summary>
-        internal Dictionary<int, UserTalent> Talents;
-
-        /// <summary>
-        /// The favourited rooms
-        /// </summary>
-        internal List<uint> FavouritedRooms;
-
-        /// <summary>
-        /// The ignores
-        /// </summary>
-        internal List<uint> Ignores;
-
-        /// <summary>
-        /// The tags
-        /// </summary>
-        internal List<string> Tags;
-
-        /// <summary>
-        /// The subscriptions
-        /// </summary>
-        internal Subscription Subscriptions;
-
-        /// <summary>
-        /// The badges
+        ///     The badges
         /// </summary>
         internal List<Badge> Badges;
 
         /// <summary>
-        /// The inventory
-        /// </summary>
-        internal List<UserItem> Inventory;
-
-        /// <summary>
-        /// The effects
-        /// </summary>
-        internal List<AvatarEffect> Effects;
-
-        /// <summary>
-        /// The friends
-        /// </summary>
-        internal Dictionary<uint, MessengerBuddy> Friends;
-
-        /// <summary>
-        /// The requests
-        /// </summary>
-        internal Dictionary<uint, MessengerRequest> Requests;
-
-        /// <summary>
-        /// The rooms
-        /// </summary>
-        internal HashSet<RoomData> Rooms;
-
-        /// <summary>
-        /// The pets
-        /// </summary>
-        internal Dictionary<uint, Pet> Pets;
-
-        /// <summary>
-        /// The quests
-        /// </summary>
-        internal Dictionary<uint, int> Quests;
-
-        /// <summary>
-        /// The user
-        /// </summary>
-        internal Habbo User;
-
-        /// <summary>
-        /// The bots
+        ///     The bots
         /// </summary>
         internal Dictionary<uint, RoomBot> Bots;
 
         /// <summary>
-        /// The relations
+        ///     The effects
         /// </summary>
-        internal Dictionary<int, Relationship> Relations;
+        internal List<AvatarEffect> Effects;
 
         /// <summary>
-        /// The suggested polls
+        ///     The favourited rooms
         /// </summary>
-        internal HashSet<uint> SuggestedPolls;
+        internal List<uint> FavouritedRooms;
 
         /// <summary>
-        /// The mini mail count
+        ///     The friends
+        /// </summary>
+        internal Dictionary<uint, MessengerBuddy> Friends;
+
+        /// <summary>
+        ///     The ignores
+        /// </summary>
+        internal List<uint> Ignores;
+
+        /// <summary>
+        ///     The inventory
+        /// </summary>
+        internal List<UserItem> Inventory;
+
+        /// <summary>
+        ///     The mini mail count
         /// </summary>
         internal uint MiniMailCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserData"/> class.
+        ///     The pets
+        /// </summary>
+        internal Dictionary<uint, Pet> Pets;
+
+        /// <summary>
+        ///     The quests
+        /// </summary>
+        internal Dictionary<uint, int> Quests;
+
+        /// <summary>
+        ///     The relations
+        /// </summary>
+        internal Dictionary<int, Relationship> Relations;
+
+        /// <summary>
+        ///     The requests
+        /// </summary>
+        internal Dictionary<uint, MessengerRequest> Requests;
+
+        /// <summary>
+        ///     The rooms
+        /// </summary>
+        internal HashSet<RoomData> Rooms;
+
+        /// <summary>
+        ///     The subscriptions
+        /// </summary>
+        internal Subscription Subscriptions;
+
+        /// <summary>
+        ///     The suggested polls
+        /// </summary>
+        internal HashSet<uint> SuggestedPolls;
+
+        /// <summary>
+        ///     The tags
+        /// </summary>
+        internal List<string> Tags;
+
+        /// <summary>
+        ///     The talents
+        /// </summary>
+        internal Dictionary<int, UserTalent> Talents;
+
+        /// <summary>
+        ///     The user
+        /// </summary>
+        internal Habbo User;
+
+        /// <summary>
+        ///     The user identifier
+        /// </summary>
+        internal uint UserId;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="UserData" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="achievements">The achievements.</param>

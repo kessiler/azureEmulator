@@ -1,22 +1,22 @@
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Enum ModerationBanType
+    ///     Enum ModerationBanType
     /// </summary>
     internal enum ModerationBanType
     {
         /// <summary>
-        /// The ip
+        ///     The ip
         /// </summary>
         Ip,
 
         /// <summary>
-        /// The user name
+        ///     The user name
         /// </summary>
         UserName,
 
         /// <summary>
-        /// The machine
+        ///     The machine
         /// </summary>
         Machine
     }

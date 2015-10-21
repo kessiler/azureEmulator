@@ -1,32 +1,32 @@
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Struct ModerationBan
+    ///     Struct ModerationBan
     /// </summary>
     internal struct ModerationBan
     {
         /// <summary>
-        /// The type
+        ///     The type
         /// </summary>
         internal ModerationBanType Type;
 
         /// <summary>
-        /// The variable
+        ///     The variable
         /// </summary>
         internal string Variable;
 
         /// <summary>
-        /// The reason message
+        ///     The reason message
         /// </summary>
         internal string ReasonMessage;
 
         /// <summary>
-        /// The expire
+        ///     The expire
         /// </summary>
         internal double Expire;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ModerationBan"/> struct.
+        ///     Initializes a new instance of the <see cref="ModerationBan" /> struct.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="variable">The variable.</param>
@@ -41,15 +41,9 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="ModerationBan"/> is expired.
+        ///     Gets a value indicating whether this <see cref="ModerationBan" /> is expired.
         /// </summary>
         /// <value><c>true</c> if expired; otherwise, <c>false</c>.</value>
-        internal bool Expired
-        {
-            get
-            {
-                return Azure.GetUnixTimeStamp() >= Expire;
-            }
-        }
+        internal bool Expired => Azure.GetUnixTimeStamp() >= Expire;
     }
 }

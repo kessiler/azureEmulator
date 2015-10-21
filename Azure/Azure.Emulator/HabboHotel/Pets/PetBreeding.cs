@@ -8,52 +8,52 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Class PetBreeding.
+    ///     Class PetBreeding.
     /// </summary>
     internal class PetBreeding
     {
         /// <summary>
-        /// The terrier epic race
+        ///     The terrier epic race
         /// </summary>
-        internal static int[] TerrierEpicRace = { 17, 18, 19 };
+        internal static int[] TerrierEpicRace = {17, 18, 19};
 
         /// <summary>
-        /// The terrier rare race
+        ///     The terrier rare race
         /// </summary>
-        internal static int[] TerrierRareRace = { 10, 14, 15, 16 };
+        internal static int[] TerrierRareRace = {10, 14, 15, 16};
 
         /// <summary>
-        /// The terrier no rare race
+        ///     The terrier no rare race
         /// </summary>
-        internal static int[] TerrierNoRareRace = { 11, 12, 13, 4, 5, 6 };
+        internal static int[] TerrierNoRareRace = {11, 12, 13, 4, 5, 6};
 
         /// <summary>
-        /// The terrier normal race
+        ///     The terrier normal race
         /// </summary>
-        internal static int[] TerrierNormalRace = { 0, 1, 2, 7, 8, 9 };
+        internal static int[] TerrierNormalRace = {0, 1, 2, 7, 8, 9};
 
         /// <summary>
-        /// The bear epic race
+        ///     The bear epic race
         /// </summary>
-        internal static int[] BearEpicRace = { 3, 10, 11 };
+        internal static int[] BearEpicRace = {3, 10, 11};
 
         /// <summary>
-        /// The bear rare race
+        ///     The bear rare race
         /// </summary>
-        internal static int[] BearRareRace = { 12, 13, 15, 16, 17, 18 };
+        internal static int[] BearRareRace = {12, 13, 15, 16, 17, 18};
 
         /// <summary>
-        /// The bear no rare race
+        ///     The bear no rare race
         /// </summary>
-        internal static int[] BearNoRareRace = { 7, 8, 9, 14, 19 };
+        internal static int[] BearNoRareRace = {7, 8, 9, 14, 19};
 
         /// <summary>
-        /// The bear normal race
+        ///     The bear normal race
         /// </summary>
-        internal static int[] BearNormalRace = { 0, 1, 2, 4, 5, 6 };
+        internal static int[] BearNormalRace = {0, 1, 2, 4, 5, 6};
 
         /// <summary>
-        /// Gets the message.
+        ///     Gets the message.
         /// </summary>
         /// <param name="furniId">The furni identifier.</param>
         /// <param name="pet1">The pet1.</param>
@@ -80,13 +80,13 @@ namespace Azure.HabboHotel.Pets
             {
                 case 3:
                     message.AppendInteger(TerrierEpicRace.Length);
-                    foreach (int value in TerrierEpicRace)
+                    foreach (var value in TerrierEpicRace)
                         message.AppendInteger(value);
                     break;
 
                 case 4:
                     message.AppendInteger(BearEpicRace.Length);
-                    foreach (int value in BearEpicRace)
+                    foreach (var value in BearEpicRace)
                         message.AppendInteger(value);
                     break;
             }
@@ -96,13 +96,13 @@ namespace Azure.HabboHotel.Pets
             {
                 case 3:
                     message.AppendInteger(TerrierRareRace.Length);
-                    foreach (int value in TerrierRareRace)
+                    foreach (var value in TerrierRareRace)
                         message.AppendInteger(value);
                     break;
 
                 case 4:
                     message.AppendInteger(BearRareRace.Length);
-                    foreach (int value in BearRareRace)
+                    foreach (var value in BearRareRace)
                         message.AppendInteger(value);
                     break;
             }
@@ -112,13 +112,13 @@ namespace Azure.HabboHotel.Pets
             {
                 case 3:
                     message.AppendInteger(TerrierNoRareRace.Length);
-                    foreach (int value in TerrierNoRareRace)
+                    foreach (var value in TerrierNoRareRace)
                         message.AppendInteger(value);
                     break;
 
                 case 4:
                     message.AppendInteger(BearNoRareRace.Length);
-                    foreach (int value in BearNoRareRace)
+                    foreach (var value in BearNoRareRace)
                         message.AppendInteger(value);
                     break;
             }
@@ -128,13 +128,13 @@ namespace Azure.HabboHotel.Pets
             {
                 case 3:
                     message.AppendInteger(TerrierNormalRace.Length);
-                    foreach (int value in TerrierNormalRace)
+                    foreach (var value in TerrierNormalRace)
                         message.AppendInteger(value);
                     break;
 
                 case 4:
                     message.AppendInteger(BearNormalRace.Length);
-                    foreach (int value in BearNormalRace)
+                    foreach (var value in BearNormalRace)
                         message.AppendInteger(value);
                     break;
             }

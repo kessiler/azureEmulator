@@ -1,9 +1,9 @@
 #region
 
 using System;
+using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using Azure.Configuration;
-using System.Runtime.InteropServices;
 
 #endregion
 
@@ -18,7 +18,7 @@ namespace Azure
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
-            Program.StartEverything();
+            StartEverything();
             while (Azure.IsLive)
             {
                 Console.CursorVisible = true;
@@ -28,9 +28,9 @@ namespace Azure
 
         private static void StartEverything()
         {
-            Program.StartConsoleWindow();
-            Program.DeleteMenu(Program.GetSystemMenu(Program.GetConsoleWindow(), false), Program.SC_CLOSE, 0);
-            Program.InitEnvironment();
+            StartConsoleWindow();
+            DeleteMenu(GetSystemMenu(GetConsoleWindow(), false), ScClose, 0);
+            InitEnvironment();
         }
 
         public static void StartConsoleWindow()
@@ -76,7 +76,7 @@ namespace Azure
         {
             Logging.DisablePrimaryWriting(true);
             var ex = (Exception)args.ExceptionObject;
-            Logging.LogCriticalException(string.Format("SYSTEM CRITICAL EXCEPTION: {0}", ex));
+            Logging.LogCriticalException($"SYSTEM CRITICAL EXCEPTION: {ex}");
         }
 
         [DllImport("user32.dll")]
@@ -88,6 +88,6 @@ namespace Azure
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
-        internal const UInt32 SC_CLOSE = 0xF060;
+        internal const uint ScClose = 0xF060;
     }
 }

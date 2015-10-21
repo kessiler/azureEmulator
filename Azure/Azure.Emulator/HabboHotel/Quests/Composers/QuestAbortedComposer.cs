@@ -8,12 +8,12 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Quests.Composer
 {
     /// <summary>
-    /// Class QuestAbortedComposer.
+    ///     Class QuestAbortedComposer.
     /// </summary>
     internal class QuestAbortedComposer
     {
         /// <summary>
-        /// Composes this instance.
+        ///     Composes this instance.
         /// </summary>
         /// <returns>ServerMessage.</returns>
         internal static ServerMessage Compose()

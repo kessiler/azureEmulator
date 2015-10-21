@@ -1,7 +1,9 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -20,13 +22,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionBotGiveHanditem;
-            }
-        }
+        public Interaction Type => Interaction.ActionBotGiveHanditem;
 
         public RoomItem Item { get; set; }
 
@@ -34,13 +30,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay { get; set; }
@@ -55,12 +46,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            RoomUser roomUser = (RoomUser)stuff[0];
+            var roomUser = (RoomUser)stuff[0];
             //InteractionType item = (InteractionType)stuff[1];
-            int handitem = Delay / 500;
+            var handitem = Delay / 500;
             if (handitem < 0) return false;
             roomUser.CarryItem(handitem);
-            RoomUser bot = Room.GetRoomUserManager().GetBotByName(OtherString);
+            var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
             if (bot == null) return true;
             bot.Chat(null, Azure.GetLanguage().GetVar("bot_give_handitem"), false, 0);
             return true;

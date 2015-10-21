@@ -28,7 +28,6 @@ namespace Azure.Security
         /// <value>The default.</value>
         public static string Default { get; private set; }
 
-
         /// <summary>
         /// Loads this instance.
         /// </summary>
@@ -49,7 +48,7 @@ namespace Azure.Security
                     var key = item[0].ToString();
                     var value = string.Empty;
 
-                    if (item.Count() > 1)  
+                    if (item.Count() > 1)
                         value = item[1].ToString();
 
                     dic.Add(key, value);
@@ -99,7 +98,8 @@ namespace Azure.Security
             foreach (
                 var c in
                     normalizedString.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                ) stringBuilder.Append(c);
+                )
+                stringBuilder.Append(c);
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }

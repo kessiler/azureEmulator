@@ -1,6 +1,6 @@
 #region
 
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -9,20 +9,20 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Quests.Composer
 {
     /// <summary>
-    /// Class QuestStartedComposer.
+    ///     Class QuestStartedComposer.
     /// </summary>
     internal class QuestStartedComposer
     {
         /// <summary>
-        /// Composes the specified session.
+        ///     Composes the specified session.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="Quest">The quest.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="quest">The quest.</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage Compose(GameClient Session, Quest Quest)
+        internal static ServerMessage Compose(GameClient session, Quest quest)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("QuestStartedMessageComposer"));
-            QuestListComposer.SerializeQuest(serverMessage, Session, Quest, Quest.Category);
+            QuestListComposer.SerializeQuest(serverMessage, session, quest, quest.Category);
             return serverMessage;
         }
     }

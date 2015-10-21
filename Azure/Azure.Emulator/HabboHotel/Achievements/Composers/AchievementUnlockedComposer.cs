@@ -1,41 +1,43 @@
 #region
 
+using Azure.HabboHotel.Achievements.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
 #endregion
 
-namespace Azure.HabboHotel.Achievements.Composer
+namespace Azure.HabboHotel.Achievements.Composers
 {
     /// <summary>
-    /// Class AchievementUnlockedComposer.
+    ///     Class AchievementUnlockedComposer.
     /// </summary>
     internal class AchievementUnlockedComposer
     {
         /// <summary>
-        /// Composes the specified achievement.
+        ///     Composes the specified achievement.
         /// </summary>
-        /// <param name="Achievement">The achievement.</param>
-        /// <param name="Level">The level.</param>
-        /// <param name="PointReward">The point reward.</param>
-        /// <param name="PixelReward">The pixel reward.</param>
+        /// <param name="achievement">The achievement.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="pointReward">The point reward.</param>
+        /// <param name="pixelReward">The pixel reward.</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage Compose(Achievement Achievement, int Level, int PointReward, int PixelReward)
+        internal static ServerMessage Compose(Achievement achievement, int level, int pointReward, int pixelReward)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UnlockAchievementMessageComposer"));
-            serverMessage.AppendInteger(Achievement.Id);
-            serverMessage.AppendInteger(Level);
+
+            serverMessage.AppendInteger(achievement.Id);
+            serverMessage.AppendInteger(level);
             serverMessage.AppendInteger(144);
-            serverMessage.AppendString(string.Format("{0}{1}", Achievement.GroupName, Level));
-            serverMessage.AppendInteger(PointReward);
-            serverMessage.AppendInteger(PixelReward);
+            serverMessage.AppendString($"{achievement.GroupName}{level}");
+            serverMessage.AppendInteger(pointReward);
+            serverMessage.AppendInteger(pixelReward);
             serverMessage.AppendInteger(0);
             serverMessage.AppendInteger(10);
             serverMessage.AppendInteger(21);
-            serverMessage.AppendString(Level > 1 ? string.Format("{0}{1}", Achievement.GroupName, (Level - 1)) : string.Empty);
-
-            serverMessage.AppendString(Achievement.Category);
+            serverMessage.AppendString(level > 1 ? $"{achievement.GroupName}{(level - 1)}" : string.Empty);
+            serverMessage.AppendString(achievement.Category);
             serverMessage.AppendBool(true);
+
             return serverMessage;
         }
     }

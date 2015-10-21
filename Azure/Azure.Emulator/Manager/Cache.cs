@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Users;
 
 #endregion
@@ -17,8 +19,7 @@ namespace Azure.Manager
 
         public static void StartProcess()
         {
-            _thread = new Thread(Process);
-            _thread.Name = "Thread Cache";
+            _thread = new Thread(Process) { Name = "Cache Thread" };
             _thread.Start();
             Working = true;
         }
@@ -33,26 +34,20 @@ namespace Azure.Manager
         {
             while (Working)
             {
-                try
-                {
-                    ClearUserCache();
-                    ClearRoomsCache();
-                }
-                catch (Exception e)
-                {
-                    Writer.Writer.LogCriticalException(e.ToString());
-                }
+                ClearUserCache();
+                ClearRoomsCache();
 
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
 
-                Thread.Sleep(1000000); // WTF?
+                Thread.Sleep(1000000); // WTF? <<< #TODO WTF!!
             }
         }
 
         private static void ClearUserCache()
         {
             var toRemove = new List<uint>();
+
             foreach (var user in Azure.UsersCached)
             {
                 if (user.Value == null)
@@ -60,8 +55,12 @@ namespace Azure.Manager
                     toRemove.Add(user.Key);
                     return;
                 }
-                if (Azure.GetGame().GetClientManager().Clients.ContainsKey(user.Key)) continue;
-                if ((DateTime.Now - user.Value.LastUsed).TotalMilliseconds < 1800000) continue;
+
+                if (Azure.GetGame().GetClientManager().Clients.ContainsKey(user.Key))
+                    continue;
+
+                if ((DateTime.Now - user.Value.LastUsed).TotalMilliseconds < 1800000)
+                    continue;
 
                 toRemove.Add(user.Key);
             }
@@ -69,28 +68,25 @@ namespace Azure.Manager
             foreach (var userId in toRemove)
             {
                 Habbo nullHabbo;
-                if (Azure.UsersCached.TryRemove(userId, out nullHabbo)) nullHabbo = null;
+
+                if (Azure.UsersCached.TryRemove(userId, out nullHabbo))
+                    nullHabbo = null;
             }
         }
 
         private static void ClearRoomsCache()
         {
-            if (Azure.GetGame() == null || Azure.GetGame().GetRoomManager() == null ||
-                Azure.GetGame().GetRoomManager().LoadedRoomData == null) return;
+            if (Azure.GetGame() == null || Azure.GetGame().GetRoomManager() == null || Azure.GetGame().GetRoomManager().LoadedRoomData == null)
+                return;
 
-            var toRemove = new List<uint>();
-            foreach (var roomData in Azure.GetGame().GetRoomManager().LoadedRoomData)
-            {
-                if (roomData.Value == null || roomData.Value.UsersNow > 0) continue;
-                if ((DateTime.Now - roomData.Value.LastUsed).TotalMilliseconds < 1800000) continue;
-
-                toRemove.Add(roomData.Key);
-            }
+            var toRemove = (from roomData in Azure.GetGame().GetRoomManager().LoadedRoomData where roomData.Value != null && roomData.Value.UsersNow <= 0 where !((DateTime.Now - roomData.Value.LastUsed).TotalMilliseconds < 1800000) select roomData.Key).ToList();
 
             foreach (var roomId in toRemove)
             {
                 RoomData nullRoom;
-                if (Azure.GetGame().GetRoomManager().LoadedRoomData.TryRemove(roomId, out nullRoom)) nullRoom = null;
+
+                if (Azure.GetGame().GetRoomManager().LoadedRoomData.TryRemove(roomId, out nullRoom))
+                    nullRoom = null;
             }
         }
     }

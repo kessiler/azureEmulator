@@ -5,7 +5,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 
 #endregion
 
@@ -13,9 +14,10 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {
     internal class MoveToDir : IWiredItem
     {
+        private readonly ConcurrentQueue<RoomItem> _toRemove = new ConcurrentQueue<RoomItem>();
+        private bool _needChange;
         private MovementDirection _startDirection;
         private WhenMovementBlock _whenMoveIsBlocked;
-        private bool _needChange;
 
         public MoveToDir(RoomItem item, Room room)
         {
@@ -25,28 +27,23 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             Delay = 0;
         }
 
-        public Interaction Type
+        public int StartDirection => (int)_startDirection;
+
+        public int WhenMoveIsBlocked => (int)_whenMoveIsBlocked;
+
+        public Queue ToWork
         {
-            get { return Interaction.ActionMoveToDir; }
+            get { return null; }
+            set { }
         }
+
+        public Interaction Type => Interaction.ActionMoveToDir;
 
         public RoomItem Item { get; set; }
 
         public Room Room { get; set; }
 
         public List<RoomItem> Items { get; set; }
-
-        private readonly ConcurrentQueue<RoomItem> _toRemove = new ConcurrentQueue<RoomItem>();
-
-        public int StartDirection
-        {
-            get { return (int)_startDirection; }
-        }
-
-        public int WhenMoveIsBlocked
-        {
-            get { return (int)_whenMoveIsBlocked; }
-        }
 
         public string OtherString
         {
@@ -84,12 +81,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         }
 
         public int Delay { get; set; }
-
-        public Queue ToWork
-        {
-            get { return null; }
-            set { }
-        }
 
         public bool Execute(params object[] stuff)
         {
@@ -702,14 +693,22 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
                     case WhenMovementBlock.TurnBack:
                         {
-                            if (item.MoveToDirMovement == MovementDirection.Right) item.MoveToDirMovement = MovementDirection.Left;
-                            else if (item.MoveToDirMovement == MovementDirection.Left) item.MoveToDirMovement = MovementDirection.Right;
-                            else if (item.MoveToDirMovement == MovementDirection.Up) item.MoveToDirMovement = MovementDirection.Down;
-                            else if (item.MoveToDirMovement == MovementDirection.Down) item.MoveToDirMovement = MovementDirection.Up;
-                            else if (item.MoveToDirMovement == MovementDirection.UpRight) item.MoveToDirMovement = MovementDirection.DownLeft;
-                            else if (item.MoveToDirMovement == MovementDirection.DownLeft) item.MoveToDirMovement = MovementDirection.UpRight;
-                            else if (item.MoveToDirMovement == MovementDirection.UpLeft) item.MoveToDirMovement = MovementDirection.DownRight;
-                            else if (item.MoveToDirMovement == MovementDirection.DownRight) item.MoveToDirMovement = MovementDirection.UpLeft;
+                            if (item.MoveToDirMovement == MovementDirection.Right)
+                                item.MoveToDirMovement = MovementDirection.Left;
+                            else if (item.MoveToDirMovement == MovementDirection.Left)
+                                item.MoveToDirMovement = MovementDirection.Right;
+                            else if (item.MoveToDirMovement == MovementDirection.Up)
+                                item.MoveToDirMovement = MovementDirection.Down;
+                            else if (item.MoveToDirMovement == MovementDirection.Down)
+                                item.MoveToDirMovement = MovementDirection.Up;
+                            else if (item.MoveToDirMovement == MovementDirection.UpRight)
+                                item.MoveToDirMovement = MovementDirection.DownLeft;
+                            else if (item.MoveToDirMovement == MovementDirection.DownLeft)
+                                item.MoveToDirMovement = MovementDirection.UpRight;
+                            else if (item.MoveToDirMovement == MovementDirection.UpLeft)
+                                item.MoveToDirMovement = MovementDirection.DownRight;
+                            else if (item.MoveToDirMovement == MovementDirection.DownRight)
+                                item.MoveToDirMovement = MovementDirection.UpLeft;
                             break;
                         }
 

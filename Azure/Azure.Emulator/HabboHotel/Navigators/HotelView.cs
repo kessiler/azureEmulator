@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.Messages;
 
 #endregion
@@ -11,29 +11,29 @@ using Azure.Messages;
 namespace Azure.HabboHotel.Navigators
 {
     /// <summary>
-    /// Class HotelView.
+    ///     Class HotelView.
     /// </summary>
     public class HotelView
     {
         /// <summary>
-        /// The hotel view promos indexers
-        /// </summary>
-        internal List<SmallPromo> HotelViewPromosIndexers;
-
-        internal Dictionary<string, string> HotelViewBadges;
-
-        /// <summary>
-        /// The furni reward name
-        /// </summary>
-        internal string FurniRewardName;
-
-        /// <summary>
-        /// The furni reward identifier
+        ///     The furni reward identifier
         /// </summary>
         internal int FurniRewardId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HotelView"/> class.
+        ///     The furni reward name
+        /// </summary>
+        internal string FurniRewardName;
+
+        internal Dictionary<string, string> HotelViewBadges;
+
+        /// <summary>
+        ///     The hotel view promos indexers
+        /// </summary>
+        internal List<SmallPromo> HotelViewPromosIndexers;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HotelView" /> class.
         /// </summary>
         public HotelView()
         {
@@ -42,11 +42,11 @@ namespace Azure.HabboHotel.Navigators
 
             List();
             LoadReward();
-            LoadHVBadges();
+            LoadHvBadges();
         }
 
         /// <summary>
-        /// Loads the specified index.
+        ///     Loads the specified index.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>SmallPromo.</returns>
@@ -54,16 +54,19 @@ namespace Azure.HabboHotel.Navigators
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT hotelview_promos.`index`,hotelview_promos.header,hotelview_promos.body,hotelview_promos.button,hotelview_promos.in_game_promo,hotelview_promos.special_action,hotelview_promos.image,hotelview_promos.enabled FROM hotelview_promos WHERE hotelview_promos.`index` = @x LIMIT 1");
+                queryReactor.SetQuery(
+                    "SELECT hotelview_promos.`index`,hotelview_promos.header,hotelview_promos.body,hotelview_promos.button,hotelview_promos.in_game_promo,hotelview_promos.special_action,hotelview_promos.image,hotelview_promos.enabled FROM hotelview_promos WHERE hotelview_promos.`index` = @x LIMIT 1");
                 queryReactor.AddParameter("x", index);
-                DataRow row = queryReactor.GetRow();
 
-                return new SmallPromo(index, (string) row[1], (string) row[2], (string) row[3], Convert.ToInt32(row[4]), (string) row[5], (string) row[6]);
+                var row = queryReactor.GetRow();
+
+                return new SmallPromo(index, (string) row[1], (string) row[2], (string) row[3], Convert.ToInt32(row[4]),
+                    (string) row[5], (string) row[6]);
             }
         }
 
         /// <summary>
-        /// Refreshes the promo list.
+        ///     Refreshes the promo list.
         /// </summary>
         public void RefreshPromoList()
         {
@@ -71,11 +74,11 @@ namespace Azure.HabboHotel.Navigators
             List();
             LoadReward();
             HotelViewBadges.Clear();
-            LoadHVBadges();
+            LoadHvBadges();
         }
 
         /// <summary>
-        /// Smalls the promo composer.
+        ///     Smalls the promo composer.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>ServerMessage.</returns>
@@ -88,43 +91,48 @@ namespace Azure.HabboHotel.Navigators
         }
 
         /// <summary>
-        /// Loads the reward.
+        ///     Loads the reward.
         /// </summary>
         private void LoadReward()
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT hotelview_rewards_promos.furni_id, hotelview_rewards_promos.furni_name FROM hotelview_rewards_promos WHERE hotelview_rewards_promos.enabled = 1 LIMIT 1");
-                DataRow row = queryReactor.GetRow();
+                queryReactor.SetQuery(
+                    "SELECT hotelview_rewards_promos.furni_id, hotelview_rewards_promos.furni_name FROM hotelview_rewards_promos WHERE hotelview_rewards_promos.enabled = 1 LIMIT 1");
+                var row = queryReactor.GetRow();
 
                 if (row == null)
                     return;
+
                 FurniRewardId = Convert.ToInt32(row[0]);
                 FurniRewardName = Convert.ToString(row[1]);
             }
         }
 
         /// <summary>
-        /// Lists this instance.
+        ///     Lists this instance.
         /// </summary>
         private void List()
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT * from hotelview_promos WHERE hotelview_promos.enabled = '1' ORDER BY hotelview_promos.`index` DESC");
-                DataTable table = queryReactor.GetTable();
+                queryReactor.SetQuery(
+                    "SELECT * from hotelview_promos WHERE hotelview_promos.enabled = '1' ORDER BY hotelview_promos.`index` DESC");
+                var table = queryReactor.GetTable();
 
                 foreach (DataRow dataRow in table.Rows)
-                    HotelViewPromosIndexers.Add(new SmallPromo(Convert.ToInt32(dataRow[0]), (string) dataRow[1], (string) dataRow[2], (string) dataRow[3], Convert.ToInt32(dataRow[4]), (string) dataRow[5], (string) dataRow[6]));
+                    HotelViewPromosIndexers.Add(new SmallPromo(Convert.ToInt32(dataRow[0]), (string) dataRow[1],
+                        (string) dataRow[2], (string) dataRow[3], Convert.ToInt32(dataRow[4]), (string) dataRow[5],
+                        (string) dataRow[6]));
             }
         }
 
-        private void LoadHVBadges()
+        private void LoadHvBadges()
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM hotelview_badges WHERE enabled = '1'");
-                DataTable table = queryReactor.GetTable();
+                var table = queryReactor.GetTable();
 
                 foreach (DataRow dataRow in table.Rows)
                     HotelViewBadges.Add((string) dataRow[0], (string) dataRow[1]);

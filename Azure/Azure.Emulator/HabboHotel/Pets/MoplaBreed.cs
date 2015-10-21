@@ -8,42 +8,42 @@ using System.Data;
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Class MoplaBreed.
+    ///     Class MoplaBreed.
     /// </summary>
     internal class MoplaBreed
     {
         /// <summary>
-        /// The growing status
-        /// </summary>
-        internal int GrowingStatus;
-
-        /// <summary>
-        /// The live state
-        /// </summary>
-        internal MoplaState LiveState;
-
-        /// <summary>
-        /// The _pet
+        ///     The _pet
         /// </summary>
         private readonly Pet _pet;
 
         /// <summary>
-        /// The _pet identifier
+        ///     The _pet identifier
         /// </summary>
         private readonly uint _petId;
 
         /// <summary>
-        /// The _rarity
+        ///     The _rarity
         /// </summary>
         private readonly int _rarity;
 
         /// <summary>
-        /// The _DB update needed
+        ///     The _DB update needed
         /// </summary>
         private bool _dbUpdateNeeded;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoplaBreed"/> class.
+        ///     The growing status
+        /// </summary>
+        internal int GrowingStatus;
+
+        /// <summary>
+        ///     The live state
+        /// </summary>
+        internal MoplaState LiveState;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MoplaBreed" /> class.
         /// </summary>
         /// <param name="row">The row.</param>
         internal MoplaBreed(DataRow row)
@@ -52,12 +52,12 @@ namespace Azure.HabboHotel.Pets
             _rarity = int.Parse(row["rarity"].ToString());
             Name = row["plant_name"].ToString();
             PlantData = row["plant_data"].ToString();
-            LiveState = (MoplaState)int.Parse(row["plant_state"].ToString());
+            LiveState = (MoplaState) int.Parse(row["plant_state"].ToString());
             GrowingStatus = int.Parse(row["growing_status"].ToString());
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoplaBreed"/> class.
+        ///     Initializes a new instance of the <see cref="MoplaBreed" /> class.
         /// </summary>
         /// <param name="pet">The pet.</param>
         /// <param name="petId">The pet identifier.</param>
@@ -74,12 +74,12 @@ namespace Azure.HabboHotel.Pets
             _rarity = rarity;
             Name = moplaName;
             PlantData = breedData;
-            LiveState = (MoplaState)liveState;
+            LiveState = (MoplaState) liveState;
             GrowingStatus = growingStatus;
         }
 
         /// <summary>
-        /// Gets the grow status.
+        ///     Gets the grow status.
         /// </summary>
         /// <value>The grow status.</value>
         internal string GrowStatus
@@ -88,24 +88,24 @@ namespace Azure.HabboHotel.Pets
             {
                 if (LiveState == MoplaState.Dead)
                     return "rip";
-                return LiveState == MoplaState.Grown ? "std" : string.Format("grw{0}", GrowingStatus);
+                return LiveState == MoplaState.Grown ? "std" : $"grw{GrowingStatus}";
             }
         }
 
         /// <summary>
-        /// Gets the name.
+        ///     Gets the name.
         /// </summary>
         /// <value>The name.</value>
-        internal string Name { get; private set; }
+        internal string Name { get; }
 
         /// <summary>
-        /// Gets the plant data.
+        ///     Gets the plant data.
         /// </summary>
         /// <value>The plant data.</value>
-        internal string PlantData { get; private set; }
+        internal string PlantData { get; }
 
         /// <summary>
-        /// Creates the monsterplant breed.
+        ///     Creates the monsterplant breed.
         /// </summary>
         /// <param name="pet">The pet.</param>
         /// <returns>MoplaBreed.</returns>
@@ -129,7 +129,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Generates the plant data.
+        ///     Generates the plant data.
         /// </summary>
         /// <param name="rarity">The rarity.</param>
         /// <returns>Tuple&lt;System.String, System.String&gt;.</returns>
@@ -142,390 +142,390 @@ namespace Azure.HabboHotel.Pets
             switch (rarity)
             {
                 case 1:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 2) == 0)
                         {
                             num = 0;
-                            str = string.Format("{0}Aenueus ", str);
+                            str = $"{str}Aenueus ";
                         }
                         else
                         {
                             num = 3;
-                            str = string.Format("{0}Viridulus ", str);
+                            str = $"{str}Viridulus ";
                         }
                     else
                     {
                         num = 9;
-                        str = string.Format("{0}Fulvus ", str);
+                        str = $"{str}Fulvus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 1;
-                        str = string.Format("{0}Blungon", str);
+                        str = $"{str}Blungon";
                     }
                     else
                     {
                         num2 = 3;
-                        str = string.Format("{0}Stumpy", str);
+                        str = $"{str}Stumpy";
                     }
                     break;
 
                 case 2:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 2) == 0)
                         {
                             num = 5;
-                            str = string.Format("{0}Incarnatus ", str);
+                            str = $"{str}Incarnatus ";
                         }
                         else
                         {
                             num = 2;
-                            str = string.Format("{0}Phoenicus ", str);
+                            str = $"{str}Phoenicus ";
                         }
                     else
                     {
                         num = 1;
-                        str = string.Format("{0}Griseus ", str);
+                        str = $"{str}Griseus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 3;
-                        str = string.Format("{0}Stumpy", str);
+                        str = $"{str}Stumpy";
                     }
                     else
                     {
                         num2 = 2;
-                        str = string.Format("{0}Wailzor", str);
+                        str = $"{str}Wailzor";
                     }
                     break;
 
                 case 3:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 1;
-                            str = string.Format("{0}Griseus ", str);
+                            str = $"{str}Griseus ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 10;
-                            str = string.Format("{0}Cinereus ", str);
+                            str = $"{str}Cinereus ";
                         }
                         else
                         {
                             num = 8;
-                            str = string.Format("{0}Amethyst ", str);
+                            str = $"{str}Amethyst ";
                         }
                     else
                     {
                         num = 2;
-                        str = string.Format("{0}Phoenicus ", str);
+                        str = $"{str}Phoenicus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 2;
-                        str = string.Format("{0}Wailzor", str);
+                        str = $"{str}Wailzor";
                     }
-                    else if ((random.Next(0, 5) % 2) == 0)
+                    else if ((random.Next(0, 5)%2) == 0)
                     {
                         num2 = 6;
-                        str = string.Format("{0}Shroomer", str);
+                        str = $"{str}Shroomer";
                     }
                     else
                     {
                         num2 = 9;
-                        str = string.Format("{0}Weggytum", str);
+                        str = $"{str}Weggytum";
                     }
                     break;
 
                 case 4:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 8;
-                            str = string.Format("{0}Amethyst ", str);
+                            str = $"{str}Amethyst ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 6;
-                            str = string.Format("{0}Azureus ", str);
+                            str = $"{str}Azureus ";
                         }
                         else if (random.Next(0, 5) == 4)
                         {
                             num = 10;
-                            str = string.Format("{0}Cinereus ", str);
+                            str = $"{str}Cinereus ";
                         }
-                        else if (random.Next(0, 7) % 2 != 0)
+                        else if (random.Next(0, 7)%2 != 0)
                         {
                             num = 8;
-                            str = string.Format("{0}Amethyst ", str);
+                            str = $"{str}Amethyst ";
                         }
                         else
                         {
                             num = 7;
-                            str = string.Format("{0}Amatasc ", str);
+                            str = $"{str}Amatasc ";
                         }
                     else
                     {
                         num = 5;
-                        str = string.Format("{0}Incarnatus ", str);
+                        str = $"{str}Incarnatus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 7;
-                        str = string.Format("{0}Zuchinu", str);
+                        str = $"{str}Zuchinu";
                     }
-                    else if ((random.Next(0, 5) % 2) == 0)
+                    else if ((random.Next(0, 5)%2) == 0)
                     {
                         num2 = 6;
-                        str = string.Format("{0}Shroomer", str);
+                        str = $"{str}Shroomer";
                     }
                     else
                     {
                         num2 = 4;
-                        str = string.Format("{0}Sunspike", str);
+                        str = $"{str}Sunspike";
                     }
                     break;
 
                 case 5:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 4;
-                            str = string.Format("{0}Cyaneus ", str);
+                            str = $"{str}Cyaneus ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 6;
-                            str = string.Format("{0}Azureus ", str);
+                            str = $"{str}Azureus ";
                         }
                         else
                         {
                             num = 7;
-                            str = string.Format("{0}Amatasc ", str);
+                            str = $"{str}Amatasc ";
                         }
                     else
                     {
                         num = 3;
-                        str = string.Format("{0}Viridulus ", str);
+                        str = $"{str}Viridulus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 7;
-                        str = string.Format("{0}Zuchinu", str);
+                        str = $"{str}Zuchinu";
                     }
-                    else if ((random.Next(0, 5) % 2) == 2)
+                    else if ((random.Next(0, 5)%2) == 2)
                     {
                         num2 = 11;
-                        str = string.Format("{0}Hairbullis", str);
+                        str = $"{str}Hairbullis";
                     }
                     else
                     {
                         num2 = 9;
-                        str = string.Format("{0}Weggytum", str);
+                        str = $"{str}Weggytum";
                     }
                     break;
 
                 case 6:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 8;
-                            str = string.Format("{0}Amethyst ", str);
+                            str = $"{str}Amethyst ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 7;
-                            str = string.Format("{0}Atamasc ", str);
+                            str = $"{str}Atamasc ";
                         }
                         else
                         {
                             num = 2;
-                            str = string.Format("{0}Phoenicus ", str);
+                            str = $"{str}Phoenicus ";
                         }
                     else
                     {
                         num = 6;
-                        str = string.Format("{0}Azureus ", str);
+                        str = $"{str}Azureus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 10;
-                        str = string.Format("{0}Wystique", str);
+                        str = $"{str}Wystique";
                     }
-                    else if ((random.Next(0, 5) % 2) == 2)
+                    else if ((random.Next(0, 5)%2) == 2)
                     {
                         num2 = 11;
-                        str = string.Format("{0}Hairbullis", str);
+                        str = $"{str}Hairbullis";
                     }
                     else
                     {
                         num2 = 3;
-                        str = string.Format("{0}Stumpy", str);
+                        str = $"{str}Stumpy";
                     }
                     break;
 
                 case 7:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 6;
-                            str = string.Format("{0}Azureus ", str);
+                            str = $"{str}Azureus ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 7;
-                            str = string.Format("{0}Atamasc ", str);
+                            str = $"{str}Atamasc ";
                         }
                         else
                         {
                             num = 1;
-                            str = string.Format("{0}Griseus ", str);
+                            str = $"{str}Griseus ";
                         }
                     else
                     {
                         num = 4;
-                        str = string.Format("{0}Cyaneus ", str);
+                        str = $"{str}Cyaneus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 2;
-                        str = string.Format("{0}Wailzor", str);
+                        str = $"{str}Wailzor";
                     }
-                    else if ((random.Next(0, 5) % 2) == 2)
+                    else if ((random.Next(0, 5)%2) == 2)
                     {
                         num2 = 4;
-                        str = string.Format("{0}Sunspike", str);
+                        str = $"{str}Sunspike";
                     }
                     else if (random.Next(0, 3) == 2)
                     {
                         num2 = 10;
-                        str = string.Format("{0}Wystique", str);
+                        str = $"{str}Wystique";
                     }
                     else
                     {
                         num2 = 6;
-                        str = string.Format("{0}Shroomer", str);
+                        str = $"{str}Shroomer";
                     }
                     break;
 
                 case 8:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 7;
-                            str = string.Format("{0}Atamasc ", str);
+                            str = $"{str}Atamasc ";
                         }
                         else if (random.Next(0, 2) == 0)
                         {
                             num = 10;
-                            str = string.Format("{0}Cinereus ", str);
+                            str = $"{str}Cinereus ";
                         }
-                        else if ((random.Next(12, 0x13) % 2) == 1)
+                        else if ((random.Next(12, 0x13)%2) == 1)
                         {
                             num = 6;
-                            str = string.Format("{0}Azureus ", str);
+                            str = $"{str}Azureus ";
                         }
                         else
                         {
                             num = 8;
-                            str = string.Format("{0}Amethyst ", str);
+                            str = $"{str}Amethyst ";
                         }
                     else
                     {
                         num = 4;
-                        str = string.Format("{0}Cyaneus ", str);
+                        str = $"{str}Cyaneus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 11;
-                        str = string.Format("{0}Hairbullis", str);
+                        str = $"{str}Hairbullis";
                     }
-                    else if ((random.Next(0, 5) % 2) == 2)
+                    else if ((random.Next(0, 5)%2) == 2)
                     {
                         num2 = 10;
-                        str = string.Format("{0}Wystique", str);
+                        str = $"{str}Wystique";
                     }
                     else if (random.Next(0, 3) == 2)
                     {
                         num2 = 7;
-                        str = string.Format("{0}Zuchinu", str);
+                        str = $"{str}Zuchinu";
                     }
                     else
                     {
                         num2 = 6;
-                        str = string.Format("{0}Shroomer", str);
+                        str = $"{str}Shroomer";
                     }
                     break;
 
                 case 9:
-                    if ((random.Next(0, 4) % 2) != 0)
+                    if ((random.Next(0, 4)%2) != 0)
                         if (random.Next(0, 7) == 5)
                         {
                             num = 7;
-                            str = string.Format("{0}Atamasc ", str);
+                            str = $"{str}Atamasc ";
                         }
                         else
                         {
                             num = 6;
-                            str = string.Format("{0}Azureus ", str);
+                            str = $"{str}Azureus ";
                         }
                     else
                     {
                         num = 4;
-                        str = string.Format("{0}Cyaneus ", str);
+                        str = $"{str}Cyaneus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 11;
-                        str = string.Format("{0}Hairbullis", str);
+                        str = $"{str}Hairbullis";
                     }
-                    else if ((random.Next(0, 5) % 2) == 2)
+                    else if ((random.Next(0, 5)%2) == 2)
                     {
                         num2 = 10;
-                        str = string.Format("{0}Wystique", str);
+                        str = $"{str}Wystique";
                     }
                     else
                     {
                         num2 = 8;
-                        str = string.Format("{0}Abysswirl", str);
+                        str = $"{str}Abysswirl";
                     }
                     break;
 
                 case 10:
                     num = 4;
-                    str = string.Format("{0}Cyaneus ", str);
+                    str = $"{str}Cyaneus ";
                     num2 = 8;
-                    str = string.Format("{0}Abysswirl", str);
+                    str = $"{str}Abysswirl";
                     break;
 
                 case 11:
                     num = 4;
-                    str = string.Format("{0}Cyaneus ", str);
+                    str = $"{str}Cyaneus ";
                     num2 = 12;
-                    str = string.Format("{0}Snozzle", str);
+                    str = $"{str}Snozzle";
                     break;
 
                 default:
-                    if ((random.Next(0, 4) % 2) == 0)
+                    if ((random.Next(0, 4)%2) == 0)
                     {
                         num = 9;
-                        str = string.Format("{0}Fulvus ", str);
+                        str = $"{str}Fulvus ";
                     }
                     else
                     {
                         num = 0;
-                        str = string.Format("{0}Aenueus ", str);
+                        str = $"{str}Aenueus ";
                     }
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 5;
-                        str = string.Format("{0}Squarg", str);
+                        str = $"{str}Squarg";
                     }
                     else
                     {
                         num2 = 1;
-                        str = string.Format("{0}Blungon", str);
+                        str = $"{str}Blungon";
                     }
                     break;
             }
@@ -534,7 +534,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Kills the plant.
+        ///     Kills the plant.
         /// </summary>
         internal void KillPlant()
         {
@@ -543,13 +543,13 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Called when [timer tick].
+        ///     Called when [timer tick].
         /// </summary>
         /// <param name="lastHealth">The last health.</param>
         /// <param name="untilGrown">The until grown.</param>
         internal void OnTimerTick(DateTime lastHealth, DateTime untilGrown)
         {
-            if ((int)LiveState != 0)
+            if ((int) LiveState != 0)
                 return;
             var span = lastHealth - DateTime.Now;
             if (span.TotalSeconds <= 0)
@@ -589,7 +589,7 @@ namespace Azure.HabboHotel.Pets
                     _dbUpdateNeeded = true;
                 }
 
-                if (Math.Abs(span2.TotalSeconds % 8) < 0)
+                if (Math.Abs(span2.TotalSeconds%8) < 0)
                     _pet.Energy--;
             }
             if (!_dbUpdateNeeded)
@@ -598,7 +598,7 @@ namespace Azure.HabboHotel.Pets
         }
 
         /// <summary>
-        /// Revives the plant.
+        ///     Revives the plant.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool RevivePlant()
@@ -614,12 +614,13 @@ namespace Azure.HabboHotel.Pets
         {
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                adapter.SetQuery("REPLACE INTO pets_plants (pet_id, rarity, plant_name, plant_data, plant_state, growing_status) VALUES (@petid , @rarity , @plantname , @plantdata , @plantstate , @growing)");
+                adapter.SetQuery(
+                    "REPLACE INTO pets_plants (pet_id, rarity, plant_name, plant_data, plant_state, growing_status) VALUES (@petid , @rarity , @plantname , @plantdata , @plantstate , @growing)");
                 adapter.AddParameter("petid", _petId);
                 adapter.AddParameter("rarity", _rarity);
                 adapter.AddParameter("plantname", Name);
                 adapter.AddParameter("plantdata", PlantData);
-                adapter.AddParameter("plantstate", ((int)LiveState).ToString());
+                adapter.AddParameter("plantstate", ((int) LiveState).ToString());
                 adapter.AddParameter("growing", GrowingStatus);
                 adapter.RunQuery();
             }

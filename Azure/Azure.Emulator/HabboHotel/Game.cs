@@ -10,8 +10,8 @@ using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.Commands;
 using Azure.HabboHotel.GameClients;
 using Azure.HabboHotel.Groups;
-using Azure.HabboHotel.Guides;
 using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Handlers;
 using Azure.HabboHotel.Misc;
 using Azure.HabboHotel.Navigators;
 using Azure.HabboHotel.Pets;
@@ -20,12 +20,13 @@ using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.Roles;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.SoundMachine;
 using Azure.HabboHotel.Support;
 using Azure.HabboHotel.Users;
-using Azure.HabboHotel.Users.Inventory;
+using Azure.HabboHotel.Users.Helpers;
 using Azure.Manager;
-using Azure.Messages;
+using Azure.Messages.Enums;
 using Azure.Security;
 using Azure.Security.BlackWords;
 
@@ -34,136 +35,136 @@ using Azure.Security.BlackWords;
 namespace Azure.HabboHotel
 {
     /// <summary>
-    /// Class Game.
+    ///     Class Game.
     /// </summary>
     internal class Game
     {
         /// <summary>
-        /// The game loop enabled
+        ///     The game loop enabled
         /// </summary>
         internal static bool GameLoopEnabled = true;
 
         /// <summary>
-        /// The client manager cycle ended
-        /// </summary>
-        internal bool ClientManagerCycleEnded, RoomManagerCycleEnded;
-
-        /// <summary>
-        /// The _client manager
-        /// </summary>
-        private readonly GameClientManager _clientManager;
-
-        /// <summary>
-        /// The _ban manager
-        /// </summary>
-        private readonly ModerationBanManager _banManager;
-
-        /// <summary>
-        /// The _role manager
-        /// </summary>
-        private readonly RoleManager _roleManager;
-
-        /// <summary>
-        /// The _catalog
-        /// </summary>
-        private readonly Catalog _catalog;
-
-        /// <summary>
-        /// The _navigator
-        /// </summary>
-        private readonly Navigator _navigator;
-
-        /// <summary>
-        /// The _item manager
-        /// </summary>
-        private readonly ItemManager _itemManager;
-
-        /// <summary>
-        /// The _room manager
-        /// </summary>
-        private readonly RoomManager _roomManager;
-
-        /// <summary>
-        /// The _hotel view
-        /// </summary>
-        private readonly HotelView _hotelView;
-
-        /// <summary>
-        /// The _pixel manager
-        /// </summary>
-        private readonly CoinsManager _pixelManager;
-
-        /// <summary>
-        /// The _achievement manager
+        ///     The _achievement manager
         /// </summary>
         private readonly AchievementManager _achievementManager;
 
         /// <summary>
-        /// The _moderation tool
+        ///     The _ban manager
         /// </summary>
-        private readonly ModerationTool _moderationTool;
+        private readonly ModerationBanManager _banManager;
 
         /// <summary>
-        /// The _bot manager
+        ///     The _bot manager
         /// </summary>
         private readonly BotManager _botManager;
 
         /// <summary>
-        /// The _quest manager
+        ///     The _catalog
         /// </summary>
-        private readonly QuestManager _questManager;
+        private readonly CatalogManager _catalog;
 
         /// <summary>
-        /// The _group manager
+        ///     The _client manager
         /// </summary>
-        private readonly GroupManager _groupManager;
+        private readonly GameClientManager _clientManager;
 
         /// <summary>
-        /// The _events
-        /// </summary>
-        private readonly RoomEvents _events;
-
-        /// <summary>
-        /// The _talent manager
-        /// </summary>
-        private readonly TalentManager _talentManager;
-
-        /// <summary>
-        /// The _pinata handler
-        /// </summary>
-        private readonly PinataHandler _pinataHandler;
-
-        /// <summary>
-        /// The _clothing manager
+        ///     The _clothing manager
         /// </summary>
         private readonly ClothingManager _clothingManager;
 
         /// <summary>
-        /// The _clothing manager
+        ///     The _clothing manager
         /// </summary>
         private readonly CrackableEggHandler _crackableEggHandler;
 
         /// <summary>
-        /// The _poll manager
+        ///     The _events
         /// </summary>
-        private readonly PollManager _pollManager;
+        private readonly RoomEvents _events;
 
         /// <summary>
-        /// The _guide manager
+        ///     The _group manager
+        /// </summary>
+        private readonly GroupManager _groupManager;
+
+        /// <summary>
+        ///     The _guide manager
         /// </summary>
         private readonly GuideManager _guideManager;
 
         private readonly HallOfFame _hallOfFame;
 
+        /// <summary>
+        ///     The _hotel view
+        /// </summary>
+        private readonly HotelView _hotelView;
+
+        /// <summary>
+        ///     The _item manager
+        /// </summary>
+        private readonly ItemManager _itemManager;
+
+        /// <summary>
+        ///     The _moderation tool
+        /// </summary>
+        private readonly ModerationTool _moderationTool;
+
+        /// <summary>
+        ///     The _navigatorManager
+        /// </summary>
+        private readonly NavigatorManager _navigatorManager;
+
+        /// <summary>
+        ///     The _pinata handler
+        /// </summary>
+        private readonly PinataHandler _pinataHandler;
+
+        /// <summary>
+        ///     The _pixel manager
+        /// </summary>
+        private readonly CoinsManager _pixelManager;
+
+        /// <summary>
+        ///     The _poll manager
+        /// </summary>
+        private readonly PollManager _pollManager;
+
+        /// <summary>
+        ///     The _quest manager
+        /// </summary>
+        private readonly QuestManager _questManager;
+
+        /// <summary>
+        ///     The _role manager
+        /// </summary>
+        private readonly RoleManager _roleManager;
+
+        /// <summary>
+        ///     The _room manager
+        /// </summary>
+        private readonly RoomManager _roomManager;
+
+        /// <summary>
+        ///     The _talent manager
+        /// </summary>
+        private readonly TalentManager _talentManager;
+
         private readonly TargetedOfferManager _targetedOfferManager;
 
         /// <summary>
-        /// The _game loop
+        ///     The _game loop
         /// </summary>
         private Task _gameLoop;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Game"/> class.
+        ///     The client manager cycle ended
+        /// </summary>
+        internal bool ClientManagerCycleEnded, RoomManagerCycleEnded;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Game" /> class.
         /// </summary>
         /// <param name="conns">The conns.</param>
         internal Game(int conns)
@@ -200,7 +201,7 @@ namespace Azure.HabboHotel
                 _itemManager.LoadItems(queryReactor, out itemsLoaded);
 
                 Progress(bar, wait, end, "Loading Catalog...");
-                _catalog = new Catalog();
+                _catalog = new CatalogManager();
 
                 Progress(bar, wait, end, "Loading Targeted Offers...");
                 _targetedOfferManager = new TargetedOfferManager();
@@ -213,14 +214,14 @@ namespace Azure.HabboHotel
                 _roomManager = new RoomManager();
                 _roomManager.LoadModels(queryReactor, out roomModelLoaded);
 
-                Progress(bar, wait, end, "Loading Navigator...");
-                _navigator = new Navigator();
-                _navigator.Initialize(queryReactor, out navigatorLoaded);
+                Progress(bar, wait, end, "Loading NavigatorManager...");
+                _navigatorManager = new NavigatorManager();
+                _navigatorManager.Initialize(queryReactor, out navigatorLoaded);
 
                 Progress(bar, wait, end, "Loading Groups...");
                 _groupManager = new GroupManager();
                 _groupManager.InitGroups();
-                
+
                 Progress(bar, wait, end, "Loading PixelManager...");
                 _pixelManager = new CoinsManager();
 
@@ -285,31 +286,25 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets a value indicating whether [game loop enabled ext].
+        ///     Gets a value indicating whether [game loop enabled ext].
         /// </summary>
         /// <value><c>true</c> if [game loop enabled ext]; otherwise, <c>false</c>.</value>
-        internal bool GameLoopEnabledExt
-        {
-            get { return GameLoopEnabled; }
-        }
+        internal bool GameLoopEnabledExt => GameLoopEnabled;
 
         /// <summary>
-        /// Gets a value indicating whether [game loop active ext].
+        ///     Gets a value indicating whether [game loop active ext].
         /// </summary>
         /// <value><c>true</c> if [game loop active ext]; otherwise, <c>false</c>.</value>
         internal bool GameLoopActiveExt { get; private set; }
 
         /// <summary>
-        /// Gets the game loop sleep time ext.
+        ///     Gets the game loop sleep time ext.
         /// </summary>
         /// <value>The game loop sleep time ext.</value>
-        internal int GameLoopSleepTimeExt
-        {
-            get { return 25; }
-        }
+        internal int GameLoopSleepTimeExt => 25;
 
         /// <summary>
-        /// Progresses the specified bar.
+        ///     Progresses the specified bar.
         /// </summary>
         /// <param name="bar">The bar.</param>
         /// <param name="wait">The wait.</param>
@@ -322,18 +317,18 @@ namespace Azure.HabboHotel
                 bar.Step();
         }
 
-
         /// <summary>
-        /// Databases the cleanup.
+        ///     Databases the cleanup.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         private static void DatabaseCleanup(IQueryAdapter dbClient)
         {
             dbClient.RunFastQuery("UPDATE users SET online = '0' WHERE online <> '0'");
             dbClient.RunFastQuery("UPDATE rooms_data SET users_now = 0 WHERE users_now <> 0");
-            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
+            dbClient.RunFastQuery(
+                "UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" +
+                Azure.GetUnixTimeStamp() + "' LIMIT 1;");
         }
-        
 
         /*internal AntiMutant GetAntiMutant()
         {
@@ -341,7 +336,7 @@ namespace Azure.HabboHotel
         }*/
 
         /// <summary>
-        /// Gets the client manager.
+        ///     Gets the client manager.
         /// </summary>
         /// <returns>GameClientManager.</returns>
         internal GameClientManager GetClientManager()
@@ -350,7 +345,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the ban manager.
+        ///     Gets the ban manager.
         /// </summary>
         /// <returns>ModerationBanManager.</returns>
         internal ModerationBanManager GetBanManager()
@@ -359,7 +354,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the role manager.
+        ///     Gets the role manager.
         /// </summary>
         /// <returns>RoleManager.</returns>
         internal RoleManager GetRoleManager()
@@ -368,16 +363,16 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the catalog.
+        ///     Gets the catalog.
         /// </summary>
         /// <returns>Catalog.</returns>
-        internal Catalog GetCatalog()
+        internal CatalogManager GetCatalog()
         {
             return _catalog;
         }
 
         /// <summary>
-        /// Gets the room events.
+        ///     Gets the room events.
         /// </summary>
         /// <returns>RoomEvents.</returns>
         internal RoomEvents GetRoomEvents()
@@ -386,7 +381,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the guide manager.
+        ///     Gets the guide manager.
         /// </summary>
         /// <returns>GuideManager.</returns>
         internal GuideManager GetGuideManager()
@@ -395,16 +390,16 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the navigator.
+        ///     Gets the navigator.
         /// </summary>
-        /// <returns>Navigator.</returns>
-        internal Navigator GetNavigator()
+        /// <returns>NavigatorManager.</returns>
+        internal NavigatorManager GetNavigator()
         {
-            return _navigator;
+            return _navigatorManager;
         }
 
         /// <summary>
-        /// Gets the item manager.
+        ///     Gets the item manager.
         /// </summary>
         /// <returns>ItemManager.</returns>
         internal ItemManager GetItemManager()
@@ -413,7 +408,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the room manager.
+        ///     Gets the room manager.
         /// </summary>
         /// <returns>RoomManager.</returns>
         internal RoomManager GetRoomManager()
@@ -422,7 +417,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the pixel manager.
+        ///     Gets the pixel manager.
         /// </summary>
         /// <returns>CoinsManager.</returns>
         internal CoinsManager GetPixelManager()
@@ -431,7 +426,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the hotel view.
+        ///     Gets the hotel view.
         /// </summary>
         /// <returns>HotelView.</returns>
         internal HotelView GetHotelView()
@@ -450,7 +445,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the achievement manager.
+        ///     Gets the achievement manager.
         /// </summary>
         /// <returns>AchievementManager.</returns>
         internal AchievementManager GetAchievementManager()
@@ -459,7 +454,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the moderation tool.
+        ///     Gets the moderation tool.
         /// </summary>
         /// <returns>ModerationTool.</returns>
         internal ModerationTool GetModerationTool()
@@ -468,7 +463,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the bot manager.
+        ///     Gets the bot manager.
         /// </summary>
         /// <returns>BotManager.</returns>
         internal BotManager GetBotManager()
@@ -477,7 +472,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the quest manager.
+        ///     Gets the quest manager.
         /// </summary>
         /// <returns>QuestManager.</returns>
         internal QuestManager GetQuestManager()
@@ -486,7 +481,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the group manager.
+        ///     Gets the group manager.
         /// </summary>
         /// <returns>GroupManager.</returns>
         internal GroupManager GetGroupManager()
@@ -495,7 +490,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the talent manager.
+        ///     Gets the talent manager.
         /// </summary>
         /// <returns>TalentManager.</returns>
         internal TalentManager GetTalentManager()
@@ -504,7 +499,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the pinata handler.
+        ///     Gets the pinata handler.
         /// </summary>
         /// <returns>PinataHandler.</returns>
         internal PinataHandler GetPinataHandler()
@@ -518,7 +513,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the poll manager.
+        ///     Gets the poll manager.
         /// </summary>
         /// <returns>PollManager.</returns>
         internal PollManager GetPollManager()
@@ -527,7 +522,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Gets the clothing manager.
+        ///     Gets the clothing manager.
         /// </summary>
         /// <returns>ClothingManager.</returns>
         internal ClothingManager GetClothingManager()
@@ -536,7 +531,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Continues the loading.
+        ///     Continues the loading.
         /// </summary>
         internal void ContinueLoading()
         {
@@ -558,17 +553,17 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Starts the game loop.
+        ///     Starts the game loop.
         /// </summary>
         internal void StartGameLoop()
         {
             GameLoopActiveExt = true;
-            _gameLoop = new Task(MainGameLoop);            
+            _gameLoop = new Task(MainGameLoop);
             _gameLoop.Start();
         }
 
         /// <summary>
-        /// Stops the game loop.
+        ///     Stops the game loop.
         /// </summary>
         internal void StopGameLoop()
         {
@@ -578,7 +573,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Destroys this instance.
+        ///     Destroys this instance.
         /// </summary>
         internal void Destroy()
         {
@@ -589,7 +584,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Reloaditemses this instance.
+        ///     Reloaditemses this instance.
         /// </summary>
         internal void ReloadItems()
         {
@@ -600,7 +595,7 @@ namespace Azure.HabboHotel
         }
 
         /// <summary>
-        /// Mains the game loop.
+        ///     Mains the game loop.
         /// </summary>
         private void MainGameLoop()
         {

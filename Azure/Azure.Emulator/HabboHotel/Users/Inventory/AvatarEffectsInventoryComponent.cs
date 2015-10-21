@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Messages;
@@ -13,32 +13,32 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Users.Inventory
 {
     /// <summary>
-    /// Class AvatarEffectsInventoryComponent.
+    ///     Class AvatarEffectsInventoryComponent.
     /// </summary>
     internal class AvatarEffectsInventoryComponent
     {
         /// <summary>
-        /// The current effect
-        /// </summary>
-        internal int CurrentEffect;
-
-        /// <summary>
-        /// The _user identifier
+        ///     The _user identifier
         /// </summary>
         private readonly uint _userId;
 
         /// <summary>
-        /// The _effects
+        ///     The _effects
         /// </summary>
         private List<AvatarEffect> _effects;
 
         /// <summary>
-        /// The _session
+        ///     The _session
         /// </summary>
         private GameClient _session;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvatarEffectsInventoryComponent"/> class.
+        ///     The current effect
+        /// </summary>
+        internal int CurrentEffect;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="AvatarEffectsInventoryComponent" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="client">The client.</param>
@@ -53,17 +53,19 @@ namespace Azure.HabboHotel.Users.Inventory
                     _effects.Add(current);
                 else
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                        queryReactor.RunFastQuery("DELETE FROM users_effects WHERE user_id = " + userId + " AND effect_id = " + current.EffectId + "; ");
+                        queryReactor.RunFastQuery("DELETE FROM users_effects WHERE user_id = " + userId +
+                                                  " AND effect_id = " + current.EffectId + "; ");
         }
 
         /// <summary>
-        /// Gets the packet.
+        ///     Gets the packet.
         /// </summary>
         /// <returns>ServerMessage.</returns>
         internal ServerMessage GetPacket()
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("EffectsInventoryMessageComposer"));
             serverMessage.AppendInteger(_effects.Count);
+
             foreach (var current in _effects)
             {
                 serverMessage.AppendInteger(current.EffectId);
@@ -73,11 +75,12 @@ namespace Azure.HabboHotel.Users.Inventory
                 serverMessage.AppendInteger(current.TimeLeft);
                 serverMessage.AppendBool(current.TotalDuration == -1); // permanent
             }
+
             return serverMessage;
         }
 
         /// <summary>
-        /// Adds the new effect.
+        ///     Adds the new effect.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         /// <param name="duration">The duration.</param>
@@ -85,9 +88,16 @@ namespace Azure.HabboHotel.Users.Inventory
         internal void AddNewEffect(int effectId, int duration, short type)
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("INSERT INTO users_effects (user_id,effect_id,total_duration,is_activated,activated_stamp) VALUES (", _userId, ",", effectId, ",", duration, ",'0',0)"));
+                queryReactor.RunFastQuery(
+                    string.Concat(
+                        "INSERT INTO users_effects (user_id,effect_id,total_duration,is_activated,activated_stamp) VALUES (",
+                        _userId, ",", effectId, ",", duration, ",'0',0)"));
+
             _effects.Add(new AvatarEffect(effectId, duration, false, 0.0, type));
-            GetClient().GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("AddEffectToInventoryMessageComposer"));
+            GetClient()
+                .GetMessageHandler()
+                .GetResponse()
+                .Init(LibraryParser.OutgoingRequest("AddEffectToInventoryMessageComposer"));
             GetClient().GetMessageHandler().GetResponse().AppendInteger(effectId);
             GetClient().GetMessageHandler().GetResponse().AppendInteger(type);
             GetClient().GetMessageHandler().GetResponse().AppendInteger(duration);
@@ -96,7 +106,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Determines whether the specified effect identifier has effect.
+        ///     Determines whether the specified effect identifier has effect.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         /// <returns><c>true</c> if the specified effect identifier has effect; otherwise, <c>false</c>.</returns>
@@ -109,32 +119,40 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Activates the effect.
+        ///     Activates the effect.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         internal void ActivateEffect(int effectId)
         {
             if (!_session.GetHabbo().InRoom)
                 return;
+
             if (!HasEffect(effectId))
                 return;
+
             if (effectId < 1)
             {
                 ActivateCustomEffect(effectId);
                 return;
             }
+
             var avatarEffect = (
                 from x in _effects
                 where x.EffectId == effectId
-                select x).Last<AvatarEffect>();
+                select x).Last();
+
             avatarEffect.Activate();
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ", Azure.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
+                queryReactor.RunFastQuery(
+                    string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ",
+                        Azure.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
+
             EnableInRoom(effectId);
         }
 
         /// <summary>
-        /// Activates the custom effect.
+        ///     Activates the custom effect.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         /// <param name="setAsCurrentEffect">if set to <c>true</c> [set as current effect].</param>
@@ -144,7 +162,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Called when [room exit].
+        ///     Called when [room exit].
         /// </summary>
         internal void OnRoomExit()
         {
@@ -152,7 +170,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Checks the expired.
+        ///     Checks the expired.
         /// </summary>
         internal void CheckExpired()
         {
@@ -165,7 +183,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Stops the effect.
+        ///     Stops the effect.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         internal void StopEffect(int effectId)
@@ -175,26 +193,34 @@ namespace Azure.HabboHotel.Users.Inventory
                 where x.EffectId == effectId
                 select x).ToList();
 
-            if (!avatarEffect.Any()) return;
+            if (!avatarEffect.Any())
+                return;
+
             var effect = avatarEffect.Last();
 
             if (effect == null || !effect.HasExpired)
                 return;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_effects WHERE user_id = ", _userId, " AND effect_id = ", effectId, " AND is_activated = 1"));
+                queryReactor.RunFastQuery(string.Concat("DELETE FROM users_effects WHERE user_id = ", _userId,
+                    " AND effect_id = ", effectId, " AND is_activated = 1"));
+
             _effects.Remove(effect);
+
             GetClient()
                 .GetMessageHandler()
                 .GetResponse()
                 .Init(LibraryParser.OutgoingRequest("StopAvatarEffectMessageComposer"));
+
             GetClient().GetMessageHandler().GetResponse().AppendInteger(effectId);
             GetClient().GetMessageHandler().SendResponse();
+
             if (CurrentEffect >= 0)
                 ActivateCustomEffect(-1);
         }
 
         /// <summary>
-        /// Disposes this instance.
+        ///     Disposes this instance.
         /// </summary>
         internal void Dispose()
         {
@@ -204,7 +230,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Gets the client.
+        ///     Gets the client.
         /// </summary>
         /// <returns>GameClient.</returns>
         internal GameClient GetClient()
@@ -213,20 +239,22 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Enables the in room.
+        ///     Enables the in room.
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         /// <param name="setAsCurrentEffect">if set to <c>true</c> [set as current effect].</param>
         private void EnableInRoom(int effectId, bool setAsCurrentEffect = true)
         {
             var userRoom = GetUserRoom();
-            if (userRoom == null)
-                return;
-            var roomUserByHabbo = userRoom.GetRoomUserManager().GetRoomUserByHabbo(GetClient().GetHabbo().Id);
+
+            var roomUserByHabbo = userRoom?.GetRoomUserManager().GetRoomUserByHabbo(GetClient().GetHabbo().Id);
+
             if (roomUserByHabbo == null)
                 return;
+
             if (setAsCurrentEffect)
                 CurrentEffect = effectId;
+
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ApplyEffectMessageComposer"));
             serverMessage.AppendInteger(roomUserByHabbo.VirtualId);
             serverMessage.AppendInteger(effectId);
@@ -235,7 +263,7 @@ namespace Azure.HabboHotel.Users.Inventory
         }
 
         /// <summary>
-        /// Gets the user room.
+        ///     Gets the user room.
         /// </summary>
         /// <returns>Room.</returns>
         private Room GetUserRoom()

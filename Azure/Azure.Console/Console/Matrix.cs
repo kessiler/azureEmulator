@@ -25,10 +25,10 @@ namespace Azure
             get
             {
                 var t = Rand.Next(10);
-                if (t <= 2) return (char) ('0' + Rand.Next(10));
-                if (t <= 4) return (char) ('a' + Rand.Next(27));
-                if (t <= 6) return (char) ('A' + Rand.Next(27));
-                return (char) (Rand.Next(32, 255));
+                if (t <= 2) return (char)('0' + Rand.Next(10));
+                if (t <= 4) return (char)('a' + Rand.Next(27));
+                if (t <= 6) return (char)('A' + Rand.Next(27));
+                return (char)(Rand.Next(32, 255));
             }
         }
 

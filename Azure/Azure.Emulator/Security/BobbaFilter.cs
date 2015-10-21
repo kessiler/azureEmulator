@@ -3,66 +3,66 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
 namespace Azure.Security
 {
-    class BobbaFilter
+    internal class BobbaFilter
     {
         internal static List<string> Word;
 
-        internal static bool canTalk(GameClient Session, string Message)
+        internal static bool CanTalk(GameClient session, string message)
         {
-            if (CheckForBannedPhrases(Message) && Session.GetHabbo().Rank < 4)
+            if (CheckForBannedPhrases(message) && session.GetHabbo().Rank < 4)
             {
-                if (!Azure.MutedUsersByFilter.ContainsKey(Session.GetHabbo().Id))
-                    Session.GetHabbo().BobbaFiltered++;
+                if (!Azure.MutedUsersByFilter.ContainsKey(session.GetHabbo().Id))
+                    session.GetHabbo().BobbaFiltered++;
 
-                if (Session.GetHabbo().BobbaFiltered < 3)
+                if (session.GetHabbo().BobbaFiltered < 3)
                 {
-                    Session.SendNotif("Your language is inappropriate. If you do not change this , measures are being taken by the automated system of Habbo.");
+                    session.SendNotif("Your language is inappropriate. If you do not change this , measures are being taken by the automated system of Habbo.");
                 }
-                else if (Session.GetHabbo().BobbaFiltered >= 3)
+                else if (session.GetHabbo().BobbaFiltered >= 3)
                 {
-                    if (Session.GetHabbo().BobbaFiltered == 3)
+                    if (session.GetHabbo().BobbaFiltered == 3)
                     {
-                        Session.GetHabbo().BobbaFiltered = 4;
-                        Azure.MutedUsersByFilter.Add(Session.GetHabbo().Id, uint.Parse((Azure.GetUnixTimeStamp() + (300*60)).ToString()));
+                        session.GetHabbo().BobbaFiltered = 4;
+                        Azure.MutedUsersByFilter.Add(session.GetHabbo().Id, uint.Parse((Azure.GetUnixTimeStamp() + (300 * 60)).ToString()));
 
                         return false;
                     }
-                    if (Session.GetHabbo().BobbaFiltered == 4)
+                    if (session.GetHabbo().BobbaFiltered == 4)
                     {
-                        Session.SendNotif("Now you can not talk for 5 minutes . This is because your exhibits inappropriate language in Habbo Hotel.");
+                        session.SendNotif("Now you can not talk for 5 minutes . This is because your exhibits inappropriate language in Habbo Hotel.");
                     }
-                    else if (Session.GetHabbo().BobbaFiltered == 5)
+                    else if (session.GetHabbo().BobbaFiltered == 5)
                     {
-                        Session.SendNotif("You risk a ban if you continue to scold it . This is your last warning");
+                        session.SendNotif("You risk a ban if you continue to scold it . This is your last warning");
                     }
-                    else if (Session.GetHabbo().BobbaFiltered >= 7)
+                    else if (session.GetHabbo().BobbaFiltered >= 7)
                     {
-                        Session.GetHabbo().BobbaFiltered = 0;
+                        session.GetHabbo().BobbaFiltered = 0;
 
-                        int Length = 3600;
-                        Azure.GetGame().GetBanManager().BanUser(Session, "Auto-system-ban", Length, "ban.", false, false);
+                        int length = 3600;
+                        Azure.GetGame().GetBanManager().BanUser(session, "Auto-system-ban", length, "ban.", false, false);
                     }
                 }
             }
 
-            if (Azure.MutedUsersByFilter.ContainsKey(Session.GetHabbo().Id))
+            if (Azure.MutedUsersByFilter.ContainsKey(session.GetHabbo().Id))
             {
-                if (Azure.MutedUsersByFilter[Session.GetHabbo().Id] < Azure.GetUnixTimeStamp())
+                if (Azure.MutedUsersByFilter[session.GetHabbo().Id] < Azure.GetUnixTimeStamp())
                 {
-                    Azure.MutedUsersByFilter.Remove(Session.GetHabbo().Id);
+                    Azure.MutedUsersByFilter.Remove(session.GetHabbo().Id);
                 }
                 else
                 {
-                    DateTime Now = DateTime.Now;
-                    TimeSpan TimeStillBanned = Now - Azure.UnixToDateTime(Azure.MutedUsersByFilter[Session.GetHabbo().Id]);
+                    DateTime now = DateTime.Now;
+                    TimeSpan timeStillBanned = now - Azure.UnixToDateTime(Azure.MutedUsersByFilter[session.GetHabbo().Id]);
 
-                    Session.SendNotif("Damn! you can't talk for " + TimeStillBanned.Minutes.ToString().Replace("-", "") + " minutes and " + TimeStillBanned.Seconds.ToString().Replace("-", "") + " seconds.");
+                    session.SendNotif("Damn! you can't talk for " + timeStillBanned.Minutes.ToString().Replace("-", "") + " minutes and " + timeStillBanned.Seconds.ToString().Replace("-", "") + " seconds.");
                     return false;
                 }
             }
@@ -88,22 +88,20 @@ namespace Azure.Security
 
             Out.WriteLine("Loaded " + Word.Count + " Bobba Filters", "Azure.Security.BobbaFilter");
             Console.WriteLine();
-
         }
 
-
-        internal static bool CheckForBannedPhrases(string Message)
+        internal static bool CheckForBannedPhrases(string message)
         {
-            Message = Message.ToLower();
+            message = message.ToLower();
 
-            Message = Message.Replace(".", "");
-            Message = Message.Replace(" ", "");
-            Message = Message.Replace("-", "");
-            Message = Message.Replace(",", "");
+            message = message.Replace(".", "");
+            message = message.Replace(" ", "");
+            message = message.Replace("-", "");
+            message = message.Replace(",", "");
 
             foreach (string mWord in Word)
             {
-                if (Message.Contains(mWord.ToLower()))
+                if (message.Contains(mWord.ToLower()))
                     return true;
             }
 
@@ -133,9 +131,5 @@ namespace Azure.Security
                 chars[count++] = original[i];
             return new string(chars, 0, count);
         }
-
-
-
     }
 }
-

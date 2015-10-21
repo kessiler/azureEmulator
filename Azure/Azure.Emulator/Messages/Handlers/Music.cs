@@ -3,7 +3,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.SoundMachine;
 using Azure.HabboHotel.SoundMachine.Composers;
@@ -21,7 +22,7 @@ namespace Azure.Messages.Handlers
         /// <summary>
         /// Retrieves the song identifier.
         /// </summary>
-        internal void RetrieveSongID()
+        internal void RetrieveSongId()
         {
             string text = Request.GetString();
             uint songId = SongManager.GetSongId(text);
@@ -62,7 +63,7 @@ namespace Azure.Messages.Handlers
             if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
                 return;
             Room currentRoom = Session.GetHabbo().CurrentRoom;
-            if (!currentRoom.CheckRights(Session, true, false))
+            if (!currentRoom.CheckRights(Session, true))
                 return;
             RoomMusicController roomMusicController = currentRoom.GetRoomMusicController();
             if (roomMusicController.PlaylistSize >= roomMusicController.PlaylistCapacity)

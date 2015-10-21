@@ -9,19 +9,19 @@
         /// Gets the plugin_name.
         /// </summary>
         /// <value>The plugin_name.</value>
-        string plugin_name { get; }
+        string PluginName { get; }
 
         /// <summary>
         /// Gets the plugin_version.
         /// </summary>
         /// <value>The plugin_version.</value>
-        string plugin_version { get; }
+        string PluginVersion { get; }
 
         /// <summary>
         /// Gets the plugin_author.
         /// </summary>
         /// <value>The plugin_author.</value>
-        string plugin_author { get; }
+        string PluginAuthor { get; }
 
         /// <summary>
         /// Message_voids this instance.

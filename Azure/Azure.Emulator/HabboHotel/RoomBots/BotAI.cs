@@ -1,45 +1,46 @@
 #region
 
 using System;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
 namespace Azure.HabboHotel.RoomBots
 {
     /// <summary>
-    /// Class BotAI.
+    ///     Class BotAI.
     /// </summary>
-    internal abstract class BotAI
+    internal abstract class BotAi
     {
         /// <summary>
-        /// The base identifier
-        /// </summary>
-        internal uint BaseId;
-
-        /// <summary>
-        /// The _room user identifier
-        /// </summary>
-        private int _roomUserId;
-
-        /// <summary>
-        /// The _room identifier
-        /// </summary>
-        private uint _roomId;
-
-        /// <summary>
-        /// The _room user
-        /// </summary>
-        private RoomUser _roomUser;
-
-        /// <summary>
-        /// The _room
+        ///     The _room
         /// </summary>
         private Room _room;
 
         /// <summary>
-        /// Initializes the specified base identifier.
+        ///     The _room identifier
+        /// </summary>
+        private uint _roomId;
+
+        /// <summary>
+        ///     The _room user
+        /// </summary>
+        private RoomUser _roomUser;
+
+        /// <summary>
+        ///     The _room user identifier
+        /// </summary>
+        private int _roomUserId;
+
+        /// <summary>
+        ///     The base identifier
+        /// </summary>
+        internal uint BaseId;
+
+        /// <summary>
+        ///     Initializes the specified base identifier.
         /// </summary>
         /// <param name="baseId">The base identifier.</param>
         /// <param name="roomUserId">The room user identifier.</param>
@@ -56,7 +57,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets the room.
+        ///     Gets the room.
         /// </summary>
         /// <returns>Room.</returns>
         internal Room GetRoom()
@@ -65,7 +66,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets the room user.
+        ///     Gets the room user.
         /// </summary>
         /// <returns>RoomUser.</returns>
         internal RoomUser GetRoomUser()
@@ -74,7 +75,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Gets the bot data.
+        ///     Gets the bot data.
         /// </summary>
         /// <returns>RoomBot.</returns>
         internal RoomBot GetBotData()
@@ -83,7 +84,7 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Disposes this instance.
+        ///     Disposes this instance.
         /// </summary>
         internal void Dispose()
         {
@@ -96,51 +97,51 @@ namespace Azure.HabboHotel.RoomBots
         }
 
         /// <summary>
-        /// Called when [self enter room].
+        ///     Called when [self enter room].
         /// </summary>
         internal abstract void OnSelfEnterRoom();
 
         /// <summary>
-        /// Called when [self leave room].
+        ///     Called when [self leave room].
         /// </summary>
         /// <param name="kicked">if set to <c>true</c> [kicked].</param>
         internal abstract void OnSelfLeaveRoom(bool kicked);
 
         /// <summary>
-        /// Called when [user enter room].
+        ///     Called when [user enter room].
         /// </summary>
         /// <param name="user">The user.</param>
         internal abstract void OnUserEnterRoom(RoomUser user);
 
         /// <summary>
-        /// Called when [user leave room].
+        ///     Called when [user leave room].
         /// </summary>
         /// <param name="client">The client.</param>
         internal abstract void OnUserLeaveRoom(GameClient client);
 
         /// <summary>
-        /// Called when [user say].
+        ///     Called when [user say].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="msg">The MSG.</param>
         internal abstract void OnUserSay(RoomUser user, string msg);
 
         /// <summary>
-        /// Called when [user shout].
+        ///     Called when [user shout].
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="message">The message.</param>
         internal abstract void OnUserShout(RoomUser user, string message);
 
         /// <summary>
-        /// Called when [timer tick].
+        ///     Called when [timer tick].
         /// </summary>
         internal abstract void OnTimerTick();
 
         internal abstract void OnChatTick();
 
         /// <summary>
-        /// Modifieds this instance.
+        ///     Modifieds this instance.
         /// </summary>
         internal abstract void Modified();
     }

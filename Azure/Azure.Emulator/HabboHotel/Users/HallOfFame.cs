@@ -8,7 +8,7 @@ using System.Data;
 namespace Azure.HabboHotel.Users
 {
     /// <summary>
-    /// Class HallOfFame.
+    ///     Class HallOfFame.
     /// </summary>
     internal class HallOfFame
     {
@@ -23,32 +23,33 @@ namespace Azure.HabboHotel.Users
         public void RefreshHallOfFame()
         {
             Rankings.Clear();
-            DataTable table;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM users_rankings ORDER BY score DESC");
-                table = queryReactor.GetTable();
-                if (table == null) return;
+                var table = queryReactor.GetTable();
+
+                if (table == null)
+                    return;
+
                 foreach (DataRow row in table.Rows)
-                {
-                    Rankings.Add(new HallOfFameElement((uint)row["user_id"], (int)row["score"], (string)row["competition"]));
-                }
+                    Rankings.Add(new HallOfFameElement((uint) row["user_id"], (int) row["score"],
+                        (string) row["competition"]));
             }
         }
     }
 
     /// <summary>
-    /// Class HallOfFameElement.
+    ///     Class HallOfFameElement.
     /// </summary>
     internal class HallOfFameElement
     {
-        internal uint UserId;
-        internal int Score;
         internal string Competition;
+        internal int Score;
+        internal uint UserId;
 
-        internal HallOfFameElement(uint user_id, int score, string competition)
+        internal HallOfFameElement(uint userId, int score, string competition)
         {
-            UserId = user_id;
+            UserId = userId;
             Score = score;
             Competition = competition;
         }

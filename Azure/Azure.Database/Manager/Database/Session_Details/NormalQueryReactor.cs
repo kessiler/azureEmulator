@@ -16,13 +16,16 @@ namespace Azure.Database.Manager.Database.Session_Details
                 case "firebird":
                     CommandFireBird = client.CreateNewCommandFireBird();
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress = client.CreateNewCommandIngress();
                     break;
+
                 case "pgsql":
                     CommandPgSql = client.CreateNewCommandPgSql();
                     break;
+
                 default: // mySql
                     CommandMySql = client.CreateNewCommandMySql();
                     break;
@@ -37,15 +40,18 @@ namespace Azure.Database.Manager.Database.Session_Details
                     CommandFireBird.Dispose();
                     Client.ReportDone();
                     break;
+
                 case "ingres":
                 case "ingress":
                     CommandIngress.Dispose();
                     Client.ReportDone();
                     break;
+
                 case "pgsql":
                     CommandPgSql.Dispose();
                     Client.ReportDone();
                     break;
+
                 default: // mySql
                     CommandMySql.Dispose();
                     Client.ReportDone();
@@ -53,7 +59,10 @@ namespace Azure.Database.Manager.Database.Session_Details
             }
         }
 
-        public void DoCommit() { new TransactionException("Can't use rollback on a non-transactional Query reactor"); }
+        public void DoCommit()
+        {
+            new TransactionException("Can't use rollback on a non-transactional Query reactor");
+        }
 
         public void DoRollBack()
         {

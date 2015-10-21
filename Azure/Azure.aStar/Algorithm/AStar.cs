@@ -84,12 +84,15 @@ namespace Azure.AStar.Algorithm
                 case AStarHeuristicType.FastSearch:
                     _calculationMethod = CalculateHeuristicFast;
                     break;
+
                 case AStarHeuristicType.Between:
                     _calculationMethod = CalculateHeuristicBetween;
                     break;
+
                 case AStarHeuristicType.ShortestPath:
                     _calculationMethod = CalculateHeuristicShortestRoute;
                     break;
+
                 case AStarHeuristicType.ExperimentalSearch:
                     _calculationMethod = CalculateHeuristicExperimental;
                     break;
@@ -106,7 +109,7 @@ namespace Azure.AStar.Algorithm
             double dx1 = inStart.X - _endNode.X;
             double dy1 = inStart.Y - _endNode.Y;
             var cross = Math.Abs(dx1 - dy1);
-            return Math.Ceiling(Math.Abs(inStart.X - inEnd.X) + (double) Math.Abs(inStart.Y - inEnd.Y)) + cross;
+            return Math.Ceiling(Math.Abs(inStart.X - inEnd.X) + (double)Math.Abs(inStart.Y - inEnd.Y)) + cross;
         }
 
         protected virtual double CalculateHeuristicBetween(PathNode inStart, PathNode inEnd)
@@ -116,7 +119,7 @@ namespace Azure.AStar.Algorithm
             double dx2 = _startNode.X - _endNode.X;
             double dy2 = _startNode.Y - _endNode.Y;
             var cross = Math.Abs(dx1 * dy2 - dx2 * dy1);
-            return Math.Ceiling(Math.Abs(inStart.X - inEnd.X) + (double) Math.Abs(inStart.Y - inEnd.Y)) + cross;
+            return Math.Ceiling(Math.Abs(inStart.X - inEnd.X) + (double)Math.Abs(inStart.Y - inEnd.Y)) + cross;
         }
 
         protected virtual double CalculateHeuristicShortestRoute(PathNode inStart, PathNode inEnd)
@@ -144,8 +147,10 @@ namespace Azure.AStar.Algorithm
             {
                 case 1:
                     return 1;
+
                 case 2:
                     return Sqrt2;
+
                 default:
                     throw new ApplicationException();
             }
@@ -160,7 +165,7 @@ namespace Azure.AStar.Algorithm
         /// is passed to IsWalkable().
         /// </summary>
         public LinkedList<PathNode> Search(Point inEndNode, Point inStartNode)
-            //TPathNode inGrid, int width, int height)
+        //TPathNode inGrid, int width, int height)
         {
             //prepareMap(inGrid, width, height);
             //if (width < inStartNode.X || height < inStartNode.Y)
@@ -177,7 +182,7 @@ namespace Azure.AStar.Algorithm
             _endNode = _mSearchSpace[inEndNode.Y, inEndNode.X];
 
             if (_startNode == _endNode)
-                return new LinkedList<PathNode>(new[] {_startNode});
+                return new LinkedList<PathNode>(new[] { _startNode });
             var neighborNodes = _allowDiagonal ? new PathNode[8] : new PathNode[4];
 
             TieBreaker = 0;
@@ -250,7 +255,6 @@ namespace Azure.AStar.Algorithm
                         y.F = y.G + y.Optimal;
                         _mOrderedOpenSet.Push(y);
                     }
-
                     else
                     {
                         y.G = trailScore;
@@ -443,7 +447,10 @@ namespace Azure.AStar.Algorithm
 
             public PathNode Parent { get; set; }
 
-            public bool IsBlocked(int x, int y, bool lastTile) { return UserItem.IsBlocked(x, y, lastTile); }
+            public bool IsBlocked(int x, int y, bool lastTile)
+            {
+                return UserItem.IsBlocked(x, y, lastTile);
+            }
 
             public int X { get; internal set; }
             public int Y { get; internal set; }

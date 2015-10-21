@@ -36,10 +36,7 @@ namespace Azure.Messages
         /// Gets the get packet.
         /// </summary>
         /// <value>The get packet.</value>
-        internal byte[] GetPacket
-        {
-            get { return _packet.ToArray(); }
-        }
+        internal byte[] GetPacket => _packet.ToArray();
 
         /// <summary>
         /// Disposes this instance.
@@ -73,8 +70,8 @@ namespace Azure.Messages
         /// </summary>
         internal void SendResponse()
         {
-            if (_userConnection != null)
-                _userConnection.SendData(_packet.ToArray());
+            _userConnection?.SendData(_packet.ToArray());
+
             Dispose();
         }
 

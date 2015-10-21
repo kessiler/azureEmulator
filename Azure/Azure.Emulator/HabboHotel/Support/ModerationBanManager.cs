@@ -5,34 +5,34 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.GameClients;
+using Azure.HabboHotel.GameClients.Interfaces;
 
 #endregion
 
 namespace Azure.HabboHotel.Support
 {
     /// <summary>
-    /// Class ModerationBanManager.
+    ///     Class ModerationBanManager.
     /// </summary>
     internal class ModerationBanManager
     {
         /// <summary>
-        /// The _banned usernames
-        /// </summary>
-        private readonly HybridDictionary _bannedUsernames;
-
-        /// <summary>
-        /// The _banned i ps
+        ///     The _banned i ps
         /// </summary>
         private readonly HybridDictionary _bannedIPs;
 
         /// <summary>
-        /// The _banned machines
+        ///     The _banned machines
         /// </summary>
         private readonly Dictionary<string, ModerationBan> _bannedMachines;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ModerationBanManager"/> class.
+        ///     The _banned usernames
+        /// </summary>
+        private readonly HybridDictionary _bannedUsernames;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModerationBanManager" /> class.
         /// </summary>
         internal ModerationBanManager()
         {
@@ -42,7 +42,7 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Loads the bans.
+        ///     Loads the bans.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void LoadBans(IQueryAdapter dbClient)
@@ -53,13 +53,16 @@ namespace Azure.HabboHotel.Support
             dbClient.SetQuery("SELECT bantype,value,reason,expire FROM users_bans");
             var table = dbClient.GetTable();
             double num = Azure.GetUnixTimeStamp();
+
             foreach (DataRow dataRow in table.Rows)
             {
-                var text = (string)dataRow["value"];
-                var reasonMessage = (string)dataRow["reason"];
-                var num2 = (double)dataRow["expire"];
-                var a = (string)dataRow["bantype"];
+                var text = (string) dataRow["value"];
+                var reasonMessage = (string) dataRow["reason"];
+                var num2 = (double) dataRow["expire"];
+                var a = (string) dataRow["bantype"];
+
                 ModerationBanType type;
+
                 switch (a)
                 {
                     case "user":
@@ -74,8 +77,12 @@ namespace Azure.HabboHotel.Support
                         type = ModerationBanType.Machine;
                         break;
                 }
+
                 var moderationBan = new ModerationBan(type, text, reasonMessage, num2);
-                if (!(num2 > num)) continue;
+
+                if (!(num2 > num))
+                    continue;
+
                 switch (moderationBan.Type)
                 {
                     case ModerationBanType.UserName:
@@ -94,7 +101,7 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Gets the ban reason.
+        ///     Gets the ban reason.
         /// </summary>
         /// <param name="userName">The username.</param>
         /// <param name="ip">The ip.</param>
@@ -104,28 +111,36 @@ namespace Azure.HabboHotel.Support
         {
             if (_bannedUsernames.Contains(userName))
             {
-                var moderationBan = (ModerationBan)_bannedUsernames[userName];
-                if (!moderationBan.Expired) return moderationBan.ReasonMessage;
+                var moderationBan = (ModerationBan) _bannedUsernames[userName];
+
+                if (!moderationBan.Expired)
+                    return moderationBan.ReasonMessage;
             }
             else
             {
                 if (_bannedIPs.Contains(ip))
                 {
-                    var moderationBan2 = (ModerationBan)_bannedIPs[ip];
-                    if (!moderationBan2.Expired) return moderationBan2.ReasonMessage;
+                    var moderationBan2 = (ModerationBan) _bannedIPs[ip];
+
+                    if (!moderationBan2.Expired)
+                        return moderationBan2.ReasonMessage;
                 }
                 else
                 {
-                    if (!_bannedMachines.ContainsKey(machineid)) return string.Empty;
+                    if (!_bannedMachines.ContainsKey(machineid))
+                        return string.Empty;
+
                     var moderationBan3 = _bannedMachines[machineid];
-                    if (!moderationBan3.Expired) return moderationBan3.ReasonMessage;
+
+                    if (!moderationBan3.Expired)
+                        return moderationBan3.ReasonMessage;
                 }
             }
             return string.Empty;
         }
 
         /// <summary>
-        /// Checks the machine ban.
+        ///     Checks the machine ban.
         /// </summary>
         /// <param name="machineId">The machine identifier.</param>
         /// <returns>System.String.</returns>
@@ -135,7 +150,7 @@ namespace Azure.HabboHotel.Support
         }
 
         /// <summary>
-        /// Bans the user.
+        ///     Bans the user.
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="moderator">The moderator.</param>
@@ -144,21 +159,24 @@ namespace Azure.HabboHotel.Support
         /// <param name="ipBan">if set to <c>true</c> [ip ban].</param>
         /// <param name="machine">if set to <c>true</c> [machine].</param>
         internal void BanUser(GameClient client, string moderator, double lengthSeconds, string reason, bool ipBan,
-                              bool machine)
+            bool machine)
         {
             var type = ModerationBanType.UserName;
             var text = client.GetHabbo().UserName;
             var typeStr = "user";
             var num = Azure.GetUnixTimeStamp() + lengthSeconds;
+
             if (ipBan)
             {
                 type = ModerationBanType.Ip;
+
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT ip_last FROM users WHERE username = @name LIMIT 1");
                     queryReactor.AddParameter("name", text);
                     text = queryReactor.GetString();
                 }
+
                 typeStr = "ip";
             }
             if (machine)
@@ -167,7 +185,9 @@ namespace Azure.HabboHotel.Support
                 typeStr = "machine";
                 text = client.MachineId;
             }
+
             var moderationBan = new ModerationBan(type, text, reason, num);
+
             switch (moderationBan.Type)
             {
                 case ModerationBanType.Ip:
@@ -185,6 +205,7 @@ namespace Azure.HabboHotel.Support
                     else _bannedUsernames.Add(text, moderationBan);
                     break;
             }
+
             using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryreactor2.SetQuery(
@@ -197,46 +218,48 @@ namespace Azure.HabboHotel.Support
                 queryreactor2.AddParameter("time", DateTime.Now.ToLongDateString());
                 queryreactor2.RunQuery();
             }
+
             if (ipBan)
             {
                 DataTable dataTable;
+
                 using (var queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor3.SetQuery("SELECT id FROM users WHERE ip_last = @var");
                     queryreactor3.AddParameter("var", text);
                     dataTable = queryreactor3.GetTable();
                 }
+
                 if (dataTable != null)
                 {
                     using (var queryreactor4 = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         foreach (DataRow dataRow in dataTable.Rows)
-                        {
                             queryreactor4.RunFastQuery(
-                                string.Format("UPDATE users_info SET bans = bans + 1 WHERE user_id = {0}",
-                                    Convert.ToUInt32(dataRow["id"])));
-                        }
+                                $"UPDATE users_info SET bans = bans + 1 WHERE user_id = {Convert.ToUInt32(dataRow["id"])}");
                     }
                 }
+
                 BanUser(client, moderator, lengthSeconds, reason, false, false);
                 return;
             }
+
             using (var queryreactor5 = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryreactor5.RunFastQuery(string.Format("UPDATE users_info SET bans = bans + 1 WHERE user_id = {0}",
-                    client.GetHabbo().Id));
-            }
+                queryreactor5.RunFastQuery(
+                    $"UPDATE users_info SET bans = bans + 1 WHERE user_id = {client.GetHabbo().Id}");
+
             client.Disconnect("banned");
         }
 
         /// <summary>
-        /// Unbans the user.
+        ///     Unbans the user.
         /// </summary>
         /// <param name="userNameOrIp">The username or ip.</param>
         internal void UnbanUser(string userNameOrIp)
         {
             _bannedUsernames.Remove(userNameOrIp);
             _bannedIPs.Remove(userNameOrIp);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("DELETE FROM users_bans WHERE value = @userorip");

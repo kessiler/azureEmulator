@@ -9,17 +9,17 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Class PetLocale.
+    ///     Class PetLocale.
     /// </summary>
     internal class PetLocale
     {
         /// <summary>
-        /// The _values
+        ///     The _values
         /// </summary>
         private static Dictionary<string, string[]> _values;
 
         /// <summary>
-        /// Initializes the specified database client.
+        ///     Initializes the specified database client.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal static void Init(IQueryAdapter dbClient)
@@ -27,14 +27,14 @@ namespace Azure.HabboHotel.Pets
             _values = new Dictionary<string, string[]>();
 
             dbClient.SetQuery("SELECT * FROM pets_speech");
-            DataTable table = dbClient.GetTable();
-            
+            var table = dbClient.GetTable();
+
             foreach (DataRow dataRow in table.Rows)
                 _values.Add(dataRow[0].ToString(), dataRow[1].ToString().Split(';'));
         }
 
         /// <summary>
-        /// Gets the value.
+        ///     Gets the value.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>System.String[].</returns>
@@ -44,7 +44,7 @@ namespace Azure.HabboHotel.Pets
             if (_values.TryGetValue(key, out result))
                 return result;
 
-            return new[] { key };
+            return new[] {key};
         }
     }
 }

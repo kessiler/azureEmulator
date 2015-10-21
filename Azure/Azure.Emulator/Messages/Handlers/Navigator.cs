@@ -1,7 +1,10 @@
 ﻿#region
 
 using Azure.HabboHotel.Navigators;
+using Azure.HabboHotel.Navigators.Enums;
+using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.Messages.Parsers;
 
 #endregion
@@ -41,7 +44,7 @@ namespace Azure.Messages.Handlers
                 return;
             GetResponse().Init(LibraryParser.OutgoingRequest("453"));
             GetResponse().AppendInteger(roomData.Id);
-            GetResponse().AppendString(roomData.CCTs);
+            GetResponse().AppendString(roomData.CcTs);
             GetResponse().AppendInteger(roomData.Id);
             SendResponse();
         }
@@ -97,16 +100,16 @@ namespace Azure.Messages.Handlers
             var naviLogs = new NaviLogs(Session.GetHabbo().NavigatorLogs.Count, value1, value2);
             if (!Session.GetHabbo().NavigatorLogs.ContainsKey(naviLogs.Id))
                 Session.GetHabbo().NavigatorLogs.Add(naviLogs.Id, naviLogs);
-            var Message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
-            Message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
+            message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
             foreach (NaviLogs navi in Session.GetHabbo().NavigatorLogs.Values)
             {
-                Message.AppendInteger(navi.Id);
-                Message.AppendString(navi.Value1);
-                Message.AppendString(navi.Value2);
-                Message.AppendString("");
+                message.AppendInteger(navi.Id);
+                message.AppendString(navi.Value1);
+                message.AppendString(navi.Value2);
+                message.AppendString("");
             }
-            Session.SendMessage(Message);
+            Session.SendMessage(message);
         }
 
         /// <summary>
@@ -154,16 +157,16 @@ namespace Azure.Messages.Handlers
             if (!Session.GetHabbo().NavigatorLogs.ContainsKey(searchId))
                 return;
             Session.GetHabbo().NavigatorLogs.Remove(searchId);
-            var Message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
-            Message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
+            message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
             foreach (NaviLogs navi in Session.GetHabbo().NavigatorLogs.Values)
             {
-                Message.AppendInteger(navi.Id);
-                Message.AppendString(navi.Value1);
-                Message.AppendString(navi.Value2);
-                Message.AppendString("");
+                message.AppendInteger(navi.Id);
+                message.AppendString(navi.Value1);
+                message.AppendString(navi.Value2);
+                message.AppendString("");
             }
-            Session.SendMessage(Message);
+            Session.SendMessage(message);
         }
 
         /// <summary>
@@ -207,7 +210,7 @@ namespace Azure.Messages.Handlers
                 return;
             GetResponse().Init(LibraryParser.OutgoingRequest("1491"));
             GetResponse().AppendInteger(0);
-            roomData.Serialize(GetResponse(), false);
+            roomData.Serialize(GetResponse());
             SendResponse();
         }
 
@@ -335,7 +338,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Navigator.SerializePromoted(Session, Request.GetInteger()));
+            Session.SendMessage(NavigatorManager.SerializePromoted(Session, Request.GetInteger()));
         }
 
         /// <summary>
@@ -346,7 +349,7 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo() == null)
                 return;
             Session.SendMessage(
-                Navigator.SerializeSearchResults(Request.GetString()));
+                NavigatorManager.SerializeSearchResults(Request.GetString()));
         }
 
         /// <summary>
@@ -383,6 +386,7 @@ namespace Azure.Messages.Handlers
 
             PrepareRoomForUser(roomId, pWd);
         }
+
         internal void ToggleStaffPick()
         {
             var roomId = Request.GetUInteger();
@@ -395,7 +399,6 @@ namespace Azure.Messages.Handlers
                 var pubItem = Azure.GetGame().GetNavigator().GetPublicItem(roomId);
                 if (pubItem == null) // not picked
                 {
-
                     queryReactor.SetQuery("INSERT INTO navigator_publics (bannertype, room_id, category_parent_id) VALUES ('0', @roomId, '-2')");
                     queryReactor.AddParameter("roomId", room.RoomId);
                     queryReactor.RunQuery();

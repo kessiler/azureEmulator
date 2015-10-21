@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Support;
 using Azure.Messages.Parsers;
 
@@ -64,7 +65,7 @@ namespace Azure.Messages.Handlers
             }
 
             Response.Init(LibraryParser.OutgoingRequest("TicketUserAlert"));
-            
+
             if (Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
             {
                 SupportTicket ticket = Azure.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
@@ -207,7 +208,7 @@ namespace Azure.Messages.Handlers
 
             if (ticketId <= 0)
                 return;
-            
+
             Azure.GetGame().GetModerationTool().CloseTicket(Session, ticketId, result);
         }
 
@@ -264,10 +265,10 @@ namespace Azure.Messages.Handlers
             serverMessage.AppendString("linkTitle");
             serverMessage.AppendString("ok");
 
-            Room Room = Session.GetHabbo().CurrentRoom;
+            Room room = Session.GetHabbo().CurrentRoom;
 
-            if (Room != null)
-                Room.SendMessage(serverMessage);
+            if (room != null)
+                room.SendMessage(serverMessage);
         }
 
         /// <summary>

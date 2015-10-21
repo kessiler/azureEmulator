@@ -35,7 +35,10 @@ namespace Azure.Enclosure
             }
         }
 
-        public void UpdateLocation(int x, int y, byte value) { _newEntries.Enqueue(new GametileUpdate(x, y, value)); }
+        public void UpdateLocation(int x, int y, byte value)
+        {
+            _newEntries.Enqueue(new GametileUpdate(x, y, value));
+        }
 
         public List<PointField> DoUpdate(bool oneloop = false)
         {
@@ -56,16 +59,25 @@ namespace Azure.Enclosure
             return list;
         }
 
-        public byte GetValue(int x, int y) { return this[y, x] ? _currentField[y, x] : (byte) 0; }
+        public byte GetValue(int x, int y)
+        {
+            return this[y, x] ? _currentField[y, x] : (byte)0;
+        }
 
-        public byte GetValue(Point p) { return this[p.Y, p.X] ? _currentField[p.Y, p.X] : (byte) 0; }
+        public byte GetValue(Point p)
+        {
+            return this[p.Y, p.X] ? _currentField[p.Y, p.X] : (byte)0;
+        }
 
         public bool IsBlocked(int x, int y, bool lastTile)
         {
             return (_currentlyChecking.X == x && _currentlyChecking.Y == y) || GetValue(x, y) != _currentlyChecking.Value;
         }
 
-        public void Destroy() { _currentField = null; }
+        public void Destroy()
+        {
+            _currentField = null;
+        }
 
         private PointField FindClosed(LinkedList<AStarSolver<GameField>.PathNode> nodeList)
         {
@@ -85,12 +97,12 @@ namespace Azure.Enclosure
                 if (current.Y > num4)
                     num4 = current.Y;
             }
-            
+
             {
-                var x = (int) Math.Ceiling((num2 - num) / 2f) + num;
-                var y = (int) Math.Ceiling((num4 - num3) / 2f) + num3;
+                var x = (int)Math.Ceiling((num2 - num) / 2f) + num;
+                var y = (int)Math.Ceiling((num4 - num3) / 2f) + num3;
                 var list = new List<Point>();
-                var list2 = new List<Point> {new Point(_currentlyChecking.X, _currentlyChecking.Y)};
+                var list2 = new List<Point> { new Point(_currentlyChecking.X, _currentlyChecking.Y) };
                 list.Add(new Point(x, y));
                 while (list.Any())
                 {
@@ -144,7 +156,7 @@ namespace Azure.Enclosure
         {
             var list = new List<LinkedList<AStarSolver<GameField>.PathNode>>();
             var num = 0;
-            
+
             {
                 foreach (var current in pointList)
                 {
@@ -165,7 +177,7 @@ namespace Azure.Enclosure
             var list = new List<Point>();
             var x = update.X;
             var y = update.Y;
-            
+
             {
                 if (_diagonal)
                 {

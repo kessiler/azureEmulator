@@ -1,8 +1,10 @@
 ﻿#region
 
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
-using Azure.HabboHotel.Rooms.Games;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -21,13 +23,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             //this.mBanned = new List<InteractionType>();
         }
 
-        public Interaction Type
-        {
-            get
-            {
-                return Interaction.ActionLeaveTeam;
-            }
-        }
+        public Interaction Type => Interaction.ActionLeaveTeam;
 
         public RoomItem Item { get; set; }
 
@@ -35,24 +31,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public List<RoomItem> Items
         {
-            get
-            {
-                return new List<RoomItem>();
-            }
-            set
-            {
-            }
+            get { return new List<RoomItem>(); }
+            set { }
         }
 
         public int Delay
         {
-            get
-            {
-                return 0;
-            }
-            set
-            {
-            }
+            get { return 0; }
+            set { }
         }
 
         public string OtherString { get; set; }
@@ -66,12 +52,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         public bool Execute(params object[] stuff)
         {
             if (stuff[0] == null) return false;
-            RoomUser roomUser = (RoomUser)stuff[0];
-            TeamManager t = roomUser.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
-            if (roomUser.Team != Team.none)
+            var roomUser = (RoomUser)stuff[0];
+            var t = roomUser.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
+            if (roomUser.Team != Team.None)
             {
                 t.OnUserLeave(roomUser);
-                roomUser.Team = Team.none;
+                roomUser.Team = Team.None;
             }
             //InteractionType item = (InteractionType)stuff[1];
             return true;

@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 
 #endregion
 
@@ -12,6 +14,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {
     internal class MoveRotateFurni : IWiredItem, IWiredCycler
     {
+        private readonly ConcurrentQueue<RoomItem> _toRemove = new ConcurrentQueue<RoomItem>();
         private int _rot, _dir, _cycles;
 
         public MoveRotateFurni(RoomItem item, Room room)
@@ -25,18 +28,34 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             _cycles = 0;
         }
 
-        public Interaction Type
+        public Queue ToWork
         {
-            get { return Interaction.ActionMoveRotate; }
+            get { return null; }
+            set { }
         }
+
+        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
+
+        public bool OnCycle()
+        {
+            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
+                return false;
+
+            _cycles++;
+            if (_cycles <= (Delay / 500)) return true;
+            _cycles = 0;
+
+            HandleItems();
+            return false;
+        }
+
+        public Interaction Type => Interaction.ActionMoveRotate;
 
         public RoomItem Item { get; set; }
 
         public Room Room { get; set; }
 
         public List<RoomItem> Items { get; set; }
-
-        private readonly ConcurrentQueue<RoomItem> _toRemove = new ConcurrentQueue<RoomItem>();
 
         public string OtherString
         {
@@ -75,14 +94,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public int Delay { get; set; }
 
-        public Queue ToWork
-        {
-            get { return null; }
-            set { }
-        }
-
-        public ConcurrentQueue<RoomUser> ToWorkConcurrentQueue { get; set; }
-
         public bool Execute(params object[] stuff)
         {
             if (!Items.Any()) return true;
@@ -95,18 +106,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 return true;
             }
             Room.GetWiredHandler().EnqueueCycle(this);
-            return false;
-        }
-
-        public bool OnCycle()
-        {
-            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null) return false;
-
-            _cycles++;
-            if (_cycles <= (Delay / 500)) return true;
-            _cycles = 0;
-
-            HandleItems();
             return false;
         }
 

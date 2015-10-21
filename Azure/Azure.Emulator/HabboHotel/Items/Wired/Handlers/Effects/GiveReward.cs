@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -24,10 +26,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             _mBanned = new List<Interaction>();
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ActionGiveReward; }
-        }
+        public Interaction Type => Interaction.ActionGiveReward;
 
         public RoomItem Item { get; set; }
 
@@ -58,12 +57,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             if (stuff[0] == null)
                 return false;
 
-            var user = (RoomUser) stuff[0];
+            var user = (RoomUser)stuff[0];
 
             if (stuff[1] == null)
                 return false;
 
-            var item = (Interaction) stuff[1];
+            var item = (Interaction)stuff[1];
 
             if (_mBanned.Contains(item))
                 return false;
@@ -76,10 +75,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             var amountLeft = Convert.ToInt32(OtherExtraString2);
 
-        
             var unique = OtherBool;
 
-            bool premied = false;
+            var premied = false;
 
             if (amountLeft == 1)
             {
@@ -139,7 +137,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                         user.GetClient()
                             .GetHabbo()
                             .GetInventoryComponent()
-                            .AddNewItem(0u, roomItem.ItemId, "0", 0u, true, false, 0, 0, "");
+                            .AddNewItem(0u, roomItem.ItemId, "0", 0u, true, false, 0, 0);
                         user.GetClient()
                             .SendMessage(
                                 new ServerMessage(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer")));

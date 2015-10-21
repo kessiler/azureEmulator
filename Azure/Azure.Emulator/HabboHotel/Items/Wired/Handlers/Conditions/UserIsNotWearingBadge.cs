@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Users.Badges;
 
 #endregion
@@ -20,10 +22,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             OtherString = string.Empty;
         }
 
-        public Interaction Type
-        {
-            get { return Interaction.ConditionUserNotWearingBadge; }
-        }
+        public Interaction Type => Interaction.ConditionUserNotWearingBadge;
 
         public RoomItem Item { get; set; }
 
@@ -78,7 +77,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
                     .All(
                         badge =>
                             badge.Slot <= 0 ||
-                            !String.Equals(badge.Code, OtherString, StringComparison.CurrentCultureIgnoreCase));
+                            !string.Equals(badge.Code, OtherString, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

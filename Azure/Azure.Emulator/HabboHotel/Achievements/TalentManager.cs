@@ -2,9 +2,10 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.GameClients;
-using Azure.HabboHotel.Items;
+using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -13,17 +14,17 @@ using Azure.Messages.Parsers;
 namespace Azure.HabboHotel.Achievements
 {
     /// <summary>
-    /// Class TalentManager.
+    ///     Class TalentManager.
     /// </summary>
     internal class TalentManager
     {
         /// <summary>
-        /// The talents
+        ///     The talents
         /// </summary>
         internal Dictionary<int, Talent> Talents;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TalentManager"/> class.
+        ///     Initializes a new instance of the <see cref="TalentManager" /> class.
         /// </summary>
         internal TalentManager()
         {
@@ -31,132 +32,141 @@ namespace Azure.HabboHotel.Achievements
         }
 
         /// <summary>
-        /// Initializes the specified database client.
+        ///     Initializes the specified database client.
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         internal void Initialize(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT * FROM achievements_talents ORDER BY `order_num` ASC");
-            DataTable table = dbClient.GetTable();
-            foreach (DataRow dataRow in table.Rows)
+            var table = dbClient.GetTable();
+
+            foreach (var talent in from DataRow dataRow in table.Rows
+                                   select new Talent((int)dataRow["id"], (string)dataRow["type"], (int)dataRow["parent_category"],
+(int)dataRow["level"], (string)dataRow["achievement_group"], (int)dataRow["achievement_level"],
+(string)dataRow["prize"], (uint)dataRow["prize_baseitem"]))
             {
-                var talent = new Talent((int)dataRow["id"], (string)dataRow["type"], (int)dataRow["parent_category"], (int)dataRow["level"], (string)dataRow["achievement_group"], (int)dataRow["achievement_level"], (string)dataRow["prize"], (uint)dataRow["prize_baseitem"]);
                 Talents.Add(talent.Id, talent);
             }
         }
 
         /// <summary>
-        /// Gets the talent.
+        ///     Gets the talent.
         /// </summary>
-        /// <param name="TalentId">The talent identifier.</param>
+        /// <param name="talentId">The talent identifier.</param>
         /// <returns>Talent.</returns>
-        internal Talent GetTalent(int TalentId)
+        internal Talent GetTalent(int talentId)
         {
-            return Talents[TalentId];
+            return Talents[talentId];
         }
 
         /// <summary>
-        /// Levels the is completed.
+        ///     Levels the is completed.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="TrackType">Type of the track.</param>
-        /// <param name="TalentLevel">The talent level.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="trackType">Type of the track.</param>
+        /// <param name="talentLevel">The talent level.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool LevelIsCompleted(GameClient Session, string TrackType, int TalentLevel)
+        internal bool LevelIsCompleted(GameClient session, string trackType, int talentLevel)
         {
-            foreach (Talent current in GetTalents(TrackType, TalentLevel))
-            {
-                if (Session.GetHabbo().GetAchievementData(current.AchievementGroup) != null && Session.GetHabbo().GetAchievementData(current.AchievementGroup).Level >= current.AchievementLevel)
-                    return false;
-            }
-            return true;
+            return
+                GetTalents(trackType, talentLevel)
+                    .All(
+                        current =>
+                            session.GetHabbo().GetAchievementData(current.AchievementGroup) == null ||
+                            session.GetHabbo().GetAchievementData(current.AchievementGroup).Level <
+                            current.AchievementLevel);
         }
 
         /// <summary>
-        /// Completes the user talent.
+        ///     Completes the user talent.
         /// </summary>
-        /// <param name="Session">The session.</param>
-        /// <param name="Talent">The talent.</param>
-        internal void CompleteUserTalent(GameClient Session, Talent Talent)
+        /// <param name="session">The session.</param>
+        /// <param name="talent">The talent.</param>
+        internal void CompleteUserTalent(GameClient session, Talent talent)
         {
-            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().CurrentTalentLevel < Talent.Level || Session.GetHabbo().Talents.ContainsKey(Talent.Id))
+            if (session?.GetHabbo() == null || session.GetHabbo().CurrentTalentLevel < talent.Level || session.GetHabbo().Talents.ContainsKey(talent.Id))
                 return;
-            if (!LevelIsCompleted(Session, Talent.Type, Talent.Level))
+
+            if (!LevelIsCompleted(session, talent.Type, talent.Level))
                 return;
-            if (!string.IsNullOrEmpty(Talent.Prize) && Talent.PrizeBaseItem > 0u)
+
+            if (!string.IsNullOrEmpty(talent.Prize) && talent.PrizeBaseItem > 0u)
             {
-                Item item = Azure.GetGame().GetItemManager().GetItem(Talent.PrizeBaseItem);
-                Azure.GetGame().GetCatalog().DeliverItems(Session, item, 1, "", 0, 0, "");
+                var item = Azure.GetGame().GetItemManager().GetItem(talent.PrizeBaseItem);
+                Azure.GetGame().GetCatalog().DeliverItems(session, item, 1, "", 0, 0, "");
             }
-            var value = new UserTalent(Talent.Id, 1);
-            Session.GetHabbo().Talents.Add(Talent.Id, value);
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+
+            var value = new UserTalent(talent.Id, 1);
+            session.GetHabbo().Talents.Add(talent.Id, value);
+
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_talents VALUES (", Session.GetHabbo().Id, ", ", Talent.Id, ", ", 1, ");"));
+                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_talents VALUES (", session.GetHabbo().Id,
+                    ", ", talent.Id, ", ", 1, ");"));
             }
+
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("TalentLevelUpMessageComposer"));
-            serverMessage.AppendString(Talent.Type);
-            serverMessage.AppendInteger(Talent.Level);
+            serverMessage.AppendString(talent.Type);
+            serverMessage.AppendInteger(talent.Level);
             serverMessage.AppendInteger(0);
-            if (Talent.Type == "citizenship" && Talent.Level == 4)
+
+            if (talent.Type == "citizenship" && talent.Level == 4)
             {
                 serverMessage.AppendInteger(2);
                 serverMessage.AppendString("HABBO_CLUB_VIP_7_DAYS");
                 serverMessage.AppendInteger(7);
-                serverMessage.AppendString(Talent.Prize);
+                serverMessage.AppendString(talent.Prize);
                 serverMessage.AppendInteger(0);
             }
             else
             {
                 serverMessage.AppendInteger(1);
-                serverMessage.AppendString(Talent.Prize);
+                serverMessage.AppendString(talent.Prize);
                 serverMessage.AppendInteger(0);
             }
 
-            Session.SendMessage(serverMessage);
+            session.SendMessage(serverMessage);
 
-            if (Talent.Type == "citizenship")
+            if (talent.Type == "citizenship" && talent.Level == 3)
             {
-                if (Talent.Level == 3)
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Citizenship", 1);
-                else if (Talent.Level == 4)
+                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_Citizenship", 1);
+            }
+            else if (talent.Type == "citizenship" && talent.Level == 4)
+            {
+                session.GetHabbo().GetSubscriptionManager().AddSubscription(7);
+
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    Session.GetHabbo().GetSubscriptionManager().AddSubscription(7);
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    queryReactor.RunFastQuery(string.Concat(new object[]
                     {
-                        queryReactor.RunFastQuery(string.Concat(new object[]
-                        {
-                            "UPDATE users SET talent_status = 'helper' WHERE id = ",
-                            Session.GetHabbo().Id,
-                            ";"
-                        }));
-                    }
+                        "UPDATE users SET talent_status = 'helper' WHERE id = ",
+                        session.GetHabbo().Id,
+                        ";"
+                    }));
                 }
             }
         }
 
         /// <summary>
-        /// Tries the get talent.
+        ///     Tries the get talent.
         /// </summary>
-        /// <param name="AchGroup">The ach group.</param>
+        /// <param name="achGroup">The ach group.</param>
         /// <param name="talent">The talent.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool TryGetTalent(string AchGroup, out Talent talent)
+        internal bool TryGetTalent(string achGroup, out Talent talent)
         {
-            foreach (Talent current in Talents.Values)
+            foreach (var current in Talents.Values.Where(current => current.AchievementGroup == achGroup))
             {
-                if (current.AchievementGroup == AchGroup)
-                {
-                    talent = current;
-                    return true;
-                }
+                talent = current;
+                return true;
             }
-            talent = null;
+
+            talent = new Talent();
             return false;
         }
 
         /// <summary>
-        /// Gets all talents.
+        ///     Gets all talents.
         /// </summary>
         /// <returns>Dictionary&lt;System.Int32, Talent&gt;.</returns>
         internal Dictionary<int, Talent> GetAllTalents()
@@ -165,22 +175,16 @@ namespace Azure.HabboHotel.Achievements
         }
 
         /// <summary>
-        /// Gets the talents.
+        ///     Gets the talents.
         /// </summary>
-        /// <param name="TrackType">Type of the track.</param>
-        /// <param name="ParentCategory">The parent category.</param>
+        /// <param name="trackType">Type of the track.</param>
+        /// <param name="parentCategory">The parent category.</param>
         /// <returns>List&lt;Talent&gt;.</returns>
-        internal List<Talent> GetTalents(string TrackType, int ParentCategory)
+        internal List<Talent> GetTalents(string trackType, int parentCategory)
         {
-            var list = new List<Talent>();
-            foreach (Talent current in Talents.Values)
-            {
-                if (current.Type == TrackType && current.ParentCategory == ParentCategory)
-                {
-                    list.Add(current);
-                }
-            }
-            return list;
+            return
+                Talents.Values.Where(current => current.Type == trackType && current.ParentCategory == parentCategory)
+                    .ToList();
         }
     }
 }

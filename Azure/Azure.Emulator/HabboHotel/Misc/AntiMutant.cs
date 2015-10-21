@@ -8,17 +8,17 @@ using System.Linq;
 namespace Azure.HabboHotel.Misc
 {
     /// <summary>
-    /// Class AntiMutant.
+    ///     Class AntiMutant.
     /// </summary>
     internal class AntiMutant
     {
         /// <summary>
-        /// The _parts
+        ///     The _parts
         /// </summary>
         private readonly Dictionary<string, Dictionary<string, Figure>> _parts;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AntiMutant"/> class.
+        ///     Initializes a new instance of the <see cref="AntiMutant" /> class.
         /// </summary>
         public AntiMutant()
         {
@@ -26,7 +26,7 @@ namespace Azure.HabboHotel.Misc
         }
 
         /// <summary>
-        /// Runs the look.
+        ///     Runs the look.
         /// </summary>
         /// <param name="look">The look.</param>
         /// <returns>System.String.</returns>
@@ -34,15 +34,15 @@ namespace Azure.HabboHotel.Misc
         {
             var toReturnFigureParts = new List<string>();
             var fParts = new List<string>();
-            string[] requiredParts = { "hd", "ch" };
+            string[] requiredParts = {"hd", "ch"};
             var flagForDefault = false;
 
             var figureParts = look.Split('.');
             var genderLook = GetLookGender(look);
-            foreach (string Part in figureParts)
+            foreach (var part in figureParts)
             {
-                var newPart = Part;
-                var tPart = Part.Split('-');
+                var newPart = part;
+                var tPart = part.Split('-');
                 if (tPart.Count() < 2)
                 {
                     flagForDefault = true;
@@ -66,16 +66,16 @@ namespace Azure.HabboHotel.Misc
                 toReturnFigureParts.AddRange("hr-115-42.hd-190-1.ch-215-62.lg-285-91.sh-290-62".Split('.'));
             }
 
-            foreach (string requiredPart in requiredParts.Where(requiredPart => !fParts.Contains(requiredPart) &&
-                                                                                !toReturnFigureParts.Contains(
-                                                                                    SetDefault(requiredPart, genderLook)))
+            foreach (var requiredPart in requiredParts.Where(requiredPart => !fParts.Contains(requiredPart) &&
+                                                                             !toReturnFigureParts.Contains(
+                                                                                 SetDefault(requiredPart, genderLook)))
                 )
                 toReturnFigureParts.Add(SetDefault(requiredPart, genderLook));
             return string.Join(".", toReturnFigureParts);
         }
 
         /// <summary>
-        /// Gets the look gender.
+        ///     Gets the look gender.
         /// </summary>
         /// <param name="look">The look.</param>
         /// <returns>System.String.</returns>
@@ -83,7 +83,7 @@ namespace Azure.HabboHotel.Misc
         {
             var figureParts = look.Split('.');
 
-            foreach (string part in figureParts)
+            foreach (var part in figureParts)
             {
                 var tPart = part.Split('-');
                 if (tPart.Count() < 2)
@@ -100,7 +100,7 @@ namespace Azure.HabboHotel.Misc
         }
 
         /// <summary>
-        /// Sets the default.
+        ///     Sets the default.
         /// </summary>
         /// <param name="partName">Name of the part.</param>
         /// <param name="gender">The gender.</param>

@@ -1,22 +1,22 @@
 namespace Azure.HabboHotel.Pets
 {
     /// <summary>
-    /// Enum MoplaState
+    ///     Enum MoplaState
     /// </summary>
     internal enum MoplaState
     {
         /// <summary>
-        /// The alive
+        ///     The alive
         /// </summary>
         Alive = 0,
 
         /// <summary>
-        /// The grown
+        ///     The grown
         /// </summary>
         Grown = 1,
 
         /// <summary>
-        /// The dead
+        ///     The dead
         /// </summary>
         Dead = 2
     }
