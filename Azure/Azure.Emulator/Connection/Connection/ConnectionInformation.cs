@@ -140,21 +140,19 @@ namespace Azure.Connection.Connection
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
-
                 if (_socket != null && _socket.Connected && _connected)
                 {
                     int bytesReceived = dataSocket.EndReceive(async);
-
                     if (bytesReceived != 0)
                     {
                         byte[] array = new byte[bytesReceived];
-
                         Array.Copy(_buffer, array, bytesReceived);
-
                         HandlePacketData(array, bytesReceived);
                     }
                     else
+                    {
                         Disconnect();
+                    }
                 }
             }
             catch (Exception exception)
@@ -171,14 +169,16 @@ namespace Azure.Connection.Connection
                 {
                     if (_socket != null && _socket.Connected && _connected)
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
-
-                    Disconnect();
+                    // ReSharper disable once RedundantIfElseBlock
+                    else
+                        Disconnect();
                 }
                 catch (Exception exception)
                 {
                     HandleDisconnect(SocketError.ConnectionAborted, exception);
                 }
             }
+
         }
 
         private void OnSendCompleted(IAsyncResult async)
