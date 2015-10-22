@@ -3,8 +3,10 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using Azure.Configuration;
+using Azure.Connection;
 using Azure.Encryption;
 using Azure.Encryption.Hurlant.Crypto.Prng;
+using Azure.Encryption.Utils;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
@@ -513,16 +515,16 @@ namespace Azure.Messages.Handlers
         internal void SaveRoomThumbnail()
         {
             // Disabled until recreate that function
-            //int count = Request.GetInteger();
-            //byte[] bytes = Request.GetBytes(count);
-            //var outData = Converter.Deflate(bytes);
+            int count = Request.GetInteger();
+            byte[] bytes = Request.GetBytes(count);
+            var outData = Converter.Deflate(bytes);
 
-            //var url = Web.HttpPostJson(ExtraSettings.StoriesApiThumbnailServerUrl, outData);
+            var url = Web.HttpPostJson(ExtraSettings.StoriesApiThumbnailServerUrl, outData);
 
-            //var thumb = new ServerMessage(LibraryParser.OutgoingRequest("ThumbnailSuccessMessageComposer"));
-            //thumb.AppendBool(true);
-            //thumb.AppendBool(false);
-            //Session.SendMessage(thumb);
+            var thumb = new ServerMessage(LibraryParser.OutgoingRequest("ThumbnailSuccessMessageComposer"));
+            thumb.AppendBool(true);
+            thumb.AppendBool(false);
+            Session.SendMessage(thumb);
         }
     }
 }
