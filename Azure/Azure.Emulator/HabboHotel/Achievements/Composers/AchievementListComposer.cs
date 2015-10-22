@@ -1,12 +1,8 @@
-#region
-
 using System.Collections.Generic;
 using Azure.HabboHotel.Achievements.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Achievements.Composers
 {
@@ -38,6 +34,7 @@ namespace Azure.HabboHotel.Achievements.Composers
                     i = count;
 
                 var achievementLevel = achievement.Levels[i];
+
                 var oldLevel = (achievement.Levels.ContainsKey(i - 1)) ? achievement.Levels[i - 1] : achievementLevel;
 
                 serverMessage.AppendInteger(achievement.Id);
@@ -51,7 +48,7 @@ namespace Azure.HabboHotel.Achievements.Composers
 
                 if (achievementData == null)
                     serverMessage.AppendBool(false);
-                else if (achievementData.Level >= count)
+                else if (achievementData.Value.Level >= count)
                     serverMessage.AppendBool(true);
                 else
                     serverMessage.AppendBool(false);

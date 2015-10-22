@@ -1,10 +1,6 @@
-#region
-
 using System;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items
 {

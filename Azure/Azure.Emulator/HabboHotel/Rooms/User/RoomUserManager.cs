@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,8 +23,6 @@ using Azure.HabboHotel.Rooms.Items.Games.Types.Freeze;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.User
 {

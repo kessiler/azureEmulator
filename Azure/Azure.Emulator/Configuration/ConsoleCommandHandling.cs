@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime;
 using Azure.HabboHotel;
@@ -8,8 +6,6 @@ using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
-
-#endregion
 
 namespace Azure.Configuration
 {

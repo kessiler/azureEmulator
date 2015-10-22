@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,8 +20,6 @@ using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.User
 {
@@ -1282,11 +1278,7 @@ namespace Azure.HabboHotel.Rooms.User
             return _mRoom ?? (_mRoom = Azure.GetGame().GetRoomManager().GetRoom(RoomId));
         }
 
-        #region Developer command
-
         internal int LastSelectedX, CopyX;
         internal int LastSelectedY, CopyY;
-
-        #endregion Developer command
     }
 }

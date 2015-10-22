@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Azure.Configuration;
-
-#endregion
 
 namespace Azure.Util
 {

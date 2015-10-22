@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +6,6 @@ using Azure.HabboHotel.Items.Interactions.Models;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Controllers
 {

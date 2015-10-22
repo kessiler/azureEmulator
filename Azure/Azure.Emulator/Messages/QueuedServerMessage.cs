@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using Azure.Connection.Connection;
-
-#endregion
 
 namespace Azure.Messages
 {

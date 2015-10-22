@@ -1,12 +1,8 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
-
-#endregion
 
 namespace Azure.HabboHotel.PathFinding
 {

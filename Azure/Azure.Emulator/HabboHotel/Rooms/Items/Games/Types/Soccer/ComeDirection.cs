@@ -1,11 +1,7 @@
-#region
-
 using System.Drawing;
 using Azure.HabboHotel.Rooms.Chat;
 using Azure.HabboHotel.Rooms.Chat.Enums;
 using Azure.HabboHotel.Rooms.Items.Games.Types.Soccer.Enums;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Games.Types.Soccer
 {

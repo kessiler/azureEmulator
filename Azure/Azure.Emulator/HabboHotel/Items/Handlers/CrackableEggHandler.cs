@@ -1,11 +1,7 @@
-#region
-
 using System;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Handlers
 {

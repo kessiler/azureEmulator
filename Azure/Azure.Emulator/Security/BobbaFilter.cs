@@ -1,11 +1,7 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.Security
 {

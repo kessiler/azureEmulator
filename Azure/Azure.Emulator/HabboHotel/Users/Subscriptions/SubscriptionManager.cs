@@ -1,9 +1,5 @@
-#region
-
 using System;
 using Azure.HabboHotel.Users.UserDataManagement;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Subscriptions
 {

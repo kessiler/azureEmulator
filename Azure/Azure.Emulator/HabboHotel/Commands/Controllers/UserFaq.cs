@@ -1,11 +1,7 @@
-﻿#region
-
-using System.Data;
+﻿using System.Data;
 using System.Text;
 using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.Controllers
 {

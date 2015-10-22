@@ -1,5 +1,3 @@
-#region
-
 using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.GameClients.Interfaces;
@@ -7,8 +5,6 @@ using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Inventory
 {

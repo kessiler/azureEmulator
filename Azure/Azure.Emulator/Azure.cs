@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,8 +28,6 @@ using Azure.Messages.Parsers;
 using Azure.Util;
 using MySql.Data.MySqlClient;
 using Timer = System.Timers.Timer;
-
-#endregion
 
 namespace Azure
 {
@@ -267,8 +263,6 @@ namespace Azure
             MutedUsersByFilter = new Dictionary<uint, uint>();
             ChatEmotions.Initialize();
 
-            #region Database Connection
-
             CultureInfo = CultureInfo.CreateSpecificCulture("en-GB");
             try
             {
@@ -301,10 +295,6 @@ namespace Azure
                     OfflineMessage.InitOfflineMessages(queryReactor);
                 }
 
-                #endregion Database Connection
-
-                #region Packets Registering
-
                 ConsoleTimer = (int.Parse(ConfigurationData.Data["console.clear.time"]));
                 ConsoleTimerOn = (bool.Parse(ConfigurationData.Data["console.clear.enabled"]));
                 FriendRequestLimit = ((uint)int.Parse(ConfigurationData.Data["client.maxrequests"]));
@@ -318,10 +308,6 @@ namespace Azure
                 LibraryParser.RegisterOutgoing();
                 LibraryParser.RegisterIncoming();
                 LibraryParser.RegisterConfig();
-
-                #endregion Packets Registering
-
-                #region Start Plugins
 
                 _plugins = new Dictionary<string, IPlugin>();
 
@@ -337,10 +323,6 @@ namespace Azure
                     }
                 }
 
-                #endregion Start Plugins
-
-                #region Game Initalizer
-
                 ExtraSettings.RunExtraSettings();
                 FurniDataParser.SetCache();
                 CrossDomainPolicy.Set();
@@ -349,17 +331,9 @@ namespace Azure
                 _game.ContinueLoading();
                 FurniDataParser.Clear();
 
-                #endregion Game Initalizer
-
-                #region Languages Parser
-
                 ServerLanguage = (Convert.ToString(ConfigurationData.Data["system.lang"]));
                 _languages = new Languages(ServerLanguage);
                 Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Lang");
-
-                #endregion Languages Parser
-
-                #region Show Plugin Messages
 
                 if (plugins != null)
                 {
@@ -373,10 +347,6 @@ namespace Azure
                         itemTwo.message_void();
                     }
                 }
-
-                #endregion Show Plugin Messages
-
-                #region Environment SetUp
 
                 if (ConsoleTimerOn)
                     Out.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
@@ -417,10 +387,6 @@ namespace Azure
 
                 LibraryParser.Initialize();
                 Console.WriteLine();
-
-                #endregion Environment SetUp
-
-                #region Tasks
 
                 if (ConsoleTimerOn)
                 {
@@ -463,8 +429,6 @@ namespace Azure
                 else
                     Environment.Exit(1);
             }
-
-            #endregion Tasks and MusSystem
         }
 
         /// <summary>

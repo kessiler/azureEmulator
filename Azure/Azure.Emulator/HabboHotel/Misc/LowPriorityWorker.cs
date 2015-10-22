@@ -1,10 +1,6 @@
-#region
-
 using System;
 using System.Diagnostics;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Misc
 {

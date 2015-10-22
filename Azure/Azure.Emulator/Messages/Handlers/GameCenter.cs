@@ -1,10 +1,6 @@
-﻿#region
-
-using System;
+﻿using System;
 using Azure.Configuration;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

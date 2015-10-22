@@ -1,13 +1,9 @@
-#region
-
 using System;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Models;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Controllers
 {

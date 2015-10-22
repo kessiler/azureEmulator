@@ -1,11 +1,7 @@
-#region
-
 using System.Collections.Generic;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Quests.Composer
 {

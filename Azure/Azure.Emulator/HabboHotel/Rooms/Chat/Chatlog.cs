@@ -1,10 +1,6 @@
-#region
-
 using System;
 using Azure.Messages;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Chat
 {

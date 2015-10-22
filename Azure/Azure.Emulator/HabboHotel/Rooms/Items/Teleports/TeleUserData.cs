@@ -1,9 +1,5 @@
-#region
-
 using Azure.HabboHotel.Users;
 using Azure.Messages.Handlers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Teleports
 {

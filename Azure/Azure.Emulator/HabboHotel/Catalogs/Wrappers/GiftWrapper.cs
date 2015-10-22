@@ -1,8 +1,4 @@
-#region
-
 using System.Collections.Generic;
-
-#endregion
 
 namespace Azure.HabboHotel.Catalogs.Wrappers
 {

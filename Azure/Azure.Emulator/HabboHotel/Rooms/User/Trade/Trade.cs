@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Linq;
 using Azure.Configuration;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.User.Trade
 {

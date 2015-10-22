@@ -1,10 +1,6 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using Azure.Database.Manager.Session_Details.Interfaces;
-
-#endregion
 
 namespace Azure.Configuration
 {

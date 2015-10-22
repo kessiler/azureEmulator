@@ -1,10 +1,6 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using System.Data;
-
-#endregion
 
 namespace Azure.Configuration
 {

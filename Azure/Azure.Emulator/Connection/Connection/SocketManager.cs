@@ -1,11 +1,7 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Connection.Connection
 {

@@ -1,5 +1,3 @@
-#region
-
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -7,8 +5,6 @@ using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Badges
 {

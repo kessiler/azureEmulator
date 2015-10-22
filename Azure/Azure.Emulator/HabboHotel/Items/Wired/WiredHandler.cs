@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,13 +5,14 @@ using System.Linq;
 using Azure.HabboHotel.Items.Interactions;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Handlers.Triggers;
+using Azure.HabboHotel.Rooms;
+using Azure.HabboHotel.Rooms.Wired;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Conditions;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Effects;
 using Azure.HabboHotel.Rooms.Wired.Handlers.Triggers;
 
-#endregion
-
-namespace Azure.HabboHotel.Rooms.Wired
+namespace Azure.HabboHotel.Items.Wired
 {
     public class WiredHandler
     {
@@ -122,11 +121,12 @@ namespace Azure.HabboHotel.Rooms.Wired
         {
             try
             {
-                if (!IsTrigger(type) || stuff == null) return false;
+                if (!IsTrigger(type) || stuff == null)
+                    return false;
+
                 if (type == Interaction.TriggerCollision)
                 {
-                    foreach (
-                        var wiredItem in _wiredItems.Where(wiredItem => wiredItem != null && wiredItem.Type == type))
+                    foreach (var wiredItem in _wiredItems.Where(wiredItem => wiredItem != null && wiredItem.Type == type))
                         wiredItem.Execute(stuff);
                 }
                 else if (_wiredItems.Any(current => current != null && current.Type == type && current.Execute(stuff)))

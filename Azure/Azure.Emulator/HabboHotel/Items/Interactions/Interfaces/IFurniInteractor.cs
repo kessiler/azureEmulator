@@ -1,10 +1,6 @@
-#region
-
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Interfaces
 {

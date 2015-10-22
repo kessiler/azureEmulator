@@ -1,5 +1,3 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,8 +6,6 @@ using Azure.HabboHotel.Achievements.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Achievements
 {
@@ -21,15 +17,7 @@ namespace Azure.HabboHotel.Achievements
         /// <summary>
         ///     The talents
         /// </summary>
-        internal Dictionary<int, Talent> Talents;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TalentManager" /> class.
-        /// </summary>
-        internal TalentManager()
-        {
-            Talents = new Dictionary<int, Talent>();
-        }
+        internal Dictionary<int, Talent> Talents = new Dictionary<int, Talent>();
 
         /// <summary>
         ///     Initializes the specified database client.
@@ -38,15 +26,19 @@ namespace Azure.HabboHotel.Achievements
         internal void Initialize(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT * FROM achievements_talents ORDER BY `order_num` ASC");
-            var table = dbClient.GetTable();
 
-            foreach (var talent in from DataRow dataRow in table.Rows
-                                   select new Talent((int)dataRow["id"], (string)dataRow["type"], (int)dataRow["parent_category"],
-(int)dataRow["level"], (string)dataRow["achievement_group"], (int)dataRow["achievement_level"],
-(string)dataRow["prize"], (uint)dataRow["prize_baseitem"]))
-            {
+            DataTable table = dbClient.GetTable();
+
+            foreach (Talent talent in from DataRow dataRow in table.Rows select new Talent(
+                (int)dataRow["id"], 
+                (string)dataRow["type"], 
+                (int)dataRow["parent_category"],
+                (int)dataRow["level"], 
+                (string)dataRow["achievement_group"], 
+                (int)dataRow["achievement_level"],
+                (string)dataRow["prize"], 
+                (uint)dataRow["prize_baseitem"]))
                 Talents.Add(talent.Id, talent);
-            }
         }
 
         /// <summary>
@@ -54,10 +46,7 @@ namespace Azure.HabboHotel.Achievements
         /// </summary>
         /// <param name="talentId">The talent identifier.</param>
         /// <returns>Talent.</returns>
-        internal Talent GetTalent(int talentId)
-        {
-            return Talents[talentId];
-        }
+        internal Talent GetTalent(int talentId) => Talents[talentId];
 
         /// <summary>
         ///     Levels the is completed.
@@ -66,16 +55,11 @@ namespace Azure.HabboHotel.Achievements
         /// <param name="trackType">Type of the track.</param>
         /// <param name="talentLevel">The talent level.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool LevelIsCompleted(GameClient session, string trackType, int talentLevel)
-        {
-            return
-                GetTalents(trackType, talentLevel)
-                    .All(
-                        current =>
-                            session.GetHabbo().GetAchievementData(current.AchievementGroup) == null ||
-                            session.GetHabbo().GetAchievementData(current.AchievementGroup).Level <
-                            current.AchievementLevel);
-        }
+        internal bool LevelIsCompleted(GameClient session, string trackType, int talentLevel) => 
+            GetTalents(trackType, talentLevel).All(
+                current =>
+                session.GetHabbo().GetAchievementData(current.AchievementGroup) == null || 
+                session.GetHabbo().GetAchievementData(current.AchievementGroup).Value.Level < current.AchievementLevel);
 
         /// <summary>
         ///     Completes the user talent.
@@ -91,21 +75,15 @@ namespace Azure.HabboHotel.Achievements
                 return;
 
             if (!string.IsNullOrEmpty(talent.Prize) && talent.PrizeBaseItem > 0u)
-            {
-                var item = Azure.GetGame().GetItemManager().GetItem(talent.PrizeBaseItem);
-                Azure.GetGame().GetCatalog().DeliverItems(session, item, 1, "", 0, 0, "");
-            }
+                Azure.GetGame().GetCatalog().DeliverItems(session, Azure.GetGame().GetItemManager().GetItem(talent.PrizeBaseItem), 1, string.Empty, 0, 0, string.Empty);
 
-            var value = new UserTalent(talent.Id, 1);
-            session.GetHabbo().Talents.Add(talent.Id, value);
+            session.GetHabbo().Talents.Add(talent.Id, new UserTalent(talent.Id, 1));
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_talents VALUES (", session.GetHabbo().Id,
-                    ", ", talent.Id, ", ", 1, ");"));
-            }
+                queryReactor.RunFastQuery($"REPLACE INTO users_talents VALUES ('{session.GetHabbo().Id}', '{talent.Id}', '1');");
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("TalentLevelUpMessageComposer"));
+
             serverMessage.AppendString(talent.Type);
             serverMessage.AppendInteger(talent.Level);
             serverMessage.AppendInteger(0);
@@ -128,22 +106,13 @@ namespace Azure.HabboHotel.Achievements
             session.SendMessage(serverMessage);
 
             if (talent.Type == "citizenship" && talent.Level == 3)
-            {
                 Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_Citizenship", 1);
-            }
             else if (talent.Type == "citizenship" && talent.Level == 4)
             {
                 session.GetHabbo().GetSubscriptionManager().AddSubscription(7);
 
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.RunFastQuery(string.Concat(new object[]
-                    {
-                        "UPDATE users SET talent_status = 'helper' WHERE id = ",
-                        session.GetHabbo().Id,
-                        ";"
-                    }));
-                }
+                    queryReactor.RunFastQuery($"UPDATE users SET talent_status = 'helper' WHERE id = '{session.GetHabbo().Id}'");
             }
         }
 
@@ -169,10 +138,7 @@ namespace Azure.HabboHotel.Achievements
         ///     Gets all talents.
         /// </summary>
         /// <returns>Dictionary&lt;System.Int32, Talent&gt;.</returns>
-        internal Dictionary<int, Talent> GetAllTalents()
-        {
-            return Talents;
-        }
+        internal Dictionary<int, Talent> GetAllTalents() => Talents;
 
         /// <summary>
         ///     Gets the talents.
@@ -180,11 +146,6 @@ namespace Azure.HabboHotel.Achievements
         /// <param name="trackType">Type of the track.</param>
         /// <param name="parentCategory">The parent category.</param>
         /// <returns>List&lt;Talent&gt;.</returns>
-        internal List<Talent> GetTalents(string trackType, int parentCategory)
-        {
-            return
-                Talents.Values.Where(current => current.Type == trackType && current.ParentCategory == parentCategory)
-                    .ToList();
-        }
+        internal List<Talent> GetTalents(string trackType, int parentCategory) => Talents.Values.Where(current => current.Type == trackType && current.ParentCategory == parentCategory).ToList();
     }
 }

@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,7 +8,6 @@ using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.RoomBots;
-using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Users.Authenticator;
 using Azure.HabboHotel.Users.Badges;
@@ -18,8 +15,6 @@ using Azure.HabboHotel.Users.Inventory;
 using Azure.HabboHotel.Users.Messenger;
 using Azure.HabboHotel.Users.Relationships;
 using Azure.HabboHotel.Users.Subscriptions;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.UserDataManagement
 {

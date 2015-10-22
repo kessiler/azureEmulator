@@ -1,10 +1,6 @@
-#region
-
 using System;
 using Azure.Connection.Connection;
 using Azure.Connection.Net;
-
-#endregion
 
 namespace Azure.Configuration
 {

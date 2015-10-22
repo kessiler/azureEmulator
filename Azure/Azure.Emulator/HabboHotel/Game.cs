@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Configuration;
@@ -29,8 +27,6 @@ using Azure.Manager;
 using Azure.Messages.Enums;
 using Azure.Security;
 using Azure.Security.BlackWords;
-
-#endregion
 
 namespace Azure.HabboHotel
 {

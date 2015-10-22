@@ -1,8 +1,4 @@
-#region
-
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Navigators.Interfaces
 {

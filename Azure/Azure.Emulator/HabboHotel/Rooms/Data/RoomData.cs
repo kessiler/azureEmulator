@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,8 +8,6 @@ using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Rooms.Chat;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Data
 {

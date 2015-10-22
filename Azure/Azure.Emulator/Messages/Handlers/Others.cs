@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -11,8 +9,6 @@ using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

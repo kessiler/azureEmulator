@@ -1,14 +1,10 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Users;
-
-#endregion
 
 namespace Azure.Manager
 {

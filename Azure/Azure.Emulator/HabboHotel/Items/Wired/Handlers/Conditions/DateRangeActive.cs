@@ -1,10 +1,6 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 {

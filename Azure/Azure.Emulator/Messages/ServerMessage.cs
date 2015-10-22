@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-#endregion
 
 namespace Azure.Messages
 {
@@ -87,8 +83,6 @@ namespace Azure.Messages
             AppendShort(header);
         }
 
-        #region Managed Arrays Anti-Bugs. Xdr 2015, Why nobody programmed this before?
-
         /// <summary>
         /// Sets the pointer to a Temporary Buffer
         /// </summary>
@@ -145,8 +139,6 @@ namespace Azure.Messages
             _messageArrayJunk.Clear();
             _messageArray = _messageArrayJunk = null;
         }
-
-        #endregion Managed Arrays Anti-Bugs. Xdr 2015, Why nobody programmed this before?
 
         /// <summary>
         /// Appends the server message.

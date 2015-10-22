@@ -1,12 +1,8 @@
-#region
-
 using System;
 using Azure.HabboHotel.Navigators.Enums;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Data;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Navigators.Interfaces
 {

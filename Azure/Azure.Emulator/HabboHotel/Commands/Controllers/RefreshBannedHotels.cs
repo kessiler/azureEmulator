@@ -1,11 +1,7 @@
-﻿#region
-
-using Azure.HabboHotel.Commands.Interfaces;
+﻿using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Security;
 using Azure.Security.BlackWords;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.Controllers
 {

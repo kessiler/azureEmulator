@@ -1,12 +1,8 @@
-#region
-
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Events.Interfaces;
 using Azure.HabboHotel.Rooms.Data;
-
-#endregion
 
 namespace Azure.HabboHotel.Events
 {

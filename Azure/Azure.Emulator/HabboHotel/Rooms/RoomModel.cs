@@ -1,10 +1,8 @@
-#region
-
 using System;
+using System.Globalization;
+using System.Linq;
 using Azure.HabboHotel.Rooms.Chat;
 using Azure.HabboHotel.Rooms.Chat.Enums;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms
 {
@@ -101,8 +99,7 @@ namespace Azure.HabboHotel.Rooms
         /// <param name="staticFurniMap">The static furni map.</param>
         /// <param name="clubOnly">if set to <c>true</c> [club only].</param>
         /// <param name="poolmap">The poolmap.</param>
-        internal RoomModel(int doorX, int doorY, double doorZ, int doorOrientation, string heightmap,
-            string staticFurniMap, bool clubOnly, string poolmap)
+        internal RoomModel(int doorX, int doorY, double doorZ, int doorOrientation, string heightmap, string staticFurniMap, bool clubOnly, string poolmap)
         {
             try
             {
@@ -112,50 +109,65 @@ namespace Azure.HabboHotel.Rooms
                 DoorOrientation = doorOrientation;
                 Heightmap = heightmap.ToLower();
                 StaticFurniMap = staticFurniMap;
+
                 GotPublicPool = !string.IsNullOrEmpty(poolmap);
 
-                heightmap = heightmap.Replace($"{Convert.ToChar(10)}", "");
+                heightmap = heightmap.Replace($"{Convert.ToChar(10)}", string.Empty);
+
                 var array = heightmap.Split(Convert.ToChar(13));
+
                 MapSizeX = array[0].Length;
                 MapSizeY = array.Length;
                 ClubOnly = clubOnly;
 
                 SqState = new SquareState[MapSizeX][];
-                for (var i = 0; i < MapSizeX; i++) SqState[i] = new SquareState[MapSizeY];
+
+                for (var i = 0; i < MapSizeX; i++)
+                    SqState[i] = new SquareState[MapSizeY];
+
                 SqFloorHeight = new short[MapSizeX][];
-                for (var i = 0; i < MapSizeX; i++) SqFloorHeight[i] = new short[MapSizeY];
+
+                for (var i = 0; i < MapSizeX; i++)
+                    SqFloorHeight[i] = new short[MapSizeY];
+
                 SqSeatRot = new byte[MapSizeX][];
-                for (var i = 0; i < MapSizeX; i++) SqSeatRot[i] = new byte[MapSizeY];
+
+                for (var i = 0; i < MapSizeX; i++)
+                    SqSeatRot[i] = new byte[MapSizeY];
+
                 SqChar = new char[MapSizeX][];
-                for (var i = 0; i < MapSizeX; i++) SqChar[i] = new char[MapSizeY];
+
+                for (var i = 0; i < MapSizeX; i++)
+                    SqChar[i] = new char[MapSizeY];
+
                 if (GotPublicPool)
                 {
                     MRoomModelfx = new byte[MapSizeX][];
-                    for (var i = 0; i < MapSizeX; i++) MRoomModelfx[i] = new byte[MapSizeY];
+
+                    for (var i = 0; i < MapSizeX; i++)
+                        MRoomModelfx[i] = new byte[MapSizeY];
                 }
 
                 for (var y = 0; y < MapSizeY; y++)
                 {
-                    var text2 =
-                        array[y].Replace($"{Convert.ToChar(13)}", "")
-                            .Replace($"{Convert.ToChar(10)}", "");
+                    var text2 = array[y].Replace($"{Convert.ToChar(13)}", string.Empty).Replace($"{Convert.ToChar(10)}", string.Empty);
 
                     for (var x = 0; x < MapSizeX; x++)
                     {
-                        var c = 'x';
-                        try
-                        {
-                            c = text2[x];
-                        }
-                        catch (Exception)
-                        {
-                        }
+                        char c = 'x';
+
+                        if(x < text2.Length)
+                            c = (char)text2[x];
+
                         if (x == doorX && y == doorY)
                         {
                             SqFloorHeight[x][y] = (short) DoorZ;
                             SqState[x][y] = SquareState.Open;
-                            if (SqFloorHeight[x][y] > 9) SqChar[x][y] = Letters[(SqFloorHeight[x][y] - 10)];
-                            else SqChar[x][y] = char.Parse(DoorZ.ToString());
+
+                            if (SqFloorHeight[x][y] > 9)
+                                SqChar[x][y] = Letters[(SqFloorHeight[x][y] - 10)];
+                            else
+                                SqChar[x][y] = char.Parse(DoorZ.ToString(CultureInfo.InvariantCulture));
                         }
                         else
                         {

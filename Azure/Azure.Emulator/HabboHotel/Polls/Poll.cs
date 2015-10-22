@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Polls
 {

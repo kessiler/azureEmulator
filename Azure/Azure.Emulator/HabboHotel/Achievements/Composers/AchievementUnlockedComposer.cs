@@ -1,10 +1,6 @@
-#region
-
 using Azure.HabboHotel.Achievements.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Achievements.Composers
 {

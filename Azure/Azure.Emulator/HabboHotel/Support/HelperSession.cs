@@ -1,9 +1,5 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Support
 {

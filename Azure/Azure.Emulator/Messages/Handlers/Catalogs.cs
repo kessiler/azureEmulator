@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.Catalogs.Composers;
@@ -8,8 +6,6 @@ using Azure.HabboHotel.Catalogs.Wrappers;
 using Azure.HabboHotel.Groups.Interfaces;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

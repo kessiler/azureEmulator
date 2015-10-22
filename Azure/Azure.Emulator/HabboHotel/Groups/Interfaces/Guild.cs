@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Groups.Interfaces
 {

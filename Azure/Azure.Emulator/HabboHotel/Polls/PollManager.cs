@@ -1,11 +1,7 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Polls
 {

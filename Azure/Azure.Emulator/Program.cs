@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using Azure.Configuration;
-
-#endregion
 
 namespace Azure
 {

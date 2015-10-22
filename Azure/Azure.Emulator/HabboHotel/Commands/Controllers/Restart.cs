@@ -1,10 +1,6 @@
-﻿#region
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.Controllers
 {

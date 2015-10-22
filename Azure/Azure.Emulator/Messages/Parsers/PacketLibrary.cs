@@ -1,8 +1,4 @@
-#region
-
 using Azure.Messages.Handlers;
-
-#endregion
 
 namespace Azure.Messages.Parsers
 {

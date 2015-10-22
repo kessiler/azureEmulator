@@ -1,5 +1,3 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using System.Net;
@@ -7,8 +5,6 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Users
 {

@@ -1,12 +1,8 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Achievements.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Achievements.Factorys
 {

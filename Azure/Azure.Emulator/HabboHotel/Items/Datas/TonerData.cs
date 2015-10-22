@@ -1,9 +1,5 @@
-#region
-
 using System.Data;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Datas
 {

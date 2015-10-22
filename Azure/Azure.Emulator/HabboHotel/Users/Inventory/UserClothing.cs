@@ -1,11 +1,7 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Inventory
 {

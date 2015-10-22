@@ -1,8 +1,4 @@
-#region
-
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.SoundMachine
 {

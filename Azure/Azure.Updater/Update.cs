@@ -140,15 +140,15 @@ namespace Azure.Updater
                 // Specifying Console.Out here causes diagnostic msgs to be sent to the Console
                 // In a WinForms or WPF or Web app, you could specify nothing, or an alternate
                 // TextWriter to capture diagnostic messages.
-                using (ZipFile zip = ZipFile.Read(file))
-                {
+               // using (ZipFile zip = ZipFile.Read(file))
+               // {
                     // This call to ExtractAll() assumes:
                     //   - none of the entries are password-protected.
                     //   - want to extract all entries to current working directory
                     //   - none of the files in the zip already exist in the directory;
                     //     if they do, the method will throw.
-                    zip.ExtractAll(unZipTo);
-                }
+                    //zip.ExtractAll(unZipTo);
+                //}
                 //if (deleteZipOnCompletion) File.Delete(unZipTo + file);
             }
             catch (Exception)

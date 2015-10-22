@@ -1,14 +1,10 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
-
-#endregion
 
 namespace Azure.HabboHotel.RoomBots
 {

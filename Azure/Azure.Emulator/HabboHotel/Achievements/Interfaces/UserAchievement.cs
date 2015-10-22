@@ -3,7 +3,7 @@ namespace Azure.HabboHotel.Achievements.Interfaces
     /// <summary>
     ///     Class UserAchievement.
     /// </summary>
-    internal class UserAchievement
+    internal struct UserAchievement
     {
         /// <summary>
         ///     The achievement group
@@ -30,6 +30,16 @@ namespace Azure.HabboHotel.Achievements.Interfaces
         {
             AchievementGroup = achievementGroup;
             Level = level;
+            Progress = progress;
+        }
+
+        public void SetLevel(int level)
+        {
+            Level = level;
+        }
+
+        public void SetProgress(int progress)
+        {
             Progress = progress;
         }
     }

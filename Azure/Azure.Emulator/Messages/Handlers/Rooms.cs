@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -28,8 +26,6 @@ using Azure.HabboHotel.Rooms.User;
 using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

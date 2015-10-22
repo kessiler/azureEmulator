@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Linq;
 using System.Timers;
 using Azure.Configuration;
-
-#endregion
 
 namespace Azure.HabboHotel.Misc
 {

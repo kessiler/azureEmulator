@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Azure.Messages.Handlers;
-
-#endregion
 
 namespace Azure.Messages.Parsers
 {
@@ -101,6 +97,7 @@ namespace Azure.Messages.Parsers
         internal static void RegisterIncoming()
         {
             CountReleases = 0;
+
             var filePaths = Directory.GetFiles($"{Environment.CurrentDirectory}\\Packets", "*.incoming");
 
             foreach (var fileContents in filePaths.Select(currentFile => File.ReadAllLines(currentFile, Encoding.UTF8)))
@@ -120,7 +117,9 @@ namespace Azure.Messages.Parsers
                         continue;
 
                     var libValue = Library[packetName];
+
                     var del = (PacketLibrary.GetProperty)Delegate.CreateDelegate(typeof(PacketLibrary.GetProperty), typeof(PacketLibrary), libValue);
+
                     if (Incoming.ContainsKey(packetId))
                     {
                         if (packetId == -1)

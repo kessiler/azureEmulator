@@ -1,9 +1,5 @@
-#region
-
 using System;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Chat
 {

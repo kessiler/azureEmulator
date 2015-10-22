@@ -1,10 +1,6 @@
-#region
-
 using System;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Rooms;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Handlers
 {

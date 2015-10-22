@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -10,6 +8,7 @@ using Azure.HabboHotel.Items;
 using Azure.HabboHotel.Items.Datas;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
@@ -18,8 +17,6 @@ using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.Wired;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

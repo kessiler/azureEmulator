@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -19,8 +17,6 @@ using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Catalogs
 {
@@ -383,8 +379,6 @@ namespace Azure.HabboHotel.Catalogs
             if (item == null)
                 return;
 
-            #region VIP_PURCHASE
-
             if (catalogPage.Layout == "vip_buy" || catalogPage.Layout == "club_buy" || HabboClubItems.Contains(item))
             {
                 if (session.GetHabbo().Credits < item.CreditsCost)
@@ -427,12 +421,8 @@ namespace Azure.HabboHotel.Catalogs
                 return;
             }
 
-            #endregion
-
             if (item.Name == "room_ad_plus_badge")
                 return;
-
-            #region CHECK_IS_VIP
 
             if (item.ClubOnly && !session.GetHabbo().GetSubscriptionManager().HasSubscription)
             {
@@ -443,8 +433,6 @@ namespace Azure.HabboHotel.Catalogs
                 return;
             }
 
-            #endregion
-
             var flag =
                 item.Items.Keys.Any(
                     current => InteractionTypes.AreFamiliar(GlobalInteractions.Pet, current.InteractionType));
@@ -452,8 +440,6 @@ namespace Azure.HabboHotel.Catalogs
             if (!flag &&
                 (item.CreditsCost * totalPrice < 0 || item.DucketsCost * totalPrice < 0 || item.DiamondsCost * totalPrice < 0))
                 return;
-
-            #region CHECK_IF_IS_GIFT_OR_LIMITED_ITEM
 
             if (item.IsLimited)
             {
@@ -482,8 +468,6 @@ namespace Azure.HabboHotel.Catalogs
                 totalPrice = 1;
                 priceAmount = 1;
             }
-
-            #endregion
 
             var toUserId = 0u;
 
@@ -576,8 +560,6 @@ namespace Azure.HabboHotel.Catalogs
                     return;
                 }
 
-                #region BUILDERS_CLUB
-
                 if (item.Name.StartsWith("builders_club_addon_"))
                 {
                     var furniAmount =
@@ -634,8 +616,6 @@ namespace Azure.HabboHotel.Catalogs
                         "${notification.builders_club.membership_extended.title}", "builders_club_membership_extended");
                     return;
                 }
-
-                #endregion
 
                 var text = string.Empty;
 

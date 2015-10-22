@@ -1,8 +1,4 @@
-#region
-
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Connection.Net
 {

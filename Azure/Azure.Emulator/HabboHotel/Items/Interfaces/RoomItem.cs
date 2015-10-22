@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,8 +23,6 @@ using Azure.HabboHotel.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interfaces
 {

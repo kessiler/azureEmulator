@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Net;
 using System.Net.Sockets;
 using Azure.Configuration;
 using Azure.Encryption.Hurlant.Crypto.Prng;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Connection.Connection
 {

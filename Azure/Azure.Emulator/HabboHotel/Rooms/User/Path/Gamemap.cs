@@ -436,8 +436,6 @@ namespace Azure.HabboHotel.Rooms.User.Path
                     Array.Clear(roomItema, 0, roomItema.Length);
                 }
 
-                #region Dynamic game map handling
-
                 if (yMap > Model.MapSizeY - 1 || xMap > Model.MapSizeX - 1)
                 {
                     if (xMap < Model.MapSizeX)
@@ -498,10 +496,6 @@ namespace Azure.HabboHotel.Rooms.User.Path
                     }
                 }
 
-                    #endregion Dynamic game map handling
-
-                    #region Static game map handling
-
                 else
                 {
                     EffectMap = new byte[Model.MapSizeX, Model.MapSizeY];
@@ -550,8 +544,6 @@ namespace Azure.HabboHotel.Rooms.User.Path
                         }
                     }
                 }
-
-                #endregion Static game map handling
 
                 var roomItem = _room.GetRoomItemHandler().FloorItems.Values.ToArray();
 

@@ -1,8 +1,4 @@
-﻿#region
-
-#endregion
-
-namespace Azure.HabboHotel.Navigators.Interfaces
+﻿namespace Azure.HabboHotel.Navigators.Interfaces
 {
     /// <summary>
     ///     Struct NavigatorHeader

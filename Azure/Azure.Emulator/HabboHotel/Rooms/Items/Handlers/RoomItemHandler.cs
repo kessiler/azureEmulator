@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -24,8 +22,6 @@ using Azure.HabboHotel.Rooms.User.Path;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Handlers
 {

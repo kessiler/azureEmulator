@@ -1,13 +1,9 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.HabboHotel.Users;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Data
 {

@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,8 +15,6 @@ using Azure.Messages;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Inventory
 {

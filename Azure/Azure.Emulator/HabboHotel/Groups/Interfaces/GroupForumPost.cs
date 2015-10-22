@@ -1,8 +1,4 @@
-﻿#region
-
-using System.Data;
-
-#endregion
+﻿using System.Data;
 
 namespace Azure.HabboHotel.Groups.Interfaces
 {

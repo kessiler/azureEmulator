@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using System.Data;
-
-#endregion
 
 namespace Azure.HabboHotel.Users
 {

@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Linq;
 using Azure.Configuration;
@@ -13,8 +11,6 @@ using Azure.Messages.Enums;
 using Azure.Messages.Handlers;
 using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
-
-#endregion
 
 namespace Azure.HabboHotel.GameClients.Interfaces
 {

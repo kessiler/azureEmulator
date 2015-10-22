@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,8 +6,6 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Quests
 {

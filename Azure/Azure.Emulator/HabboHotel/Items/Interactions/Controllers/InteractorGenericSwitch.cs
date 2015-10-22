@@ -1,13 +1,9 @@
-#region
-
 using System.Linq;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interactions.Models;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Quests;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Controllers
 {

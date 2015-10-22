@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Drawing;
 using System.Linq;
@@ -12,8 +10,6 @@ using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.RoomBots
 {

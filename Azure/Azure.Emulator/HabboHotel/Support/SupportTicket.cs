@@ -1,10 +1,6 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Support
 {

@@ -1,10 +1,6 @@
-#region
-
 using System;
 using System.Text;
 using Azure.Messages.Factorys;
-
-#endregion
 
 namespace Azure.Messages
 {

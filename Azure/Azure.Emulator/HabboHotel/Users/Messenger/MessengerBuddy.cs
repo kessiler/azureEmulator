@@ -1,12 +1,8 @@
-#region
-
 using System;
 using System.Linq;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Messenger
 {

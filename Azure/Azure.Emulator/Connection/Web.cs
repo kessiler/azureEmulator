@@ -1,9 +1,5 @@
-﻿#region
-
-using System.IO;
+﻿using System.IO;
 using System.Net;
-
-#endregion
 
 namespace Azure.Connection
 {

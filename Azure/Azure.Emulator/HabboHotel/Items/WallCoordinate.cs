@@ -1,8 +1,4 @@
-﻿#region
-
-using Azure.Util;
-
-#endregion
+﻿using Azure.Util;
 
 namespace Azure.HabboHotel.Items
 {

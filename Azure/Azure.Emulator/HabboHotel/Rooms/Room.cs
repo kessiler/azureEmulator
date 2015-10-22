@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +10,7 @@ using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Datas;
 using Azure.HabboHotel.Items.Interactions.Enums;
+using Azure.HabboHotel.Items.Wired;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms.Chat;
 using Azure.HabboHotel.Rooms.Data;
@@ -30,8 +29,6 @@ using Azure.HabboHotel.Rooms.Wired;
 using Azure.HabboHotel.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms
 {
@@ -101,6 +98,11 @@ namespace Azure.HabboHotel.Rooms
         private Queue _roomKick;
 
         /// <summary>
+        /// The _room thread
+        /// </summary>
+        private Thread _roomThread;
+
+        /// <summary>
         ///     The _room user manager
         /// </summary>
         private RoomUserManager _roomUserManager;
@@ -139,8 +141,6 @@ namespace Azure.HabboHotel.Rooms
         ///     The everyone got rights
         /// </summary>
         internal bool EveryoneGotRights, RoomMuted;
-
-        internal bool IsCycling;
 
         /// <summary>
         ///     The just loaded
@@ -373,6 +373,14 @@ namespace Azure.HabboHotel.Rooms
         internal bool GotFreeze()
         {
             return _freeze != null;
+        }
+
+        /// <summary>
+        /// Starts the room processing.
+        /// </summary>
+        internal void StartRoomProcessing()
+        {
+            _processTimer = new Timer(ProcessRoom, null, 500, 500);
         }
 
         /// <summary>
@@ -744,7 +752,6 @@ namespace Azure.HabboHotel.Rooms
         /// </summary>
         internal void ProcessRoom(object callItem)
         {
-            IsCycling = true;
             try
             {
                 if (_isCrashed || Disposed || Azure.ShutdownStarted)
@@ -800,10 +807,6 @@ namespace Azure.HabboHotel.Rooms
             {
                 Logging.LogCriticalException($"Sub crash in room cycle: {e}");
             }
-            finally
-            {
-                IsCycling = false;
-            }
         }
 
         /// <summary>
@@ -820,7 +823,8 @@ namespace Azure.HabboHotel.Rooms
                         continue;
 
                     var usersClient = user.GetClient();
-                    if (usersClient == null || usersClient.GetConnection() == null)
+
+                    if (usersClient?.GetConnection() == null)
                         continue;
 
                     usersClient.GetConnection().SendData(message);
@@ -1302,10 +1306,7 @@ namespace Azure.HabboHotel.Rooms
             _mCycleEnded = false;
             EveryoneGotRights = rightOverride;
             LoadedGroups = new Dictionary<uint, string>();
-
-            lock (_roomKick.SyncRoot)
-                _roomKick = new Queue();
-
+            _roomKick = new Queue();
             _idleTime = 0;
             RoomMuted = false;
             _gameMap = new Gamemap(this);
@@ -1320,9 +1321,11 @@ namespace Azure.HabboHotel.Rooms
 
             if (!forceLoad)
             {
-                if (_processTimer != null || !IsCycling)
-                    _processTimer = new Timer(ProcessRoom, null, 500, 500);
+                _roomThread = new Thread(StartRoomProcessing);
+                _roomThread.Name = "Room Loader";
+                _roomThread.Start();
             }
+
             Azure.GetGame().GetRoomManager().QueueActiveRoomAdd(RoomData);
         }
 

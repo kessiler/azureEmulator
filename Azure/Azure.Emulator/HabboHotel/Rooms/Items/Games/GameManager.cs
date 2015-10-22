@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,8 +10,6 @@ using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Rooms.Items.Games.Teams;
 using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Games
 {

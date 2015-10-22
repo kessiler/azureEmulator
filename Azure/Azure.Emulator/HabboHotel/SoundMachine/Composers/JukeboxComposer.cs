@@ -1,13 +1,9 @@
-#region
-
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.SoundMachine.Composers
 {

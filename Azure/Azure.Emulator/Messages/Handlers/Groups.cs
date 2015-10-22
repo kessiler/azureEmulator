@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
@@ -11,8 +9,6 @@ using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Users;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

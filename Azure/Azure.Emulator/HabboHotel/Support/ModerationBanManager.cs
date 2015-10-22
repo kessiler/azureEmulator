@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Support
 {

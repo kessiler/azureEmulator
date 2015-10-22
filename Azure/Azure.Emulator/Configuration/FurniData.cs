@@ -1,11 +1,8 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Xml;
-
-#endregion
 
 namespace Azure.Configuration
 {
@@ -74,13 +71,24 @@ namespace Azure.Configuration
         /// </summary>
         public static void SetCache()
         {
-            var xmlParser = new XmlDocument();
+            var xmlParser = new XmlDocument();       
             var wC = new WebClient();
 
             try
             {
-                xmlParser.LoadXml(wC.DownloadString(ExtraSettings.FurniDataUrl));
+                string xmlFileContent;
+
+                if (File.Exists($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml"))
+                    xmlFileContent = File.ReadAllText($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml");
+                else
+                    File.WriteAllText($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml", xmlFileContent = wC.DownloadString(ExtraSettings.FurniDataUrl));
+
+                xmlParser.LoadXml(xmlFileContent);
+
+                xmlFileContent = null;
+
                 FloorItems = new Dictionary<string, FurniData>();
+
                 foreach (XmlNode node in xmlParser.DocumentElement.SelectNodes("/furnidata/roomitemtypes/furnitype"))
                 {
                     try
@@ -99,14 +107,16 @@ namespace Azure.Configuration
                             Console.WriteLine("Errror parsing furnidata by {0} with exception: {1}", k, e.StackTrace);
                     }
                 }
+
                 WallItems = new Dictionary<string, FurniData>();
+
                 foreach (XmlNode node in xmlParser.DocumentElement.SelectNodes("/furnidata/wallitemtypes/furnitype"))
                     WallItems.Add(node.Attributes["classname"].Value, new FurniData(int.Parse(node.Attributes["id"].Value), node.SelectSingleNode("name").InnerText));
             }
             catch (WebException e)
             {
                 Out.WriteLine(
-                    string.Format("Error downloading furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData",
+                    $"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData",
                     ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
@@ -114,7 +124,7 @@ namespace Azure.Configuration
             }
             catch (XmlException e)
             {
-                Out.WriteLine(string.Format("Error parsing furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData",
+                Out.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData",
                     ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
@@ -122,13 +132,13 @@ namespace Azure.Configuration
             }
             catch (NullReferenceException e)
             {
-                Out.WriteLine(string.Format("Error parsing value null of furnidata.xml: {0}", Environment.NewLine + e), "Azure.FurniData", ConsoleColor.Red);
+                Out.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData", ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
+
             wC.Dispose();
-            xmlParser = null;
         }
 
         /// <summary>

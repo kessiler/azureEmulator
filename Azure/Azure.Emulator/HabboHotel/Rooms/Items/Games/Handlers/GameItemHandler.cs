@@ -1,12 +1,8 @@
-#region
-
 using System.Collections.Concurrent;
 using System.Linq;
 using Azure.Collections;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Games.Handlers
 {

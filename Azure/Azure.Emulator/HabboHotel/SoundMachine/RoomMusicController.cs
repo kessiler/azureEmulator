@@ -1,13 +1,9 @@
-#region
-
 using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.SoundMachine.Composers;
-
-#endregion
 
 namespace Azure.HabboHotel.SoundMachine
 {

@@ -1,10 +1,6 @@
-#region
-
 using System.Collections;
 using System.Collections.Concurrent;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Wired
 {

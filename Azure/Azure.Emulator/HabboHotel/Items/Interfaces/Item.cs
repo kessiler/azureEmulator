@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interfaces
 {

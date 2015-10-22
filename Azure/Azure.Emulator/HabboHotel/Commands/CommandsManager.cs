@@ -1,14 +1,10 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.HabboHotel.Commands.Controllers;
 using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands
 {
@@ -17,8 +13,6 @@ namespace Azure.HabboHotel.Commands
     /// </summary>
     public static class CommandsManager
     {
-        #region Definitions
-
         /// <summary>
         ///     The commands dictionary
         /// </summary>
@@ -29,10 +23,6 @@ namespace Azure.HabboHotel.Commands
         /// </summary>
         internal static Dictionary<string, string> AliasDictionary;
 
-        #endregion Definitions
-
-        #region Initialization
-
         /// <summary>
         ///     Registers this instance.
         /// </summary>
@@ -40,8 +30,6 @@ namespace Azure.HabboHotel.Commands
         {
             CommandsDictionary = new SortedDictionary<string, Command>();
             AliasDictionary = new Dictionary<string, string>();
-
-            #region General
 
             CommandsDictionary.Add("about", new About());
             CommandsDictionary.Add("friends", new Friends());
@@ -55,19 +43,11 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("follow", new FollowUser());
             CommandsDictionary.Add("faq", new UserFaq());
 
-            #endregion General
-
-            #region Currency
-
             CommandsDictionary.Add("credits", new GiveCredits());
             CommandsDictionary.Add("duckets", new GiveDuckets());
             CommandsDictionary.Add("diamonds", new GiveDiamonds());
             CommandsDictionary.Add("massdiamonds", new MassDiamonds());
             CommandsDictionary.Add("masscredits", new MassCredits());
-
-            #endregion Currency
-
-            #region Room Actions
 
             CommandsDictionary.Add("sit", new Sit());
             CommandsDictionary.Add("stand", new Stand());
@@ -84,10 +64,6 @@ namespace Azure.HabboHotel.Commands
 
             CommandsDictionary.Add("disablepull", new DisablePull());
             CommandsDictionary.Add("disablepush", new DisablePush());
-
-            #endregion Room Actions
-
-            #region Staff
 
             CommandsDictionary.Add("whisperroom", new WhisperRoom());
             CommandsDictionary.Add("whisperhotel", new WhisperHotel());
@@ -158,10 +134,6 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("flood", new FloodUser());
             CommandsDictionary.Add("invisible", new GoInvisible());
 
-            #endregion Staff
-
-            #region VIP
-
             CommandsDictionary.Add("copy", new CopyLook());
             CommandsDictionary.Add("faceless", new FaceLess());
             CommandsDictionary.Add("pull", new PullUser());
@@ -172,8 +144,6 @@ namespace Azure.HabboHotel.Commands
             CommandsDictionary.Add("enable", new Enable());
             CommandsDictionary.Add("kill", new Kill());
             CommandsDictionary.Add("disco", new Disco());
-
-            #endregion VIP
 
             //CommandsDictionary.Add("test", new Test());
             UpdateInfo();
@@ -226,10 +196,6 @@ namespace Azure.HabboHotel.Commands
                 }
             }
         }
-
-        #endregion Initialization
-
-        #region Methods
 
         /// <summary>
         ///     Tries the execute.
@@ -291,7 +257,5 @@ namespace Azure.HabboHotel.Commands
             }
             return userRank >= minRank;
         }
-
-        #endregion Methods
     }
 }

@@ -1,12 +1,8 @@
-#region
-
 using System;
 using System.Text;
 using Azure.HabboHotel.Rooms.Chat.Enums;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Data
 {

@@ -1,10 +1,6 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Data;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interfaces
 {

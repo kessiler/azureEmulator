@@ -1,10 +1,6 @@
-#region
-
 using System;
 using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Items.Games.Teams
 {

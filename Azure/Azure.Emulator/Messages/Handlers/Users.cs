@@ -1,10 +1,9 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Configuration;
+using Azure.HabboHotel.Achievements.Interfaces;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
@@ -13,8 +12,6 @@ using Azure.HabboHotel.Users;
 using Azure.HabboHotel.Users.Badges;
 using Azure.HabboHotel.Users.Relationships;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {
@@ -1107,23 +1104,31 @@ namespace Azure.Messages.Handlers
             Response.Init(LibraryParser.OutgoingRequest("TalentsTrackMessageComposer"));
             Response.AppendString(trackType);
             Response.AppendInteger(talents.Count);
+
             foreach (var current in talents)
             {
                 Response.AppendInteger(current.Level);
+
                 var nm = (failLevel == -1) ? 1 : 0;
+
                 Response.AppendInteger(nm);
+
                 var talents2 = Azure.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
                 Response.AppendInteger(talents2.Count);
 
                 foreach (var current2 in talents2)
                 {
-                    var num = (failLevel != -1 && failLevel < current2.Level) ? 0 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null) ? 1 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Level >= current2.AchievementLevel) ? 2 : 1;
+                    var num = (failLevel != -1 && failLevel < current2.Level) ? 0 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null) ? 1 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Value.Level >= current2.AchievementLevel) ? 2 : 1;
                     Response.AppendInteger(current2.GetAchievement().Id);
                     Response.AppendInteger(0);
                     Response.AppendString($"{current2.AchievementGroup}{current2.AchievementLevel}");
                     Response.AppendInteger(num);
-                    Response.AppendInteger((Session.GetHabbo().GetAchievementData(current2.AchievementGroup) != null) ? Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Progress : 0);
+
+                    UserAchievement? achievementData = Session.GetHabbo().GetAchievementData(current2.AchievementGroup);
+
+                    Response.AppendInteger((achievementData != null) ? achievementData.Value.Progress : 0);
                     Response.AppendInteger(current2.GetAchievement().Levels[current2.AchievementLevel].Requirement);
+
                     if (num != 2 && failLevel == -1)
                         failLevel = current2.Level;
                 }

@@ -1,5 +1,3 @@
-#region
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +11,6 @@ using Azure.HabboHotel.Catalogs.Wrappers;
 using Azure.HabboHotel.Items.Interactions;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Items
 {

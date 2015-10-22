@@ -55,7 +55,7 @@ namespace Azure.HabboHotel.Commands.Controllers
                 if (client.GetHabbo().DisableEventAlert == false)
                     client.SendMessage(message);
 
-                Thread.Sleep(10);
+                //Thread.Sleep(10);
             }
             return true;
         }

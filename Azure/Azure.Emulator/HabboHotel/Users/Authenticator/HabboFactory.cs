@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Navigators.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Users.Authenticator
 {

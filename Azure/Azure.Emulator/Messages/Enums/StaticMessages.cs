@@ -1,9 +1,5 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Enums
 {

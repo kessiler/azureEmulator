@@ -1,8 +1,4 @@
-#region
-
 using System;
-
-#endregion
 
 namespace Azure.Messages
 {

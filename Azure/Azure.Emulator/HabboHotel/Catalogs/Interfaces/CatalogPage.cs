@@ -1,12 +1,8 @@
-#region
-
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Azure.HabboHotel.Catalogs.Composers;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Catalogs.Interfaces
 {

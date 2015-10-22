@@ -1,10 +1,6 @@
-#region
-
 using System.Collections.Generic;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.User.Trade
 {

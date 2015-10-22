@@ -1,5 +1,3 @@
-#region
-
 using System.Linq;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Enums;
@@ -7,8 +5,6 @@ using Azure.HabboHotel.Items.Interactions.Models;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Controllers
 {
@@ -22,7 +18,7 @@ namespace Azure.HabboHotel.Items.Interactions.Controllers
 
         public override void OnTrigger(GameClient session, RoomItem item, int request, bool hasRights)
         {
-            if (session == null || item == null || item.GetRoom() == null || !hasRights)
+            if (session == null || item?.GetRoom() == null || !hasRights)
                 return;
 
             var wired = item.GetRoom().GetWiredHandler().GetWired(item);

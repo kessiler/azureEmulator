@@ -1,11 +1,7 @@
-#region
-
 using System.Timers;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Models;
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Items.Interactions.Controllers
 {

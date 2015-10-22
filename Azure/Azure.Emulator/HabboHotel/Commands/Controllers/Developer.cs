@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -9,8 +7,6 @@ using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.HabboHotel.Commands.Controllers
 {
@@ -158,8 +154,6 @@ namespace Azure.HabboHotel.Commands.Controllers
 
             switch (type.ToLower())
             {
-                #region Item
-
                 case "item":
                     {
                         if (pms.Count == 2)
@@ -212,10 +206,6 @@ namespace Azure.HabboHotel.Commands.Controllers
                             session.GetHabbo().CurrentRoom.GetRoomItemHandler().SetFloorItem(item, x, y, z, item.Rot, true);
                         break;
                     }
-
-                #endregion Item
-
-                #region BaseItem
 
                 case "baseitem":
                     {
@@ -281,8 +271,6 @@ namespace Azure.HabboHotel.Commands.Controllers
                             item.StackMultipler ? item.ToggleHeight : new[] { item.Height }, item.Modes);
                         break;
                     }
-
-                    #endregion BaseItem
             }
             return true;
         }

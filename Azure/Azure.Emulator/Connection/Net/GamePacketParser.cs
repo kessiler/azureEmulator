@@ -1,5 +1,3 @@
-#region
-
 using System;
 using Azure.Configuration;
 using Azure.Connection.Connection;
@@ -8,8 +6,6 @@ using Azure.Messages;
 using Azure.Messages.Factorys;
 using Azure.Messages.Parsers;
 using Azure.Util;
-
-#endregion
 
 namespace Azure.Connection.Net
 {

@@ -1,8 +1,4 @@
-﻿#region
-
-using Azure.HabboHotel.GameClients.Interfaces;
-
-#endregion
+﻿using Azure.HabboHotel.GameClients.Interfaces;
 
 namespace Azure.HabboHotel.Commands.Interfaces
 {

@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Enums;
@@ -9,8 +7,6 @@ using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.SoundMachine;
 using Azure.HabboHotel.SoundMachine.Composers;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {

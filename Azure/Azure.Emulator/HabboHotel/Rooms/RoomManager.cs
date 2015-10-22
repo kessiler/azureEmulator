@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,8 +11,6 @@ using Azure.HabboHotel.Events;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Rooms.Data;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms
 {
@@ -218,6 +214,7 @@ namespace Azure.HabboHotel.Rooms
         ///     Loads the room.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="forceLoad"></param>
         /// <returns>Room.</returns>
         internal Room LoadRoom(uint id, bool forceLoad = false)
         {
@@ -229,7 +226,9 @@ namespace Azure.HabboHotel.Rooms
                 return null;
 
             var room = new Room();
+
             LoadedRooms.AddOrUpdate(id, room, (key, value) => room);
+
             room.Start(roomData, forceLoad);
 
             Out.WriteLine($"Room #{id} was loaded", "Azure.Room.Manager", ConsoleColor.DarkCyan);

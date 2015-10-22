@@ -1,10 +1,6 @@
-﻿#region
-
-using System;
+﻿using System;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.Messages.Handlers
 {
@@ -78,24 +74,6 @@ namespace Azure.Messages.Handlers
             Session.SendMessage(message);
         }
 
-        ///TODO: IMPORTANT
-        /// <summary>
-        /// Cancels the call guide.
-        /// </summary>
-        internal void CancelCallGuide()
-        {
-            //Response.Init(3485); ///BUG: IMPORTANT
-            //SendResponse();
-
-            // Request.GetBool();
-
-            //var requester = Session.GetHabbo().GuideOtherUser;
-            var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
-
-            message.AppendInteger(2);
-            Session.SendMessage(message);
-        }
-
         /// <summary>
         /// Opens the guide tool.
         /// </summary>
@@ -128,8 +106,11 @@ namespace Azure.Messages.Handlers
         internal void InviteToRoom()
         {
             var requester = Session.GetHabbo().GuideOtherUser;
+
             var room = Session.GetHabbo().CurrentRoom;
+
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionInvitedToGuideRoomMessageComposer"));
+
             if (room == null)
             {
                 message.AppendInteger(0);
@@ -176,16 +157,53 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CloseGuideRequest()
         {
-            Request.GetBool();
+            //Request.GetBool();
 
             var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
 
+            /* guide - close session  */
             message.AppendInteger(2);
             requester.SendMessage(message);
 
+            /* user - close session */
+            var message2 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            message.AppendInteger(0);
+            Session.SendMessage(message2);
+
+            /* user - detach session */
+            var message3 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            Session.SendMessage(message3);
+
+            /* guide - detach session */
+            var message4 = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            requester.SendMessage(message4);
+
+            Console.WriteLine("The Close was Called");
+
             requester.GetHabbo().GuideOtherUser = null;
             Session.GetHabbo().GuideOtherUser = null;
+        }
+
+        ///TODO: IMPORTANT
+        /// <summary>
+        /// Cancels the call guide.
+        /// </summary>
+        internal void CancelCallGuide()
+        {
+            //Response.Init(3485); ///BUG: IMPORTANT
+            //SendResponse();
+
+            // Request.GetBool();
+
+            //var requester = Session.GetHabbo().GuideOtherUser;
+
+            /* user - cancell session */
+            var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+            message.AppendInteger(2);
+            Session.SendMessage(message);
+
+            Console.WriteLine("The Cancell was Called");
         }
 
         /// <summary>
@@ -194,7 +212,9 @@ namespace Azure.Messages.Handlers
         internal void GuideFeedback()
         {
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));
+
             Session.SendMessage(message);
+
             Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1);
         }
 
@@ -203,11 +223,14 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AmbassadorAlert()
         {
-            if (Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"])) return;
+            if (Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+                return;
+
             uint userId = Request.GetUInteger();
+
             GameClient user = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
-            if (user == null) return;
-            user.SendNotif("${notification.ambassador.alert.warning.message}", "${notification.ambassador.alert.warning.title}");
+
+            user?.SendNotif("${notification.ambassador.alert.warning.message}", "${notification.ambassador.alert.warning.title}");
         }
     }
 }

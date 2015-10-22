@@ -1,14 +1,10 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {
@@ -121,17 +117,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             {
                 switch (_whenMoveIsBlocked)
                 {
-                    #region None
-
                     case WhenMovementBlock.None:
                         {
                             item.MoveToDirMovement = MovementDirection.None;
                             break;
                         }
-
-                    #endregion None
-
-                    #region Right45
 
                     case WhenMovementBlock.Right45:
                         {
@@ -316,10 +306,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                             break;
                         }
 
-                    #endregion Right45
-
-                    #region Right90
-
                     case WhenMovementBlock.Right90:
                         {
                             if (item.MoveToDirMovement == MovementDirection.Right)
@@ -426,10 +412,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
                             break;
                         }
-
-                    #endregion Right90
-
-                    #region Left45
 
                     case WhenMovementBlock.Left45:
                         {
@@ -589,10 +571,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                             break;
                         }
 
-                    #endregion Left45
-
-                    #region Left90
-
                     case WhenMovementBlock.Left90:
                         {
                             if (item.MoveToDirMovement == MovementDirection.Right)
@@ -687,10 +665,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                             break;
                         }
 
-                    #endregion Left90
-
-                    #region Turn Back
-
                     case WhenMovementBlock.TurnBack:
                         {
                             if (item.MoveToDirMovement == MovementDirection.Right)
@@ -712,17 +686,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                             break;
                         }
 
-                    #endregion Turn Back
-
-                    #region Random
-
                     case WhenMovementBlock.TurnRandom:
                         {
                             item.MoveToDirMovement = (MovementDirection)new Random().Next(1, 7);
                             break;
                         }
-
-                        #endregion Random
                 }
 
                 newPoint = Movement.HandleMovementDir(item.Coordinate, item.MoveToDirMovement, item.Rot);

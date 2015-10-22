@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -21,8 +19,6 @@ using Azure.HabboHotel.Users.Subscriptions;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-
-#endregion
 
 namespace Azure.HabboHotel.Users
 {
@@ -964,10 +960,10 @@ namespace Azure.HabboHotel.Users
                         queryReactor.RunFastQuery(
                             $"UPDATE moderation_tickets SET status='open', moderator_id=0 WHERE status='picked' AND moderator_id={Id}");
 
-                    queryReactor.RunFastQuery("UPDATE users SET block_newfriends = " +
-                                              Convert.ToInt32(HasFriendRequestsDisabled) + ", hide_online = " +
-                                              Convert.ToInt32(AppearOffline) + ", hide_inroom = " +
-                                              Convert.ToInt32(HideInRoom) + " WHERE id = " + Id);
+                    queryReactor.RunFastQuery("UPDATE users SET block_newfriends = '" +
+                                              Convert.ToInt32(HasFriendRequestsDisabled) + "', hide_online = '" +
+                                              Convert.ToInt32(AppearOffline) + "', hide_inroom = '" +
+                                              Convert.ToInt32(HideInRoom) + "' WHERE id = " + Id);
                 }
             }
 
@@ -1235,13 +1231,14 @@ namespace Azure.HabboHotel.Users
         /// </summary>
         /// <param name="p">The p.</param>
         /// <returns>UserAchievement.</returns>
-        internal UserAchievement GetAchievementData(string p)
+        internal UserAchievement? GetAchievementData(string p)
         {
             UserAchievement result;
 
-            Achievements.TryGetValue(p, out result);
+            if (Achievements.TryGetValue(p, out result))
+                return result;
 
-            return result;
+            return null;
         }
 
         /// <summary>

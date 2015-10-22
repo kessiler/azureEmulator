@@ -1,9 +1,5 @@
-#region
-
 using System;
 using System.Data;
-
-#endregion
 
 namespace Azure.HabboHotel.Pets
 {

@@ -1,5 +1,3 @@
-#region
-
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,8 +5,6 @@ using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms.User;
-
-#endregion
 
 namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 {

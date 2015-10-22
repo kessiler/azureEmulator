@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,8 +7,6 @@ using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Data;
 using Azure.Messages;
-
-#endregion
 
 namespace Azure.HabboHotel.Navigators
 {
