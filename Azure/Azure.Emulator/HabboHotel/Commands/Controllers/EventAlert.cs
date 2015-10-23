@@ -41,22 +41,24 @@ namespace Azure.HabboHotel.Commands.Controllers
             message.AppendString("linkTitle");
             message.AppendString("Ir para o Evento");
 
-            foreach (var client in Azure.GetGame().GetClientManager().Clients.Values)
+            /*foreach (var client in Azure.GetGame().GetClientManager().Clients.Values)
             {
                 if (client == null)
                     continue;
-
+ 
                 if (session.GetHabbo().Id == client.GetHabbo().Id)
                 {
                     client.SendWhisper("O Alerta de Evento foi Enviado com Sucesso", true);
                     continue;
                 }
-
+ 
                 if (client.GetHabbo().DisableEventAlert == false)
                     client.SendMessage(message);
-
+ 
                 //Thread.Sleep(10);
-            }
+            }*/
+
+            Azure.GetGame().GetClientManager().QueueBroadcaseMessage(message);
             return true;
         }
     }

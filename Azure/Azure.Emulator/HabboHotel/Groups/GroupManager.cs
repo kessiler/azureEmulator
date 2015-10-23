@@ -9,6 +9,7 @@ using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.HabboHotel.Users;
 
 namespace Azure.HabboHotel.Groups
 {
@@ -126,42 +127,30 @@ namespace Azure.HabboHotel.Groups
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(
-                    $"INSERT INTO groups_data (name, desc,badge,owner_id,created,room_id,colour1,colour2) VALUES(@name,@desc,@badge,'{session.GetHabbo().Id}',UNIX_TIMESTAMP(),'{roomId}','{colour1}','{colour2}')");
+                queryReactor.SetQuery(string.Format("INSERT INTO groups_data (`name`, `desc`,`badge`,`owner_id`,`created`,`room_id`,`colour1`,`colour2`) VALUES(@name,@desc,@badge,'{0}',UNIX_TIMESTAMP(),'{1}','{2}','{3}')", session.GetHabbo().Id, roomId, colour1, colour2));
                 queryReactor.AddParameter("name", name);
                 queryReactor.AddParameter("desc", desc);
                 queryReactor.AddParameter("badge", badge);
 
                 var id = (uint)queryReactor.InsertQuery();
-
-                queryReactor.RunFastQuery($"UPDATE rooms_data SET group_id='{id}' WHERE id='{roomId}' LIMIT 1");
-
-                var user = session.GetHabbo();
-                var memberGroup = new GroupMember(user.Id, user.UserName, user.Look, id, 2, Azure.GetUnixTimeStamp());
-                var dictionary = new Dictionary<uint, GroupMember> { { session.GetHabbo().Id, memberGroup } };
-                var emptyDictionary = new Dictionary<uint, GroupMember>();
-
-                group = new Guild(id, name, desc, roomId, badge, Azure.GetUnixTimeStamp(), user.Id, colour1, colour2,
-                    dictionary, emptyDictionary, emptyDictionary, 0, 1, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0,
-                    1, 1, 2);
-
+                queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET group_id='{0}' WHERE id='{1}' LIMIT 1", id, roomId));
+                Habbo user = session.GetHabbo();
+                GroupMember memberGroup = new GroupMember(user.Id, user.UserName, user.Look, id, 2, Azure.GetUnixTimeStamp());
+                Dictionary<uint, GroupMember> dictionary = new Dictionary<uint, GroupMember> { { session.GetHabbo().Id, memberGroup } };
+                Dictionary<uint, GroupMember> emptyDictionary = new Dictionary<uint, GroupMember>();
+                group = new Guild(id, name, desc, roomId, badge, Azure.GetUnixTimeStamp(), user.Id, colour1, colour2, dictionary, emptyDictionary, emptyDictionary, 0, 1, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0, 1, 1, 2);
                 Groups.Add(id, group);
-
-                queryReactor.RunFastQuery(
-                    $"INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{id}','{session.GetHabbo().Id}','2','{Azure.GetUnixTimeStamp()}')");
+                queryReactor.RunFastQuery(string.Format("INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{0}','{1}','2','{2}')", id, session.GetHabbo().Id, Azure.GetUnixTimeStamp()));
                 var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
-
                 if (room != null)
                 {
                     room.RoomData.Group = group;
                     room.RoomData.GroupId = id;
                 }
-
                 user.UserGroups.Add(memberGroup);
                 group.Admins.Add(user.Id, memberGroup);
-
-                queryReactor.RunFastQuery($"UPDATE users_stats SET favourite_group='{id}' WHERE id='{user.Id}' LIMIT 1");
-                queryReactor.RunFastQuery($"DELETE FROM rooms_rights WHERE room_id='{roomId}'");
+                queryReactor.RunFastQuery(string.Format("UPDATE users_stats SET favourite_group='{0}' WHERE id='{1}' LIMIT 1", id, user.Id));
+                queryReactor.RunFastQuery(string.Format("DELETE FROM rooms_rights WHERE room_id='{0}'", roomId));
             }
         }
 

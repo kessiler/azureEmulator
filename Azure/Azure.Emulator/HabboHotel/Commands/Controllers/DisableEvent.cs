@@ -13,7 +13,7 @@ namespace Azure.HabboHotel.Commands.Controllers
         /// </summary>
         public DisableEvent()
         {
-            MinRank = 1;
+            MinRank = 9;
             Description = "Desativa as mensagens de Eventos do Hotel";
             Usage = ":disableevent";
             MinParams = 0;

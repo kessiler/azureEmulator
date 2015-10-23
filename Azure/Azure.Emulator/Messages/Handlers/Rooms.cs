@@ -2500,37 +2500,46 @@ namespace Azure.Messages.Handlers
 
         public void GetCameraRequest()
         {
-            int count = Request.GetInteger();
-            byte[] bytes = Request.GetBytes(count);
-            var outData = Converter.Deflate(bytes);
-
-            var url = Web.HttpPostJson(ExtraSettings.StoriesApiServerUrl, outData);
-            var serializer = new JavaScriptSerializer();
-
-            dynamic jsonArray = serializer.Deserialize<object>(outData);
-            string encodedurl = ExtraSettings.StoriesApiHost + url;
-            encodedurl = encodedurl.Replace("\n", string.Empty);
-
-            int roomId = jsonArray["roomid"];
-            long timeStamp = jsonArray["timestamp"];
-
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            try
             {
-                queryReactor.SetQuery("INSERT INTO cms_stories_photos_preview (user_id,user_name,room_id,image_preview_url,image_url,type,date,tags) VALUES (@userid,@username,@roomid,@imagepreviewurl,@imageurl,@types,@dates,@tag)");
-                queryReactor.AddParameter("userid", Session.GetHabbo().Id);
-                queryReactor.AddParameter("username", Session.GetHabbo().UserName);
-                queryReactor.AddParameter("roomid", roomId);
-                queryReactor.AddParameter("imagepreviewurl", encodedurl);
-                queryReactor.AddParameter("imageurl", encodedurl);
-                queryReactor.AddParameter("types", "PHOTO");
-                queryReactor.AddParameter("dates", timeStamp);
-                queryReactor.AddParameter("tag", "");
-                queryReactor.RunQuery();
-            }
+                int count = Request.GetInteger();
+                byte[] bytes = Request.GetBytes(count);
+                var outData = Converter.Deflate(bytes);
 
-            var message = new ServerMessage(LibraryParser.OutgoingRequest("CameraStorageUrlMessageComposer"));
-            message.AppendString(url);
-            Session.SendMessage(message);
+                var url = Web.HttpPostJson(ExtraSettings.StoriesApiServerUrl, outData);
+                var serializer = new JavaScriptSerializer();
+
+                dynamic jsonArray = serializer.Deserialize<object>(outData);
+                string encodedurl = ExtraSettings.StoriesApiHost + url;
+                encodedurl = encodedurl.Replace("\n", string.Empty);
+
+                int roomId = jsonArray["roomid"];
+                long timeStamp = jsonArray["timestamp"];
+
+                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                {
+                    queryReactor.SetQuery("INSERT INTO cms_stories_photos_preview (user_id,user_name,room_id,image_preview_url,image_url,type,date,tags) VALUES (@userid,@username,@roomid,@imagepreviewurl,@imageurl,@types,@dates,@tag)");
+                    queryReactor.AddParameter("userid", Session.GetHabbo().Id);
+                    queryReactor.AddParameter("username", Session.GetHabbo().UserName);
+                    queryReactor.AddParameter("roomid", roomId);
+                    queryReactor.AddParameter("imagepreviewurl", encodedurl);
+                    queryReactor.AddParameter("imageurl", encodedurl);
+                    queryReactor.AddParameter("types", "PHOTO");
+                    queryReactor.AddParameter("dates", timeStamp);
+                    queryReactor.AddParameter("tag", "");
+                    queryReactor.RunQuery();
+                }
+
+                var message = new ServerMessage(LibraryParser.OutgoingRequest("CameraStorageUrlMessageComposer"));
+                message.AppendString(url);
+
+                Session.SendMessage(message);
+
+            }
+            catch (Exception a)
+            {
+                Session.SendNotif("Essa foto possui muitos itens, por favor tire foto de um lugar com menos itens");
+            }
         }
 
         public void SubmitRoomToCompetition()

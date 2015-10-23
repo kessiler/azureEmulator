@@ -136,7 +136,7 @@ namespace Azure.Connection.Net
                 {
                     Logging.HandleException(exception, $"packet handling ----> {messageId}");
 
-                    _con.Dispose();
+                    //_con.Dispose();
                 }
             }
         }
