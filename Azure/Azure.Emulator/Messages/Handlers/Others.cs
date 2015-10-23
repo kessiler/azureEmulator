@@ -532,7 +532,7 @@ namespace Azure.Messages.Handlers
             }
             catch
             {
-                // ignored
+                Session.SendNotif("Por favor tente novamente, a área da foto possui muitos itens.");
             }
         }
     }
