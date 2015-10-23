@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers
+namespace Azure.HabboHotel.Items.Wired.Handlers
 {
     internal enum MovementState
     {

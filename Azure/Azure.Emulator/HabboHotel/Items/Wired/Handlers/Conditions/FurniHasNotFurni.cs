@@ -2,8 +2,10 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class FurniHasNotFurni : IWiredItem
     {
@@ -56,51 +58,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             return OtherBool ? AllItemsHaveNotFurni() : AnyItemHaveNotFurni();
         }
 
-        public bool AllItemsHaveNotFurni()
-        {
-            foreach (
-                var current in
-                    Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
-            {
-                if (
-                    current.AffectedTiles.Values.Where(
-                        square => Room.GetGameMap().SquareHasFurni(square.X, square.Y))
-                        .Any(
-                            square =>
-                                Room.GetGameMap()
-                                    .GetRoomItemForSquare(square.X, square.Y)
-                                    .Any(
-                                        squareItem =>
-                                            squareItem.Id != current.Id &&
-                                            squareItem.Z + squareItem.Height >= current.Z + current.Height)))
+        public bool AllItemsHaveNotFurni() => Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)).All(current => !current.AffectedTiles.Values.Where(square => Room.GetGameMap().SquareHasFurni(square.X, square.Y)).Any(square => Room.GetGameMap().GetRoomItemForSquare(square.X, square.Y).Any(squareItem => squareItem.Id != current.Id && squareItem.Z + squareItem.Height >= current.Z + current.Height)));
 
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool AnyItemHaveNotFurni()
-        {
-            foreach (
-                var current in
-                    Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)))
-            {
-                if (
-                    current.AffectedTiles.Values.Where(
-                        square => Room.GetGameMap().SquareHasFurni(square.X, square.Y)).Any(
-                            square =>
-                                !Room.GetGameMap()
-                                    .GetRoomItemForSquare(square.X, square.Y)
-                                    .Any(
-                                        squareItem =>
-                                            squareItem.Id != current.Id &&
-                                            squareItem.Z + squareItem.Height >= current.Z + current.Height)))
-
-                    return true;
-            }
-
-            return false;
-        }
+        public bool AnyItemHaveNotFurni() => Items.Where(item => item != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(item.Id)).Any(current => current.AffectedTiles.Values.Where(square => Room.GetGameMap().SquareHasFurni(square.X, square.Y)).Any(square => !Room.GetGameMap().GetRoomItemForSquare(square.X, square.Y).Any(squareItem => squareItem.Id != current.Id && squareItem.Z + squareItem.Height >= current.Z + current.Height)));
     }
 }

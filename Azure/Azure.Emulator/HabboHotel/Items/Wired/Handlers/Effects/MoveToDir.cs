@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     internal class MoveToDir : IWiredItem
     {
@@ -43,16 +45,18 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public string OtherString
         {
-            get { return string.Format("{0};{1}", StartDirection, WhenMoveIsBlocked); }
+            get { return $"{StartDirection};{WhenMoveIsBlocked}"; }
             set
             {
                 var array = value.Split(';');
+
                 if (array.Length != 2)
                 {
                     _startDirection = MovementDirection.None;
                     _whenMoveIsBlocked = WhenMovementBlock.None;
                     return;
                 }
+
                 _startDirection = (MovementDirection)int.Parse(array[0]);
                 _whenMoveIsBlocked = (WhenMovementBlock)int.Parse(array[1]);
             }
@@ -80,7 +84,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (!Items.Any()) return true;
+            if (!Items.Any())
+                return true;
 
             foreach (var item in Items)
             {
@@ -89,11 +94,16 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                     _toRemove.Enqueue(item);
                     continue;
                 }
+
                 HandleMovement(item);
             }
 
             RoomItem rI;
-            while (_toRemove.TryDequeue(out rI)) if (Items.Contains(rI)) Items.Remove(rI);
+
+            while (_toRemove.TryDequeue(out rI))
+                if (Items.Contains(rI))
+                    Items.Remove(rI);
+
             return true;
         }
 
@@ -106,12 +116,13 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             }
 
             var newPoint = Movement.HandleMovementDir(item.Coordinate, item.MoveToDirMovement, item.Rot);
-            if (newPoint == item.Coordinate) return;
+
+            if (newPoint == item.Coordinate)
+                return;
 
             if (Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false))
             {
-                Room.GetRoomItemHandler()
-                    .SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, false, true);
+                Room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, false, true);
             }
             else
             {
@@ -694,8 +705,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 }
 
                 newPoint = Movement.HandleMovementDir(item.Coordinate, item.MoveToDirMovement, item.Rot);
-                Room.GetRoomItemHandler()
-                    .SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, false, true);
+                Room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, false, true);
             }
         }
     }

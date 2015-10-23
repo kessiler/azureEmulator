@@ -2,8 +2,10 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     internal class Chase : IWiredItem
     {
@@ -55,6 +57,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             var toRemove = new Queue<RoomItem>();
 
             if (Items.Any())
+            {
                 foreach (var item in Items)
                 {
                     if (item == null || Room.GetRoomItemHandler().GetItem(item.Id) == null)
@@ -65,10 +68,13 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
                     HandleMovement(item);
                 }
+            }
+
 
             while (toRemove.Count > 0)
             {
                 var itemToRemove = toRemove.Dequeue();
+
                 if (Items.Contains(itemToRemove))
                     Items.Remove(itemToRemove);
             }
@@ -79,6 +85,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         private void HandleMovement(RoomItem item)
         {
             var movement = Room.GetGameMap().GetChasingMovement(item.X, item.Y);
+
             if (movement == MovementState.None)
                 return;
 
@@ -86,16 +93,18 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             if (newPoint == item.Coordinate)
                 return;
+
             if (Room.GetGameMap().SquareHasUsers(newPoint.X, newPoint.Y))
             {
                 var user = Room.GetRoomUserManager().GetUserForSquare(newPoint.X, newPoint.Y);
+
                 if (user == null || user.IsBot || user.IsPet)
                     return;
+
                 Room.GetWiredHandler().ExecuteWired(Interaction.TriggerCollision, user);
             }
             else if (Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false))
-                Room.GetRoomItemHandler()
-                    .SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, true, true);
+                Room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, item.Rot, false, false, true, true, true);
         }
     }
 }

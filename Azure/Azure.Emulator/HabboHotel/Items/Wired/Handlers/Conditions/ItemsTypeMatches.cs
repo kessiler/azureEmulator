@@ -2,8 +2,10 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class ItemsTypeMatches : IWiredItem
     {
@@ -67,8 +69,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
                     continue;
                 }
 
-                if (current.GetBaseItem().InteractionType == Interaction.None ||
-                    lastitem.GetBaseItem().InteractionType == Interaction.None)
+                if (current.GetBaseItem().InteractionType == Interaction.None || lastitem.GetBaseItem().InteractionType == Interaction.None)
                 {
                     if (current.GetBaseItem().SpriteId != lastitem.GetBaseItem().SpriteId)
                         return false;

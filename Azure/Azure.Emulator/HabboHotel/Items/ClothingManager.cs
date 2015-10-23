@@ -31,11 +31,7 @@ namespace Azure.HabboHotel.Items
             _table = dbClient.GetTable();
 
             foreach (DataRow dataRow in _table.Rows)
-            {
-                var value = new ClothingItem(dataRow);
-
-                ClothingItems.Add((string)dataRow["item_name"], value);
-            }
+                ClothingItems.Add((string)dataRow["item_name"], new ClothingItem(dataRow));
         }
 
         /// <summary>

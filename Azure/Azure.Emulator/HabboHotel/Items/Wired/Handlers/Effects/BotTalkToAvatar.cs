@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class BotTalkToAvatar : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public BotTalkToAvatar(RoomItem item, Room room)
         {
             Item = item;
@@ -17,7 +18,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherString = string.Empty;
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionBotTalkToAvatar;
@@ -49,10 +49,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         public bool Execute(params object[] stuff)
         {
             var roomUser = (RoomUser)stuff[0];
-            //InteractionType item = (InteractionType)stuff[1];
             var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
-            if (bot == null) return false;
-            if (OtherBool) // Whisper
+
+            if (bot == null)
+                return false;
+
+            if (OtherBool) 
             {
                 var whisp = new ServerMessage(LibraryParser.OutgoingRequest("WhisperMessageComposer"));
                 whisp.AppendInteger(bot.VirtualId);
@@ -64,9 +66,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 roomUser.GetClient().SendMessage(whisp);
             }
             else
-            {
                 bot.Chat(null, roomUser.GetUserName() + " : " + OtherExtraString, false, 0);
-            }
+
             return true;
         }
     }

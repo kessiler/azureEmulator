@@ -2,10 +2,11 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Items.Wired;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
+namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 {
     public class Collision : IWiredItem
     {
@@ -60,22 +61,22 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
 
             var conditions = Room.GetWiredHandler().GetConditions(this);
             var effects = Room.GetWiredHandler().GetEffects(this);
+
             if (conditions.Any())
             {
                 foreach (var current in conditions)
                 {
                     WiredHandler.OnEvent(current);
-                    if (!current.Execute(roomUser)) return true;
+
+                    if (!current.Execute(roomUser))
+                        return true;
                 }
             }
 
-            if (!effects.Any()) return true;
-            foreach (
-                var wiredItem in
-                    effects.Where(
-                        wiredItem =>
-                            wiredItem != null && wiredItem.Type != Interaction.ActionChase &&
-                            wiredItem.Execute(roomUser, Type)))
+            if (!effects.Any())
+                return true;
+
+            foreach (var wiredItem in effects.Where(wiredItem => wiredItem != null && wiredItem.Type != Interaction.ActionChase && wiredItem.Execute(roomUser, Type)))
                 WiredHandler.OnEvent(wiredItem);
 
             return true;

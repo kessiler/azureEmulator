@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Items.Wired;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
+namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 {
     internal class WalksOffFurni : IWiredItem, IWiredCycler
     {
@@ -29,37 +30,37 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
         {
             var num = Azure.Now();
             if (num <= _mNext)
-            {
+
                 return false;
-            }
+
             lock (ToWork.SyncRoot)
             {
                 while (ToWork.Count > 0)
                 {
                     var roomUser = (RoomUser)ToWork.Dequeue();
+
                     var conditions = Room.GetWiredHandler().GetConditions(this);
                     var effects = Room.GetWiredHandler().GetEffects(this);
+
                     if (conditions.Any())
                     {
                         foreach (var current in conditions)
                         {
                             if (!current.Execute(roomUser))
-                            {
                                 return false;
-                            }
+
                             WiredHandler.OnEvent(current);
                         }
                     }
+
                     if (!effects.Any())
-                    {
                         continue;
-                    }
+
                     foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
-                    {
                         WiredHandler.OnEvent(current2);
-                    }
                 }
             }
+
             _mNext = 0L;
             WiredHandler.OnEvent(this);
             return true;
@@ -103,29 +104,24 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
         {
             var roomUser = (RoomUser)stuff[0];
             var roomItem = (RoomItem)stuff[1];
+
             if (!Items.Contains(roomItem) || roomUser.LastItem != roomItem.Id)
-            {
                 return false;
-            }
-            if (
-                roomItem.AffectedTiles.Values.Any(
-                    current =>
-                        (current.X == roomUser.X && current.Y == roomUser.Y) ||
-                        (roomUser.X == roomItem.X && roomUser.Y == roomItem.Y)))
-            {
+
+            if (roomItem.AffectedTiles.Values.Any(current => (current.X == roomUser.X && current.Y == roomUser.Y) || (roomUser.X == roomItem.X && roomUser.Y == roomItem.Y)))
                 return false;
-            }
+
             ToWork.Enqueue(roomUser);
+
             if (Delay == 0)
-            {
                 OnCycle();
-            }
             else
             {
                 _mNext = (Azure.Now() + (Delay));
 
                 Room.GetWiredHandler().EnqueueCycle(this);
             }
+
             return true;
         }
     }

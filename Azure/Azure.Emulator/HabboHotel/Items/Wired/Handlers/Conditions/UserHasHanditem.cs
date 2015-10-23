@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class UserHasHanditem : IWiredItem
     {
@@ -51,10 +53,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
         public bool Execute(params object[] stuff)
         {
             var roomUser = (RoomUser)stuff[0];
-            //InteractionType item = (InteractionType)stuff[1];
             var handitem = Delay / 500;
-            if (handitem < 0) return false;
-            if (roomUser.CarryItemId == handitem) return true;
+
+            if (handitem < 0)
+                return false;
+
+            if (roomUser.CarryItemId == handitem)
+                return true;
+
             return false;
         }
     }

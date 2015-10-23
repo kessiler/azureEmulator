@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class GiveReward : IWiredItem
     {
@@ -78,6 +80,7 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             if (amountLeft == 1)
             {
                 var message = new ServerMessage(LibraryParser.OutgoingRequest("WiredRewardAlertMessageComposer"));
+
                 message.AppendInteger(0);
                 user.GetClient().SendMessage(message);
 
@@ -94,11 +97,11 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
                 var random = Azure.GetRandomNumber(0, 100);
 
-                var message =
-                    new ServerMessage(LibraryParser.OutgoingRequest("WiredRewardAlertMessageComposer"));
+                var message =new ServerMessage(LibraryParser.OutgoingRequest("WiredRewardAlertMessageComposer"));
 
                 if (!unique && percentage < random)
                     continue;
+
                 premied = true;
 
                 if (isbadge)
@@ -122,21 +125,16 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 else //item or effect
                 {
                     var roomItem = Azure.GetGame().GetItemManager().GetItem(uint.Parse(code));
-                    if (roomItem == null) continue;
+
+                    if (roomItem == null)
+                        continue;
 
                     if (roomItem.Type == 'e') // is effect
-                        user.GetClient()
-                            .GetHabbo()
-                            .GetAvatarEffectsInventoryComponent().AddNewEffect(roomItem.SpriteId, 3600, 1);
+                        user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().AddNewEffect(roomItem.SpriteId, 3600, 1);
                     else
                     {
-                        user.GetClient()
-                            .GetHabbo()
-                            .GetInventoryComponent()
-                            .AddNewItem(0u, roomItem.ItemId, "0", 0u, true, false, 0, 0);
-                        user.GetClient()
-                            .SendMessage(
-                                new ServerMessage(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer")));
+                        user.GetClient().GetHabbo().GetInventoryComponent().AddNewItem(0u, roomItem.ItemId, "0", 0u, true, false, 0, 0);
+                        user.GetClient().SendMessage(new ServerMessage(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer")));
                     }
 
                     message.AppendInteger(6);

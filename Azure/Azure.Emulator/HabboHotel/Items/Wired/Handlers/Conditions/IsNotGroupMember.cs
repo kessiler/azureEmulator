@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class IsNotGroupMember : IWiredItem
     {
@@ -54,10 +56,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff == null || !(stuff[0] is RoomUser))
-                return false;
+            var roomUser = stuff?[0] as RoomUser;
 
-            var roomUser = (RoomUser)stuff[0];
             if (roomUser == null)
                 return false;
 

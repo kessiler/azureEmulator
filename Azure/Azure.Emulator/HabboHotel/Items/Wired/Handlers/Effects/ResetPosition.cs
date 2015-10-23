@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class ResetPosition : IWiredItem
     {
@@ -42,13 +44,16 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (Room == null) return false;
+            if (Room == null)
+                return false;
 
-            if (string.IsNullOrWhiteSpace(OtherString) || string.IsNullOrWhiteSpace(OtherExtraString)) return false;
+            if (string.IsNullOrWhiteSpace(OtherString) || string.IsNullOrWhiteSpace(OtherExtraString))
+                return false;
 
             var booleans = OtherString.Split(',');
 
-            if (booleans.Length < 3) return false;
+            if (booleans.Length < 3)
+                return false;
 
             var extraData = booleans[0] == "true";
             var rot = booleans[1] == "true";
@@ -56,22 +61,26 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             foreach (var itemData in OtherExtraString.Split('/'))
             {
-                if (string.IsNullOrWhiteSpace(itemData)) continue;
+                if (string.IsNullOrWhiteSpace(itemData))
+                    continue;
 
                 var innerData = itemData.Split('|');
                 var itemId = uint.Parse(innerData[0]);
 
                 var fItem = Room.GetRoomItemHandler().GetItem(itemId);
 
-                if (fItem == null) continue;
+                if (fItem == null)
+                    continue;
 
                 var extraDataToSet = (extraData) ? innerData[1] : fItem.ExtraData;
                 var rotationToSet = (rot) ? int.Parse(innerData[2]) : fItem.Rot;
 
                 var positions = innerData[3].Split(',');
+
                 var xToSet = (position) ? int.Parse(positions[0]) : fItem.X;
                 var yToSet = (position) ? int.Parse(positions[1]) : fItem.Y;
                 var zToSet = (position) ? double.Parse(positions[2]) : fItem.Z;
+
 
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ItemAnimationMessageComposer"));
                 serverMessage.AppendInteger(fItem.X);
@@ -85,12 +94,13 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 serverMessage.AppendInteger(0);
                 Room.SendMessage(serverMessage);
 
-                Room.GetRoomItemHandler()
-                    .SetFloorItem(null, fItem, xToSet, yToSet, rotationToSet, false, false, false, false, false);
+                Room.GetRoomItemHandler().SetFloorItem(null, fItem, xToSet, yToSet, rotationToSet, false, false, false, false, false);
                 fItem.ExtraData = extraDataToSet;
                 fItem.UpdateState();
+
                 Room.GetGameMap().GenerateMaps();
             }
+
             return true;
         }
     }

@@ -2,8 +2,10 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class FurniHasNotUsers : IWiredItem
     {
@@ -57,18 +59,15 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
             if (!Items.Any())
                 return true;
 
-            foreach (
-                var current in
-                    Items.Where(
-                        current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
+            foreach (var current in Items.Where(current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
             {
-                if (
-                    current.AffectedTiles.Values.Any(
-                        current2 => Room.GetGameMap().SquareHasUsers(current2.X, current2.Y)))
+                if (current.AffectedTiles.Values.Any(current2 => Room.GetGameMap().SquareHasUsers(current2.X, current2.Y)))
                     return false;
+
                 if (Room.GetGameMap().SquareHasUsers(current.X, current.Y))
                     return false;
             }
+
             return true;
         }
     }

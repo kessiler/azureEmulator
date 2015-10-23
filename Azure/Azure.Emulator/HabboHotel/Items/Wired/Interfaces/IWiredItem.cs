@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired
+namespace Azure.HabboHotel.Items.Wired.Interfaces
 {
-    public interface WiredItem
+    public interface IWiredItem
     {
         Interaction Type { get; }
 

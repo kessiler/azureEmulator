@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
-using Azure.HabboHotel.Rooms.Wired;
 
 namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 {
@@ -117,13 +117,13 @@ namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 
             if (Delay == 0)
                 OnCycle();
-
             else
             {
                 _mNext = (Azure.Now() + (Delay));
 
                 Room.GetWiredHandler().EnqueueCycle(this);
             }
+
             return true;
         }
     }

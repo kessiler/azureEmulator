@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class ItemsCoincide : IWiredItem
     {
@@ -46,25 +48,24 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool Execute(params object[] stuff)
         {
-            if (!Items.Any()) return true;
+            if (!Items.Any())
+                return true;
+
             bool useExtradata, useRot, usePos;
 
             Dictionary<uint, string[]> itemsOriginalData;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(OtherString) || !OtherString.Contains(",") ||
-                    !OtherExtraString.Contains("|"))
+                if (string.IsNullOrWhiteSpace(OtherString) || !OtherString.Contains(",") || !OtherExtraString.Contains("|"))
                     return false;
+
                 var booleans = OtherString.ToLower().Split(',');
                 useExtradata = booleans[0] == "true";
                 useRot = booleans[1] == "true";
                 usePos = booleans[2] == "true";
 
-                itemsOriginalData =
-                    OtherExtraString.Split('/')
-                        .Select(data => data.Split('|'))
-                        .ToDictionary(array => uint.Parse(array[0]), array => array.Skip(1).ToArray());
+                itemsOriginalData = OtherExtraString.Split('/').Select(data => data.Split('|')).ToDictionary(array => uint.Parse(array[0]), array => array.Skip(1).ToArray());
             }
             catch (Exception e)
             {
@@ -74,22 +75,31 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
             foreach (var current in Items)
             {
-                if (current == null || !itemsOriginalData.ContainsKey(current.Id)) return false;
+                if (current == null || !itemsOriginalData.ContainsKey(current.Id))
+                    return false;
 
                 var originalData = itemsOriginalData[current.Id];
-                if (useRot) if (current.Rot != int.Parse(originalData[1])) return false;
+
+                if (useRot)
+                    if (current.Rot != int.Parse(originalData[1]))
+                        return false;
 
                 if (useExtradata)
                 {
-                    if (current.ExtraData == string.Empty) current.ExtraData = "0";
+                    if (current.ExtraData == string.Empty)
+                        current.ExtraData = "0";
 
-                    if (current.ExtraData != (originalData[0] == string.Empty ? "0" : originalData[0])) return false;
+                    if (current.ExtraData != (originalData[0] == string.Empty ? "0" : originalData[0]))
+                        return false;
                 }
 
-                if (!usePos) continue;
+                if (!usePos)
+                    continue;
 
                 var originalPos = originalData[2].Split(',');
-                if ((current.X != int.Parse(originalPos[0])) || (current.Y != int.Parse(originalPos[1]))) return false;
+
+                if ((current.X != int.Parse(originalPos[0])) || (current.Y != int.Parse(originalPos[1])))
+                    return false;
             }
 
             return true;

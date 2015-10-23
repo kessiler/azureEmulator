@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class UserHasFurni : IWiredItem
     {
@@ -51,25 +53,24 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff == null || !(stuff[0] is RoomUser))
-                return false;
-            var roomUser = (RoomUser)stuff[0];
+            var roomUser = stuff?[0] as RoomUser;
 
-            if (roomUser.IsBot || roomUser.GetClient() == null || roomUser.GetClient().GetHabbo() == null ||
-                roomUser.GetClient()
-                    .GetHabbo()
-                    .GetInventoryComponent() == null || string.IsNullOrEmpty(OtherString))
+            if ((roomUser?.IsBot ?? true) || roomUser.GetClient() == null || roomUser.GetClient().GetHabbo() == null || roomUser.GetClient().GetHabbo().GetInventoryComponent() == null || string.IsNullOrEmpty(OtherString))
                 return false;
 
             var itemsIdsArray = OtherString.Split(';');
+
             foreach (var itemIdStr in itemsIdsArray)
             {
                 uint itemId;
-                if (!uint.TryParse(itemIdStr, out itemId)) continue;
-                if (roomUser.GetClient()
-                    .GetHabbo().GetInventoryComponent().HasBaseItem(itemId))
+
+                if (!uint.TryParse(itemIdStr, out itemId))
+                    continue;
+
+                if (roomUser.GetClient().GetHabbo().GetInventoryComponent().HasBaseItem(itemId))
                     return true;
             }
+
             return false;
         }
     }

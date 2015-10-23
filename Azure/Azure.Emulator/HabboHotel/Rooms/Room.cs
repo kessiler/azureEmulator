@@ -25,7 +25,6 @@ using Azure.HabboHotel.Rooms.RoomInvokedItems;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
 using Azure.HabboHotel.Rooms.User.Trade;
-using Azure.HabboHotel.Rooms.Wired;
 using Azure.HabboHotel.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;

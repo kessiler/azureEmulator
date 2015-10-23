@@ -122,6 +122,7 @@ namespace Azure.HabboHotel.Events.Interfaces
         {
             if (_addQueue == null || _addQueue.Count <= 0)
                 return;
+
             lock (_addQueue.SyncRoot)
             {
                 while (_addQueue.Count > 0)
@@ -140,6 +141,7 @@ namespace Azure.HabboHotel.Events.Interfaces
         {
             if (_removeQueue == null || _removeQueue.Count <= 0)
                 return;
+
             lock (_removeQueue.SyncRoot)
             {
                 while (_removeQueue.Count > 0)
@@ -157,11 +159,13 @@ namespace Azure.HabboHotel.Events.Interfaces
         {
             if (_removeQueue == null || _removeQueue.Count <= 0)
                 return;
+
             lock (_removeQueue.SyncRoot)
             {
                 while (_removeQueue.Count > 0)
                 {
                     var roomData = (RoomData)_updateQueue.Dequeue();
+
                     if (!_events.ContainsKey(roomData))
                         _events.Add(roomData, roomData.UsersNow);
                     else

@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class ToggleFurniState : IWiredItem, IWiredCycler
     {
@@ -31,19 +33,20 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool OnCycle()
         {
-            if (!Items.Any()) return true;
+            if (!Items.Any())
+                return true;
 
             var num = Azure.Now();
+
             if (_mNext < num)
             {
-                foreach (
-                    var current in
-                        Items.Where(
-                            current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id))
-                    )
+                foreach (var current in Items.Where(current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
                     current.Interactor.OnWiredTrigger(current);
             }
-            if (_mNext >= num) return false;
+
+            if (_mNext >= num)
+                return false;
+
             _mNext = 0L;
             return true;
         }
@@ -84,9 +87,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (!Items.Any()) return false;
-            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
+            if (!Items.Any())
+                return false;
+
+            if (_mNext == 0L || _mNext < Azure.Now())
+                _mNext = (Azure.Now() + (Delay));
+
             Room.GetWiredHandler().EnqueueCycle(this);
+
             return true;
         }
     }

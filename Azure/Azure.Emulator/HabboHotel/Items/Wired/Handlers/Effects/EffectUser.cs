@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class EffectUser : IWiredItem
     {
@@ -34,25 +36,19 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            var list = new List<Interaction> { Interaction.TriggerRepeater };
-            if (stuff[0] == null) return false;
-            var roomUser = (RoomUser)stuff[0];
-            var item = (Interaction)stuff[1];
+            if (stuff[0] == null)
+                return false;
 
-            var connetWired = new List<Interaction> { Interaction.ActionEffectUser };
-            {
-                var effectId = 0;
+            var roomUser = (RoomUser)stuff[0];
+
+                int effectId;
+
                 if (int.TryParse(OtherString, out effectId))
                 {
                     if (roomUser != null && !string.IsNullOrEmpty(OtherString))
-                    {
-                        roomUser.GetClient()
-                            .GetHabbo()
-                            .GetAvatarEffectsInventoryComponent()
-                            .ActivateCustomEffect(effectId);
-                    }
+                        roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(effectId);
                 }
-            }
+
             return true;
         }
     }

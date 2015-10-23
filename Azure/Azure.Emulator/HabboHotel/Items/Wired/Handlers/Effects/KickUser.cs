@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Timers;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class KickUser : IWiredItem
     {
@@ -66,18 +68,20 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff[0] == null) return false;
+            if (stuff[0] == null)
+                return false;
+
             var roomUser = (RoomUser)stuff[0];
             var item = (Interaction)stuff[1];
 
             if (_mBanned.Contains(item))
                 return false;
 
-            if (roomUser != null && roomUser.GetClient() != null && roomUser.GetClient().GetHabbo() != null &&
-                !string.IsNullOrWhiteSpace(OtherString))
+            if (roomUser?.GetClient() != null && roomUser.GetClient().GetHabbo() != null && !string.IsNullOrWhiteSpace(OtherString))
             {
                 if (roomUser.GetClient().GetHabbo().HasFuse("fuse_mod") || Room.RoomData.Owner == roomUser.GetUserName())
                     return false;
+
                 roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(4, false);
                 roomUser.GetClient().SendWhisper(OtherString);
                 _mUsers.Add(roomUser);
@@ -96,18 +100,20 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         {
             try
             {
-                if (_mTimer != null) _mTimer.Stop();
+                _mTimer?.Stop();
 
                 lock (_mUsers)
                 {
                     foreach (var user in _mUsers)
                         Room.GetRoomUserManager().RemoveUserFromRoom(user.GetClient(), true, false);
                 }
+
                 _mUsers.Clear();
                 _mTimer = null;
             }
             catch (Exception)
             {
+                // ignored
             }
         }
     }

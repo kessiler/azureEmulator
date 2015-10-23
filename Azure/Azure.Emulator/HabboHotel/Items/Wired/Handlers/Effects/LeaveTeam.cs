@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class LeaveTeam : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public LeaveTeam(RoomItem item, Room room)
         {
             Item = item;
@@ -16,7 +17,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherString = string.Empty;
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionLeaveTeam;
@@ -47,15 +47,18 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff[0] == null) return false;
+            if (stuff[0] == null)
+                return false;
+
             var roomUser = (RoomUser)stuff[0];
             var t = roomUser.GetClient().GetHabbo().CurrentRoom.GetTeamManagerForFreeze();
+
             if (roomUser.Team != Team.None)
             {
                 t.OnUserLeave(roomUser);
                 roomUser.Team = Team.None;
             }
-            //InteractionType item = (InteractionType)stuff[1];
+
             return true;
         }
     }

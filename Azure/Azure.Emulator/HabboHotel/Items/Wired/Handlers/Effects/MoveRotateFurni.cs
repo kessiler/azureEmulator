@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     internal class MoveRotateFurni : IWiredItem, IWiredCycler
     {
@@ -34,11 +36,14 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool OnCycle()
         {
-            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
+            if (Room?.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
                 return false;
 
             _cycles++;
-            if (_cycles <= (Delay / 500)) return true;
+
+            if (_cycles <= (Delay / 500))
+                return true;
+
             _cycles = 0;
 
             HandleItems();
@@ -55,16 +60,18 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public string OtherString
         {
-            get { return string.Format("{0};{1}", _dir, _rot); }
+            get { return $"{_dir};{_rot}"; }
             set
             {
                 var array = value.Split(';');
+
                 if (array.Length != 2)
                 {
                     _rot = 0;
                     _dir = 0;
                     return;
                 }
+
                 int.TryParse(array[0], out _dir);
                 int.TryParse(array[1], out _rot);
             }
@@ -92,7 +99,8 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (!Items.Any()) return true;
+            if (!Items.Any())
+                return true;
 
             _cycles = 0;
 
@@ -101,13 +109,16 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
                 HandleItems();
                 return true;
             }
+
             Room.GetWiredHandler().EnqueueCycle(this);
+
             return false;
         }
 
         private void HandleItems()
         {
-            if (Room == null || Room.GetRoomItemHandler() == null) return;
+            if (Room?.GetRoomItemHandler() == null)
+                return;
 
             foreach (var item in Items)
             {
@@ -120,7 +131,10 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             }
 
             RoomItem rI;
-            while (_toRemove.TryDequeue(out rI)) if (Items.Contains(rI)) Items.Remove(rI);
+
+            while (_toRemove.TryDequeue(out rI))
+                if (Items.Contains(rI))
+                    Items.Remove(rI);
         }
 
         private void HandleMovement(RoomItem item)
@@ -130,15 +144,21 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
             if (newPoint != item.Coordinate && newRotation == item.Rot)
             {
-                if (!Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false)) return;
-                Room.GetRoomItemHandler()
-                    .SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true, false, true);
+                if (!Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false))
+                    return;
+
+                Room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true, false, true);
+
                 return;
             }
-            if (newPoint == item.Coordinate && newRotation == item.Rot) return;
-            if (!Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false)) return;
-            Room.GetRoomItemHandler()
-                .SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true, false, false);
+
+            if (newPoint == item.Coordinate && newRotation == item.Rot)
+                return;
+
+            if (!Room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false))
+                return;
+
+            Room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true, false, false);
         }
     }
 }

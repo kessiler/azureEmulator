@@ -78,32 +78,21 @@ namespace Azure.HabboHotel.GameClients
         ///     Gets the client count.
         /// </summary>
         /// <value>The client count.</value>
-        internal int ClientCount()
-        {
-            return Clients.Count;
-        }
+        internal int ClientCount() => Clients.Count;
 
         /// <summary>
         ///     Gets the client by user identifier.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <returns>GameClient.</returns>
-        internal GameClient GetClientByUserId(uint userId)
-        {
-            return _userIdRegister.Contains(userId) ? (GameClient)_userIdRegister[userId] : null;
-        }
+        internal GameClient GetClientByUserId(uint userId) => _userIdRegister.Contains(userId) ? (GameClient)_userIdRegister[userId] : null;
 
         /// <summary>
         ///     Gets the name of the client by user.
         /// </summary>
         /// <param name="userName">Name of the user.</param>
         /// <returns>GameClient.</returns>
-        internal GameClient GetClientByUserName(string userName)
-        {
-            return _userNameRegister.Contains(userName.ToLower())
-                ? (GameClient)_userNameRegister[userName.ToLower()]
-                : null;
-        }
+        internal GameClient GetClientByUserName(string userName) => _userNameRegister.Contains(userName.ToLower()) ? (GameClient)_userNameRegister[userName.ToLower()] : null;
 
         /// <summary>
         ///     Gets the client.
@@ -143,10 +132,7 @@ namespace Azure.HabboHotel.GameClients
         /// </summary>
         /// <param name="users">The users.</param>
         /// <returns>IEnumerable&lt;GameClient&gt;.</returns>
-        internal IEnumerable<GameClient> GetClientsById(Dictionary<uint, MessengerBuddy>.KeyCollection users)
-        {
-            return users.Select(GetClientByUserId).Where(clientByUserId => clientByUserId != null);
-        }
+        internal IEnumerable<GameClient> GetClientsById(Dictionary<uint, MessengerBuddy>.KeyCollection users) => users.Select(GetClientByUserId).Where(clientByUserId => clientByUserId != null);
 
         /// <summary>
         ///     Sends the super notif.
@@ -159,15 +145,16 @@ namespace Azure.HabboHotel.GameClients
         /// <param name="linkTitle">The link title.</param>
         /// <param name="broadCast">if set to <c>true</c> [broad cast].</param>
         /// <param name="Event">if set to <c>true</c> [event].</param>
-        internal void SendSuperNotif(string title, string notice, string picture, GameClient client, string link,
-            string linkTitle, bool broadCast, bool Event)
+        internal void SendSuperNotif(string title, string notice, string picture, GameClient client, string link, string linkTitle, bool broadCast, bool Event)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+
             serverMessage.AppendString(picture);
             serverMessage.AppendInteger(4);
             serverMessage.AppendString("title");
             serverMessage.AppendString(title);
             serverMessage.AppendString("message");
+
             if (broadCast)
                 if (Event)
                 {
@@ -185,6 +172,7 @@ namespace Azure.HabboHotel.GameClients
                 }
             else
                 serverMessage.AppendString(notice);
+
             if (link != string.Empty)
             {
                 serverMessage.AppendString("linkUrl");
@@ -205,6 +193,7 @@ namespace Azure.HabboHotel.GameClients
                 QueueBroadcaseMessage(serverMessage);
                 return;
             }
+
             client.SendMessage(serverMessage);
         }
 
@@ -234,12 +223,8 @@ namespace Azure.HabboHotel.GameClients
         /// <param name="exclude">The exclude.</param>
         internal void StaffAlert(ServerMessage message, uint exclude = 0u)
         {
-            var gameClients =
-                Clients.Values
-                    .Where(
-                        x =>
-                            x.GetHabbo() != null && x.GetHabbo().Rank >= Azure.StaffAlertMinRank &&
-                            x.GetHabbo().Id != exclude);
+            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Azure.StaffAlertMinRank && x.GetHabbo().Id != exclude);
+
             foreach (var current in gameClients)
                 current.SendMessage(message);
         }
@@ -252,13 +237,8 @@ namespace Azure.HabboHotel.GameClients
         {
             var bytes = message.GetReversedBytes();
 
-            foreach (var current in Clients.Values.Where(current => current?.GetHabbo() != null))
-            {
-                if ((current.GetHabbo().Rank != 4u && current.GetHabbo().Rank != 5u) && current.GetHabbo().Rank != 6u)
-                    continue;
-
+            foreach (var current in Clients.Values.Where(current => current?.GetHabbo() != null).Where(current => (current.GetHabbo().Rank == 4u || current.GetHabbo().Rank == 5u) || current.GetHabbo().Rank == 6u))
                 current.GetConnection().SendData(bytes);
-            }
         }
 
         /// <summary>
@@ -425,6 +405,7 @@ namespace Azure.HabboHotel.GameClients
             if (_clientsAddQueue.Count > 0)
             {
                 GameClient client;
+
                 while (_clientsAddQueue.TryDequeue(out client))
                     client.StartConnection();
             }
@@ -435,6 +416,7 @@ namespace Azure.HabboHotel.GameClients
             if (_clientsToRemove.Count > 0)
             {
                 GameClient client;
+
                 while (_clientsToRemove.TryDequeue(out client))
                 {
                     if (client != null)
@@ -462,6 +444,7 @@ namespace Azure.HabboHotel.GameClients
                         while (_badgeQueue.Count > 0)
                         {
                             var badge = (string)_badgeQueue.Dequeue();
+
                             foreach (var current in Clients.Values.Where(current => current.GetHabbo() != null))
                             {
                                 current.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, current);
@@ -490,26 +473,25 @@ namespace Azure.HabboHotel.GameClients
         {
             try
             {
-                if (!_broadcastQueue.Any()) return;
+                if (!_broadcastQueue.Any())
+                    return;
+
                 var now = DateTime.Now;
                 byte[] bytes;
 
                 _broadcastQueue.TryDequeue(out bytes);
 
-                foreach (
-                    var current in Clients.Values.Where(current => current?.GetConnection() != null))
+                foreach (var current in Clients.Values.Where(current => current?.GetConnection() != null))
                     current.GetConnection().SendData(bytes);
 
                 var timeSpan = DateTime.Now - now;
 
                 if (timeSpan.TotalSeconds > 3.0)
-                    Console.WriteLine("GameClientManager.BroadcastPackets spent: {0} seconds in working.",
-                        timeSpan.TotalSeconds);
+                    Console.WriteLine("GameClientManager.BroadcastPackets spent: {0} seconds in working.", timeSpan.TotalSeconds);
             }
             catch (Exception ex)
             {
-                Logging.LogThreadException(ex.ToString(),
-                    "GameClientManager.BroadcastPackets Exception --> Not inclusive");
+                Logging.LogThreadException(ex.ToString(), "GameClientManager.BroadcastPackets Exception --> Not inclusive");
             }
         }
     }

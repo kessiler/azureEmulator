@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Items.Wired;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class CallStacks : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public CallStacks(RoomItem item, Room room)
         {
             Item = item;
             Room = room;
             Items = new List<RoomItem>();
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionCallStacks;
@@ -38,16 +38,13 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         public bool Execute(params object[] stuff)
         {
             var roomUser = (RoomUser)stuff[0];
-            var Effects = new List<WiredItem>();
-            foreach (var item in Items)
+
+            foreach (var wired in Items.Where(item => item.IsWired).Select(item => Room.GetWiredHandler().GetWired(item)).Where(wired => wired != null))
             {
-                if (!item.IsWired) continue;
-                var wired = Room.GetWiredHandler().GetWired(item);
-                if (wired == null) continue;
-                var effects = Room.GetWiredHandler().GetEffects(wired);
                 WiredHandler.OnEvent(wired);
                 wired.Execute(roomUser, Type);
             }
+
             return true;
         }
     }

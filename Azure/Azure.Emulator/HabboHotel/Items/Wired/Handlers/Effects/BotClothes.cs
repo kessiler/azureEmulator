@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class BotClothes : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public BotClothes(RoomItem item, Room room)
         {
             Item = item;
@@ -16,7 +17,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherString = string.Empty;
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionBotClothes;
@@ -47,15 +47,17 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            //RoomUser roomUser = (RoomUser)stuff[0];
-            //InteractionType item = (InteractionType)stuff[1];
             var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
-            if (bot == null || OtherExtraString == "null") return false;
+
+            if (bot == null || OtherExtraString == "null")
+                return false;
+
             bot.BotData.Look = OtherExtraString;
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SetRoomUserMessageComposer"));
             serverMessage.AppendInteger(1);
             bot.Serialize(serverMessage, false);
             Room.SendMessage(serverMessage);
+
             return true;
         }
     }

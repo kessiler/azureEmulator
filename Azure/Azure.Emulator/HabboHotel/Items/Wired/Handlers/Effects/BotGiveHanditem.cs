@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class BotGiveHanditem : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public BotGiveHanditem(RoomItem item, Room room)
         {
             Item = item;
@@ -15,7 +16,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherString = string.Empty;
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionBotGiveHanditem;
@@ -43,13 +43,15 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
         public bool Execute(params object[] stuff)
         {
             var roomUser = (RoomUser)stuff[0];
-            //InteractionType item = (InteractionType)stuff[1];
             var handitem = Delay / 500;
-            if (handitem < 0) return false;
+
+            if (handitem < 0)
+                return false;
+
             roomUser.CarryItem(handitem);
             var bot = Room.GetRoomUserManager().GetBotByName(OtherString);
-            if (bot == null) return true;
-            bot.Chat(null, Azure.GetLanguage().GetVar("bot_give_handitem"), false, 0);
+
+            bot?.Chat(null, Azure.GetLanguage().GetVar("bot_give_handitem"), false, 0);
             return true;
         }
     }

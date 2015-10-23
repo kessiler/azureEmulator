@@ -458,10 +458,9 @@
     <Compile Include="HabboHotel\Items\Wired\Handlers\Triggers\UserEntersRoom.cs" />
     <Compile Include="HabboHotel\Items\Wired\Handlers\Triggers\WalksOffFurni.cs" />
     <Compile Include="HabboHotel\Items\Wired\Handlers\Triggers\WalksOnFurni.cs" />
-    <Compile Include="HabboHotel\Items\Wired\IWiredCycler.cs" />
-    <Compile Include="HabboHotel\Items\Wired\IWiredItem.cs" />
+    <Compile Include="HabboHotel\Items\Wired\Interfaces\IWiredCycler.cs" />
+    <Compile Include="HabboHotel\Items\Wired\Interfaces\IWiredItem.cs" />
     <Compile Include="HabboHotel\Items\Wired\WiredHandler.cs" />
-    <Compile Include="HabboHotel\Items\Wired\WiredItem.cs" />
     <Compile Include="HabboHotel\Items\Wired\WiredSaver.cs" />
     <Compile Include="HabboHotel\Users\EmoticonManager.cs" />
     <Compile Include="HabboHotel\Users\YoutubeManager.cs" />

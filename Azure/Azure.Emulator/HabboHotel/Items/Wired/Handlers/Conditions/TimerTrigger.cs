@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class TimerTrigger : IWiredItem
     {
@@ -47,9 +49,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public int Delay { get; set; }
 
-        public bool Execute(params object[] stuff)
-        {
-            return true;
-        }
+        public bool Execute(params object[] stuff) => true;
     }
 }

@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Items.Wired;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
+namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 {
     internal class LongRepeater : IWiredItem, IWiredCycler
     {
@@ -19,7 +20,9 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
             Room = room;
             Delay = 10000;
             Room.GetWiredHandler().EnqueueCycle(this);
-            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
+
+            if (_mNext == 0L || _mNext < Azure.Now())
+                _mNext = (Azure.Now() + (Delay));
         }
 
         public Queue ToWork
@@ -33,27 +36,34 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
         public bool OnCycle()
         {
             var num = Azure.Now();
-            if (_mNext >= num) return false;
+
+            if (_mNext >= num)
+                return false;
+
             var conditions = Room.GetWiredHandler().GetConditions(this);
             var effects = Room.GetWiredHandler().GetEffects(this);
+
             if (conditions.Any())
             {
                 foreach (var current in conditions)
                 {
-                    if (!current.Execute(null)) return false;
+                    if (!current.Execute(null))
+                        return false;
+
                     WiredHandler.OnEvent(current);
                 }
             }
+
             if (effects.Any())
             {
                 foreach (var current2 in effects)
                 {
-                    current2.Execute(null, Type);
-                    WiredHandler.OnEvent(current2);
+                    if (current2.Execute(null, Type))
+                        WiredHandler.OnEvent(current2);
                 }
             }
-            _mNext = (Azure.Now() + (Delay));
 
+            _mNext = (Azure.Now() + (Delay));
             return false;
         }
 
@@ -97,8 +107,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
 
         public bool Execute(params object[] stuff)
         {
-            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
-            if (!Room.GetWiredHandler().IsCycleQueued(this)) Room.GetWiredHandler().EnqueueCycle(this);
+            if (_mNext == 0L || _mNext < Azure.Now())
+                _mNext = (Azure.Now() + (Delay));
+
+            if (!Room.GetWiredHandler().IsCycleQueued(this))
+                Room.GetWiredHandler().EnqueueCycle(this);
+
             return true;
         }
     }

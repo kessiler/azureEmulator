@@ -2,8 +2,10 @@
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class ItemsTypeDontMatch : IWiredItem
     {
@@ -67,22 +69,18 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
                     continue;
                 }
 
-                if (current.GetBaseItem().InteractionType == Interaction.None ||
-                    lastitem.GetBaseItem().InteractionType == Interaction.None)
+                if (current.GetBaseItem().InteractionType == Interaction.None || lastitem.GetBaseItem().InteractionType == Interaction.None)
                 {
                     if (current.GetBaseItem().SpriteId == lastitem.GetBaseItem().SpriteId)
                         return false;
                 }
                 else
                 {
-                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("banzai") &&
-                        lastitem.GetBaseItem().InteractionType.ToString().StartsWith("banzai"))
+                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("banzai") && lastitem.GetBaseItem().InteractionType.ToString().StartsWith("banzai"))
                         return false;
-                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("football") &&
-                        lastitem.GetBaseItem().InteractionType.ToString().StartsWith("football"))
+                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("football") && lastitem.GetBaseItem().InteractionType.ToString().StartsWith("football"))
                         return false;
-                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("freeze") &&
-                        lastitem.GetBaseItem().InteractionType.ToString().StartsWith("freeze"))
+                    if (current.GetBaseItem().InteractionType.ToString().StartsWith("freeze") && lastitem.GetBaseItem().InteractionType.ToString().StartsWith("freeze"))
                         return false;
                     if (current.GetBaseItem().InteractionType == lastitem.GetBaseItem().InteractionType)
                         return false;

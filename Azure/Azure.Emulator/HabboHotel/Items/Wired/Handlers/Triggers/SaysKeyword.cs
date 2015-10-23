@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Items.Wired;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
+namespace Azure.HabboHotel.Items.Wired.Handlers.Triggers
 {
     public class SaysKeyword : IWiredItem
     {
@@ -56,23 +57,35 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Triggers
         {
             var roomUser = (RoomUser)stuff[0];
             var text = (string)stuff[1];
-            if (string.IsNullOrEmpty(OtherString)) return false;
-            if (!string.Equals(text, OtherString, StringComparison.CurrentCultureIgnoreCase)) return false;
+
+            if (string.IsNullOrEmpty(OtherString))
+                return false;
+
+            if (!string.Equals(text, OtherString, StringComparison.CurrentCultureIgnoreCase))
+                return false;
+
             var conditions = Room.GetWiredHandler().GetConditions(this);
             var effects = Room.GetWiredHandler().GetEffects(this);
+
             if (conditions.Any())
             {
                 foreach (var current in conditions)
                 {
                     WiredHandler.OnEvent(current);
-                    if (!current.Execute(roomUser)) return true;
+
+                    if (!current.Execute(roomUser))
+                        return true;
                 }
             }
 
             roomUser.GetClient().SendWhisper(text);
+
             if (effects.Any())
+            {
                 foreach (var current2 in effects.Where(current2 => current2.Execute(roomUser, Type)))
                     WiredHandler.OnEvent(current2);
+            }
+                
 
             WiredHandler.OnEvent(this);
             return true;

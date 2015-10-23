@@ -39,11 +39,16 @@ namespace Azure.HabboHotel.Items
         public WallCoordinate(string wallPosition)
         {
             var posD = wallPosition.Split(' ');
+
             _side = posD[2] == "l" ? 'l' : 'r';
+
             var widD = posD[0].Substring(3).Split(',');
+
             _widthX = TextHandling.Parse(widD[0]);
             _widthY = TextHandling.Parse(widD[1]);
+
             var lenD = posD[1].Substring(2).Split(',');
+
             _lengthX = TextHandling.Parse(lenD[0]);
             _lengthY = TextHandling.Parse(lenD[1]);
         }
@@ -58,6 +63,7 @@ namespace Azure.HabboHotel.Items
         {
             TextHandling.Split(x, out _widthX, out _widthY);
             TextHandling.Split(y, out _lengthX, out _lengthY);
+
             _side = n == 7 ? 'r' : 'l';
         }
 
@@ -65,45 +71,30 @@ namespace Azure.HabboHotel.Items
         ///     Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString()
-        {
-            return ":w=" + _widthX + "," + _widthY + " " + "l=" + _lengthX + "," + _lengthY + " " + _side;
-        }
+        public override string ToString() => ":w=" + _widthX + "," + _widthY + " " + "l=" + _lengthX + "," + _lengthY + " " + _side;
 
         /// <summary>
         ///     Generates the database shit.
         /// </summary>
         /// <returns>System.String.</returns>
-        internal string GenerateDbShit()
-        {
-            return "x: " + TextHandling.Combine(_widthX, _widthY) + " y: " + TextHandling.Combine(_lengthX, _lengthY);
-        }
+        internal string GenerateDbShit() => "x: " + TextHandling.Combine(_widthX, _widthY) + " y: " + TextHandling.Combine(_lengthX, _lengthY);
 
         /// <summary>
         ///     Gets the x value.
         /// </summary>
         /// <returns>System.Double.</returns>
-        internal double GetXValue()
-        {
-            return TextHandling.Combine(_widthX, _widthY);
-        }
+        internal double GetXValue() => TextHandling.Combine(_widthX, _widthY);
 
         /// <summary>
         ///     Gets the y value.
         /// </summary>
         /// <returns>System.Double.</returns>
-        internal double GetYValue()
-        {
-            return TextHandling.Combine(_lengthX, _lengthY);
-        }
+        internal double GetYValue() => TextHandling.Combine(_lengthX, _lengthY);
 
         /// <summary>
         ///     ns this instance.
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal int N()
-        {
-            return _side == 'l' ? 8 : 7;
-        }
+        internal int N() => _side == 'l' ? 8 : 7;
     }
 }

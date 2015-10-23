@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class TriggererOnFurni : IWiredItem
     {
@@ -57,23 +59,21 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
         {
             if (!Items.Any())
                 return true;
-            if (stuff == null || !(stuff[0] is RoomUser))
-                return false;
 
-            var roomUser = (RoomUser)stuff[0];
+            var roomUser = stuff?[0] as RoomUser;
+
             if (roomUser == null)
                 return false;
 
-            foreach (
-                var current in
-                    Items.Where(
-                        current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
+            foreach (var current in Items.Where(current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
             {
                 if (current.AffectedTiles.Values.Any(current2 => roomUser.X == current2.X && roomUser.Y == current2.Y))
                     return true;
+
                 if (roomUser.X == current.X && roomUser.Y == current.Y)
                     return true;
             }
+
             return false;
         }
     }

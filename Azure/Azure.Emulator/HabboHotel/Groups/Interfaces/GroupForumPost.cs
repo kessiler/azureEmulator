@@ -97,6 +97,7 @@ namespace Azure.HabboHotel.Groups.Interfaces
             PostContent = row["post_content"].ToString();
             Hider = row["post_hider"].ToString();
             MessageCount = 0;
+
             if (ParentId == 0)
                 MessageCount = Azure.GetGame().GetGroupManager().GetMessageCountForThread(Id);
         }

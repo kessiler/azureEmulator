@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class BotFollowAvatar : IWiredItem
     {
-        //private List<InteractionType> mBanned;
         public BotFollowAvatar(RoomItem item, Room room)
         {
             Item = item;
@@ -14,7 +15,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherString = string.Empty;
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
-            //this.mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionBotFollowAvatar;
@@ -43,11 +43,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool OtherBool { get; set; }
 
-        public bool Execute(params object[] stuff)
-        {
-            //RoomUser roomUser = (RoomUser)stuff[0];
-            //InteractionType item = (InteractionType)stuff[1];
-            return true;
-        }
+        public bool Execute(params object[] stuff) => true;
     }
 }

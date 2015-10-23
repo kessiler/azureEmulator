@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Users.Badges;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
+namespace Azure.HabboHotel.Items.Wired.Handlers.Conditions
 {
     internal class UserIsNotWearingBadge : IWiredItem
     {
@@ -54,26 +56,12 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Conditions
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff == null || !(stuff[0] is RoomUser)) return false;
-            var roomUser = (RoomUser)stuff[0];
+            var roomUser = stuff?[0] as RoomUser;
 
-            if (roomUser.IsBot || roomUser.GetClient() == null || roomUser.GetClient().GetHabbo() == null ||
-                roomUser.GetClient()
-                    .GetHabbo()
-                    .GetBadgeComponent() == null || string.IsNullOrWhiteSpace(OtherString))
+            if ((roomUser?.IsBot ?? true) || roomUser.GetClient() == null || roomUser.GetClient().GetHabbo() == null || roomUser.GetClient().GetHabbo().GetBadgeComponent() == null || string.IsNullOrWhiteSpace(OtherString))
                 return false;
 
-            return
-                roomUser.GetClient()
-                    .GetHabbo()
-                    .GetBadgeComponent()
-                    .BadgeList
-                    .Values
-                    .Cast<Badge>()
-                    .All(
-                        badge =>
-                            badge.Slot <= 0 ||
-                            !string.Equals(badge.Code, OtherString, StringComparison.CurrentCultureIgnoreCase));
+            return roomUser.GetClient().GetHabbo().GetBadgeComponent().BadgeList.Values.Cast<Badge>().All(badge => badge.Slot <= 0 || !string.Equals(badge.Code, OtherString, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

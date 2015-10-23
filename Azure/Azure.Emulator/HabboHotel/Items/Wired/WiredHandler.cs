@@ -5,12 +5,11 @@ using System.Linq;
 using Azure.HabboHotel.Items.Interactions;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Handlers.Conditions;
+using Azure.HabboHotel.Items.Wired.Handlers.Effects;
 using Azure.HabboHotel.Items.Wired.Handlers.Triggers;
+using Azure.HabboHotel.Items.Wired.Interfaces;
 using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Wired;
-using Azure.HabboHotel.Rooms.Wired.Handlers.Conditions;
-using Azure.HabboHotel.Rooms.Wired.Handlers.Effects;
-using Azure.HabboHotel.Rooms.Wired.Handlers.Triggers;
 
 namespace Azure.HabboHotel.Items.Wired
 {
@@ -29,7 +28,9 @@ namespace Azure.HabboHotel.Items.Wired
 
         public static void OnEvent(IWiredItem item)
         {
-            if (item.Item.ExtraData == "1") return;
+            if (item.Item.ExtraData == "1")
+                return;
+
             item.Item.ExtraData = "1";
             item.Item.UpdateState(false, true);
             item.Item.ReqUpdate(1, true);
@@ -37,59 +38,81 @@ namespace Azure.HabboHotel.Items.Wired
 
         public IWiredItem LoadWired(IWiredItem fItem)
         {
-            if (fItem == null || fItem.Item == null)
+            if (fItem?.Item == null)
             {
-                if (_wiredItems.Contains(fItem)) _wiredItems.Remove(fItem);
+                if (_wiredItems.Contains(fItem))
+                    _wiredItems.Remove(fItem);
+
                 return null;
             }
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_wireds WHERE id=@id LIMIT 1");
                 queryReactor.AddParameter("id", fItem.Item.Id);
+
                 var row = queryReactor.GetRow();
+
                 if (row == null)
                 {
                     var wiredItem = GenerateNewItem(fItem.Item);
                     AddWired(wiredItem);
                     SaveWired(wiredItem);
+
                     return wiredItem;
                 }
+
                 fItem.OtherString = row["string"].ToString();
                 fItem.OtherBool = (row["bool"].ToString() == "1");
                 fItem.Delay = (int) row["delay"];
                 fItem.OtherExtraString = row["extra_string"].ToString();
                 fItem.OtherExtraString2 = row["extra_string_2"].ToString();
+
                 var array = row["items"].ToString().Split(';');
+
                 foreach (var s in array)
                 {
                     int value;
-                    if (!int.TryParse(s, out value)) continue;
+
+                    if (!int.TryParse(s, out value))
+                        continue;
+
                     var item = _room.GetRoomItemHandler().GetItem(Convert.ToUInt32(value));
+
                     fItem.Items.Add(item);
                 }
+
                 AddWired(fItem);
             }
+
             return fItem;
         }
 
         public static void SaveWired(IWiredItem fItem)
         {
-            if (fItem == null) return;
+            if (fItem == null)
+                return;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 var text = string.Empty;
                 var num = 0;
+
                 foreach (var current in fItem.Items)
                 {
                     if (num != 0) text += ";";
                     text += current.Id;
                     num++;
                 }
-                if (fItem.OtherString == null) fItem.OtherString = string.Empty;
-                if (fItem.OtherExtraString == null) fItem.OtherExtraString = string.Empty;
-                if (fItem.OtherExtraString2 == null) fItem.OtherExtraString2 = string.Empty;
-                queryReactor.SetQuery(
-                    "REPLACE INTO items_wireds VALUES (@id, @items, @delay, @string, @bool, @extrastring, @extrastring2)");
+
+                if (fItem.OtherString == null)
+                    fItem.OtherString = string.Empty;
+                if (fItem.OtherExtraString == null)
+                    fItem.OtherExtraString = string.Empty;
+                if (fItem.OtherExtraString2 == null)
+                    fItem.OtherExtraString2 = string.Empty;
+
+                queryReactor.SetQuery("REPLACE INTO items_wireds VALUES (@id, @items, @delay, @string, @bool, @extrastring, @extrastring2)");
                 queryReactor.AddParameter("id", fItem.Item.Id);
                 queryReactor.AddParameter("items", text);
                 queryReactor.AddParameter("delay", fItem.Delay);
@@ -97,6 +120,7 @@ namespace Azure.HabboHotel.Items.Wired
                 queryReactor.AddParameter("bool", Azure.BoolToEnum(fItem.OtherBool));
                 queryReactor.AddParameter("extrastring", fItem.OtherExtraString);
                 queryReactor.AddParameter("extrastring2", fItem.OtherExtraString2);
+
                 queryReactor.RunQuery();
             }
         }
@@ -125,10 +149,8 @@ namespace Azure.HabboHotel.Items.Wired
                     return false;
 
                 if (type == Interaction.TriggerCollision)
-                {
                     foreach (var wiredItem in _wiredItems.Where(wiredItem => wiredItem != null && wiredItem.Type == type))
                         wiredItem.Execute(stuff);
-                }
                 else if (_wiredItems.Any(current => current != null && current.Type == type && current.Execute(stuff)))
                     return true;
             }
@@ -136,6 +158,7 @@ namespace Azure.HabboHotel.Items.Wired
             {
                 Writer.Writer.HandleException(e, "WiredHandler.cs:ExecuteWired Type: " + type);
             }
+
             return false;
         }
 
@@ -150,8 +173,12 @@ namespace Azure.HabboHotel.Items.Wired
                     {
                         var wiredItem = (IWiredItem) _cycleItems.Dequeue();
                         var item = wiredItem as IWiredCycler;
-                        if (item == null) continue;
+
+                        if (item == null)
+                            continue;
+
                         var wiredCycler = item;
+
                         if (!wiredCycler.OnCycle())
                             if (!queue.Contains(item))
                                 queue.Enqueue(item);
@@ -168,13 +195,11 @@ namespace Azure.HabboHotel.Items.Wired
 
         public void EnqueueCycle(IWiredItem item)
         {
-            if (!_cycleItems.Contains(item)) _cycleItems.Enqueue(item);
+            if (!_cycleItems.Contains(item))
+                _cycleItems.Enqueue(item);
         }
 
-        public bool IsCycleQueued(IWiredItem item)
-        {
-            return _cycleItems.Contains(item);
-        }
+        public bool IsCycleQueued(IWiredItem item) => _cycleItems.Contains(item);
 
         public void AddWired(IWiredItem item)
         {
@@ -184,7 +209,9 @@ namespace Azure.HabboHotel.Items.Wired
 
         public void RemoveWired(IWiredItem item)
         {
-            if (!_wiredItems.Contains(item)) _wiredItems.Remove(item);
+            if (!_wiredItems.Contains(item))
+                _wiredItems.Remove(item);
+
             _wiredItems.Remove(item);
         }
 
@@ -192,18 +219,25 @@ namespace Azure.HabboHotel.Items.Wired
         {
             foreach (var current in _wiredItems)
             {
-                if (current == null || current.Item == null || current.Item.Id != item.Id) continue;
+                if (current?.Item == null || current.Item.Id != item.Id)
+                    continue;
+
                 var queue = new Queue();
+
                 lock (_cycleItems.SyncRoot)
                 {
                     while (_cycleItems.Count > 0)
                     {
                         var wiredItem = (IWiredItem) _cycleItems.Dequeue();
-                        if (wiredItem.Item.Id != item.Id) queue.Enqueue(wiredItem);
+
+                        if (wiredItem.Item.Id != item.Id)
+                            queue.Enqueue(wiredItem);
                     }
                 }
+
                 _cycleItems = queue;
                 _wiredItems.Remove(current);
+
                 break;
             }
         }
@@ -212,6 +246,7 @@ namespace Azure.HabboHotel.Items.Wired
         {
             switch (item.GetBaseItem().InteractionType)
             {
+                // Efeitos Antigos
                 case Interaction.TriggerTimer:
                     return new TimerTrigger(item, _room);
 
@@ -275,7 +310,7 @@ namespace Azure.HabboHotel.Items.Wired
                 case Interaction.ConditionFurnisHaveUsers:
                     return new FurniHasUsers(item, _room);
 
-                // CONDICIONES NUEVAS:
+                // Condições Novas
 
                 case Interaction.ConditionItemsMatches:
                     return new ItemsCoincide(item, _room);
@@ -313,7 +348,7 @@ namespace Azure.HabboHotel.Items.Wired
                 case Interaction.ConditionTimeLessThan:
                     return new TimeLessThan(item, _room);
 
-                // CONDICIONES NEGATIVAS:
+                // Condições Negativas
                 case Interaction.ConditionTriggererNotOnFurni:
                     return new TriggererNotOnFurni(item, _room);
 
@@ -341,7 +376,7 @@ namespace Azure.HabboHotel.Items.Wired
                 case Interaction.ConditionUserNotWearingBadge:
                     return new UserIsNotWearingBadge(item, _room);
 
-                // Efectos NUEVOS:
+                // Efeitos Novos
                 case Interaction.ActionGiveReward:
                     return new GiveReward(item, _room);
 
@@ -397,51 +432,27 @@ namespace Azure.HabboHotel.Items.Wired
                 case Interaction.ConditionUserHasHanditem:
                     return new UserHasHanditem(item, _room);
             }
+
             return null;
         }
 
-        public List<IWiredItem> GetConditions(IWiredItem item)
-        {
-            return
-                _wiredItems.Where(
-                    current =>
-                        current != null && IsCondition(current.Type) && current.Item.X == item.Item.X &&
-                        current.Item.Y == item.Item.Y)
-                    .ToList();
-        }
+        public List<IWiredItem> GetConditions(IWiredItem item) => _wiredItems.Where(current => current != null && IsCondition(current.Type) && current.Item.X == item.Item.X && current.Item.Y == item.Item.Y).ToList();
 
-        public List<IWiredItem> GetEffects(IWiredItem item)
-        {
-            return
-                _wiredItems.Where(
-                    current =>
-                        current != null && IsEffect(current.Type) && current.Item.X == item.Item.X &&
-                        current.Item.Y == item.Item.Y)
-                    .ToList();
-        }
+        public List<IWiredItem> GetEffects(IWiredItem item) => _wiredItems.Where(current => current != null && IsEffect(current.Type) && current.Item.X == item.Item.X && current.Item.Y == item.Item.Y).ToList();
 
-        public IWiredItem GetWired(RoomItem item)
-        {
-            return _wiredItems.FirstOrDefault(current => current != null && item.Id == current.Item.Id);
-        }
+        public IWiredItem GetWired(RoomItem item) => _wiredItems.FirstOrDefault(current => current != null && item.Id == current.Item.Id);
 
-        public List<IWiredItem> GetWiredsByType(Interaction type)
-        {
-            return _wiredItems.Where(item => item != null && item.Type == type).ToList();
-        }
+        public List<IWiredItem> GetWiredsByType(Interaction type) => _wiredItems.Where(item => item != null && item.Type == type).ToList();
 
-        public List<IWiredItem> GetWiredsByTypes(GlobalInteractions type)
-        {
-            return
-                _wiredItems.Where(
-                    item => item != null && InteractionTypes.AreFamiliar(type, item.Item.GetBaseItem().InteractionType))
-                    .ToList();
-        }
+        public List<IWiredItem> GetWiredsByTypes(GlobalInteractions type) => _wiredItems.Where(item => item != null && InteractionTypes.AreFamiliar(type, item.Item.GetBaseItem().InteractionType)).ToList();
 
         public void MoveWired(RoomItem item)
         {
             var wired = GetWired(item);
-            if (wired == null) return;
+
+            if (wired == null)
+                return;
+
             wired.Item = item;
             RemoveWired(item);
             AddWired(wired);
@@ -453,19 +464,10 @@ namespace Azure.HabboHotel.Items.Wired
             _cycleItems.Clear();
         }
 
-        private static bool IsTrigger(Interaction type)
-        {
-            return InteractionTypes.AreFamiliar(GlobalInteractions.WiredTrigger, type);
-        }
+        private static bool IsTrigger(Interaction type) => InteractionTypes.AreFamiliar(GlobalInteractions.WiredTrigger, type);
 
-        private static bool IsEffect(Interaction type)
-        {
-            return InteractionTypes.AreFamiliar(GlobalInteractions.WiredEffect, type);
-        }
+        private static bool IsEffect(Interaction type) => InteractionTypes.AreFamiliar(GlobalInteractions.WiredEffect, type);
 
-        private static bool IsCondition(Interaction type)
-        {
-            return InteractionTypes.AreFamiliar(GlobalInteractions.WiredCondition, type);
-        }
+        private static bool IsCondition(Interaction type) => InteractionTypes.AreFamiliar(GlobalInteractions.WiredCondition, type);
     }
 }

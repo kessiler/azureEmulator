@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -199,7 +200,10 @@ namespace Azure.HabboHotel.Groups.Interfaces
         /// <returns>ServerMessage.</returns>
         internal ServerMessage ForumDataMessage(uint requesterId)
         {
-            var message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumDataMessageComposer"));
+            string string1 = string.Empty, string2 = string.Empty, string3 = string.Empty, string4 = string.Empty;
+
+            ServerMessage message = new ServerMessage(LibraryParser.OutgoingRequest("GroupForumDataMessageComposer"));
+
             message.AppendInteger(Id);
             message.AppendString(Name);
             message.AppendString(Description);
@@ -216,27 +220,36 @@ namespace Azure.HabboHotel.Groups.Interfaces
             message.AppendInteger(WhoCanPost);
             message.AppendInteger(WhoCanThread);
             message.AppendInteger(WhoCanMod);
-            var string1 = "";
-            var string2 = "";
-            var string3 = "";
-            var string4 = "";
-            if (WhoCanRead == 1 && !Members.ContainsKey(requesterId)) string1 = "not_member";
-            if (WhoCanRead == 2 && !Admins.ContainsKey(requesterId)) string1 = "not_admin";
-            if (WhoCanPost == 1 && !Members.ContainsKey(requesterId)) string2 = "not_member";
-            if (WhoCanPost == 2 && !Admins.ContainsKey(requesterId)) string2 = "not_admin";
-            if (WhoCanPost == 3 && requesterId != CreatorId) string2 = "not_owner";
-            if (WhoCanThread == 1 && !Members.ContainsKey(requesterId)) string3 = "not_member";
-            if (WhoCanThread == 2 && !Admins.ContainsKey(requesterId)) string3 = "not_admin";
-            if (WhoCanThread == 3 && requesterId != CreatorId) string3 = "not_owner";
-            if (WhoCanMod == 2 && !Admins.ContainsKey(requesterId)) string4 = "not_admin";
-            if (WhoCanMod == 3 && requesterId != CreatorId) string4 = "not_owner";
+
+            if (WhoCanRead == 1 && !Members.ContainsKey(requesterId))
+                string1 = "not_member";
+            if (WhoCanRead == 2 && !Admins.ContainsKey(requesterId))
+                string1 = "not_admin";
+            if (WhoCanPost == 1 && !Members.ContainsKey(requesterId))
+                string2 = "not_member";
+            if (WhoCanPost == 2 && !Admins.ContainsKey(requesterId))
+                string2 = "not_admin";
+            if (WhoCanPost == 3 && requesterId != CreatorId)
+                string2 = "not_owner";
+            if (WhoCanThread == 1 && !Members.ContainsKey(requesterId))
+                string3 = "not_member";
+            if (WhoCanThread == 2 && !Admins.ContainsKey(requesterId))
+                string3 = "not_admin";
+            if (WhoCanThread == 3 && requesterId != CreatorId)
+                string3 = "not_owner";
+            if (WhoCanMod == 2 && !Admins.ContainsKey(requesterId))
+                string4 = "not_admin";
+            if (WhoCanMod == 3 && requesterId != CreatorId)
+                string4 = "not_owner";
+
             message.AppendString(string1);
             message.AppendString(string2);
             message.AppendString(string3);
             message.AppendString(string4);
-            message.AppendString("");
+            message.AppendString(string.Empty);
             message.AppendBool(requesterId == CreatorId);
             message.AppendBool(true);
+
             return message;
         }
 
@@ -248,7 +261,7 @@ namespace Azure.HabboHotel.Groups.Interfaces
         {
             message.AppendInteger(Id);
             message.AppendString(Name);
-            message.AppendString("");
+            message.AppendString(string.Empty);
             message.AppendString(Badge);
             message.AppendInteger(0);
             message.AppendInteger((int)Math.Round(ForumScore));
@@ -267,19 +280,18 @@ namespace Azure.HabboHotel.Groups.Interfaces
         {
             if (!HasForum)
                 return;
+
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                adapter.SetQuery(
-                    string.Format(
-                        "UPDATE groups_data SET has_forum = '1', forum_name = @name , forum_description = @desc , forum_messages_count = @msgcount , forum_score = @score , forum_lastposter_id = @lastposterid , forum_lastposter_name = @lastpostername , forum_lastposter_timestamp = @lasttimestamp WHERE id ={0}",
-                        Id));
+                adapter.SetQuery($"UPDATE groups_data SET has_forum = '1', forum_name = @name , forum_description = @desc , forum_messages_count = @msgcount , forum_score = @score , forum_lastposter_id = @lastposterid , forum_lastposter_name = @lastpostername , forum_lastposter_timestamp = @lasttimestamp WHERE id ={Id}");
                 adapter.AddParameter("name", ForumName);
                 adapter.AddParameter("desc", ForumDescription);
                 adapter.AddParameter("msgcount", ForumMessagesCount);
-                adapter.AddParameter("score", ForumScore.ToString());
+                adapter.AddParameter("score", ForumScore.ToString(CultureInfo.InvariantCulture));
                 adapter.AddParameter("lastposterid", ForumLastPosterId);
                 adapter.AddParameter("lastpostername", ForumLastPosterName);
                 adapter.AddParameter("lasttimestamp", ForumLastPosterTimestamp);
+
                 adapter.RunQuery();
             }
         }

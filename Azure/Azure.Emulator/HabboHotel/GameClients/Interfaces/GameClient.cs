@@ -98,6 +98,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         internal void HandlePublicist(string word, string message, string method, BlackWordTypeSettings settings)
         {
             ServerMessage serverMessage;
+
             if (GetHabbo().Rank < 5 && settings.MaxAdvices == PublicistCount++ && settings.AutoBan)
             {
                 serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
@@ -106,22 +107,19 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 serverMessage.AppendString("title");
                 serverMessage.AppendString("Staff Internal Alert");
                 serverMessage.AppendString("message");
-                serverMessage.AppendString("El usuario " + GetHabbo().UserName +
-                                           " ha sido baneado por decir muchas palabras no permitidas. Última palabra: " +
-                                           word + " en la frase: " + message);
+                serverMessage.AppendString("O usuário " + GetHabbo().UserName + " Foi banido por enviar repetidamente palavras repetidas. A última palavra foi: " +
+                                           word + ", na frase: " + message);
 
                 Azure.GetGame().GetClientManager().StaffAlert(serverMessage);
 
-                Azure.GetGame()
-                    .GetBanManager()
-                    .BanUser(this, GetHabbo().UserName, 3600,
-                        "You're passing too many spams from other hotels. For this reason we penalize you for 1 hour so that you learn to control yourself.",
-                        false, false);
+                Azure.GetGame().GetBanManager().BanUser(this, GetHabbo().UserName, 3600, "Você está passando muitos spams de outros hotéis. Por esta razão, sancioná-lo por 1 hora, de modo que você aprender a controlar-se.", false, false);
                 return;
             }
 
-            if (PublicistCount > 4)
-                return;
+            //if (PublicistCount > 4)
+            //    return;
+
+            // Queremos que os Staffs Saibam desses dados.
 
             var alert = settings.Alert.Replace("{0}", GetHabbo().UserName);
 
@@ -158,28 +156,19 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         ///     Gets the connection.
         /// </summary>
         /// <returns>ConnectionInformation.</returns>
-        internal ConnectionInformation GetConnection()
-        {
-            return _connection;
-        }
+        internal ConnectionInformation GetConnection() => _connection;
 
         /// <summary>
         ///     Gets the message handler.
         /// </summary>
         /// <returns>GameClientMessageHandler.</returns>
-        internal GameClientMessageHandler GetMessageHandler()
-        {
-            return _messageHandler;
-        }
+        internal GameClientMessageHandler GetMessageHandler() => _messageHandler;
 
         /// <summary>
         ///     Gets the habbo.
         /// </summary>
         /// <returns>Habbo.</returns>
-        internal Habbo GetHabbo()
-        {
-            return _habbo;
-        }
+        internal Habbo GetHabbo() => _habbo;
 
         /// <summary>
         ///     Starts the connection.
@@ -222,8 +211,11 @@ namespace Azure.HabboHotel.GameClients.Interfaces
             try
             {
                 var ip = GetConnection().GetIp();
+
                 uint errorCode;
+
                 var userData = UserDataFactory.GetUserData(authTicket, out errorCode);
+
                 if (errorCode == 1 || errorCode == 2)
                     return false;
 
@@ -231,6 +223,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
 
                 _habbo = userData.User;
                 userData.User.LoadData(userData);
+
                 var banReason = Azure.GetGame().GetBanManager().GetBanReason(userData.User.UserName, ip, MachineId);
 
                 if (!string.IsNullOrEmpty(banReason) || userData.User.UserName == null)
@@ -239,18 +232,18 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery($"SELECT ip_last FROM users WHERE id={GetHabbo().Id} LIMIT 1");
+
                         var supaString = queryReactor.GetString();
-                        queryReactor.SetQuery(
-                            $"SELECT COUNT(0) FROM users_bans_access WHERE user_id={_habbo.Id} LIMIT 1");
+
+                        queryReactor.SetQuery($"SELECT COUNT(0) FROM users_bans_access WHERE user_id={_habbo.Id} LIMIT 1");
                         var integer = queryReactor.GetInteger();
 
                         if (integer > 0)
-                            queryReactor.RunFastQuery("UPDATE users_bans_access SET attempts = attempts + 1, ip='" +
-                                                      supaString + "' WHERE user_id=" + GetHabbo().Id + " LIMIT 1");
+                            queryReactor.RunFastQuery("UPDATE users_bans_access SET attempts = attempts + 1, ip='" + supaString + "' WHERE user_id=" + GetHabbo().Id + " LIMIT 1");
                         else
-                            queryReactor.RunFastQuery("INSERT INTO users_bans_access (user_id, ip) VALUES (" +
-                                                      GetHabbo().Id + ", '" + supaString + "')");
+                            queryReactor.RunFastQuery("INSERT INTO users_bans_access (user_id, ip) VALUES (" + GetHabbo().Id + ", '" + supaString + "')");
                     }
+
                     return false;
                 }
 
@@ -260,22 +253,27 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 userData.User.Init(this, userData);
 
                 var queuedServerMessage = new QueuedServerMessage(_connection);
+
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UniqueMachineIDMessageComposer"));
+
                 serverMessage.AppendString(MachineId);
                 queuedServerMessage.AppendResponse(serverMessage);
-                queuedServerMessage.AppendResponse(
-                    new ServerMessage(LibraryParser.OutgoingRequest("AuthenticationOKMessageComposer")));
+
+                queuedServerMessage.AppendResponse(new ServerMessage(LibraryParser.OutgoingRequest("AuthenticationOKMessageComposer")));
 
                 var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("HomeRoomMessageComposer"));
+
                 serverMessage2.AppendInteger(_habbo.HomeRoom);
                 serverMessage2.AppendInteger(_habbo.HomeRoom);
                 queuedServerMessage.AppendResponse(serverMessage2);
 
                 serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("MinimailCountMessageComposer"));
+
                 serverMessage.AppendInteger(_habbo.MinimailUnreadMessages);
                 queuedServerMessage.AppendResponse(serverMessage);
 
                 serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("FavouriteRoomsMessageComposer"));
+
                 serverMessage.AppendInteger(30);
 
                 if (userData.User.FavoriteRooms == null || !userData.User.FavoriteRooms.Any())
@@ -287,9 +285,11 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                     foreach (var i in userData.User.FavoriteRooms)
                         serverMessage.AppendInteger(i);
                 }
+
                 queuedServerMessage.AppendResponse(serverMessage);
 
                 var rightsMessage = new ServerMessage(LibraryParser.OutgoingRequest("UserClubRightsMessageComposer"));
+
                 rightsMessage.AppendInteger(userData.User.GetSubscriptionManager().HasSubscription ? 2 : 0);
                 rightsMessage.AppendInteger(userData.User.Rank);
                 rightsMessage.AppendInteger(0);
@@ -319,8 +319,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 queuedServerMessage.AppendResponse(Azure.GetGame().GetAchievementManager().AchievementDataCached);
 
                 if (!GetHabbo().NuxPassed && ExtraSettings.NewUsersGiftsEnabled)
-                    queuedServerMessage.AppendResponse(
-                        new ServerMessage(LibraryParser.OutgoingRequest("NuxSuggestFreeGiftsMessageComposer")));
+                    queuedServerMessage.AppendResponse( new ServerMessage(LibraryParser.OutgoingRequest("NuxSuggestFreeGiftsMessageComposer")));
 
                 queuedServerMessage.AppendResponse(GetHabbo().GetAvatarEffectsInventoryComponent().GetPacket());
                 queuedServerMessage.SendResponse();
@@ -328,12 +327,14 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 Azure.GetGame().GetAchievementManager().TryProgressHabboClubAchievements(this);
                 Azure.GetGame().GetAchievementManager().TryProgressRegistrationAchievements(this);
                 Azure.GetGame().GetAchievementManager().TryProgressLoginAchievements(this);
+
                 return true;
             }
             catch (Exception ex)
             {
                 Logging.LogCriticalException($"Bug during user login: {ex}");
             }
+
             return false;
         }
 
@@ -344,6 +345,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         internal void SendNotifWithScroll(string message)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("MOTDNotificationMessageComposer"));
+
             serverMessage.AppendInteger(1);
             serverMessage.AppendString(message);
             SendMessage(serverMessage);
@@ -356,6 +358,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         internal void SendBroadcastMessage(string message)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("BroadcastNotifMessageComposer"));
+
             serverMessage.AppendString(message);
             serverMessage.AppendString(string.Empty);
             SendMessage(serverMessage);
@@ -368,6 +371,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         internal void SendModeratorMessage(string message)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("AlertNotificationMessageComposer"));
+
             serverMessage.AppendString(message);
             serverMessage.AppendString(string.Empty);
             SendMessage(serverMessage);
@@ -389,12 +393,14 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 return;
 
             var whisp = new ServerMessage(LibraryParser.OutgoingRequest("WhisperMessageComposer"));
+
             whisp.AppendInteger(roomUserByHabbo.VirtualId);
             whisp.AppendString(message);
             whisp.AppendInteger(0);
             whisp.AppendInteger(fromWired ? 34 : roomUserByHabbo.LastBubble);
             whisp.AppendInteger(0);
             whisp.AppendInteger(fromWired);
+
             SendMessage(whisp);
         }
 
@@ -418,9 +424,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         /// <returns>System.Byte[].</returns>
         public static byte[] GetBytesNotif(string message, string title = "Aviso", string picture = "")
         {
-            using (
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"))
-                )
+            using (var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer")))
             {
                 serverMessage.AppendString(picture);
                 serverMessage.AppendInteger(4);
@@ -487,6 +491,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
                 return;
 
             var bytes = message.GetReversedBytes();
+
             GetConnection().SendData(bytes);
         }
 
@@ -498,6 +503,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         {
             if (GetConnection() == null)
                 return;
+
             GetConnection().SendData(bytes);
         }
 
@@ -509,6 +515,7 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         {
             if (GetConnection() == null)
                 return;
+
             GetConnection().SendData(StaticMessagesManager.Get(type));
         }
 
@@ -519,9 +526,12 @@ namespace Azure.HabboHotel.GameClients.Interfaces
         {
             if (_connection == null)
                 return;
+
             if (_messageHandler == null)
                 InitHandler();
+
             PacketParser.SetConnection(_connection, this);
+
             _connection.Parser.Dispose();
             _connection.Parser = PacketParser;
             _connection.Parser.HandlePacketData(data, amountOfBytes);

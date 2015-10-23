@@ -48,10 +48,7 @@ namespace Azure.HabboHotel.Items
             itemLoaded = (uint)_items.Count;
         }
 
-        public int CountItems()
-        {
-            return _items.Count;
-        }
+        public int CountItems() => _items.Count;
 
         /// <summary>
         ///     Loads the items.
@@ -64,8 +61,10 @@ namespace Azure.HabboHotel.Items
             GiftWrapper.Clear();
 
             dbClient.SetQuery("SELECT * FROM catalog_furnis");
+
             var table = dbClient.GetTable();
             if (table == null) return;
+
             List<double> heights = null;
 
             foreach (DataRow dataRow in table.Rows)
@@ -98,7 +97,7 @@ namespace Azure.HabboHotel.Items
                     bool canWalk = false, canSit = false, stackMultiple = false;
 
                     if (name.StartsWith("external_image_wallitem_poster")) PhotoId = id;
-                    // Special Types of Furnis
+
                     if (name == "landscape" || name == "floor" || name == "wallpaper")
                     {
                         sprite = FurniDataParser.WallItems[name].Id;
@@ -125,38 +124,35 @@ namespace Azure.HabboHotel.Items
                         y = 1;
                         publicName = name;
                     }
-                    else if (type != 'e' && type != 'h' && type != 'r' && type != 'b') continue;
+                    else if (type != 'e' && type != 'h' && type != 'r' && type != 'b')
+                        continue;
 
                     if (name.StartsWith("present_gen"))
                         GiftWrapper.AddOld(sprite);
                     else if (name.StartsWith("present_wrap*"))
                         GiftWrapper.Add(sprite);
 
-                    // Stack Height Values
                     if (stackHeightStr.Contains(';'))
                     {
                         var heightsStr = stackHeightStr.Split(';');
-                        heights =
-                            heightsStr.Select(heightStr => double.Parse(heightStr, CultureInfo.InvariantCulture))
-                                .ToList();
+
+                        heights = heightsStr.Select(heightStr => double.Parse(heightStr, CultureInfo.InvariantCulture)).ToList();
+
                         stackHeight = heights[0];
                         stackMultiple = true;
                     }
                     else
-                    {
                         stackHeight = double.Parse(stackHeightStr, CultureInfo.InvariantCulture);
-                    }
 
                     // If Can Walk
-                    if (InteractionTypes.AreFamiliar(GlobalInteractions.Gate, typeFromString) ||
-                        (typeFromString == Interaction.BanzaiPyramid) || (name.StartsWith("hole")))
+                    if (InteractionTypes.AreFamiliar(GlobalInteractions.Gate, typeFromString) || (typeFromString == Interaction.BanzaiPyramid) || (name.StartsWith("hole")))
                         canWalk = false;
 
                     // Add Item
                     var value = new Item(id, sprite, publicName, name, type, x, y, stackHeight, stackable, canWalk,
                         canSit, allowRecycle, allowTrade, allowMarketplaceSell, allowGift, allowInventoryStack,
                         typeFromString, modes, vendingIds, sub, effect, stackMultiple,
-                        (heights == null ? null : heights.ToArray()), flatId);
+                        heights?.ToArray(), flatId);
 
                     _items.Add(id, value);
                 }
@@ -164,23 +160,19 @@ namespace Azure.HabboHotel.Items
                 {
                     Console.WriteLine(ex.ToString());
                     Console.ReadKey();
-                    Out.WriteLine(
-                        string.Format("Could not load item #{0}, please verify the data is okay.",
-                            Convert.ToUInt32(dataRow[0])), "Azure.Items", ConsoleColor.DarkRed);
+                    Out.WriteLine($"Could not load item #{Convert.ToUInt32(dataRow[0])}, please verify the data is okay.", "Azure.Items", ConsoleColor.DarkRed);
                 }
             }
         }
 
-        internal Item GetItem(uint id)
-        {
-            return (Item)_items[id];
-        }
+        internal Item GetItem(uint id) => (Item)_items[id];
 
         internal bool GetItem(string itemName, out Item item)
         {
             foreach (DictionaryEntry entry in _items)
             {
                 item = (Item)entry.Value;
+
                 if (item.Name == itemName)
                     return true;
             }
@@ -190,37 +182,15 @@ namespace Azure.HabboHotel.Items
             return false;
         }
 
-        internal Item GetItemByName(string name)
-        {
-            foreach (DictionaryEntry entry in _items)
-            {
-                var item = (Item)entry.Value;
-                if (item.Name == name)
-                    return item;
-            }
+        internal Item GetItemByName(string name) => (from DictionaryEntry entry in _items select (Item) entry.Value).FirstOrDefault(item => item.Name == name);
 
-            return null;
-        }
-
-        internal Item GetItemBySpriteId(int spriteId)
-        {
-            foreach (DictionaryEntry entry in _items)
-            {
-                var item = (Item)entry.Value;
-                if (item.SpriteId == spriteId)
-                    return item;
-            }
-            return null;
-        }
+        internal Item GetItemBySpriteId(int spriteId) => (from DictionaryEntry entry in _items select (Item) entry.Value).FirstOrDefault(item => item.SpriteId == spriteId);
 
         /// <summary>
         ///     Determines whether the specified identifier contains item.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns><c>true</c> if the specified identifier contains item; otherwise, <c>false</c>.</returns>
-        internal bool ContainsItem(uint id)
-        {
-            return _items.Contains(id);
-        }
+        internal bool ContainsItem(uint id) => _items.Contains(id);
     }
 }

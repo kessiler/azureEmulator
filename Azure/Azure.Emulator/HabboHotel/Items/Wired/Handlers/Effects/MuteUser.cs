@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     public class MuteUser : IWiredItem
     {
-        //private List<InteractionType> _mBanned;
         public MuteUser(RoomItem item, Room room)
         {
             Item = item;
@@ -17,7 +18,6 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
             OtherExtraString = string.Empty;
             OtherExtraString2 = string.Empty;
             Delay = 0;
-            //_mBanned = new List<InteractionType>();
         }
 
         public Interaction Type => Interaction.ActionMuteUser;
@@ -44,37 +44,29 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff[0] == null) return false;
-            var roomUser = (RoomUser)stuff[0];
+            var roomUser = (RoomUser) stuff[0];
 
-            if (roomUser == null || roomUser.IsBot || roomUser.GetClient() == null ||
-                roomUser.GetClient().GetHabbo() == null)
-            {
+            if (roomUser == null || roomUser.IsBot || roomUser.GetClient() == null || roomUser.GetClient().GetHabbo() == null)
                 return false;
-            }
 
             if (roomUser.GetClient().GetHabbo().Rank > 3)
-            {
                 return false;
-            }
 
             if (Delay == 0)
-            {
                 return false;
-            }
 
             var minutes = Delay / 500;
+
             var userId = roomUser.GetClient().GetHabbo().Id;
 
             if (Room.MutedUsers.ContainsKey(userId))
-            {
                 Room.MutedUsers.Remove(userId);
-            }
+
             Room.MutedUsers.Add(userId, Convert.ToUInt32((Azure.GetUnixTimeStamp() + (minutes * 60))));
+
             if (!string.IsNullOrEmpty(OtherString))
-            {
                 roomUser.GetClient().SendWhisper(OtherString);
-            }
+
             return true;
         }
     }

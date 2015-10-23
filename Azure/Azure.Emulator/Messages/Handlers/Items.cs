@@ -14,7 +14,6 @@ using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
-using Azure.HabboHotel.Rooms.Wired;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
 

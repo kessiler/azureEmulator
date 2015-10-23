@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Interfaces;
+using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 
-namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
+namespace Azure.HabboHotel.Items.Wired.Handlers.Effects
 {
     internal class TeleportToFurni : IWiredItem, IWiredCycler
     {
@@ -36,38 +38,43 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool OnCycle()
         {
-            if (!ToWorkConcurrentQueue.Any()) return true;
-            if (Room == null || Room.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
+            if (!ToWorkConcurrentQueue.Any())
+                return true;
+
+            if (Room?.GetRoomItemHandler() == null || Room.GetRoomItemHandler().FloorItems == null)
                 return false;
 
             var num = Azure.Now();
             var toAdd = new List<RoomUser>();
             RoomUser roomUser;
+
             while (ToWorkConcurrentQueue.TryDequeue(out roomUser))
             {
-                if (roomUser == null || roomUser.GetClient() == null) continue;
+                if (roomUser?.GetClient() == null)
+                    continue;
+
                 if (_mNext <= num)
                 {
-                    if (Teleport(roomUser)) continue;
+                    if (Teleport(roomUser))
+                        continue;
+
                     return false;
                 }
+
                 if (_mNext - num < 500L && roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent() != null)
-                {
                     roomUser.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(4);
-                }
 
                 toAdd.Add(roomUser);
             }
 
             foreach (var roomUserToAdd in toAdd.Where(roomUserToAdd => !ToWorkConcurrentQueue.Contains(roomUserToAdd)))
-            {
                 ToWorkConcurrentQueue.Enqueue(roomUserToAdd);
-            }
 
             toAdd.Clear();
-            toAdd = null;
 
-            if (_mNext >= num) return false;
+            if (_mNext >= num)
+                return false;
+
             _mNext = 0L;
             return true;
         }
@@ -108,47 +115,62 @@ namespace Azure.HabboHotel.Rooms.Wired.Handlers.Effects
 
         public bool Execute(params object[] stuff)
         {
-            if (stuff[0] == null) return false;
+            if (stuff[0] == null)
+                return false;
+
             var roomUser = (RoomUser)stuff[0];
             var item = (Interaction)stuff[1];
 
-            if (_mBanned.Contains(item)) return false;
-            if (!Items.Any()) return false;
+            if (_mBanned.Contains(item))
+                return false;
 
-            if (!ToWorkConcurrentQueue.Contains(roomUser)) ToWorkConcurrentQueue.Enqueue(roomUser);
-            if (Delay < 500) Delay = 500;
+            if (!Items.Any())
+                return false;
 
-            if (Room.GetWiredHandler().IsCycleQueued(this)) return false;
+            if (!ToWorkConcurrentQueue.Contains(roomUser))
+                ToWorkConcurrentQueue.Enqueue(roomUser);
 
-            if (_mNext == 0L || _mNext < Azure.Now()) _mNext = (Azure.Now() + (Delay));
+            if (Delay < 500)
+                Delay = 500;
+
+            if (Room.GetWiredHandler().IsCycleQueued(this))
+                return false;
+
+            if (_mNext == 0L || _mNext < Azure.Now())
+                _mNext = (Azure.Now() + (Delay));
 
             Room.GetWiredHandler().EnqueueCycle(this);
+
             return true;
         }
 
         private bool Teleport(RoomUser user)
         {
-            if (!Items.Any()) return true;
-            if (user == null || user.GetClient() == null || user.GetClient().GetHabbo() == null) return true;
+            if (!Items.Any())
+                return true;
+
+            if (user?.GetClient() == null || user.GetClient().GetHabbo() == null)
+                return true;
+
             var rnd = new Random();
-            Items = (
-                from x in Items
-                orderby rnd.Next()
-                select x).ToList();
+
+            Items = (from x in Items orderby rnd.Next() select x).ToList();
+
             RoomItem roomItem = null;
-            foreach (
-                var current in
-                    Items.Where(
-                        current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
+
+            foreach (var current in Items.Where(current => current != null && Room.GetRoomItemHandler().FloorItems.ContainsKey(current.Id)))
                 roomItem = current;
+
             if (roomItem == null)
             {
                 user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(0);
                 return false;
             }
+
             Room.GetGameMap().TeleportToItem(user, roomItem);
             Room.GetRoomUserManager().OnUserUpdateStatus();
             user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().ActivateCustomEffect(0);
+
             return true;
         }
     }

@@ -9,6 +9,7 @@ using Azure.HabboHotel.Items.Interactions;
 using Azure.HabboHotel.Items.Interactions.Controllers;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interactions.Interfaces;
+using Azure.HabboHotel.Items.Wired.Handlers;
 using Azure.HabboHotel.Pathfinding;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.Rooms;

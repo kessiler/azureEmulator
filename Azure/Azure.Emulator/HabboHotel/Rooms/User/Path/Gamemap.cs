@@ -8,6 +8,7 @@ using Azure.Configuration;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.Items.Wired.Handlers;
 using Azure.HabboHotel.Pathfinding;
 using Azure.HabboHotel.PathFinding;
 using Azure.HabboHotel.Rooms.Chat.Enums;
