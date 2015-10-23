@@ -14,7 +14,6 @@ using Azure.HabboHotel.PathFinding;
 using Azure.HabboHotel.Rooms.Chat.Enums;
 using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Rooms.Items.Games.Teams.Enums;
-using Azure.HabboHotel.Rooms.Wired.Handlers;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util;

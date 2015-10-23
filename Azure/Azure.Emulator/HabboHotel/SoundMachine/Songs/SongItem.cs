@@ -1,6 +1,6 @@
 using Azure.HabboHotel.Items.Interfaces;
 
-namespace Azure.HabboHotel.SoundMachine
+namespace Azure.HabboHotel.SoundMachine.Songs
 {
     /// <summary>
     ///     Class SongItem.
@@ -44,6 +44,7 @@ namespace Azure.HabboHotel.SoundMachine
         {
             ItemId = itemId;
             SongId = songId;
+
             BaseItem = Azure.GetGame().GetItemManager().GetItem(((uint) baseItem));
 
             ExtraData = extraData;
@@ -57,7 +58,7 @@ namespace Azure.HabboHotel.SoundMachine
         public SongItem(UserItem item)
         {
             ItemId = item.Id;
-            SongId = SongManager.GetSongId(item.SongCode);
+            SongId = SoundMachineSongManager.GetSongId(item.SongCode);
             BaseItem = item.BaseItem;
             ExtraData = item.ExtraData;
             SongCode = item.SongCode;
@@ -70,10 +71,7 @@ namespace Azure.HabboHotel.SoundMachine
         internal void SaveToDatabase(uint roomId)
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Concat("REPLACE INTO items_songs VALUES (", ItemId, ",", roomId, ",",
-                    SongId, ")"));
-            }
+                queryReactor.RunFastQuery($"REPLACE INTO items_songs VALUES ('{ItemId}', '{roomId}', '{SongId}')");
         }
 
         /// <summary>
@@ -82,9 +80,7 @@ namespace Azure.HabboHotel.SoundMachine
         internal void RemoveFromDatabase()
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Format("DELETE FROM items_songs WHERE itemid = {0}", ItemId));
-            }
+                queryReactor.RunFastQuery($"DELETE FROM items_songs WHERE itemid = '{ItemId}'");
         }
     }
 }

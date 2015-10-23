@@ -279,6 +279,7 @@ namespace Azure.HabboHotel.Users.Inventory
         {
             _floorItems.Clear();
             _wallItems.Clear();
+
             DataTable table;
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
@@ -305,6 +306,7 @@ namespace Azure.HabboHotel.Users.Inventory
                     extraData = string.Empty;
 
                 var group = Convert.ToUInt32(dataRow["group_id"]);
+
                 string songCode;
 
                 if (!DBNull.Value.Equals(dataRow["songcode"]))
@@ -326,7 +328,7 @@ namespace Azure.HabboHotel.Users.Inventory
                     _floorItems.Add(id, userItem);
             }
 
-            SongDisks.Clear();
+            //SongDisks.Clear();
             _inventoryPets.Clear();
             _inventoryBots.Clear();
 
@@ -373,9 +375,7 @@ namespace Azure.HabboHotel.Users.Inventory
                 LoadInventory();
             }
 
-            _mClient.GetMessageHandler()
-                .GetResponse()
-                .Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
+            _mClient.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
 
             _mClient.GetMessageHandler().SendResponse();
         }
@@ -481,24 +481,22 @@ namespace Azure.HabboHotel.Users.Inventory
         /// <param name="limtot">The limtot.</param>
         /// <param name="songCode">The song code.</param>
         /// <returns>UserItem.</returns>
-        internal UserItem AddNewItem(uint id, uint baseItem, string extraData, uint thGroup, bool insert, bool fromRoom,
-            int limno, int limtot, string songCode = "")
+        internal UserItem AddNewItem(uint id, uint baseItem, string extraData, uint thGroup, bool insert, bool fromRoom, int limno, int limtot, string songCode = "")
         {
             _isUpdated = false;
+
             if (insert)
             {
                 if (fromRoom)
                 {
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                        queryReactor.RunFastQuery("UPDATE items_rooms SET user_id = '" + UserId +
-                                                  "', room_id= '0' WHERE (id='" + id + "')");
+                        queryReactor.RunFastQuery("UPDATE items_rooms SET user_id = '" + UserId + "', room_id= '0' WHERE (id='" + id + "')");
                 }
                 else
                 {
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery(
-                            $"INSERT INTO items_rooms (base_item, user_id, group_id) VALUES ('{baseItem}', '{UserId}', '{thGroup}');");
+                        queryReactor.SetQuery($"INSERT INTO items_rooms (base_item, user_id, group_id) VALUES ('{baseItem}', '{UserId}', '{thGroup}');");
 
                         if (id == 0)
                             id = ((uint) queryReactor.InsertQuery());
@@ -513,13 +511,11 @@ namespace Azure.HabboHotel.Users.Inventory
                         }
 
                         if (limno > 0)
-                            queryReactor.RunFastQuery(
-                                $"INSERT INTO items_limited VALUES ('{id}', '{limno}', '{limtot}');");
+                            queryReactor.RunFastQuery($"INSERT INTO items_limited VALUES ('{id}', '{limno}', '{limtot}');");
 
                         if (!string.IsNullOrEmpty(songCode))
                         {
-                            queryReactor.SetQuery(
-                                $"UPDATE items_rooms SET songcode='{songCode}' WHERE id='{id}' LIMIT 1");
+                            queryReactor.SetQuery($"UPDATE items_rooms SET songcode='{songCode}' WHERE id='{id}' LIMIT 1");
                             queryReactor.RunQuery();
                         }
                     }
@@ -558,8 +554,7 @@ namespace Azure.HabboHotel.Users.Inventory
         /// <param name="placedInroom">if set to <c>true</c> [placed inroom].</param>
         internal void RemoveItem(uint id, bool placedInroom)
         {
-            if (GetClient() == null || GetClient().GetHabbo() == null ||
-                GetClient().GetHabbo().GetInventoryComponent() == null)
+            if (GetClient() == null || GetClient().GetHabbo() == null || GetClient().GetHabbo().GetInventoryComponent() == null)
                 GetClient().Disconnect("user null RemoveItem");
 
             _isUpdated = false;
@@ -726,15 +721,17 @@ namespace Azure.HabboHotel.Users.Inventory
             {
                 if (_mRemovedItems.Count <= 0 && _mAddedItems.Count <= 0 && _inventoryPets.Count <= 0)
                     return;
+
                 var queryChunk = new QueryChunk();
+
                 if (_mAddedItems.Count > 0)
                 {
                     foreach (UserItem userItem in _mAddedItems.Values)
-                        queryChunk.AddQuery(
-                            string.Format("UPDATE items_rooms SET user_id='{0}', room_id='0' WHERE id='{1}'", UserId,
-                                userItem.Id));
+                        queryChunk.AddQuery($"UPDATE items_rooms SET user_id='{UserId}', room_id='0' WHERE id='{userItem.Id}'");
+
                     _mAddedItems.Clear();
                 }
+
                 if (_mRemovedItems.Count > 0)
                 {
                     try
@@ -742,44 +739,42 @@ namespace Azure.HabboHotel.Users.Inventory
                         foreach (UserItem userItem2 in _mRemovedItems.Values)
                         {
                             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                                GetClient()
-                                    .GetHabbo()
-                                    .CurrentRoom.GetRoomItemHandler()
-                                    .SaveFurniture(queryReactor);
+                                GetClient().GetHabbo().CurrentRoom.GetRoomItemHandler().SaveFurniture(queryReactor);
+
                             if (SongDisks.Contains(userItem2.Id))
                                 SongDisks.Remove(userItem2.Id);
                         }
                     }
-                    catch (Exception)
+                    catch
                     {
+                        // ignored
                     }
+
                     _mRemovedItems.Clear();
                 }
+
                 foreach (Pet current in _inventoryPets.Values)
                 {
                     if (current.DbState == DatabaseUpdateState.NeedsUpdate)
                     {
-                        queryChunk.AddParameter(string.Format("{0}name", current.PetId), current.Name);
-                        queryChunk.AddParameter(string.Format("{0}race", current.PetId), current.Race);
-                        queryChunk.AddParameter(string.Format("{0}color", current.PetId), current.Color);
-                        queryChunk.AddQuery(string.Concat("UPDATE bots SET room_id = ", current.RoomId, ", name = @",
-                            current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z,
-                            " WHERE id = ", current.PetId));
-                        queryChunk.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId,
-                            "race, color = @", current.PetId, "color, type = ", current.Type, ", experience = ",
-                            current.Experience, ", energy = ", current.Energy, ", nutrition = ", current.Nutrition,
-                            ", respect = ", current.Respect, ", createstamp = '", current.CreationStamp,
-                            "', lasthealth_stamp = ", Azure.DateTimeToUnix(current.LastHealth), ", untilgrown_stamp = ",
-                            Azure.DateTimeToUnix(current.UntilGrown), " WHERE id = ", current.PetId));
+                        queryChunk.AddParameter($"{current.PetId}name", current.Name);
+                        queryChunk.AddParameter($"{current.PetId}race", current.Race);
+                        queryChunk.AddParameter($"{current.PetId}color", current.Color);
+
+                        queryChunk.AddQuery(string.Concat("UPDATE bots SET room_id = ", current.RoomId, ", name = @", current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z, " WHERE id = ", current.PetId));
+
+                        queryChunk.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId, "race, color = @", current.PetId, "color, type = ", current.Type, ", experience = ", current.Experience, ", energy = ", current.Energy, ", nutrition = ", current.Nutrition, ", respect = ", current.Respect, ", createstamp = '", current.CreationStamp, "', lasthealth_stamp = ", Azure.DateTimeToUnix(current.LastHealth), ", untilgrown_stamp = ", Azure.DateTimeToUnix(current.UntilGrown), " WHERE id = ", current.PetId));
                     }
+
                     current.DbState = DatabaseUpdateState.Updated;
                 }
+
                 using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                     queryChunk.Execute(queryreactor2);
             }
             catch (Exception ex)
             {
-                Logging.LogCacheError(string.Format("FATAL ERROR DURING USER INVENTORY DB UPDATE: {0}", ex));
+                Logging.LogCacheError($"FATAL ERROR DURING USER INVENTORY DB UPDATE: {ex}");
             }
         }
 
@@ -790,17 +785,19 @@ namespace Azure.HabboHotel.Users.Inventory
         internal ServerMessage SerializeMusicDiscs()
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SongsLibraryMessageComposer"));
+
             serverMessage.AppendInteger(SongDisks.Count);
-            foreach (var current in
-                from x in _floorItems.Values.OfType<UserItem>()
-                where x.BaseItem.InteractionType == Interaction.MusicDisc
-                select x)
+
+            foreach (var current in from x in _floorItems.Values.OfType<UserItem>() where x.BaseItem.InteractionType == Interaction.MusicDisc select x)
             {
                 uint i;
+
                 uint.TryParse(current.ExtraData, out i);
+
                 serverMessage.AppendInteger(current.Id);
                 serverMessage.AppendInteger(i);
             }
+
             return serverMessage;
         }
 

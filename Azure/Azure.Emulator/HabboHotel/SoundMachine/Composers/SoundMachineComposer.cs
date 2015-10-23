@@ -2,18 +2,19 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;
+using Azure.HabboHotel.SoundMachine.Songs;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
 namespace Azure.HabboHotel.SoundMachine.Composers
 {
     /// <summary>
-    ///     Class JukeboxComposer.
+    /// Class JukeboxComposer.
     /// </summary>
-    internal class JukeboxComposer
+    internal class SoundMachineComposer
     {
         /// <summary>
-        ///     Composes the specified songs.
+        /// Composes the specified songs.
         /// </summary>
         /// <param name="songs">The songs.</param>
         /// <returns>ServerMessage.</returns>
@@ -21,7 +22,8 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SongsMessageComposer"));
             serverMessage.AppendInteger(songs.Count);
-            foreach (var current in songs)
+
+            foreach (SongData current in songs)
             {
                 serverMessage.AppendInteger(current.Id);
                 serverMessage.AppendString(current.CodeName);
@@ -30,11 +32,12 @@ namespace Azure.HabboHotel.SoundMachine.Composers
                 serverMessage.AppendInteger(current.LengthMiliseconds);
                 serverMessage.AppendString(current.Artist);
             }
+
             return serverMessage;
         }
 
         /// <summary>
-        ///     Composes the playing composer.
+        /// Composes the playing composer.
         /// </summary>
         /// <param name="songId">The song identifier.</param>
         /// <param name="playlistItemNumber">The playlist item number.</param>
@@ -43,6 +46,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         public static ServerMessage ComposePlayingComposer(uint songId, int playlistItemNumber, int syncTimestampMs)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("JukeboxNowPlayingMessageComposer"));
+
             if (songId == 0u)
             {
                 serverMessage.AppendInteger(-1);
@@ -59,21 +63,19 @@ namespace Azure.HabboHotel.SoundMachine.Composers
                 serverMessage.AppendInteger(0);
                 serverMessage.AppendInteger(syncTimestampMs);
             }
+
             return serverMessage;
         }
 
         /// <summary>
-        ///     Composes the specified session.
+        /// Composes the specified session.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns>ServerMessage.</returns>
-        internal static ServerMessage Compose(GameClient session)
-        {
-            return session.GetHabbo().GetInventoryComponent().SerializeMusicDiscs();
-        }
+        internal static ServerMessage Compose(GameClient session) => session.GetHabbo().GetInventoryComponent().SerializeMusicDiscs();
 
         /// <summary>
-        ///     Composes the specified playlist capacity.
+        /// Composes the specified playlist capacity.
         /// </summary>
         /// <param name="playlistCapacity">The playlist capacity.</param>
         /// <param name="playlist">The playlist.</param>
@@ -81,18 +83,21 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         internal static ServerMessage Compose(int playlistCapacity, List<SongInstance> playlist)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("JukeboxPlaylistMessageComposer"));
+
             serverMessage.AppendInteger(playlistCapacity);
             serverMessage.AppendInteger(playlist.Count);
-            foreach (var current in playlist)
+
+            foreach (SongInstance current in playlist)
             {
                 serverMessage.AppendInteger(current.DiskItem.ItemId);
                 serverMessage.AppendInteger(current.SongData.Id);
             }
+
             return serverMessage;
         }
 
         /// <summary>
-        ///     Composes the specified song identifier.
+        /// Composes the specified song identifier.
         /// </summary>
         /// <param name="songId">The song identifier.</param>
         /// <param name="playlistItemNumber">The playlist item number.</param>
@@ -101,6 +106,7 @@ namespace Azure.HabboHotel.SoundMachine.Composers
         internal static ServerMessage Compose(uint songId, int playlistItemNumber, int syncTimestampMs)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("JukeboxNowPlayingMessageComposer"));
+
             if (songId == 0u)
             {
                 serverMessage.AppendInteger(-1);
@@ -117,11 +123,12 @@ namespace Azure.HabboHotel.SoundMachine.Composers
                 serverMessage.AppendInteger(0);
                 serverMessage.AppendInteger(syncTimestampMs);
             }
+
             return serverMessage;
         }
 
         /// <summary>
-        ///     Serializes the song inventory.
+        /// Serializes the song inventory.
         /// </summary>
         /// <param name="songs">The songs.</param>
         /// <returns>ServerMessage.</returns>
@@ -132,10 +139,12 @@ namespace Azure.HabboHotel.SoundMachine.Composers
             if (songs == null)
             {
                 serverMessage.AppendInteger(0);
+
                 return serverMessage;
             }
 
             serverMessage.StartArray();
+
             foreach (UserItem userItem in songs.Values)
             {
                 if (userItem == null)
@@ -143,10 +152,11 @@ namespace Azure.HabboHotel.SoundMachine.Composers
                     serverMessage.Clear();
                     continue;
                 }
+
                 serverMessage.AppendInteger(userItem.Id);
 
-                var song = SongManager.GetSong(userItem.SongCode);
-                serverMessage.AppendInteger(song == null ? 0 : song.Id);
+                var song = SoundMachineSongManager.GetSong(userItem.SongCode);
+                serverMessage.AppendInteger(song?.Id ?? 0);
 
                 serverMessage.SaveArray();
             }

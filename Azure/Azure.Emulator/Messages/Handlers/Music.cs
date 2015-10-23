@@ -6,6 +6,7 @@ using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.SoundMachine;
 using Azure.HabboHotel.SoundMachine.Composers;
+using Azure.HabboHotel.SoundMachine.Songs;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers
@@ -21,7 +22,7 @@ namespace Azure.Messages.Handlers
         internal void RetrieveSongId()
         {
             string text = Request.GetString();
-            uint songId = SongManager.GetSongId(text);
+            uint songId = SoundMachineSongManager.GetSongId(text);
             if (songId != 0u)
             {
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("RetrieveSongIDMessageComposer"));
@@ -42,11 +43,11 @@ namespace Azure.Messages.Handlers
             {
                 for (int i = 0; i < num; i++)
                 {
-                    SongData song = SongManager.GetSong(Request.GetUInteger());
+                    SongData song = SoundMachineSongManager.GetSong(Request.GetUInteger());
                     if (song != null)
                         list.Add(song);
                 }
-                Session.SendMessage(JukeboxComposer.Compose(list));
+                Session.SendMessage(SoundMachineComposer.Compose(list));
                 list.Clear();
             }
         }
@@ -61,7 +62,7 @@ namespace Azure.Messages.Handlers
             Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (!currentRoom.CheckRights(Session, true))
                 return;
-            RoomMusicController roomMusicController = currentRoom.GetRoomMusicController();
+            SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
             if (roomMusicController.PlaylistSize >= roomMusicController.PlaylistCapacity)
                 return;
             uint num = Request.GetUInteger();
@@ -76,7 +77,7 @@ namespace Azure.Messages.Handlers
             Session.GetHabbo().GetInventoryComponent().RemoveItem(num, true);
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET user_id='0' WHERE id={0} LIMIT 1", num));
-            Session.SendMessage(JukeboxComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
+            Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace Azure.Messages.Handlers
             Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (!currentRoom.GotMusicController())
                 return;
-            RoomMusicController roomMusicController = currentRoom.GetRoomMusicController();
+            SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
             SongItem songItem = roomMusicController.RemoveDisk(Request.GetInteger());
             if (songItem == null)
                 return;
@@ -100,8 +101,8 @@ namespace Azure.Messages.Handlers
             {
                 queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET user_id='{0}' WHERE id='{1}' LIMIT 1;", Session.GetHabbo().Id, songItem.ItemId));
             }
-            Session.SendMessage(JukeboxComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
-            Session.SendMessage(JukeboxComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
+            Session.SendMessage(SoundMachineComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
+            Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace Azure.Messages.Handlers
                 return;
             if (Session.GetHabbo().GetInventoryComponent().SongDisks.Count == 0)
                 return;
-            Session.SendMessage(JukeboxComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
+            Session.SendMessage(SoundMachineComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
         }
 
         /// <summary>
@@ -126,8 +127,8 @@ namespace Azure.Messages.Handlers
             Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (!currentRoom.GotMusicController())
                 return;
-            RoomMusicController roomMusicController = currentRoom.GetRoomMusicController();
-            Session.SendMessage(JukeboxComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
+            SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
+            Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }
     }
 }

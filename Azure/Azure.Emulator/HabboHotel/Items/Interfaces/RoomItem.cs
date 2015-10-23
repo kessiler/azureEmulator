@@ -19,7 +19,6 @@ using Azure.HabboHotel.Rooms.Items.Games.Types.Freeze.Enum;
 using Azure.HabboHotel.Rooms.Items.Games.Types.Soccer.Enums;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
-using Azure.HabboHotel.Rooms.Wired.Handlers;
 using Azure.HabboHotel.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;
@@ -1565,7 +1564,7 @@ namespace Azure.HabboHotel.Items.Interfaces
                         break;
 
                     case Interaction.MusicDisc:
-                        message.AppendInteger(SongManager.GetSongId(SongCode));
+                        message.AppendInteger(SoundMachineSongManager.GetSongId(SongCode));
                         message.AppendInteger(0);
                         message.AppendString(ExtraData);
                         break;

@@ -15,7 +15,7 @@ namespace Azure.HabboHotel.Commands.Controllers
         {
             MinRank = -3;
             Description = "Lets you pick a hand item, e.g. A drink";
-            Usage = ":handitem [ItemId]";
+            Usage = ":handitem [itemId]";
             MinParams = 1;
         }
 

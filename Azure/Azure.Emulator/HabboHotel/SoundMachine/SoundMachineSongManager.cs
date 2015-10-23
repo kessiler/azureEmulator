@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Azure.HabboHotel.SoundMachine.Songs;
 
 namespace Azure.HabboHotel.SoundMachine
 {
     /// <summary>
     ///     Class SongManager.
     /// </summary>
-    internal class SongManager
+    internal class SoundMachineSongManager
     {
         /// <summary>
         ///     The songs
@@ -25,40 +26,28 @@ namespace Azure.HabboHotel.SoundMachine
         /// </summary>
         /// <param name="codeName">Name of the code.</param>
         /// <returns>System.UInt32.</returns>
-        internal static uint GetSongId(string codeName)
-        {
-            return (from current in Songs.Values where current.CodeName == codeName select current.Id).FirstOrDefault();
-        }
+        internal static uint GetSongId(string codeName) => (from current in Songs.Values where current.CodeName == codeName select current.Id).FirstOrDefault();
 
         /// <summary>
         ///     Gets the song.
         /// </summary>
         /// <param name="codeName">Name of the code.</param>
         /// <returns>SongData.</returns>
-        internal static SongData GetSong(string codeName)
-        {
-            return Songs.Values.FirstOrDefault(current => current.CodeName == codeName);
-        }
+        internal static SongData GetSong(string codeName) => Songs.Values.FirstOrDefault(current => current.CodeName == codeName);
 
         /// <summary>
         ///     Gets the song by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>SongData.</returns>
-        internal static SongData GetSongById(uint id)
-        {
-            return Songs.Values.FirstOrDefault(current => current.Id == id);
-        }
+        internal static SongData GetSongById(uint id) => Songs.Values.FirstOrDefault(current => current.Id == id);
 
         /// <summary>
         ///     Gets the code by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>String.</returns>
-        internal static string GetCodeById(uint id)
-        {
-            return (from current in Songs.Values where current.Id == id select current.CodeName).FirstOrDefault();
-        }
+        internal static string GetCodeById(uint id) => (from current in Songs.Values where current.Id == id select current.CodeName).FirstOrDefault();
 
         /// <summary>
         ///     Initializes this instance.
@@ -67,17 +56,16 @@ namespace Azure.HabboHotel.SoundMachine
         {
             Songs = new Dictionary<uint, SongData>();
             _cacheTimer = new Dictionary<uint, double>();
-            DataTable table;
 
             Songs.Clear();
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_songs_data ORDER BY id");
-                table = queryReactor.GetTable();
-            }
-            foreach (var songFromDataRow in from DataRow dRow in table.Rows select GetSongFromDataRow(dRow))
-            {
-                Songs.Add(songFromDataRow.Id, songFromDataRow);
+                DataTable table = queryReactor.GetTable();
+
+                foreach (var songFromDataRow in from DataRow dRow in table.Rows select GetSongFromDataRow(dRow))
+                    Songs.Add(songFromDataRow.Id, songFromDataRow);
             }
         }
 
@@ -87,7 +75,9 @@ namespace Azure.HabboHotel.SoundMachine
         internal static void ProcessThread()
         {
             double num = Azure.GetUnixTimeStamp();
+
             var list = (from current in _cacheTimer where num - current.Value >= 180.0 select current.Key).ToList();
+
             foreach (var current2 in list)
             {
                 Songs.Remove(current2);
@@ -100,11 +90,7 @@ namespace Azure.HabboHotel.SoundMachine
         /// </summary>
         /// <param name="dRow">The d row.</param>
         /// <returns>SongData.</returns>
-        internal static SongData GetSongFromDataRow(DataRow dRow)
-        {
-            return new SongData(Convert.ToUInt32(dRow["id"]), dRow["codename"].ToString(), (string) dRow["name"],
-                (string) dRow["artist"], (string) dRow["song_data"], (double) dRow["length"]);
-        }
+        internal static SongData GetSongFromDataRow(DataRow dRow) => new SongData(Convert.ToUInt32(dRow["id"]), dRow["codename"].ToString(), (string) dRow["name"], (string) dRow["artist"], (string) dRow["song_data"], (double) dRow["length"]);
 
         /// <summary>
         ///     Gets the song.
@@ -114,7 +100,9 @@ namespace Azure.HabboHotel.SoundMachine
         internal static SongData GetSong(uint songId)
         {
             SongData result;
+
             Songs.TryGetValue(songId, out result);
+
             return result;
         }
     }

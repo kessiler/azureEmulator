@@ -1,4 +1,4 @@
-namespace Azure.HabboHotel.SoundMachine
+namespace Azure.HabboHotel.SoundMachine.Songs
 {
     /// <summary>
     ///     Class SongData.

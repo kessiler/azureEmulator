@@ -539,7 +539,7 @@ namespace Azure.HabboHotel
                 Filter.Load();
                 BobbaFilter.InitSwearWord();
                 BlackWordsManager.Load();
-                SongManager.Initialize();
+                SoundMachineSongManager.Initialize();
                 LowPriorityWorker.Init(queryReactor);
                 _roomManager.InitVotedRooms(queryReactor);
                 _roomManager.LoadCompetitionManager();

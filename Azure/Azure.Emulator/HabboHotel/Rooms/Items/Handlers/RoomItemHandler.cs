@@ -387,9 +387,12 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
         ///     Remove Items On Room GroupBy Username
         /// </summary>
         /// <param name="p">The p.</param>
+        /// <param name="roomItemList"></param>
+        /// <param name="session"></param>
         internal void RemoveItemsByOwner(ref List<RoomItem> roomItemList, ref GameClient session)
         {
             var toUpdate = new List<GameClient>();
+
             foreach (var item in roomItemList)
             {
                 if (item.UserId == 0)
@@ -397,30 +400,21 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
 
                 var client = Azure.GetGame().GetClientManager().GetClientByUserId(item.UserId);
 
-                if ((item != null) && (item.GetBaseItem().InteractionType != Interaction.PostIt))
+                if ((item.GetBaseItem().InteractionType != Interaction.PostIt))
                 {
                     if (!toUpdate.Contains(client))
                         toUpdate.Add(client);
 
                     if (client == null)
-                    {
                         using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
-                        {
                             dbClient.RunFastQuery("UPDATE items_rooms SET room_id = '0' WHERE id = " + item.Id);
-                        }
-                    }
                     else
-                    {
                         client.GetHabbo().GetInventoryComponent().AddItem(item);
-                        //Client.GetHabbo().GetInventoryComponent().UpdateItems(true);
-                    }
                 }
             }
+
             foreach (var client in toUpdate)
-            {
-                if (client != null)
-                    client.GetHabbo().GetInventoryComponent().UpdateItems(true);
-            }
+                client?.GetHabbo().GetInventoryComponent().UpdateItems(true);
         }
 
         /// <summary>
@@ -445,20 +439,19 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(
-                    "SELECT items_rooms.* , COALESCE(items_groups.group_id, 0) AS group_id FROM items_rooms LEFT OUTER JOIN items_groups ON items_rooms.id = items_groups.id WHERE items_rooms.room_id = " +
-                    _room.RoomId + " LIMIT 5000");
+                queryReactor.RunFastQuery("SELECT items_rooms.* , COALESCE(items_groups.group_id, 0) AS group_id FROM items_rooms LEFT OUTER JOIN items_groups ON items_rooms.id = items_groups.id WHERE items_rooms.room_id = " + _room.RoomId + " LIMIT 5000");
+
                 var table = queryReactor.GetTable();
 
                 if (table.Rows.Count >= 5000)
                 {
-                    var clientByUserId =
-                        Azure.GetGame().GetClientManager().GetClientByUserId((uint) _room.RoomData.OwnerId);
-                    if (clientByUserId != null)
-                        clientByUserId.SendNotif(
-                            "Your room has more than 5000 items in it. The current limit of items per room is 5000.\nTo view the rest, pick some of these items up!");
+                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId((uint) _room.RoomData.OwnerId);
+
+                    clientByUserId?.SendNotif("Your room has more than 5000 items in it. The current limit of items per room is 5000.\nTo view the rest, pick some of these items up!");
                 }
+
                 foreach (DataRow dataRow in table.Rows)
+                {
                     try
                     {
                         var id = Convert.ToUInt32(dataRow["id"]);
@@ -481,11 +474,11 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
 
                         string extraData;
                         if (DBNull.Value.Equals(dataRow["extra_data"])) extraData = string.Empty;
-                        else extraData = (string) dataRow["extra_data"];
+                        else extraData = (string)dataRow["extra_data"];
 
                         string songCode;
                         if (DBNull.Value.Equals(dataRow["songcode"])) songCode = string.Empty;
-                        else songCode = (string) dataRow["songcode"];
+                        else songCode = (string)dataRow["songcode"];
 
                         var groupId = Convert.ToUInt32(dataRow["group_id"]);
                         if (item.Type == 'i')
@@ -493,7 +486,7 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
                             var wallCoord = new WallCoordinate(':' + locationData.Split(':')[1]);
                             var value = new RoomItem(id, _room.RoomId, baseItemId, extraData, wallCoord, _room, ownerId,
                                 groupId, item.FlatId,
-                                Azure.EnumToBool((string) dataRow["builders"]));
+                                Azure.EnumToBool((string)dataRow["builders"]));
 
                             WallItems.TryAdd(id, value);
                         }
@@ -502,11 +495,12 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
                             var roomItem = new RoomItem(id, _room.RoomId, baseItemId, extraData, x, y, z, rot, _room,
                                 ownerId,
                                 groupId, item.FlatId, songCode,
-                                Azure.EnumToBool((string) dataRow["builders"]));
+                                Azure.EnumToBool((string)dataRow["builders"]));
 
                             if (!_room.GetGameMap().ValidTile(x, y))
                             {
                                 var clientByUserId2 = Azure.GetGame().GetClientManager().GetClientByUserId(ownerId);
+
                                 if (clientByUserId2 != null)
                                 {
                                     clientByUserId2.GetHabbo()
@@ -530,18 +524,20 @@ namespace Azure.HabboHotel.Rooms.Items.Handlers
                     {
                         Console.WriteLine(e);
                     }
-
+                }
+                    
                 foreach (var current in FloorItems.Values)
                 {
                     if (current.IsWired)
                         _room.GetWiredHandler().LoadWired(_room.GetWiredHandler().GenerateNewItem(current));
-                    if (current.IsRoller) GotRollers = true;
+                    if (current.IsRoller)
+                        GotRollers = true;
                     else if (current.GetBaseItem().InteractionType == Interaction.Dimmer)
                     {
-                        if (_room.MoodlightData == null) _room.MoodlightData = new MoodlightData(current.Id);
-                    }
-                    else if (current.GetBaseItem().InteractionType == Interaction.RoomBg &&
-                             _room.TonerData == null)
+                        if (_room.MoodlightData == null)
+                            _room.MoodlightData = new MoodlightData(current.Id);
+                    }      
+                    else if (current.GetBaseItem().InteractionType == Interaction.RoomBg && _room.TonerData == null)
                         _room.TonerData = new TonerData(current.Id);
                 }
             }

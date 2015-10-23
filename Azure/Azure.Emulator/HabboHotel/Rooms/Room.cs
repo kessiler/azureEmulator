@@ -26,6 +26,7 @@ using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Rooms.User.Path;
 using Azure.HabboHotel.Rooms.User.Trade;
 using Azure.HabboHotel.SoundMachine;
+using Azure.HabboHotel.SoundMachine.Songs;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -79,7 +80,7 @@ namespace Azure.HabboHotel.Rooms
         /// <summary>
         ///     The _music controller
         /// </summary>
-        private RoomMusicController _musicController;
+        private SoundMachineManager _musicController;
 
         /// <summary>
         ///     The _process timer
@@ -333,9 +334,9 @@ namespace Azure.HabboHotel.Rooms
         ///     Gets the room music controller.
         /// </summary>
         /// <returns>RoomMusicController.</returns>
-        internal RoomMusicController GetRoomMusicController()
+        internal SoundMachineManager GetRoomMusicController()
         {
-            return _musicController ?? (_musicController = new RoomMusicController());
+            return _musicController ?? (_musicController = new SoundMachineManager());
         }
 
         /// <summary>
@@ -570,15 +571,17 @@ namespace Azure.HabboHotel.Rooms
         internal void LoadMusic()
         {
             DataTable table;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(
-                    $"SELECT items_songs.songid,items_rooms.id,items_rooms.base_item FROM items_songs LEFT JOIN items_rooms ON items_rooms.id = items_songs.itemid WHERE items_songs.roomid = {RoomId}");
+                queryReactor.SetQuery($"SELECT items_songs.songid,items_rooms.id,items_rooms.base_item FROM items_songs LEFT JOIN items_rooms ON items_rooms.id = items_songs.itemid WHERE items_songs.roomid = {RoomId}");
+
                 table = queryReactor.GetTable();
             }
 
             if (table == null)
                 return;
+
             foreach (DataRow dataRow in table.Rows)
             {
                 var songId = (uint) dataRow[0];
@@ -586,17 +589,21 @@ namespace Azure.HabboHotel.Rooms
                 var baseItem = Convert.ToInt32(dataRow[2]);
                 var songCode = string.Empty;
                 var extraData = string.Empty;
+
                 using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery($"SELECT extra_data,songcode FROM items_rooms WHERE id = {num}");
                     var row = queryreactor2.GetRow();
+
                     if (row != null)
                     {
                         extraData = (string) row["extra_data"];
                         songCode = (string) row["songcode"];
                     }
                 }
+
                 var diskItem = new SongItem(num, songId, baseItem, extraData, songCode);
+
                 GetRoomMusicController().AddDisk(diskItem);
             }
         }

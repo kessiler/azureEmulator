@@ -349,10 +349,8 @@ namespace Azure.HabboHotel.Catalogs
         /// <param name="giftLazo">The gift lazo.</param>
         /// <param name="giftColor">Color of the gift.</param>
         /// <param name="undef">if set to <c>true</c> [undef].</param>
-        /// <param name="group">The group.</param>
-        internal void HandlePurchase(GameClient session, int pageId, uint itemId, string extraData, int priceAmount,
-            bool isGift, string giftUser, string giftMessage, int giftSpriteId, int giftLazo, int giftColor, bool undef,
-            uint @group)
+        /// <param name="theGroup">The theGroup.</param>
+        internal void HandlePurchase(GameClient session, int pageId, uint itemId, string extraData, int priceAmount, bool isGift, string giftUser, string giftMessage, int giftSpriteId, int giftLazo, int giftColor, bool undef, uint theGroup)
         {
             priceAmount = (priceAmount < 1 || priceAmount > 100) ? 1 : priceAmount;
 
@@ -418,6 +416,7 @@ namespace Azure.HabboHotel.Catalogs
                     session.GetHabbo().Diamonds -= (int)item.DiamondsCost * totalPrice;
                     session.GetHabbo().UpdateSeasonalCurrencyBalance();
                 }
+
                 return;
             }
 
@@ -426,19 +425,15 @@ namespace Azure.HabboHotel.Catalogs
 
             if (item.ClubOnly && !session.GetHabbo().GetSubscriptionManager().HasSubscription)
             {
-                var serverMessage =
-                    new ServerMessage(LibraryParser.OutgoingRequest("CatalogPurchaseNotAllowedMessageComposer"));
+                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("CatalogPurchaseNotAllowedMessageComposer"));
                 serverMessage.AppendInteger(1);
                 session.SendMessage(serverMessage);
                 return;
             }
 
-            var flag =
-                item.Items.Keys.Any(
-                    current => InteractionTypes.AreFamiliar(GlobalInteractions.Pet, current.InteractionType));
+            var flag = item.Items.Keys.Any(current => InteractionTypes.AreFamiliar(GlobalInteractions.Pet, current.InteractionType));
 
-            if (!flag &&
-                (item.CreditsCost * totalPrice < 0 || item.DucketsCost * totalPrice < 0 || item.DiamondsCost * totalPrice < 0))
+            if (!flag && (item.CreditsCost * totalPrice < 0 || item.DucketsCost * totalPrice < 0 || item.DiamondsCost * totalPrice < 0))
                 return;
 
             if (item.IsLimited)
@@ -448,8 +443,7 @@ namespace Azure.HabboHotel.Catalogs
 
                 if (item.LimitedSelled >= item.LimitedStack)
                 {
-                    session.SendMessage(
-                        new ServerMessage(LibraryParser.OutgoingRequest("CatalogLimitedItemSoldOutMessageComposer")));
+                    session.SendMessage(new ServerMessage(LibraryParser.OutgoingRequest("CatalogLimitedItemSoldOutMessageComposer")));
                     return;
                 }
 
@@ -457,8 +451,7 @@ namespace Azure.HabboHotel.Catalogs
 
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.RunFastQuery(string.Concat("UPDATE catalog_items SET limited_sells = ",
-                        item.LimitedSelled, " WHERE id = ", item.Id));
+                    queryReactor.RunFastQuery(string.Concat("UPDATE catalog_items SET limited_sells = ", item.LimitedSelled, " WHERE id = ", item.Id));
                     limitedId = item.LimitedSelled;
                     limtot = item.LimitedStack;
                 }
@@ -562,8 +555,7 @@ namespace Azure.HabboHotel.Catalogs
 
                 if (item.Name.StartsWith("builders_club_addon_"))
                 {
-                    var furniAmount =
-                        Convert.ToInt32(item.Name.Replace("builders_club_addon_", "").Replace("furnis", ""));
+                    var furniAmount = Convert.ToInt32(item.Name.Replace("builders_club_addon_", "").Replace("furnis", ""));
 
                     session.GetHabbo().BuildersItemsMax += furniAmount;
 
@@ -584,8 +576,7 @@ namespace Azure.HabboHotel.Catalogs
                     }
 
                     session.SendMessage(CatalogPageComposer.PurchaseOk(item, item.Items));
-                    session.SendNotif("${notification.builders_club.membership_extended.message}",
-                        "${notification.builders_club.membership_extended.title}", "builders_club_membership_extended");
+                    session.SendNotif("${notification.builders_club.membership_extended.message}", "${notification.builders_club.membership_extended.title}", "builders_club_membership_extended");
                     return;
                 }
 
@@ -612,8 +603,7 @@ namespace Azure.HabboHotel.Catalogs
                     }
 
                     session.SendMessage(CatalogPageComposer.PurchaseOk(item, item.Items));
-                    session.SendNotif("${notification.builders_club.membership_extended.message}",
-                        "${notification.builders_club.membership_extended.title}", "builders_club_membership_extended");
+                    session.SendNotif("${notification.builders_club.membership_extended.message}", "${notification.builders_club.membership_extended.title}", "builders_club_membership_extended");
                     return;
                 }
 
@@ -734,8 +724,8 @@ namespace Azure.HabboHotel.Catalogs
                     case Interaction.BadgeDisplay:
                         if (!session.GetHabbo().GetBadgeComponent().HasBadge(extraData))
                             extraData = "UMAD";
-                        extraData =
-                            $"{extraData}|{session.GetHabbo().UserName}|{DateTime.Now.Day.ToString("00")}-{DateTime.Now.Month.ToString("00")}-{DateTime.Now.Year}";
+
+                        extraData = $"{extraData}|{session.GetHabbo().UserName}|{DateTime.Now.Day.ToString("00")}-{DateTime.Now.Month.ToString("00")}-{DateTime.Now.Year}";
                         break;
 
                     case Interaction.FootballGate:
@@ -768,16 +758,18 @@ namespace Azure.HabboHotel.Catalogs
                         break;
 
                     case Interaction.MusicDisc:
-                        var song = SongManager.GetSongById(item.SongId);
 
-                        extraData = "";
+                        var song = SoundMachineSongManager.GetSongById(item.SongId);
+
+                        extraData = string.Empty;
 
                         if (song == null)
                             break;
 
-                        extraData = string.Concat(session.GetHabbo().UserName, '\n', DateTime.Now.Year, '\n',
-                            DateTime.Now.Month, '\n', DateTime.Now.Day, '\n', song.LengthSeconds, '\n',
-                            song.Name);
+                        extraData = string.Concat(session.GetHabbo().UserName, '\n', DateTime.Now.Year, '\n', DateTime.Now.Month, '\n', DateTime.Now.Day, '\n', song.LengthSeconds, '\n', song.Name);
+
+                        text = song.CodeName;
+
                         break;
 
                     default:
@@ -785,43 +777,38 @@ namespace Azure.HabboHotel.Catalogs
                         break;
                 }
 
-                session.GetMessageHandler()
-                    .GetResponse()
-                    .Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
+                session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
+
                 session.GetMessageHandler().SendResponse();
+
                 session.SendMessage(CatalogPageComposer.PurchaseOk(item, item.Items));
 
                 if (isGift)
                 {
                     var itemBySprite = Azure.GetGame().GetItemManager().GetItemBySpriteId(giftSpriteId);
 
-                    if (itemBySprite == null) return;
+                    if (itemBySprite == null)
+                        return;
+
                     uint insertId;
+
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery("INSERT INTO items_rooms (base_item,user_id) VALUES (" +
-                                              itemBySprite.ItemId + ", " + toUserId + ")");
+                        queryReactor.SetQuery("INSERT INTO items_rooms (base_item,user_id) VALUES (" + itemBySprite.ItemId + ", " + toUserId + ")");
+
                         insertId = (uint)queryReactor.InsertQuery();
-                        queryReactor.SetQuery(
-                            string.Concat(
-                                "INSERT INTO users_gifts (gift_id,item_id,extradata,giver_name,Message,ribbon,color,gift_sprite,show_sender,rare_id) VALUES (",
-                                insertId, ", ", baseItem.ItemId, ",@extradata, @name, @Message,", giftLazo, ",",
-                                giftColor, ",", giftSpriteId, ",", undef ? 1 : 0, ",", limitedId, ")"));
+                        queryReactor.SetQuery(string.Concat("INSERT INTO users_gifts (gift_id,item_id,extradata,giver_name,Message,ribbon,color,gift_sprite,show_sender,rare_id) VALUES (", insertId, ", ", baseItem.ItemId, ",@extradata, @name, @Message,", giftLazo, ",", giftColor, ",", giftSpriteId, ",", undef ? 1 : 0, ",", limitedId, ")"));
                         queryReactor.AddParameter("extradata", extraData);
                         queryReactor.AddParameter("name", giftUser);
                         queryReactor.AddParameter("message", giftMessage);
                         queryReactor.RunQuery();
+
                         if (session.GetHabbo().Id != toUserId)
                         {
-                            Azure.GetGame()
-                                .GetAchievementManager()
-                                .ProgressUserAchievement(session, "ACH_GiftGiver", 1, true);
+                            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_GiftGiver", 1, true);
                             Azure.GetGame().GetQuestManager().ProgressUserQuest(session, QuestType.GiftOthers);
 
-                            queryReactor.RunFastQuery(
-                                "UPDATE users_stats SET gifts_given = gifts_given + 1 WHERE id = " +
-                                session.GetHabbo().Id +
-                                ";UPDATE users_stats SET gifts_received = gifts_received + 1 WHERE id = " + toUserId);
+                            queryReactor.RunFastQuery("UPDATE users_stats SET gifts_given = gifts_given + 1 WHERE id = " + session.GetHabbo().Id + ";UPDATE users_stats SET gifts_received = gifts_received + 1 WHERE id = " + toUserId);
                         }
                     }
 
@@ -829,27 +816,18 @@ namespace Azure.HabboHotel.Catalogs
 
                     if (clientByUserId != null)
                     {
-                        clientByUserId.GetHabbo()
-                            .GetInventoryComponent()
-                            .AddNewItem(insertId, itemBySprite.ItemId,
-                                string.Concat(session.GetHabbo().Id, (char)9, giftMessage, (char)9, giftLazo, (char)9,
-                                    giftColor, (char)9, ((undef) ? "1" : "0"), (char)9, session.GetHabbo().UserName,
-                                    (char)9, session.GetHabbo().Look, (char)9, item.Name), 0u, false, false, 0, 0);
+                        clientByUserId.GetHabbo() .GetInventoryComponent().AddNewItem(insertId, itemBySprite.ItemId,  string.Concat(session.GetHabbo().Id, (char)9, giftMessage, (char)9, giftLazo, (char)9, giftColor, (char)9, ((undef) ? "1" : "0"), (char)9, session.GetHabbo().UserName, (char)9, session.GetHabbo().Look, (char)9, item.Name), 0u, false, false, 0, 0);
 
                         if (clientByUserId.GetHabbo().Id != session.GetHabbo().Id)
-                        {
-                            Azure.GetGame()
-                                .GetAchievementManager()
-                                .ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, true);
-                        }
+                            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, true);
                     }
+
                     session.GetHabbo().LastGiftPurchaseTime = DateTime.Now;
+
                     continue;
                 }
 
-                session.GetMessageHandler()
-                    .GetResponse()
-                    .Init(LibraryParser.OutgoingRequest("NewInventoryObjectMessageComposer"));
+                session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("NewInventoryObjectMessageComposer"));
 
                 session.GetMessageHandler().GetResponse().AppendInteger(1);
 
@@ -874,6 +852,7 @@ namespace Azure.HabboHotel.Catalogs
                 if (InteractionTypes.AreFamiliar(GlobalInteractions.Pet, baseItem.InteractionType))
                     session.SendMessage(session.GetHabbo().GetInventoryComponent().SerializePetInventory());
             }
+
             if (item.Badge.Length >= 1)
                 session.GetHabbo().GetBadgeComponent().GiveBadge(item.Badge, true, session);
         }
@@ -889,25 +868,26 @@ namespace Azure.HabboHotel.Catalogs
         /// <param name="limtot">The limtot.</param>
         /// <param name="songCode">The song code.</param>
         /// <returns>List&lt;UserItem&gt;.</returns>
-        internal List<UserItem> DeliverItems(GameClient session, Item item, int amount, string extraData, int limno,
-            int limtot, string songCode)
+        internal List<UserItem> DeliverItems(GameClient session, Item item, int amount, string extraData, int limno, int limtot, string songCode)
         {
             var list = new List<UserItem>();
+
             if (item.InteractionType == Interaction.PostIt)
                 amount = amount * 20;
+
             var a = item.Type;
             if (a == 'i' || a == 's')
             {
                 var i = 0;
+
                 while (i < amount)
                 {
                     var interactionType = item.InteractionType;
+
                     switch (interactionType)
                     {
                         case Interaction.Dimmer:
-                            var userItem33 = session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0);
+                            var userItem33 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0);
                             var id33 = userItem33.Id;
 
                             list.Add(userItem33);
@@ -936,32 +916,22 @@ namespace Azure.HabboHotel.Catalogs
                         case Interaction.Pool:
                         case Interaction.Roller:
                         case Interaction.FootballGate:
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
                             break;
 
                         case Interaction.Teleport:
                         case Interaction.QuickTeleport:
-                            var userItem = session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, "0", 0u, true, false, 0, 0);
+                            var userItem = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", 0u, true, false, 0, 0);
                             var id = userItem.Id;
-                            var userItem2 = session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, "0", 0u, true, false, 0, 0);
+                            var userItem2 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", 0u, true, false, 0, 0);
                             var id2 = userItem2.Id;
 
                             list.Add(userItem);
                             list.Add(userItem2);
 
                             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                            {
-                                queryReactor.RunFastQuery(
-                                    $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id}','{id2}')");
-                                queryReactor.RunFastQuery(
-                                    $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id2}','{id}')");
-                            }
+                                queryReactor.RunFastQuery($"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id}','{id2}');" + $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id2}','{id}')");
+
                             break;
 
                         case Interaction.PetDog:
@@ -1005,27 +975,19 @@ namespace Azure.HabboHotel.Catalogs
 
                             session.GetHabbo().GetInventoryComponent().AddPet(generatedPet);
 
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0, 1534, "0", 0u, true, false, 0, 0, string.Empty));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0, 1534, "0", 0u, true, false, 0, 0, string.Empty));
                             break;
 
                         case Interaction.MusicDisc:
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0, songCode));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0, songCode));
                             break;
 
                         case Interaction.PuzzleBox:
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
                             break;
 
                         case Interaction.RoomBg:
-                            var userItem44 = session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0, string.Empty);
+                            var userItem44 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, 0, 0, string.Empty);
                             var id44 = userItem44.Id;
 
                             list.Add(userItem44);
@@ -1038,10 +1000,7 @@ namespace Azure.HabboHotel.Catalogs
                         case Interaction.GuildItem:
                         case Interaction.GuildGate:
                         case Interaction.GroupForumTerminal:
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0,
-                                    string.Empty));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
                             break;
 
                         case Interaction.GuildForum:
@@ -1055,9 +1014,7 @@ namespace Azure.HabboHotel.Catalogs
                             {
                                 if (group.CreatorId == session.GetHabbo().Id)
                                 {
-                                    session.GetMessageHandler()
-                                        .GetResponse()
-                                        .Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                                    session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
                                     session.GetMessageHandler().GetResponse().AppendString("forums.delivered");
                                     session.GetMessageHandler().GetResponse().AppendInteger(2);
                                     session.GetMessageHandler().GetResponse().AppendString("groupId");
@@ -1073,25 +1030,20 @@ namespace Azure.HabboHotel.Catalogs
                                     }
                                 }
                                 else
-                                {
                                     session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
-                                }
                             }
 
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0,
-                                    string.Empty));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
                             break;
 
                         default:
-                            list.Add(session.GetHabbo()
-                                .GetInventoryComponent()
-                                .AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
+                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.ItemId, extraData, 0u, true, false, limno, limtot));
                             break;
                     }
+
                     i++;
                 }
+
                 return list;
             }
 

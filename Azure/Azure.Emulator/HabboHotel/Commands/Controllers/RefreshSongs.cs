@@ -22,7 +22,7 @@ namespace Azure.HabboHotel.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            SongManager.Initialize();
+            SoundMachineSongManager.Initialize();
             session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_songs"));
             return true;
         }

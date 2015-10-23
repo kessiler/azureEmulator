@@ -171,7 +171,7 @@ namespace Azure.Messages.Handlers
             }
 
             /*Session.GetMessageHandler().GetResponse().Init(Outgoing.RemovePetBreedingPanel);
-            Session.GetMessageHandler().GetResponse().AppendUInt(ItemId);
+            Session.GetMessageHandler().GetResponse().AppendUInt(itemId);
             Session.GetMessageHandler().GetResponse().AppendInt32(0);
             Session.GetMessageHandler().SendResponse();*/
 
@@ -264,13 +264,16 @@ namespace Azure.Messages.Handlers
 
         internal void PlaceItem()
         {
-            if (Session == null || Session.GetHabbo() == null)
+            if (Session?.GetHabbo() == null)
                 return;
+
             try
             {
                 var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
                 if (room == null || Azure.GetDbConfig().DbData["placing_enabled"] != "1")
                     return;
+
                 if (!room.CheckRights(Session, false, true))
                 {
                     Session.SendMessage(StaticMessage.ErrorCantSetNotOwner);
@@ -281,11 +284,14 @@ namespace Azure.Messages.Handlers
                 var dataBits = placementData.Split(' ');
                 var itemId = uint.Parse(dataBits[0].Replace("-", string.Empty));
                 var item = Session.GetHabbo().GetInventoryComponent().GetItem(itemId);
+
                 if (item == null)
                     return;
+
                 var type = dataBits[1].StartsWith(":") ? "wall" : "floor";
                 int x, y, rot;
                 double z;
+
                 switch (type)
                 {
                     case "wall":
@@ -294,9 +300,9 @@ namespace Azure.Messages.Handlers
                             {
                                 case Interaction.Dimmer:
                                     {
-                                        if (room.MoodlightData != null &&
-                                            room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId) != null)
+                                        if (room.MoodlightData != null && room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId) != null)
                                             Session.SendNotif(Azure.GetLanguage().GetVar("room_moodlight_one_allowed"));
+
                                         goto PlaceWall;
                                     }
                                 default:
@@ -396,6 +402,7 @@ namespace Azure.Messages.Handlers
 
                 var roomItem = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData, x, y, z, rot,
                     room, Session.GetHabbo().Id, item.GroupId, item.BaseItem.FlatId, item.SongCode, false);
+
                 if (room.GetRoomItemHandler().SetFloorItem(Session, roomItem, x, y, rot, true, false, true))
                 {
                     Session.GetHabbo().GetInventoryComponent().RemoveItem(itemId, true);
@@ -637,7 +644,7 @@ namespace Azure.Messages.Handlers
             }
             item.Interactor.OnTrigger(Session, item, Request.GetInteger(), hasRightsOne);
             item.OnTrigger(room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id));
-            //Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ExploreFindItem, item.GetBaseItem().ItemId);
+            //Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ExploreFindItem, item.GetBaseItem().itemId);
             foreach (var current in room.GetRoomUserManager().UserList.Values.Where(current => current != null))
                 room.GetRoomUserManager().UpdateUserStatus(current, true);
         }

@@ -4,13 +4,14 @@ using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.SoundMachine.Composers;
+using Azure.HabboHotel.SoundMachine.Songs;
 
 namespace Azure.HabboHotel.SoundMachine
 {
     /// <summary>
     ///     Class RoomMusicController.
     /// </summary>
-    internal class RoomMusicController
+    internal class SoundMachineManager
     {
         /// <summary>
         ///     The _m broadcast needed
@@ -38,9 +39,9 @@ namespace Azure.HabboHotel.SoundMachine
         private double _mStartedPlayingTimestamp;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RoomMusicController" /> class.
+        ///     Initializes a new instance of the <see cref="SoundMachineManager" /> class.
         /// </summary>
-        public RoomMusicController()
+        public SoundMachineManager()
         {
             _mLoadedDisks = new Dictionary<uint, SongItem>();
             _mPlaylist = new SortedDictionary<int, SongInstance>();
@@ -73,17 +74,12 @@ namespace Azure.HabboHotel.SoundMachine
             get
             {
                 if (!IsPlaying || CurrentSong == null)
-                {
                     return 0;
-                }
 
-                {
-                    if (TimePlaying >= CurrentSong.SongData.LengthSeconds)
-                    {
-                        return (int) CurrentSong.SongData.LengthSeconds;
-                    }
-                    return (int) (TimePlaying*1000.0);
-                }
+                if (TimePlaying >= CurrentSong.SongData.LengthSeconds)
+                    return (int)CurrentSong.SongData.LengthSeconds;
+
+                return (int)(TimePlaying * 1000.0);
             }
         }
 
@@ -96,13 +92,13 @@ namespace Azure.HabboHotel.SoundMachine
             get
             {
                 var sortedDictionary = new SortedDictionary<int, SongInstance>();
+
                 lock (_mPlaylist)
                 {
                     foreach (var current in _mPlaylist)
-                    {
                         sortedDictionary.Add(current.Key, current.Value);
-                    }
                 }
+
                 return sortedDictionary;
             }
         }
@@ -129,7 +125,7 @@ namespace Azure.HabboHotel.SoundMachine
         ///     Gets the linked item identifier.
         /// </summary>
         /// <value>The linked item identifier.</value>
-        public uint LinkedItemId => _mRoomOutputItem == null ? 0u : _mRoomOutputItem.Id;
+        public uint LinkedItemId => _mRoomOutputItem?.Id ?? 0u;
 
         /// <summary>
         ///     Gets the song queue position.
@@ -154,25 +150,27 @@ namespace Azure.HabboHotel.SoundMachine
         public int AddDisk(SongItem diskItem)
         {
             var songId = diskItem.SongId;
+
             if (songId == 0u)
-            {
                 return -1;
-            }
-            var song = SongManager.GetSong(songId);
+
+            var song = SoundMachineSongManager.GetSong(songId);
+
             if (song == null)
-            {
                 return -1;
-            }
-            if (_mLoadedDisks.ContainsKey(diskItem.ItemId))
-            {
-                return -1;
-            }
-            _mLoadedDisks.Add(diskItem.ItemId, diskItem);
+
+            lock (_mLoadedDisks)
+                if (_mLoadedDisks.ContainsKey(diskItem.ItemId))
+                    return -1;
+
+            lock (_mLoadedDisks)
+                _mLoadedDisks.Add(diskItem.ItemId, diskItem);
+
             var count = _mPlaylist.Count;
+
             lock (_mPlaylist)
-            {
                 _mPlaylist.Add(count, new SongInstance(diskItem, song));
-            }
+
             return count;
         }
 
@@ -187,21 +185,21 @@ namespace Azure.HabboHotel.SoundMachine
             lock (_mPlaylist)
             {
                 if (!_mPlaylist.ContainsKey(playlistIndex))
-                {
                     return null;
-                }
+
                 songInstance = _mPlaylist[playlistIndex];
+
                 _mPlaylist.Remove(playlistIndex);
             }
+
             lock (_mLoadedDisks)
-            {
                 _mLoadedDisks.Remove(songInstance.DiskItem.ItemId);
-            }
+
             RepairPlaylist();
+
             if (playlistIndex == SongQueuePosition)
-            {
                 PlaySong();
-            }
+
             return songInstance.DiskItem;
         }
 
@@ -213,20 +211,24 @@ namespace Azure.HabboHotel.SoundMachine
         {
             if (IsPlaying && (CurrentSong == null || TimePlaying >= CurrentSong.SongData.LengthSeconds + 1.0))
             {
-                if (!_mPlaylist.Any())
+                lock (_mPlaylist)
                 {
-                    Stop();
-                    _mRoomOutputItem.ExtraData = "0";
-                    _mRoomOutputItem.UpdateState();
+                    if (!_mPlaylist.Any())
+                    {
+                        Stop();
+                        _mRoomOutputItem.ExtraData = "0";
+                        _mRoomOutputItem.UpdateState();
+                    }
+                    else
+                        SetNextSong();
                 }
-                else
-                {
-                    SetNextSong();
-                }
+
                 _mBroadcastNeeded = true;
             }
+
             if (!_mBroadcastNeeded)
                 return;
+
             BroadcastCurrentSongData(instance);
             _mBroadcastNeeded = false;
         }
@@ -237,19 +239,18 @@ namespace Azure.HabboHotel.SoundMachine
         public void RepairPlaylist()
         {
             List<SongItem> list;
+
             lock (_mLoadedDisks)
             {
                 list = _mLoadedDisks.Values.ToList();
                 _mLoadedDisks.Clear();
             }
+
             lock (_mPlaylist)
-            {
                 _mPlaylist.Clear();
-            }
+
             foreach (var current in list)
-            {
                 AddDisk(current);
-            }
         }
 
         /// <summary>
@@ -267,15 +268,20 @@ namespace Azure.HabboHotel.SoundMachine
         public void PlaySong()
         {
             if (SongQueuePosition >= _mPlaylist.Count)
-            {
                 SongQueuePosition = 0;
-            }
-            if (!_mPlaylist.Any())
+
+            lock (_mPlaylist)
             {
-                Stop();
-                return;
+                if (!_mPlaylist.Any())
+                {
+                    Stop();
+                    return;
+                }
             }
-            CurrentSong = _mPlaylist[SongQueuePosition];
+
+            lock (_mPlaylist)
+                CurrentSong = _mPlaylist[SongQueuePosition];
+
             _mStartedPlayingTimestamp = Azure.GetUnixTimeStamp();
             _mBroadcastNeeded = true;
         }
@@ -307,13 +313,11 @@ namespace Azure.HabboHotel.SoundMachine
         public void Reset()
         {
             lock (_mLoadedDisks)
-            {
                 _mLoadedDisks.Clear();
-            }
+
             lock (_mPlaylist)
-            {
                 _mPlaylist.Clear();
-            }
+
             _mRoomOutputItem = null;
             SongQueuePosition = -1;
             _mStartedPlayingTimestamp = 0.0;
@@ -327,11 +331,11 @@ namespace Azure.HabboHotel.SoundMachine
         {
             if (CurrentSong != null)
             {
-                instance.SendMessage(JukeboxComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition,
-                    0));
+                instance.SendMessage(SoundMachineComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition, 0));
                 return;
             }
-            instance.SendMessage(JukeboxComposer.ComposePlayingComposer(0u, 0, 0));
+
+            instance.SendMessage(SoundMachineComposer.ComposePlayingComposer(0u, 0, 0));
         }
 
         /// <summary>
@@ -341,12 +345,9 @@ namespace Azure.HabboHotel.SoundMachine
         internal void OnNewUserEnter(RoomUser user)
         {
             if (user.IsBot || user.GetClient() == null || CurrentSong == null)
-            {
                 return;
-            }
-            user.GetClient()
-                .SendMessage(JukeboxComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition,
-                    SongSyncTimestamp));
+
+            user.GetClient().SendMessage(SoundMachineComposer.ComposePlayingComposer(CurrentSong.SongData.Id, SongQueuePosition, SongSyncTimestamp));
         }
 
         /// <summary>
@@ -354,16 +355,18 @@ namespace Azure.HabboHotel.SoundMachine
         /// </summary>
         internal void Destroy()
         {
-            if (_mLoadedDisks != null)
-            {
-                _mLoadedDisks.Clear();
-            }
-            if (_mPlaylist != null)
-            {
-                _mPlaylist.Clear();
-            }
-            _mPlaylist = null;
-            _mLoadedDisks = null;
+            lock (_mLoadedDisks)
+                _mLoadedDisks?.Clear();
+
+            lock (_mPlaylist)
+                _mPlaylist?.Clear();
+
+            lock (_mPlaylist)
+                _mPlaylist = null;
+
+            lock (_mLoadedDisks)
+                _mLoadedDisks = null;
+
             CurrentSong = null;
             _mRoomOutputItem = null;
         }
