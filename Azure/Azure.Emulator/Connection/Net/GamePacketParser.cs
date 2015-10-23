@@ -25,7 +25,7 @@ namespace Azure.Connection.Net
         private ConnectionInformation _con;
 
         private const int IntSize = sizeof(int);
-        private static readonly MemoryContainer MemoryContainer = new MemoryContainer(10, 2048);
+        private static readonly MemoryContainer MemoryContainer = new MemoryContainer(10, 4072);
         private readonly byte[] _bufferedData;
         private int _bufferPos;
         private int _currentPacketLength;

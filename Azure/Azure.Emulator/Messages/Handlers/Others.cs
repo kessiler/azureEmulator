@@ -514,17 +514,26 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SaveRoomThumbnail()
         {
-            // Disabled until recreate that function
-            int count = Request.GetInteger();
-            byte[] bytes = Request.GetBytes(count);
-            var outData = Converter.Deflate(bytes);
+            try
+            {
+                // Disabled until recreate that function
 
-            var url = Web.HttpPostJson(ExtraSettings.StoriesApiThumbnailServerUrl, outData);
+                int count = Request.GetInteger();
 
-            var thumb = new ServerMessage(LibraryParser.OutgoingRequest("ThumbnailSuccessMessageComposer"));
-            thumb.AppendBool(true);
-            thumb.AppendBool(false);
-            Session.SendMessage(thumb);
+                byte[] bytes = Request.GetBytes(count);
+                var outData = Converter.Deflate(bytes);
+
+                var url = Web.HttpPostJson(ExtraSettings.StoriesApiThumbnailServerUrl, outData);
+
+                var thumb = new ServerMessage(LibraryParser.OutgoingRequest("ThumbnailSuccessMessageComposer"));
+                thumb.AppendBool(true);
+                thumb.AppendBool(false);
+                Session.SendMessage(thumb);
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }
