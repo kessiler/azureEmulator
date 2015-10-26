@@ -11,6 +11,7 @@ using Azure.Messages.Enums;
 using Azure.Messages.Handlers;
 using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
+using Azure.Security.BlackWords.Structs;
 
 namespace Azure.HabboHotel.GameClients.Interfaces
 {

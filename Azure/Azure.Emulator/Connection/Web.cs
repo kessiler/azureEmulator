@@ -5,9 +5,16 @@ namespace Azure.Connection
 {
     internal static class Web
     {
+        /// <summary>
+        /// HTTPs the post json.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="json">The json.</param>
+        /// <returns>System.String.</returns>
         public static string HttpPostJson(string uri, string json)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+
             httpWebRequest.ContentType = "text/json";
             httpWebRequest.Method = "POST";
 
@@ -19,11 +26,9 @@ namespace Azure.Connection
             }
 
             var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
             using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                var result = streamReader.ReadToEnd();
-                return result;
-            }
+                return streamReader.ReadToEnd();
         }
     }
 }

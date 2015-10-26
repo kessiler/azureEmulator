@@ -48,20 +48,12 @@ namespace Azure.HabboHotel.Pets
         public static void Init(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT * FROM pets_breeds");
+
             var table = dbClient.GetTable();
             Races = new List<PetRace>();
-            foreach (var item in from DataRow row in table.Rows
-                select new PetRace
-                {
-                    RaceId = (int) row["breed_id"],
-                    Color1 = (int) row["color1"],
-                    Color2 = (int) row["color2"],
-                    Has1Color = ((string) row["color1_enabled"]) == "1",
-                    Has2Color = ((string) row["color2_enabled"]) == "1"
-                })
-            {
+
+            foreach (var item in from DataRow row in table.Rows select new PetRace { RaceId = (int) row["breed_id"], Color1 = (int) row["color1"], Color2 = (int) row["color2"], Has1Color = ((string) row["color1_enabled"]) == "1", Has2Color = ((string) row["color2_enabled"]) == "1" })
                 Races.Add(item);
-            }
         }
 
         /// <summary>
@@ -69,20 +61,14 @@ namespace Azure.HabboHotel.Pets
         /// </summary>
         /// <param name="sRaceId">The s race identifier.</param>
         /// <returns>List&lt;PetRace&gt;.</returns>
-        public static List<PetRace> GetRacesForRaceId(int sRaceId)
-        {
-            return Races.Where(current => current.RaceId == sRaceId).ToList();
-        }
+        public static List<PetRace> GetRacesForRaceId(int sRaceId) => Races.Where(current => current.RaceId == sRaceId).ToList();
 
         /// <summary>
         ///     Races the got races.
         /// </summary>
         /// <param name="sRaceId">The s race identifier.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool RaceGotRaces(int sRaceId)
-        {
-            return GetRacesForRaceId(sRaceId).Any();
-        }
+        public static bool RaceGotRaces(int sRaceId) => GetRacesForRaceId(sRaceId).Any();
 
         /// <summary>
         ///     Gets the pet identifier.
@@ -93,10 +79,14 @@ namespace Azure.HabboHotel.Pets
         public static int GetPetId(string type, out string packet)
         {
             int petId;
+
             int.TryParse(type.Replace("a0 pet", string.Empty).ToString(CultureInfo.InvariantCulture), out petId);
+
             packet = type;
+
             if (petId >= 0 && petId <= 26)
                 return petId;
+
             return petId;
         }
     }

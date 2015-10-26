@@ -2,12 +2,11 @@
 
 using System;
 using System.Numerics;
-using Azure.Encryption.Encryption;
-using Azure.Encryption.Utils;
+using Azure.Encryption.Encryption.Utils;
 
 #endregion
 
-namespace Azure.Encryption.Crypto.KeyExchange
+namespace Azure.Encryption.Encryption.Crypto.KeyExchange
 {
     public class DiffieHellman
     {

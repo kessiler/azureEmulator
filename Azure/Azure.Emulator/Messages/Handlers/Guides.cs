@@ -18,7 +18,9 @@ namespace Azure.Messages.Handlers
 
             var userId = Request.GetIntegerFromString();
             var message = Request.GetString();
+
             var guideManager = Azure.GetGame().GetGuideManager();
+
             if (guideManager.GuidesCount <= 0)
             {
                 Response.Init(LibraryParser.OutgoingRequest("OnGuideSessionError"));
@@ -60,10 +62,13 @@ namespace Azure.Messages.Handlers
         internal void AnswerGuideRequest()
         {
             var state = Request.GetBool();
+
             if (!state)
                 return;
+
             var requester = Session.GetHabbo().GuideOtherUser;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionStartedMessageComposer"));
+
             message.AppendInteger(requester.GetHabbo().Id);
             message.AppendString(requester.GetHabbo().UserName);
             message.AppendString(requester.GetHabbo().Look);
@@ -114,13 +119,14 @@ namespace Azure.Messages.Handlers
             if (room == null)
             {
                 message.AppendInteger(0);
-                message.AppendString("");
+                message.AppendString(string.Empty);
             }
             else
             {
                 message.AppendInteger(room.RoomId);
                 message.AppendString(room.RoomData.Name);
             }
+
             requester.SendMessage(message);
             Session.SendMessage(message);
         }
@@ -132,6 +138,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo().GuideOtherUser == null)
                 return;
+
             var requester = Session.GetHabbo().GuideOtherUser;
             var visitRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
             visitRoom.AppendInteger(requester.GetHabbo().CurrentRoomId);
@@ -153,6 +160,7 @@ namespace Azure.Messages.Handlers
         }
 
         /// <summary>
+        /// BETA
         /// Closes the guide request.
         /// </summary>
         internal void CloseGuideRequest()
@@ -185,13 +193,13 @@ namespace Azure.Messages.Handlers
             Session.GetHabbo().GuideOtherUser = null;
         }
 
-        ///TODO: IMPORTANT
         /// <summary>
         /// Cancels the call guide.
+        /// BETA
         /// </summary>
         internal void CancelCallGuide()
         {
-            //Response.Init(3485); ///BUG: IMPORTANT
+            //Response.Init(3485);
             //SendResponse();
 
             // Request.GetBool();

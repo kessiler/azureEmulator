@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Xml;
+using Azure.Util;
 
 namespace Azure.Configuration
 {
@@ -32,7 +33,7 @@ namespace Azure.Configuration
         public bool CanSit, CanWalk;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FurniData"/> struct.
+        /// Initializes a new instance of the <see cref="FurniData" /> struct.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="name">The name.</param>
@@ -85,26 +86,28 @@ namespace Azure.Configuration
 
                 xmlParser.LoadXml(xmlFileContent);
 
-                xmlFileContent = null;
-
                 FloorItems = new Dictionary<string, FurniData>();
 
-                foreach (XmlNode node in xmlParser.DocumentElement.SelectNodes("/furnidata/roomitemtypes/furnitype"))
+                XmlNodeList xmlNodeList = xmlParser.DocumentElement?.SelectNodes("/furnidata/roomitemtypes/furnitype");
+
+                if (xmlNodeList != null)
                 {
-                    try
+                    foreach (XmlNode node in xmlNodeList)
                     {
-                        FloorItems.Add(node.Attributes["classname"].Value,
-                            new FurniData(int.Parse(node.Attributes["id"].Value), node.SelectSingleNode("name").InnerText,
-                                ushort.Parse(node.SelectSingleNode("xdim").InnerText),
-                                ushort.Parse(node.SelectSingleNode("ydim").InnerText),
-                                node.SelectSingleNode("cansiton").InnerText == "1",
-                                node.SelectSingleNode("canstandon").InnerText == "1"));
-                    }
-                    catch (Exception e)
-                    {
-                        var k = node.Attributes["classname"].Value;
-                        if (!string.IsNullOrEmpty(k))
-                            Console.WriteLine("Errror parsing furnidata by {0} with exception: {1}", k, e.StackTrace);
+                        try
+                        {
+                            FloorItems.Add(node?.Attributes?["classname"]?.Value,
+                                new FurniData(int.Parse(node.Attributes["id"].Value), node.SelectSingleNode("name").InnerText,
+                                    ushort.Parse(node.SelectSingleNode("xdim").InnerText),
+                                    ushort.Parse(node.SelectSingleNode("ydim").InnerText),
+                                    node.SelectSingleNode("cansiton").InnerText == "1",
+                                    node.SelectSingleNode("canstandon").InnerText == "1"));
+                        }
+                        catch (Exception e)
+                        {
+                            if (!string.IsNullOrEmpty(node?.Attributes?["classname"]?.Value))
+                                Console.WriteLine("Errror parsing furnidata by {0} with exception: {1}", node.Attributes["classname"].Value, e.StackTrace);
+                        }
                     }
                 }
 
@@ -115,9 +118,7 @@ namespace Azure.Configuration
             }
             catch (WebException e)
             {
-                Out.WriteLine(
-                    $"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData",
-                    ConsoleColor.Red);
+                Out.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData", ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);

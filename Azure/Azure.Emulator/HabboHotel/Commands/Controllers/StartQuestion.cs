@@ -2,6 +2,7 @@
 using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Polls;
+using Azure.HabboHotel.Polls.Enums;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -27,7 +28,7 @@ namespace Azure.HabboHotel.Commands.Controllers
         {
             var id = uint.Parse(pms[0]);
             var poll = Azure.GetGame().GetPollManager().TryGetPollById(id);
-            if (poll == null || poll.Type != Poll.PollType.Matching)
+            if (poll == null || poll.Type != PollType.Matching)
             {
                 client.SendWhisper("Poll doesn't exists or isn't a matching poll.");
                 return true;
@@ -42,7 +43,7 @@ namespace Azure.HabboHotel.Commands.Controllers
 
         internal static void MatchingPollAnswer(GameClient client, Poll poll)
         {
-            if (poll == null || poll.Type != Poll.PollType.Matching)
+            if (poll == null || poll.Type != PollType.Matching)
                 return;
             var message = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollMessageComposer"));
             message.AppendString("MATCHING_POLL");
@@ -59,7 +60,7 @@ namespace Azure.HabboHotel.Commands.Controllers
         internal static void MatchingPollResults(GameClient client, Poll poll)
         {
             var room = client.GetHabbo().CurrentRoom;
-            if (poll == null || poll.Type != Poll.PollType.Matching || room == null)
+            if (poll == null || poll.Type != PollType.Matching || room == null)
                 return;
 
             var users = room.GetRoomUserManager().GetRoomUsers();

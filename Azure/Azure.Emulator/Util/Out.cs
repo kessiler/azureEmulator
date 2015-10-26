@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Azure
+namespace Azure.Util
 {
     internal class Out
     {
@@ -14,6 +14,7 @@ namespace Azure
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("[" + DateTime.Now + "] ");
+
             if (header != "")
             {
                 Console.Write("[");
@@ -39,6 +40,7 @@ namespace Azure
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("[" + DateTime.Now + "] ");
+
             if (header != "")
             {
                 Console.Write("[");

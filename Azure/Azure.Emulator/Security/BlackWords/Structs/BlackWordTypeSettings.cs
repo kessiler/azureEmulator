@@ -1,4 +1,4 @@
-﻿namespace Azure.Security.BlackWords
+﻿namespace Azure.Security.BlackWords.Structs
 {
     /// <summary>
     /// Struct BlackWordTypeSettings
@@ -28,6 +28,7 @@
         /// <param name="maxAdvices">The maximum advices.</param>
         /// <param name="imageAlert">The image alert.</param>
         /// <param name="autoBan">if set to <c>true</c> [automatic ban].</param>
+        /// <param name="showMessage"></param>
         public BlackWordTypeSettings(string filter, string alert, uint maxAdvices, string imageAlert, bool autoBan, bool showMessage)
         {
             Filter = filter;

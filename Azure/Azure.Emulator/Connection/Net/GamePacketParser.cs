@@ -20,18 +20,28 @@ namespace Azure.Connection.Net
         private GameClient _currentClient;
 
         /// <summary>
-        /// The _con
+        /// The int size
         /// </summary>
-        private ConnectionInformation _con;
-
         private const int IntSize = sizeof(int);
+        /// <summary>
+        /// The memory container
+        /// </summary>
         private static readonly MemoryContainer MemoryContainer = new MemoryContainer(10, 4072);
+        /// <summary>
+        /// The _buffered data
+        /// </summary>
         private readonly byte[] _bufferedData;
+        /// <summary>
+        /// The _buffer position
+        /// </summary>
         private int _bufferPos;
+        /// <summary>
+        /// The _current packet length
+        /// </summary>
         private int _currentPacketLength;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GamePacketParser"/> class.
+        /// Initializes a new instance of the <see cref="GamePacketParser" /> class.
         /// </summary>
         internal GamePacketParser()
         {
@@ -50,10 +60,9 @@ namespace Azure.Connection.Net
         /// Sets the connection.
         /// </summary>
         /// <param name="con">The con.</param>
-        /// <param name="me"></param>
+        /// <param name="me">Me.</param>
         public void SetConnection(ConnectionInformation con, GameClient me)
         {
-            _con = con;
             _currentClient = me;
         }
 
@@ -61,7 +70,7 @@ namespace Azure.Connection.Net
         /// Handles the packet data.
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <param name="length"></param>
+        /// <param name="length">The length.</param>
         public void HandlePacketData(byte[] data, int length)
         {
             if (length > 0 && _currentClient != null)
@@ -71,94 +80,120 @@ namespace Azure.Connection.Net
                 try
                 {
                     int pos;
+
                     for (pos = 0; pos < length;)
                     {
                         if (_currentPacketLength == -1)
                         {
                             if (length < IntSize)
                             {
-                                bufferCopy(data, length); // store the bytes in the buffer for the next read and break operation
+                                BufferCopy(data, length); 
                                 break;
                             }
 
                             _currentPacketLength = HabboEncoding.DecodeInt32(data, ref pos);
                         }
+
                         if (_currentPacketLength < 2 || _currentPacketLength > 4096)
                         {
                             _currentPacketLength = -1;
-                            break; //broken packet! might be better to disconnect EVERYTHING
+
+                            break; 
                         }
-                        if (_currentPacketLength == ((length - pos) + _bufferPos)) // if packet is exactly big enough (no more data needed, no excessive data)
+
+                        if (_currentPacketLength == ((length - pos) + _bufferPos)) 
                         {
-                            if (_bufferPos != 0) // do we have stuff in buffer
+                            if (_bufferPos != 0) 
                             {
-                                bufferCopy(data, length, pos);
+                                BufferCopy(data, length, pos);
+
                                 pos = 0;
+
                                 messageId = HabboEncoding.DecodeInt16(_bufferedData, ref pos);
+
                                 HandleMessage(messageId, _bufferedData, 2, _currentPacketLength);
                             }
                             else
                             {
-                                messageId = HabboEncoding.DecodeInt16(data, ref pos);       //pos -= 2;// -2 cuz of toint16
+                                messageId = HabboEncoding.DecodeInt16(data, ref pos); 
                                 HandleMessage(messageId, data, pos, _currentPacketLength);
                             }
+
                             pos = length;
                             _currentPacketLength = -1;
                         }
-                        else //  we have remainder
+                        else 
                         {
                             int remainder = ((length - pos)) - (_currentPacketLength - _bufferPos);
 
                             if (_bufferPos != 0)
                             {
                                 int toCopy = remainder - _bufferPos;
-                                bufferCopy(data, toCopy, pos);
+
+                                BufferCopy(data, toCopy, pos);
+
                                 int zero = 0;
-                                messageId = HabboEncoding.DecodeInt16(_bufferedData, ref zero); //small hack to preserve the POS value
-                                //Create packet with bufferData variable
-                                HandleMessage(messageId, _bufferedData, 2, _currentPacketLength); //Not sure
+
+                                messageId = HabboEncoding.DecodeInt16(_bufferedData, ref zero);
+ 
+                                HandleMessage(messageId, _bufferedData, 2, _currentPacketLength); 
                             }
                             else
                             {
                                 messageId = HabboEncoding.DecodeInt16(data, ref pos);
-                                //create packet with data variable
-                                //pos -= 2;
+
                                 HandleMessage(messageId, data, pos, _currentPacketLength);
-                                pos -= 2; //because else the remainder will fail
+
+                                // ReSharper disable once RedundantAssignment
+                                pos -= 2; 
                             }
+
                             _currentPacketLength = -1;
 
-                            pos = (length - remainder); //set pos to max pos of remainder
+                            pos = (length - remainder);
                         }
                     }
                 }
                 catch (Exception exception)
                 {
                     Logging.HandleException(exception, $"packet handling ----> {messageId}");
-
-                    //_con.Dispose();
                 }
             }
         }
 
+        /// <summary>
+        /// Handles the message.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="packetContent">Content of the packet.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="packetLength">Length of the packet.</param>
         private void HandleMessage(int messageId, byte[] packetContent, int position, int packetLength)
         {
             using (ClientMessage clientMessage = ClientMessageFactory.GetClientMessage(messageId, packetContent, position, packetLength))
-            {
-                if (_currentClient != null && _currentClient.GetMessageHandler() != null)
-                {
+                if (_currentClient?.GetMessageHandler() != null)
                     _currentClient.GetMessageHandler().HandleRequest(clientMessage);
-                }
-            }
         }
 
-        private void bufferCopy(byte[] data, int bytes, int offset = 0)
+        // ReSharper disable once MethodOverloadWithOptionalParameter
+        /// <summary>
+        /// Buffers the copy.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="offset">The offset.</param>
+        private void BufferCopy(byte[] data, int bytes, int offset = 0)
         {
             for (int i = 0; i < (bytes - offset); i++)
                 _bufferedData[_bufferPos++] = data[i + offset];
         }
 
-        private void bufferCopy(byte[] data, int bytes)
+        /// <summary>
+        /// Buffers the copy.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="bytes">The bytes.</param>
+        private void BufferCopy(byte[] data, int bytes)
         {
             for (int i = 0; i < bytes; i++)
                 _bufferedData[_bufferPos++] = data[i];
@@ -169,9 +204,6 @@ namespace Azure.Connection.Net
         /// </summary>
         public void Dispose()
         {
-            //todo: mem checking
-            //_currentClient = null;
-            //_con = null;
             MemoryContainer.GiveBuffer(_bufferedData);
         }
 
@@ -179,9 +211,6 @@ namespace Azure.Connection.Net
         /// Creates a new object that is a copy of the current instance.
         /// </summary>
         /// <returns>A new object that is a copy of this instance.</returns>
-        public object Clone()
-        {
-            return new GamePacketParser();
-        }
+        public object Clone() => new GamePacketParser();
     }
 }

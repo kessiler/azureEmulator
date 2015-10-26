@@ -15,16 +15,25 @@ namespace Azure.Connection.Net
         /// <summary>
         /// Delegate with params
         /// </summary>
+        /// <param name="packet">The packet.</param>
+        /// <param name="amountOfBytes">The amount of bytes.</param>
         public delegate void DualParamDelegate(byte[] packet, int amountOfBytes);
 
+        /// <summary>
+        /// Occurs when [policy request].
+        /// </summary>
         public event NoParamDelegate PolicyRequest;
 
+        /// <summary>
+        /// Occurs when [switch parser request].
+        /// </summary>
         public event DualParamDelegate SwitchParserRequest;
 
         /// <summary>
         /// Handles the packet data.
         /// </summary>
         /// <param name="packet">The packet.</param>
+        /// <param name="amountOfBytes">The amount of bytes.</param>
         public void HandlePacketData(byte[] packet, int amountOfBytes)
         {
             if (Azure.ShutdownStarted)
@@ -33,7 +42,7 @@ namespace Azure.Connection.Net
             if (packet[0] == 60 && PolicyRequest != null)
                 PolicyRequest();
             else if (packet[0] != 67 || SwitchParserRequest == null)
-                SwitchParserRequest(packet, amountOfBytes);
+                SwitchParserRequest?.Invoke(packet, amountOfBytes);
         }
 
         /// <summary>
@@ -49,9 +58,6 @@ namespace Azure.Connection.Net
         /// Creates a new object that is a copy of the current instance.
         /// </summary>
         /// <returns>A new object that is a copy of this instance.</returns>
-        public object Clone()
-        {
-            return new InitialPacketParser();
-        }
+        public object Clone() => new InitialPacketParser();
     }
 }

@@ -4,41 +4,23 @@ using System;
 
 #endregion
 
-namespace Azure.Encryption.Utils
+namespace Azure.Encryption.Encryption.Utils
 {
     public class Randomizer
     {
         private static readonly Random Rand = new Random();
 
-        public static Random GetRandom
-        {
-            get { return Rand; }
-        }
+        public static Random GetRandom => Rand;
 
-        public static int Next()
-        {
-            return Rand.Next();
-        }
+        public static int Next() => Rand.Next();
 
-        public static int Next(int max)
-        {
-            return Rand.Next(max);
-        }
+        public static int Next(int max) => Rand.Next(max);
 
-        public static int Next(int min, int max)
-        {
-            return Rand.Next(min, max);
-        }
+        public static int Next(int min, int max) => Rand.Next(min, max);
 
-        public static double NextDouble()
-        {
-            return Rand.NextDouble();
-        }
+        public static double NextDouble() => Rand.NextDouble();
 
-        public static byte NextByte()
-        {
-            return (byte)Next(0, 255);
-        }
+        public static byte NextByte() => (byte)Next(0, 255);
 
         public static byte NextByte(int max)
         {

@@ -20,18 +20,15 @@ namespace Azure.Configuration
         /// <param name="dbClient">The database client.</param>
         internal ConfigData(IRegularQueryAdapter dbClient)
         {
-            try
-            {
-                DbData = new Dictionary<string, string>();
-                DbData.Clear();
-                dbClient.SetQuery("SELECT * FROM server_settings");
-                var table = dbClient.GetTable();
-                foreach (DataRow dataRow in table.Rows)
-                    DbData.Add(dataRow[0].ToString(), dataRow[1].ToString());
-            }
-            catch
-            {
-            }
+            DbData = new Dictionary<string, string>();
+
+            DbData.Clear();
+            dbClient.SetQuery("SELECT * FROM server_settings");
+
+            var table = dbClient.GetTable();
+
+            foreach (DataRow dataRow in table.Rows)
+                DbData.Add(dataRow[0].ToString(), dataRow[1].ToString());
         }
     }
 }

@@ -25,7 +25,8 @@ namespace Azure.Configuration
         {
             if (!File.Exists(filePath))
             {
-                if (!mayNotExist) throw new ArgumentException(string.Format("Configuration file not found in '{0}'.", filePath));
+                if (!mayNotExist)
+                    throw new ArgumentException($"Configuration file not found in '{filePath}'.");
             }
             else
             {
@@ -34,22 +35,29 @@ namespace Azure.Configuration
                     using (var streamReader = new StreamReader(filePath))
                     {
                         string text;
+
                         while ((text = streamReader.ReadLine()) != null)
                         {
-                            if (text.Length < 1 || text.StartsWith("#")) continue;
+                            if (text.Length < 1 || text.StartsWith("#"))
+                                continue;
+
                             var num = text.IndexOf('=');
-                            if (num == -1) continue;
+
+                            if (num == -1)
+                                continue;
+
                             var key = text.Substring(0, num);
                             var value = text.Substring((num + 1));
 
                             Data.Add(key, value);
                         }
+
                         streamReader.Close();
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new ArgumentException(string.Format("Could not process configuration file: {0}", ex.Message));
+                    throw new ArgumentException($"Could not process configuration file: {ex.Message}");
                 }
             }
         }

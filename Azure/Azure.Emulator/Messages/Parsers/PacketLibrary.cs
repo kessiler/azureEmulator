@@ -2758,71 +2758,127 @@ namespace Azure.Messages.Parsers
             handler.GetUserLook();
         }
 
+        /// <summary>
+        /// Sets the invitations preference.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void SetInvitationsPreference(GameClientMessageHandler handler)
         {
             handler.SetInvitationsPreference();
         }
 
+        /// <summary>
+        /// Finds the more friends.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void FindMoreFriends(GameClientMessageHandler handler)
         {
             handler.FindMoreFriends();
         }
 
+        /// <summary>
+        /// Hotels the view request badge.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void HotelViewRequestBadge(GameClientMessageHandler handler)
         {
             handler.HotelViewRequestBadge();
         }
 
+        /// <summary>
+        /// Gets the camera price.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void GetCameraPrice(GameClientMessageHandler handler)
         {
             handler.GetCameraPrice();
         }
 
+        /// <summary>
+        /// Toggles the staff pick.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void ToggleStaffPick(GameClientMessageHandler handler)
         {
             handler.ToggleStaffPick();
         }
 
+        /// <summary>
+        /// Gets the hotel view hall of fame.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void GetHotelViewHallOfFame(GameClientMessageHandler handler)
         {
             handler.GetHotelViewHallOfFame();
         }
 
+        /// <summary>
+        /// Submits the room to competition.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void SubmitRoomToCompetition(GameClientMessageHandler handler)
         {
             handler.SubmitRoomToCompetition();
         }
 
+        /// <summary>
+        /// Enters the room queue.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void EnterRoomQueue(GameClientMessageHandler handler)
         {
             handler.EnterRoomQueue();
         }
 
+        /// <summary>
+        /// Gets the camera request.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void GetCameraRequest(GameClientMessageHandler handler)
         {
             handler.GetCameraRequest();
         }
 
+        /// <summary>
+        /// Votes for room.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void VoteForRoom(GameClientMessageHandler handler)
         {
             handler.VoteForRoom();
         }
 
+        /// <summary>
+        /// Updates the forum settings.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void UpdateForumSettings(GameClientMessageHandler handler)
         {
             handler.UpdateForumSettings();
         }
 
+        /// <summary>
+        /// Friends the request list load.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void FriendRequestListLoad(GameClientMessageHandler handler)
         {
             handler.FriendRequestListLoad();
         }
 
+        /// <summary>
+        /// Sets the room camera preferences.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void SetRoomCameraPreferences(GameClientMessageHandler handler)
         {
             handler.SetRoomCameraPreferences();
         }
 
+        /// <summary>
+        /// Deletes the group.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
         internal static void DeleteGroup(GameClientMessageHandler handler)
         {
             handler.DeleteGroup();

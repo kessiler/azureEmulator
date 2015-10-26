@@ -34,7 +34,7 @@ namespace Azure.Configuration
         /// <param name="logText">The log text.</param>
         internal static void LogException(string logText)
         {
-            Writer.Writer.LogException(string.Format("{0}{1}{2}", Environment.NewLine, logText, Environment.NewLine));
+            Writer.Writer.LogException($"{Environment.NewLine}{logText}{Environment.NewLine}");
         }
 
         /// <summary>

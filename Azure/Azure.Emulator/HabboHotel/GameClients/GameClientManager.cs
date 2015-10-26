@@ -11,6 +11,7 @@ using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Users.Messenger;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.Util;
 
 namespace Azure.HabboHotel.GameClients
 {

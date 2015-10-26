@@ -14,6 +14,7 @@ namespace Azure.Connection.Net
         internal MusConnection(Socket socket)
         {
             _socket = socket;
+
             try
             {
                 _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnEvent_RecieveData, _socket);
@@ -28,8 +29,11 @@ namespace Azure.Connection.Net
         {
             try
             {
-                if (_socket == null) return;
+                if (_socket == null)
+                    return;
+
                 _socket.Shutdown(SocketShutdown.Both);
+
                 _socket.Close();
                 _socket.Dispose();
             }
@@ -37,6 +41,7 @@ namespace Azure.Connection.Net
             {
                 // ignored
             }
+
             _socket = null;
             _buffer = null;
         }
@@ -46,6 +51,7 @@ namespace Azure.Connection.Net
             try
             {
                 int lenght;
+
                 try
                 {
                     lenght = _socket.EndReceive(iAr);
@@ -55,12 +61,12 @@ namespace Azure.Connection.Net
                     TryClose();
                     return;
                 }
-                var @string = Encoding.Default.GetString(_buffer, 0, lenght);
-                if (@string.Contains(((char)0).ToString()))
-                {
-                    var strArray = @string.Split((char)0);
-                    foreach (var str in strArray) ProcessCommand(@str);
-                }
+
+                var theString = Encoding.Default.GetString(_buffer, 0, lenght);
+
+                if (theString.Contains(((char)0).ToString()))
+                    foreach (var str in theString.Split((char)0))
+                        ProcessCommand(@str);
             }
             catch (Exception value)
             {

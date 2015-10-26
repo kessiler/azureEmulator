@@ -3,13 +3,13 @@
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using Azure.Encryption.Crypto.KeyExchange;
-using Azure.Encryption.Hurlant.Crypto.Rsa;
-using Azure.Encryption.Utils;
+using Azure.Encryption.Encryption.Crypto.KeyExchange;
+using Azure.Encryption.Encryption.Hurlant.Crypto.Rsa;
+using Azure.Encryption.Encryption.Utils;
 
 #endregion
 
-namespace Azure.Encryption
+namespace Azure.Encryption.Encryption
 {
     public class Handler
     {

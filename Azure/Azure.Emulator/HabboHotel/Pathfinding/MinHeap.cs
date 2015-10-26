@@ -63,10 +63,8 @@ namespace Azure.HabboHotel.PathFinding
         /// </summary>
         public void BuildHead()
         {
-            {
-                for (var i = Count - 1 >> 1; i >= 0; i--)
-                    MinHeapify(i);
-            }
+            for (var i = Count - 1 >> 1; i >= 0; i--)
+                MinHeapify(i);
         }
 
         /// <summary>
@@ -75,22 +73,23 @@ namespace Azure.HabboHotel.PathFinding
         /// <param name="item">The item.</param>
         public void Add(T item)
         {
-            {
-                Count++;
-                if (Count > _capacity)
-                    DoubleArray();
-                _array[Count - 1] = item;
-                var num = Count - 1;
-                var num2 = num - 1 >> 1;
+            Count++;
 
-                while (num > 0 && _array[num2].CompareTo(_array[num]) > 0)
-                {
-                    _temp = _array[num];
-                    _array[num] = _array[num2];
-                    _array[num2] = _temp;
-                    num = num2;
-                    num2 = num - 1 >> 1;
-                }
+            if (Count > _capacity)
+                DoubleArray();
+
+            _array[Count - 1] = item;
+
+            var num = Count - 1;
+            var num2 = num - 1 >> 1;
+
+            while (num > 0 && _array[num2].CompareTo(_array[num]) > 0)
+            {
+                _temp = _array[num];
+                _array[num] = _array[num2];
+                _array[num2] = _temp;
+                num = num2;
+                num2 = num - 1 >> 1;
             }
         }
 
@@ -103,6 +102,7 @@ namespace Azure.HabboHotel.PathFinding
         {
             if (Count == 0)
                 throw new InvalidOperationException("Heap is empty");
+
             return _array[0];
         }
 
@@ -115,14 +115,14 @@ namespace Azure.HabboHotel.PathFinding
         {
             if (Count == 0)
                 throw new InvalidOperationException("Heap is empty");
+
             _temp = _array[0];
 
-            {
-                _array[0] = _array[Count - 1];
-                Count--;
-                MinHeapify(0);
-                return _temp;
-            }
+            _array[0] = _array[Count - 1];
+            Count--;
+            MinHeapify(0);
+
+            return _temp;
         }
 
         /// <summary>
@@ -132,10 +132,8 @@ namespace Azure.HabboHotel.PathFinding
         /// <param name="destination">The destination.</param>
         private static void CopyArray(IList<T> source, IList<T> destination)
         {
-            {
-                for (var i = 0; i < source.Count; i++)
-                    destination[i] = source[i];
-            }
+            for (var i = 0; i < source.Count; i++)
+                destination[i] = source[i];
         }
 
         /// <summary>
@@ -168,6 +166,7 @@ namespace Azure.HabboHotel.PathFinding
 
                 if (num2 < Count && _array[num2].CompareTo(_array[num3]) < 0)
                     num3 = num2;
+
                 if (num3 == position)
                     break;
 

@@ -12,6 +12,7 @@ using Azure.HabboHotel.Items.Interactions;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Pets;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.SoundMachine;

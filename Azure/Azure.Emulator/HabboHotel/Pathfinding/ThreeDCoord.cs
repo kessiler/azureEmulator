@@ -40,10 +40,7 @@ namespace Azure.HabboHotel.Pathfinding
         /// </summary>
         /// <param name="comparedCoord">The compared coord.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public bool Equals(ThreeDCoord comparedCoord)
-        {
-            return X == comparedCoord.X && Y == comparedCoord.Y && Z == comparedCoord.Z;
-        }
+        public bool Equals(ThreeDCoord comparedCoord) => X == comparedCoord.X && Y == comparedCoord.Y && Z == comparedCoord.Z;
 
         /// <summary>
         ///     Implements the ==.
@@ -51,10 +48,7 @@ namespace Azure.HabboHotel.Pathfinding
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
         /// <returns>The result of the operator.</returns>
-        public static bool operator ==(ThreeDCoord a, ThreeDCoord b)
-        {
-            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
-        }
+        public static bool operator ==(ThreeDCoord a, ThreeDCoord b) => a.X == b.X && a.Y == b.Y && a.Z == b.Z;
 
         /// <summary>
         ///     Implements the !=.
@@ -62,28 +56,19 @@ namespace Azure.HabboHotel.Pathfinding
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
         /// <returns>The result of the operator.</returns>
-        public static bool operator !=(ThreeDCoord a, ThreeDCoord b)
-        {
-            return !(a == b);
-        }
+        public static bool operator !=(ThreeDCoord a, ThreeDCoord b) => !(a == b);
 
         /// <summary>
         ///     Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-        public override int GetHashCode()
-        {
-            return X ^ Y ^ Z;
-        }
+        public override int GetHashCode() => X ^ Y ^ Z;
 
         /// <summary>
         ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
         /// </summary>
         /// <param name="obj">Another object to compare to.</param>
         /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-        public override bool Equals(object obj)
-        {
-            return obj != null && base.GetHashCode().Equals(obj.GetHashCode());
-        }
+        public override bool Equals(object obj) => obj != null && base.GetHashCode().Equals(obj.GetHashCode());
     }
 }

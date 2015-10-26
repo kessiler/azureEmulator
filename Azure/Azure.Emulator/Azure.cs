@@ -10,9 +10,9 @@ using System.Text;
 using System.Timers;
 using System.Windows.Forms;
 using Azure.Configuration;
-using Azure.Connection.Net;
 using Azure.Database;
 using Azure.Encryption;
+using Azure.Encryption.Encryption;
 using Azure.HabboHotel;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Groups.Interfaces;
@@ -56,11 +56,7 @@ namespace Azure
         /// <summary>
         /// The is live
         /// </summary>
-        internal static bool IsLive,
-                             SeparatedTasksInGameClientManager,
-                             SeparatedTasksInMainLoops,
-                             DebugMode,
-                             ConsoleTimerOn;
+        internal static bool IsLive, SeparatedTasksInGameClientManager, SeparatedTasksInMainLoops, DebugMode, ConsoleTimerOn;
 
         /// <summary>
         /// The staff alert minimum rank
@@ -105,7 +101,7 @@ namespace Azure
         /// <summary>
         /// The _plugins
         /// </summary>
-        private static Dictionary<string, IPlugin> _plugins;
+        public static Dictionary<string, IPlugin> Plugins;
 
         /// <summary>
         /// The users cached
@@ -146,10 +142,7 @@ namespace Azure
         /// <value><c>true</c> if [shutdown started]; otherwise, <c>false</c>.</value>
         internal static bool ShutdownStarted { get; set; }
 
-        public static bool ContainsAny(this string haystack, params string[] needles)
-        {
-            return needles.Any(haystack.Contains);
-        }
+        public static bool ContainsAny(this string haystack, params string[] needles) => needles.Any(haystack.Contains);
 
         /// <summary>
         /// Start the Plugin System
@@ -177,15 +170,11 @@ namespace Azure
             var pluginTypes = new List<Type>();
 
             foreach (var types in from assembly in assemblies where assembly != null select assembly.GetTypes())
-            {
-                pluginTypes.AddRange(
-                    types.Where(type => type != null && !type.IsInterface && !type.IsAbstract)
-                        .Where(type => type.GetInterface(pluginType.FullName) != null));
-            }
+                pluginTypes.AddRange(types.Where(type => type != null && !type.IsInterface && !type.IsAbstract).Where(type => type.GetInterface(pluginType.FullName) != null));
 
             var plugins = new List<IPlugin>(pluginTypes.Count);
-            plugins.AddRange(
-                pluginTypes.Select(type => (IPlugin)Activator.CreateInstance(type)).Where(plugin => plugin != null));
+
+            plugins.AddRange(pluginTypes.Select(type => (IPlugin)Activator.CreateInstance(type)).Where(plugin => plugin != null));
 
             return plugins;
         }
@@ -201,6 +190,7 @@ namespace Azure
             try
             {
                 GameClient clientByUserId = GetGame().GetClientManager().GetClientByUserId(userId);
+
                 if (clientByUserId != null)
                 {
                     Habbo habbo = clientByUserId.GetHabbo();
@@ -245,10 +235,12 @@ namespace Azure
         {
             Console.Clear();
             Console.WriteLine();
-            Out.WriteLine(
-                $"Console Cleared in: {DateTime.Now} Next Time on: {ConsoleTimer} Seconds ", "Azure.Boot", ConsoleColor.DarkGreen);
+
+            Out.WriteLine($"Console Cleared in: {DateTime.Now} Next Time on: {ConsoleTimer} Seconds ", "Azure.Boot", ConsoleColor.DarkGreen);
+
             Console.WriteLine();
             GC.Collect();
+
             Timer.Start();
         }
 
@@ -270,6 +262,7 @@ namespace Azure
                 ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/Welcome/settings.ini"), true);
 
                 DatabaseConnectionType = ConfigurationData.Data["db.type"];
+
                 var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder
                 {
                     Server = (ConfigurationData.Data["db.hostname"]),
@@ -285,7 +278,9 @@ namespace Azure
                     DefaultCommandTimeout = (300u),
                     ConnectionTimeout = (10u)
                 };
+
                 Manager = new DatabaseManager(mySqlConnectionStringBuilder.ToString(), DatabaseConnectionType);
+
                 using (var queryReactor = GetDatabaseManager().GetQueryReactor())
                 {
                     ConfigData = new ConfigData(queryReactor);
@@ -309,7 +304,7 @@ namespace Azure
                 LibraryParser.RegisterIncoming();
                 LibraryParser.RegisterConfig();
 
-                _plugins = new Dictionary<string, IPlugin>();
+                Plugins = new Dictionary<string, IPlugin>();
 
                 ICollection<IPlugin> plugins = LoadPlugins();
 
@@ -317,7 +312,7 @@ namespace Azure
                 {
                     foreach (var item in plugins.Where(item => item != null))
                     {
-                        _plugins.Add(item.PluginName, item);
+                        Plugins.Add(item.PluginName, item);
 
                         Out.WriteLine("Loaded Plugin: " + item.PluginName + " Version: " + item.PluginVersion, "Azure.Plugins", ConsoleColor.DarkBlue);
                     }
@@ -326,6 +321,7 @@ namespace Azure
                 ExtraSettings.RunExtraSettings();
                 FurniDataParser.SetCache();
                 CrossDomainPolicy.Set();
+
                 _game = new Game(int.Parse(ConfigurationData.Data["game.tcp.conlimit"]));
                 _game.GetNavigator().LoadNewPublicRooms();
                 _game.ContinueLoading();
@@ -336,26 +332,16 @@ namespace Azure
                 Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Lang");
 
                 if (plugins != null)
-                {
                     foreach (var itemTwo in plugins)
-                    {
-                        if (itemTwo == null)
-                        {
-                            continue;
-                        }
-
-                        itemTwo.message_void();
-                    }
-                }
+                        itemTwo?.message_void();
 
                 if (ConsoleTimerOn)
                     Out.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
 
                 ClientMessageFactory.Init();
 
-                Out.WriteLine(
-                    "Starting up asynchronous sockets server for game connections for port " +
-                    int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
+                Out.WriteLine("Starting up asynchronous sockets server for game connections for port " + int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
+
                 _connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conlimit"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conperip"]),
@@ -364,15 +350,12 @@ namespace Azure
 
                 if (LibraryParser.Config["Crypto.Enabled"] == "true")
                 {
-                    Handler.Initialize(LibraryParser.Config["Crypto.RSA.N"], LibraryParser.Config["Crypto.RSA.D"],
-                        LibraryParser.Config["Crypto.RSA.E"]);
+                    Handler.Initialize(LibraryParser.Config["Crypto.RSA.N"], LibraryParser.Config["Crypto.RSA.D"], LibraryParser.Config["Crypto.RSA.E"]);
 
                     Out.WriteLine("Started RSA crypto service", "Azure.Crypto");
                 }
                 else
-                {
                     Out.WriteLine("The encryption system is disabled. This affects badly to the safety.", "Azure.Crypto", ConsoleColor.DarkYellow);
-                }
 
                 Console.WriteLine();
 
@@ -380,10 +363,12 @@ namespace Azure
                     "Asynchronous sockets server for game connections running on port " +
                     int.Parse(ConfigurationData.Data["game.tcp.port"]) + Environment.NewLine, "Server.AsyncSocketListener");
 
-                string[] allowedIps = ConfigurationData.Data["mus.tcp.allowedaddr"].Split(';');
 
-                new MusSocket(ConfigurationData.Data["mus.tcp.bindip"],
-                    int.Parse(ConfigurationData.Data["mus.tcp.port"]), allowedIps, 0);
+                // Removed MusSocket from the Server
+                //string[] allowedIps = ConfigurationData.Data["mus.tcp.allowedaddr"].Split(';');
+                // ReSharper disable once ObjectCreationAsStatement
+                //new MusSocket(ConfigurationData.Data["mus.tcp.bindip"],
+                //    int.Parse(ConfigurationData.Data["mus.tcp.port"]), allowedIps, 0);
 
                 LibraryParser.Initialize();
                 Console.WriteLine();
@@ -409,6 +394,7 @@ namespace Azure
                         DebugMode = true;
 
                 Out.WriteLine("Azure Emulator ready. Status: idle", "Azure.Boot");
+
                 IsLive = true;
             }
             catch (Exception e)
@@ -416,6 +402,7 @@ namespace Azure
                 Out.WriteLine("Error loading config.ini: Configuration file is invalid" + Environment.NewLine + e.Message, "Azure.Boot", ConsoleColor.Red);
                 Out.WriteLine("Please press Y to get more details or press other Key to Exit", "Azure.Boot", ConsoleColor.Red);
                 ConsoleKeyInfo key = Console.ReadKey();
+
                 if (key.Key == ConsoleKey.Y)
                 {
                     Console.WriteLine();
@@ -434,32 +421,23 @@ namespace Azure
         /// <summary>
         /// Convert's Enum to Boolean
         /// </summary>
-        /// <param name="enum">The enum.</param>
+        /// <param name="theEnum">The theEnum.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal static bool EnumToBool(string @enum)
-        {
-            return @enum == "1";
-        }
+        internal static bool EnumToBool(string theEnum) => theEnum == "1";
 
         /// <summary>
         /// Convert's Boolean to Integer
         /// </summary>
-        /// <param name="bool">if set to <c>true</c> [bool].</param>
+        /// <param name="theBool">if set to <c>true</c> [theBool].</param>
         /// <returns>System.Int32.</returns>
-        internal static int BoolToInteger(bool @bool)
-        {
-            return @bool ? 1 : 0;
-        }
+        internal static int BoolToInteger(bool theBool) => theBool ? 1 : 0;
 
         /// <summary>
         /// Convert's Boolean to Enum
         /// </summary>
-        /// <param name="bool">if set to <c>true</c> [bool].</param>
+        /// <param name="theBool">if set to <c>true</c> [theBool].</param>
         /// <returns>System.String.</returns>
-        internal static string BoolToEnum(bool @bool)
-        {
-            return @bool ? "1" : "0";
-        }
+        internal static string BoolToEnum(bool theBool) => theBool ? "1" : "0";
 
         /// <summary>
         /// Generates a Random Number in the Interval Min,Max
@@ -467,39 +445,22 @@ namespace Azure
         /// <param name="min">The minimum.</param>
         /// <param name="max">The maximum.</param>
         /// <returns>System.Int32.</returns>
-        internal static int GetRandomNumber(int min, int max)
-        {
-            return RandomNumber.Get(min, max);
-        }
+        internal static int GetRandomNumber(int min, int max) => RandomNumber.Get(min, max);
 
         /// <summary>
         /// Get's the Actual Timestamp in Unix Format
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal static int GetUnixTimeStamp()
-        {
-            double totalSeconds = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-            return ((int)totalSeconds);
-        }
+        internal static int GetUnixTimeStamp() => ((int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
 
         /// <summary>
         /// Convert's a Unix TimeStamp to DateTime
         /// </summary>
         /// <param name="unixTimeStamp">The unix time stamp.</param>
         /// <returns>DateTime.</returns>
-        internal static DateTime UnixToDateTime(double unixTimeStamp)
-        {
-            var result = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-            result = result.AddSeconds(unixTimeStamp).ToLocalTime();
-            return result;
-        }
+        internal static DateTime UnixToDateTime(double unixTimeStamp) => (new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local)).AddSeconds(unixTimeStamp).ToLocalTime();
 
-        internal static DateTime UnixToDateTime(int unixTimeStamp)
-        {
-            var result = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-            result = result.AddSeconds(unixTimeStamp).ToLocalTime();
-            return result;
-        }
+        internal static DateTime UnixToDateTime(int unixTimeStamp) => (new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local)).AddSeconds(unixTimeStamp).ToLocalTime();
 
         /// <summary>
         /// Convert timestamp to GroupJoin String
@@ -508,9 +469,9 @@ namespace Azure
         /// <returns>System.String.</returns>
         public static string GetGroupDateJoinString(long timeStamp)
         {
-            string[] time = UnixToDateTime(timeStamp).ToString("MMMM/dd/yyyy",
-                 CultureInfo).Split('/');
-            return String.Format("{0} {1}, {2}", time[0].Substring(0, 3), time[1], time[2]);
+            string[] time = UnixToDateTime(timeStamp).ToString("MMMM/dd/yyyy", CultureInfo).Split('/');
+
+            return $"{time[0].Substring(0, 3)} {time[1]}, {time[2]}";
         }
 
         /// <summary>
@@ -518,37 +479,18 @@ namespace Azure
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns>System.Int32.</returns>
-        internal static int DateTimeToUnix(DateTime target)
-        {
-            var d = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt32((target - d).TotalSeconds);
-        }
+        internal static int DateTimeToUnix(DateTime target) => Convert.ToInt32((target - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
 
         /// <summary>
         /// Get the Actual Time
         /// </summary>
         /// <returns>System.Int64.</returns>
-        internal static long Now()
-        {
-            double totalMilliseconds = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
-            return ((long)totalMilliseconds);
-        }
+        internal static long Now() => ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds);
 
-        internal static int DifferenceInMilliSeconds(DateTime time, DateTime from)
+        internal static int DifferenceInMilliSeconds(DateTime time, DateTime tFrom)
         {
-            double time1;
-            double time2;
-
-            try
-            {
-                time1 = from.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                time2 = time.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-            }
-            catch (Exception)
-            {
-                time1 = 0.0;
-                time2 = 0.0;
-            }
+            var time1 = tFrom.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            var time2 = time.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
             if ((time1 >= double.MaxValue) || (time1 <= double.MinValue) || time1 <= 0.0)
                 time1 = 0.0;
@@ -556,20 +498,7 @@ namespace Azure
             if ((time2 >= double.MaxValue) || (time2 <= double.MinValue) || time2 <= 0.0)
                 time2 = 0.0;
 
-            double tempus = time1 - time2;
-
-            int tempusNovo = 0;
-
-            try
-            {
-                tempusNovo = Convert.ToInt32(tempus);
-            }
-            catch (Exception)
-            {
-                return tempusNovo;
-            }
-
-            return tempusNovo;
+            return Convert.ToInt32(time1 - time2);
         }
 
         /// <summary>
@@ -577,25 +506,14 @@ namespace Azure
         /// </summary>
         /// <param name="figure">The figure.</param>
         /// <returns>System.String.</returns>
-        internal static string FilterFigure(string figure)
-        {
-            return figure.Any(character => !IsValid(character))
-                ? "lg-3023-1335.hr-828-45.sh-295-1332.hd-180-4.ea-3168-89.ca-1813-62.ch-235-1332"
-                : figure;
-        }
+        internal static string FilterFigure(string figure) => figure.Any(character => !IsValid(character)) ? "lg-3023-1335.hr-828-45.sh-295-1332.hd-180-4.ea-3168-89.ca-1813-62.ch-235-1332" : figure;
 
         /// <summary>
         /// Check if is a Valid AlphaNumeric String
         /// </summary>
         /// <param name="inputStr">The input string.</param>
         /// <returns><c>true</c> if [is valid alpha numeric] [the specified input string]; otherwise, <c>false</c>.</returns>
-        internal static bool IsValidAlphaNumeric(string inputStr)
-        {
-            inputStr = inputStr.ToLower();
-            if (string.IsNullOrEmpty(inputStr))
-                return false;
-            return inputStr.All(IsValid);
-        }
+        internal static bool IsValidAlphaNumeric(string inputStr) => !string.IsNullOrEmpty(inputStr.ToLower()) && inputStr.ToLower().All(IsValid);
 
         /// <summary>
         /// Get a Habbo With the Habbo's Username
@@ -610,11 +528,15 @@ namespace Azure
                 using (var queryReactor = GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT id FROM users WHERE username = @user");
+
                     queryReactor.AddParameter("user", userName);
+
                     int integer = queryReactor.GetInteger();
+
                     if (integer > 0)
                     {
-                        Habbo result = GetHabboById(((uint)integer));
+                        Habbo result = GetHabboById((uint)integer);
+
                         return result;
                     }
                 }
@@ -629,76 +551,43 @@ namespace Azure
         /// <summary>
         /// Check if the Input String is a Integer
         /// </summary>
-        /// <param name="int">The int.</param>
-        /// <returns><c>true</c> if the specified int is number; otherwise, <c>false</c>.</returns>
-        internal static bool IsNum(string @int)
+        /// <param name="theNum">The theNum.</param>
+        /// <returns><c>true</c> if the specified theNum is number; otherwise, <c>false</c>.</returns>
+        internal static bool IsNum(string theNum)
         {
             double num;
-            return double.TryParse(@int, out num);
+            return double.TryParse(theNum, out num);
         }
 
         /// <summary>
         /// Get the Database Configuration Data
         /// </summary>
         /// <returns>ConfigData.</returns>
-        internal static ConfigData GetDbConfig()
-        {
-            return ConfigData;
-        }
+        internal static ConfigData GetDbConfig() => ConfigData;
 
         /// <summary>
         /// Get's the Default Emulator Encoding
         /// </summary>
         /// <returns>Encoding.</returns>
-        internal static Encoding GetDefaultEncoding()
-        {
-            return _defaultEncoding;
-        }
+        internal static Encoding GetDefaultEncoding() => _defaultEncoding;
 
         /// <summary>
         /// Get's the Game Connection Manager Handler
         /// </summary>
         /// <returns>ConnectionHandling.</returns>
-        internal static ConnectionHandling GetConnectionManager()
-        {
-            return _connectionManager;
-        }
+        internal static ConnectionHandling GetConnectionManager() => _connectionManager;
 
         /// <summary>
         /// Get's the Game Environment Handler
         /// </summary>
         /// <returns>Game.</returns>
-        internal static Game GetGame()
-        {
-            return _game;
-        }
+        internal static Game GetGame() => _game;
 
         /// <summary>
         /// Gets the language.
         /// </summary>
         /// <returns>Languages.</returns>
-        internal static Languages GetLanguage()
-        {
-            return _languages;
-        }
-
-        /// <summary>
-        /// Send a Message to Everyone in the Habbo Client
-        /// </summary>
-        /// <param name="message">The message.</param>
-        internal static void SendMassMessage(string message)
-        {
-            try
-            {
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("BroadcastNotifMessageComposer"));
-                serverMessage.AppendString(message);
-                GetGame().GetClientManager().QueueBroadcaseMessage(serverMessage);
-            }
-            catch (Exception pException)
-            {
-                Logging.HandleException(pException, "AzureEnvironment.SendMassMessage");
-            }
-        }
+        internal static Languages GetLanguage() => _languages;
 
         /// <summary>
         /// Filter's SQL Injection Characters
@@ -711,6 +600,7 @@ namespace Azure
             input = input.Replace('\u0002', ' ');
             input = input.Replace('\u0003', ' ');
             input = input.Replace('\t', ' ');
+
             return input;
         }
 
@@ -718,10 +608,7 @@ namespace Azure
         /// Get's the Database Manager Handler
         /// </summary>
         /// <returns>DatabaseManager.</returns>
-        internal static DatabaseManager GetDatabaseManager()
-        {
-            return Manager;
-        }
+        internal static DatabaseManager GetDatabaseManager() => Manager;
 
         /// <summary>
         /// Perform's the Emulator Shutdown
@@ -747,6 +634,7 @@ namespace Azure
         internal static void PerformShutDown(bool restart)
         {
             DateTime now = DateTime.Now;
+
             Cache.StopProcess();
 
             ShutdownStarted = true;
@@ -793,6 +681,7 @@ namespace Azure
             }
 
             TimeSpan span = DateTime.Now - now;
+
             Out.WriteLine("Elapsed " + TimeSpanToString(span) + "ms on Shutdown Proccess", "Azure.Life", ConsoleColor.DarkYellow);
 
             if (!restart)
@@ -815,53 +704,13 @@ namespace Azure
         /// </summary>
         /// <param name="span">The span.</param>
         /// <returns>System.String.</returns>
-        internal static string TimeSpanToString(TimeSpan span)
-        {
-            return string.Concat(span.Seconds, " s, ", span.Milliseconds, " ms");
-        }
+        internal static string TimeSpanToString(TimeSpan span) => string.Concat(span.Seconds, " s, ", span.Milliseconds, " ms");
 
         /// <summary>
         /// Check's if Input Data is a Valid AlphaNumeric Character
         /// </summary>
         /// <param name="c">The c.</param>
         /// <returns><c>true</c> if the specified c is valid; otherwise, <c>false</c>.</returns>
-        private static bool IsValid(char c)
-        {
-            return char.IsLetterOrDigit(c) || AllowedSpecialChars.Contains(c);
-        }
-
-        /// <summary>
-        /// Reads the line masked.
-        /// </summary>
-        /// <param name="mask">The mask.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadLineMasked(char mask = '*')
-        {
-            var sb = new StringBuilder();
-            ConsoleKeyInfo keyInfo;
-            while ((keyInfo = Console.ReadKey(true)).Key != ConsoleKey.Enter)
-            {
-                if (!char.IsControl(keyInfo.KeyChar))
-                {
-                    sb.Append(keyInfo.KeyChar);
-                    Console.Write(mask);
-                }
-                else if (keyInfo.Key == ConsoleKey.Backspace && sb.Length > 0)
-                {
-                    sb.Remove(sb.Length - 1, 1);
-
-                    if (Console.CursorLeft == 0)
-                    {
-                        Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
-                        Console.Write(' ');
-                        Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
-                    }
-                    else
-                        Console.Write("\b \b");
-                }
-            }
-            Console.WriteLine();
-            return sb.ToString();
-        }
+        private static bool IsValid(char c) => char.IsLetterOrDigit(c) || AllowedSpecialChars.Contains(c);
     }
 }

@@ -96,11 +96,14 @@ namespace Azure.Util
         {
             if (_queryCount == 0)
                 return;
+
             _queries = _queries.Remove((_queries.Length - 1), 1);
 
             dbClient.SetQuery(_queries.ToString());
+
             foreach (var current in _parameters)
                 dbClient.AddParameter(current.Key, current.Value);
+
             dbClient.RunQuery();
         }
 

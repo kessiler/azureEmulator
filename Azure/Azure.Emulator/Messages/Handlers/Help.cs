@@ -47,6 +47,7 @@ namespace Azure.Messages.Handlers
             string message = Request.GetString();
             int category = Request.GetInteger();
             uint reportedUser = Request.GetUInteger();
+
             Request.GetUInteger(); // roomId
 
             int messageCount = Request.GetInteger();
@@ -95,6 +96,7 @@ namespace Azure.Messages.Handlers
         {
             if (!Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
                 return;
+
             Azure.GetGame().GetModerationTool().DeletePendingTicketForUser(Session.GetHabbo().Id);
 
             Response.Init(LibraryParser.OutgoingRequest("OpenHelpToolMessageComposer"));
@@ -110,14 +112,11 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().HasFuse("fuse_mod"))
             {
                 var num = Request.GetUInteger();
+
                 if (Azure.GetGame().GetClientManager().GetNameById(num) != "Unknown User")
-                {
                     Session.SendMessage(ModerationTool.SerializeUserInfo(num));
-                }
                 else
-                {
                     Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error"));
-                }
             }
         }
 
@@ -128,6 +127,7 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_chatlogs"))
                 return;
+
             Session.SendMessage(ModerationTool.SerializeUserChatlog(Request.GetUInteger()));
         }
 
@@ -141,8 +141,10 @@ namespace Azure.Messages.Handlers
                 Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error_rank_low"));
                 return;
             }
+
             Request.GetInteger();
             var roomId = Request.GetUInteger();
+
             if (Azure.GetGame().GetRoomManager().GetRoom(roomId) != null)
                 Session.SendMessage(ModerationTool.SerializeRoomChatlog(roomId));
         }
@@ -154,8 +156,10 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_mod"))
                 return;
+
             var roomId = Request.GetUInteger();
             var data = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(roomId);
+
             Session.SendMessage(ModerationTool.SerializeRoomTool(data));
         }
 
@@ -166,8 +170,10 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_mod"))
                 return;
+
             Request.GetInteger();
             var ticketId = Request.GetUInteger();
+
             Azure.GetGame().GetModerationTool().PickTicket(Session, ticketId);
         }
 
@@ -182,11 +188,7 @@ namespace Azure.Messages.Handlers
             int ticketCount = Request.GetInteger();
 
             for (int i = 0; i < ticketCount; i++)
-            {
-                uint ticketId = Request.GetUInteger();
-
-                Azure.GetGame().GetModerationTool().ReleaseTicket(Session, ticketId);
-            }
+                Azure.GetGame().GetModerationTool().ReleaseTicket(Session, Request.GetUInteger());
         }
 
         /// <summary>
@@ -198,6 +200,7 @@ namespace Azure.Messages.Handlers
                 return;
 
             int result = Request.GetInteger();
+
             Request.GetInteger();
 
             uint ticketId = Request.GetUInteger();
@@ -217,10 +220,12 @@ namespace Azure.Messages.Handlers
                 return;
 
             SupportTicket ticket = Azure.GetGame().GetModerationTool().GetTicket(Request.GetUInteger());
+
             if (ticket == null)
                 return;
 
             RoomData roomData = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(ticket.RoomId);
+
             if (roomData == null)
                 return;
 
@@ -235,7 +240,9 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().HasFuse("fuse_mod"))
             {
                 uint userId = Request.GetUInteger();
-                if (userId > 0) Session.SendMessage(ModerationTool.SerializeRoomVisits(userId));
+
+                if (userId > 0)
+                    Session.SendMessage(ModerationTool.SerializeRoomVisits(userId));
             }
         }
 
@@ -255,7 +262,7 @@ namespace Azure.Messages.Handlers
             serverMessage.AppendString("admin");
             serverMessage.AppendInteger(3);
             serverMessage.AppendString("message");
-            serverMessage.AppendString(string.Format("{0}\r\n\r\n- {1}", message, Session.GetHabbo().UserName));
+            serverMessage.AppendString($"{message}\r\n\r\n- {Session.GetHabbo().UserName}");
             serverMessage.AppendString("link");
             serverMessage.AppendString("event:");
             serverMessage.AppendString("linkTitle");
@@ -263,8 +270,7 @@ namespace Azure.Messages.Handlers
 
             Room room = Session.GetHabbo().CurrentRoom;
 
-            if (room != null)
-                room.SendMessage(serverMessage);
+            room?.SendMessage(serverMessage);
         }
 
         /// <summary>
@@ -290,8 +296,10 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_alert"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
+
             ModerationTool.AlertUser(Session, userId, message, true);
         }
 
@@ -302,8 +310,10 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_alert"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
+
             ModerationTool.AlertUser(Session, userId, message, false);
         }
 
@@ -314,9 +324,11 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_mute"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
             var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+
             clientByUserId.GetHabbo().Mute();
             clientByUserId.SendNotif(message);
         }
@@ -328,6 +340,7 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_lock_trade"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
             var length = (Request.GetInteger() * 3600);
@@ -342,8 +355,10 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_kick"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
+
             ModerationTool.KickUser(Session, userId, message, false);
         }
 
@@ -354,6 +369,7 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_ban"))
                 return;
+
             var userId = Request.GetUInteger();
             var message = Request.GetString();
             var length = (Request.GetInteger() * 3600);

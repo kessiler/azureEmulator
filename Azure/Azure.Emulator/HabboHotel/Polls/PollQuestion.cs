@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Azure.HabboHotel.Polls.Enums;
 using Azure.Messages;
 
 namespace Azure.HabboHotel.Polls
@@ -12,7 +13,7 @@ namespace Azure.HabboHotel.Polls
         /// <summary>
         ///     The answers
         /// </summary>
-        internal List<string> Answers = new List<string>();
+        internal List<string> Answers;
 
         /// <summary>
         ///     a type
@@ -62,38 +63,18 @@ namespace Azure.HabboHotel.Polls
             message.AppendInteger(questionNumber);
             message.AppendInteger((int) AType);
             message.AppendString(Question);
+
             if (AType != PollAnswerType.Selection && AType != PollAnswerType.RadioSelection)
-            {
                 return;
-            }
+
             message.AppendInteger(1);
             message.AppendInteger(Answers.Count);
+
             foreach (var current in Answers)
             {
                 message.AppendString(current);
                 message.AppendString(current);
             }
-        }
-
-        /// <summary>
-        ///     Enum PollAnswerType
-        /// </summary>
-        internal enum PollAnswerType
-        {
-            /// <summary>
-            ///     The radio selection
-            /// </summary>
-            RadioSelection = 1,
-
-            /// <summary>
-            ///     The selection
-            /// </summary>
-            Selection = 2,
-
-            /// <summary>
-            ///     The text
-            /// </summary>
-            Text = 3
         }
     }
 }

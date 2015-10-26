@@ -9,14 +9,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using Azure.Configuration;
+using Azure.HabboHotel.Polls.Enums;
 using Azure.Connection;
-using Azure.Encryption.Utils;
+using Azure.Encryption.Encryption.Utils;
 using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.Catalogs.Composers;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.PathFinding;
 using Azure.HabboHotel.Pets;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Polls;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
@@ -25,6 +27,8 @@ using Azure.HabboHotel.Rooms.Data;
 using Azure.HabboHotel.Rooms.User;
 using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
+using Azure.Security.BlackWords.Enums;
+using Azure.Security.BlackWords.Structs;
 using Azure.Util;
 
 namespace Azure.Messages.Handlers
@@ -2151,44 +2155,52 @@ namespace Azure.Messages.Handlers
             ClearRoomLoading();
 
             Poll poll;
-            if (!Azure.GetGame().GetPollManager().TryGetPoll(CurrentLoadingRoom.RoomId, out poll) ||
-                Session.GetHabbo().GotPollData(poll.Id))
+
+            if (!Azure.GetGame().GetPollManager().TryGetPoll(CurrentLoadingRoom.RoomId, out poll) || Session.GetHabbo().GotPollData(poll.Id))
                 return;
+
             Response.Init(LibraryParser.OutgoingRequest("SuggestPollMessageComposer"));
             poll.Serialize(Response);
+
             SendResponse();
         }
 
         internal void WidgetContainers()
         {
             var text = Request.GetString();
-            if (Session == null) return;
+
+            if (Session == null)
+                return;
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("LandingWidgetMessageComposer"));
+
             if (!string.IsNullOrEmpty(text))
             {
                 var array = text.Split(',');
+
                 serverMessage.AppendString(text);
                 serverMessage.AppendString(array[1]);
             }
             else
             {
-                serverMessage.AppendString("");
-                serverMessage.AppendString("");
+                serverMessage.AppendString(string.Empty);
+                serverMessage.AppendString(string.Empty);
             }
+
             Session.SendMessage(serverMessage);
         }
 
         internal void RefreshPromoEvent()
         {
             var hotelView = Azure.GetGame().GetHotelView();
-            if (Session == null || Session.GetHabbo() == null)
+
+            if (Session?.GetHabbo() == null)
                 return;
+
             if (hotelView.HotelViewPromosIndexers.Count <= 0)
                 return;
-            var message =
-                hotelView.SmallPromoComposer(
-                    new ServerMessage(LibraryParser.OutgoingRequest("LandingPromosMessageComposer")));
+
+            var message = hotelView.SmallPromoComposer(new ServerMessage(LibraryParser.OutgoingRequest("LandingPromosMessageComposer")));
             Session.SendMessage(message);
         }
 
@@ -2196,17 +2208,21 @@ namespace Azure.Messages.Handlers
         {
             var key = Request.GetUInteger();
             var poll = Azure.GetGame().GetPollManager().Polls[key];
+
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("PollQuestionsMessageComposer"));
+
             serverMessage.AppendInteger(poll.Id);
             serverMessage.AppendString(poll.PollName);
             serverMessage.AppendString(poll.Thanks);
             serverMessage.AppendInteger(poll.Questions.Count);
+
             foreach (var current in poll.Questions)
             {
                 var questionNumber = (poll.Questions.IndexOf(current) + 1);
 
                 current.Serialize(serverMessage, questionNumber);
             }
+
             Response = serverMessage;
             SendResponse();
         }
@@ -2214,7 +2230,9 @@ namespace Azure.Messages.Handlers
         internal void RefusePoll()
         {
             var num = Request.GetUInteger();
+
             Session.GetHabbo().AnsweredPolls.Add(num);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("INSERT INTO users_polls VALUES (@userid , @pollid , 0 , '0' , '')");
@@ -2229,35 +2247,45 @@ namespace Azure.Messages.Handlers
             var pollId = Request.GetUInteger();
             var questionId = Request.GetUInteger();
             var num3 = Request.GetInteger();
+
             var list = new List<string>();
 
+            for (var i = 0; i < num3; i++)
+                list.Add(Request.GetString());
+
+            var text = string.Join("\r\n", list);
+
+            var poll = Azure.GetGame().GetPollManager().TryGetPollById(pollId);
+
+            if (poll != null && poll.Type == PollType.Matching)
             {
-                for (var i = 0; i < num3; i++)
-                    list.Add(Request.GetString());
-                var text = string.Join("\r\n", list);
-                var poll = Azure.GetGame().GetPollManager().TryGetPollById(pollId);
-                if (poll != null && poll.Type == Poll.PollType.Matching)
-                {
-                    if (text == "1") { poll.AnswersPositive++; } else { poll.AnswersNegative++; }
-                    ServerMessage answered = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollAnsweredMessageComposer"));
-                    answered.AppendInteger(Session.GetHabbo().Id);
-                    answered.AppendString(text);
-                    answered.AppendInteger(0);
-                    Session.SendMessage(answered);
-                    Session.GetHabbo().AnsweredPool = true;
-                    return;
-                }
-                Session.GetHabbo().AnsweredPolls.Add(pollId);
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                {
-                    queryReactor.SetQuery(
-                        "INSERT INTO users_polls VALUES (@userid , @pollid , @questionid , '1' , @answer)");
-                    queryReactor.AddParameter("userid", Session.GetHabbo().Id);
-                    queryReactor.AddParameter("pollid", pollId);
-                    queryReactor.AddParameter("questionid", questionId);
-                    queryReactor.AddParameter("answer", text);
-                    queryReactor.RunQuery();
-                }
+                if (text == "1")
+                    poll.AnswersPositive++;
+                else
+                    poll.AnswersNegative++;
+
+                ServerMessage answered = new ServerMessage(LibraryParser.OutgoingRequest("MatchingPollAnsweredMessageComposer"));
+
+                answered.AppendInteger(Session.GetHabbo().Id);
+                answered.AppendString(text);
+                answered.AppendInteger(0);
+                Session.SendMessage(answered);
+                Session.GetHabbo().AnsweredPool = true;
+
+                return;
+            }
+
+            Session.GetHabbo().AnsweredPolls.Add(pollId);
+
+            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            {
+                queryReactor.SetQuery("INSERT INTO users_polls VALUES (@userid , @pollid , @questionid , '1' , @answer)");
+
+                queryReactor.AddParameter("userid", Session.GetHabbo().Id);
+                queryReactor.AddParameter("pollid", pollId);
+                queryReactor.AddParameter("questionid", questionId);
+                queryReactor.AddParameter("answer", text);
+                queryReactor.RunQuery();
             }
         }
 
@@ -2265,87 +2293,96 @@ namespace Azure.Messages.Handlers
         {
             try
             {
-                if (wallPosition.Contains(Convert.ToChar(13)) || wallPosition.Contains(Convert.ToChar(9))) return null;
+                if (wallPosition.Contains(Convert.ToChar(13)) || wallPosition.Contains(Convert.ToChar(9)))
+                    return null;
 
                 var array = wallPosition.Split(' ');
-                if (array[2] != "l" && array[2] != "r") return null;
+
+                if (array[2] != "l" && array[2] != "r")
+                    return null;
 
                 var array2 = array[0].Substring(3).Split(',');
                 var num = int.Parse(array2[0]);
                 var num2 = int.Parse(array2[1]);
+
                 if (num >= 0 && num2 >= 0 && num <= 200 && num2 <= 200)
                 {
                     var array3 = array[1].Substring(2).Split(',');
                     var num3 = int.Parse(array3[0]);
                     var num4 = int.Parse(array3[1]);
-                    return num3 < 0 || num4 < 0 || num3 > 200 || num4 > 200
-                        ? null
-                        : string.Concat(":w=", num, ",", num2, " l=", num3, ",", num4, " ", array[2]);
+
+                    return num3 < 0 || num4 < 0 || num3 > 200 || num4 > 200 ? null: string.Concat(":w=", num, ",", num2, " l=", num3, ",", num4, " ", array[2]);
                 }
             }
             catch
             {
+                // ignored
             }
+
             return null;
         }
 
         internal void Sit()
         {
-            var user =
-                Session.GetHabbo().CurrentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
-            if (user == null) return;
-            if (user.Statusses.ContainsKey("lay") || user.IsLyingDown ||
-                user.RidingHorse || user.IsWalking)
+            var user = Session.GetHabbo().CurrentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
+            if (user == null)
                 return;
 
-            if (user.RotBody % 2 != 0) user.RotBody--;
+            if (user.Statusses.ContainsKey("lay") || user.IsLyingDown || user.RidingHorse || user.IsWalking)
+                return;
+
+            if (user.RotBody % 2 != 0)
+                user.RotBody--;
 
             user.Z = Session.GetHabbo().CurrentRoom.GetGameMap().SqAbsoluteHeight(user.X, user.Y);
+
             if (!user.Statusses.ContainsKey("sit"))
             {
                 user.UpdateNeeded = true;
                 user.Statusses.Add("sit", "0.55");
             }
+
             user.IsSitting = true;
         }
 
         public void Whisper()
         {
-            if (!Session.GetHabbo().InRoom) return;
+            if (!Session.GetHabbo().InRoom)
+                return;
+
             var currentRoom = Session.GetHabbo().CurrentRoom;
             var text = Request.GetString();
             var text2 = text.Split(' ')[0];
             var msg = text.Substring(text2.Length + 1);
             var colour = Request.GetInteger();
+
             var roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
             var roomUserByHabbo2 = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(text2);
 
-            msg = currentRoom.WordFilter.Aggregate(msg,
-                (current1, current) => Regex.Replace(current1, current, "bobba", RegexOptions.IgnoreCase));
+            msg = currentRoom.WordFilter.Aggregate(msg, (current1, current) => Regex.Replace(current1, current, "bobba", RegexOptions.IgnoreCase));
 
             BlackWord word;
+
             if (BlackWordsManager.Check(msg, BlackWordType.Hotel, out word))
             {
                 var settings = word.TypeSettings;
-                //Session.HandlePublicist(word.Word, msg, "WHISPER", settings);
 
                 if (settings.ShowMessage)
                 {
-                    Session.SendWhisper("A mensagem enviada tem a palavra: " + word.Word +
-                                        " Que não é permitida aqui, você poderá ser banido!");
+                    Session.SendWhisper("A mensagem enviada tem a palavra: " + word.Word + " Que não é permitida aqui, você poderá ser banido!");
                     return;
                 }
             }
 
             TimeSpan span = DateTime.Now - _floodTime;
+
             if (span.Seconds > 4)
-            {
                 _floodCount = 0;
-            }
+
             if (((span.Seconds < 4) && (_floodCount > 5)) && (Session.GetHabbo().Rank < 5))
-            {
                 return;
-            }
+
             _floodTime = DateTime.Now;
             _floodCount++;
 
@@ -2355,15 +2392,17 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            if (Session.GetHabbo().Rank < 4 && currentRoom.CheckMute(Session)) return;
-            currentRoom.AddChatlog(Session.GetHabbo().Id, string.Format("<fluister naar {0}>: {1}", text2, msg),
-                false);
+            if (Session.GetHabbo().Rank < 4 && currentRoom.CheckMute(Session))
+                return;
+
+            currentRoom.AddChatlog(Session.GetHabbo().Id, $"<fluister naar {text2}>: {msg}", false);
 
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialChat);
+
             var colour2 = colour;
+
             if (!roomUserByHabbo.IsBot)
-                if (colour2 == 2 || (colour2 == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || colour2 < 0 ||
-                    colour2 > 29)
+                if (colour2 == 2 || (colour2 == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || colour2 < 0 || colour2 > 29)
                     colour2 = roomUserByHabbo.LastBubble; // or can also be just 0
 
             roomUserByHabbo.UnIdle();
@@ -2377,23 +2416,27 @@ namespace Azure.Messages.Handlers
             whisp.AppendInteger(-1);
 
             roomUserByHabbo.GetClient().SendMessage(whisp);
-            if (!roomUserByHabbo2.IsBot &&
-                roomUserByHabbo2.UserId != roomUserByHabbo.UserId &&
-                !roomUserByHabbo2.GetClient().GetHabbo().MutedUsers.Contains(Session.GetHabbo().Id))
+
+            if (!roomUserByHabbo2.IsBot && roomUserByHabbo2.UserId != roomUserByHabbo.UserId && !roomUserByHabbo2.GetClient().GetHabbo().MutedUsers.Contains(Session.GetHabbo().Id))
                 roomUserByHabbo2.GetClient().SendMessage(whisp);
+
             var roomUserByRank = currentRoom.GetRoomUserManager().GetRoomUserByRank(4);
-            if (!roomUserByRank.Any()) return;
+
+            if (!roomUserByRank.Any())
+                return;
+
             foreach (var current2 in roomUserByRank)
-                if (current2 != null && current2.HabboId != roomUserByHabbo2.HabboId &&
-                    current2.HabboId != roomUserByHabbo.HabboId && current2.GetClient() != null)
+                if (current2 != null && current2.HabboId != roomUserByHabbo2.HabboId && current2.HabboId != roomUserByHabbo.HabboId && current2.GetClient() != null)
                 {
                     var whispStaff = new ServerMessage(LibraryParser.OutgoingRequest("WhisperMessageComposer"));
+
                     whispStaff.AppendInteger(roomUserByHabbo.VirtualId);
-                    whispStaff.AppendString(string.Format("Whisper to {0}: {1}", text2, msg));
+                    whispStaff.AppendString($"Whisper to {text2}: {msg}");
                     whispStaff.AppendInteger(0);
                     whispStaff.AppendInteger(colour2);
                     whispStaff.AppendInteger(0);
                     whispStaff.AppendInteger(-1);
+
                     current2.GetClient().SendMessage(whispStaff);
                 }
         }
@@ -2401,19 +2444,19 @@ namespace Azure.Messages.Handlers
         public void Chat()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null)
-                return;
-            var roomUser = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
+            var roomUser = room?.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
             if (roomUser == null)
                 return;
+
             var message = Request.GetString();
             var bubble = Request.GetInteger();
             var count = Request.GetInteger();
 
             if (!roomUser.IsBot)
-                if (bubble == 2 || (bubble == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || bubble < 0 ||
-                    bubble > 29)
-                    bubble = roomUser.LastBubble; // or can also be just 0
+                if (bubble == 2 || (bubble == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || bubble < 0 || bubble > 29)
+                    bubble = roomUser.LastBubble;
 
             roomUser.Chat(Session, message, false, count, bubble);
         }
@@ -2421,17 +2464,18 @@ namespace Azure.Messages.Handlers
         public void Shout()
         {
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null)
-                return;
-            var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
+            var roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
             if (roomUserByHabbo == null)
                 return;
+
             var msg = Request.GetString();
             var bubble = Request.GetInteger();
+
             if (!roomUserByHabbo.IsBot)
-                if (bubble == 2 || (bubble == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || bubble < 0 ||
-                    bubble > 29)
-                    bubble = roomUserByHabbo.LastBubble; // or can also be just 0
+                if (bubble == 2 || (bubble == 23 && !Session.GetHabbo().HasFuse("fuse_mod")) || bubble < 0 || bubble > 29)
+                    bubble = roomUserByHabbo.LastBubble; 
 
             roomUserByHabbo.Chat(Session, msg, true, -1, bubble);
         }
@@ -2463,20 +2507,22 @@ namespace Azure.Messages.Handlers
         public void GetFloorPlanDoor()
         {
             var room = Session.GetHabbo().CurrentRoom;
+
             if (room == null)
                 return;
+
             Response.Init(LibraryParser.OutgoingRequest("SetFloorPlanDoorMessageComposer"));
             Response.AppendInteger(room.GetGameMap().Model.DoorX);
             Response.AppendInteger(room.GetGameMap().Model.DoorY);
             Response.AppendInteger(room.GetGameMap().Model.DoorOrientation);
+
             SendResponse();
         }
 
         public Image Base64ToImage(string base64String)
         {
-            // Convert Base64 String to byte[]
             byte[] imageBytes = Convert.FromBase64String(base64String);
-            // Convert byte[] to Image
+
             using (var ms = new MemoryStream(imageBytes, 0, imageBytes.Length))
             {
                 Image image = Image.FromStream(ms, true);
@@ -2486,15 +2532,13 @@ namespace Azure.Messages.Handlers
 
         public void EnterRoomQueue()
         {
-            // here will come the fucking shits
             Session.SendNotif("Currently working on Watch live TV");
 
             Session.GetHabbo().SpectatorMode = true;
 
-            // think prepare room for..
-
             var forwardToRoom = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
             forwardToRoom.AppendInteger(1);
+
             Session.SendMessage(forwardToRoom);
         }
 
@@ -2536,7 +2580,7 @@ namespace Azure.Messages.Handlers
                 Session.SendMessage(message);
 
             }
-            catch (Exception a)
+            catch (Exception)
             {
                 Session.SendNotif("Essa foto possui muitos itens, por favor tire foto de um lugar com menos itens");
             }
@@ -2544,43 +2588,63 @@ namespace Azure.Messages.Handlers
 
         public void SubmitRoomToCompetition()
         {
-            var name = Request.GetString();
+            Request.GetString();
+
             var code = Request.GetInteger();
             var room = Session.GetHabbo().CurrentRoom;
-            if (room == null) return;
-            var roomData = room.RoomData;
-            if (roomData == null) return;
+            var roomData = room?.RoomData;
+
+            if (roomData == null)
+                return;
+
             var competition = Azure.GetGame().GetRoomManager().GetCompetitionManager().Competition;
-            if (competition == null) return;
+
+            if (competition == null)
+                return;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 if (code == 2)
                 {
-                    if (competition.Entries.ContainsKey(room.RoomId)) return;
+                    if (competition.Entries.ContainsKey(room.RoomId))
+                        return;
+
                     queryReactor.SetQuery("INSERT INTO rooms_competitions_entries (competition_id, room_id, status) VALUES (@competition_id, @room_id, @status)");
+
                     queryReactor.AddParameter("competition_id", competition.Id);
                     queryReactor.AddParameter("room_id", room.RoomId);
                     queryReactor.AddParameter("status", 2);
                     queryReactor.RunQuery();
                     competition.Entries.Add(room.RoomId, roomData);
+
                     var message = new ServerMessage();
+
                     roomData.CompetitionStatus = 2;
                     competition.AppendEntrySubmitMessage(message, 3, room);
+
                     Session.SendMessage(message);
                 }
                 else if (code == 3)
                 {
-                    if (!competition.Entries.ContainsKey(room.RoomId)) return;
+                    if (!competition.Entries.ContainsKey(room.RoomId))
+                        return;
+
                     var entry = competition.Entries[room.RoomId];
-                    if (entry == null) return;
+
+                    if (entry == null)
+                        return;
+
                     queryReactor.SetQuery("UPDATE rooms_competitions_entries SET status = @status WHERE competition_id = @competition_id AND room_id = @roomid");
+
                     queryReactor.AddParameter("status", 3);
                     queryReactor.AddParameter("competition_id", competition.Id);
                     queryReactor.AddParameter("roomid", room.RoomId);
                     queryReactor.RunQuery();
                     roomData.CompetitionStatus = 3;
+
                     var message = new ServerMessage();
                     competition.AppendEntrySubmitMessage(message, 0);
+
                     Session.SendMessage(message);
                 }
             }
@@ -2588,29 +2652,45 @@ namespace Azure.Messages.Handlers
 
         public void VoteForRoom()
         {
-            var name = Request.GetString();
-            if (Session.GetHabbo().DailyCompetitionVotes <= 0) return;
+            Request.GetString();
+
+            if (Session.GetHabbo().DailyCompetitionVotes <= 0)
+                return;
+
             var room = Session.GetHabbo().CurrentRoom;
-            if (room == null) return;
-            var roomData = room.RoomData;
-            if (roomData == null) return;
+
+            var roomData = room?.RoomData;
+
+            if (roomData == null)
+                return;
+
             var competition = Azure.GetGame().GetRoomManager().GetCompetitionManager().Competition;
-            if (competition == null) return;
-            if (!competition.Entries.ContainsKey(room.RoomId)) return;
+
+            if (competition == null)
+                return;
+
+            if (!competition.Entries.ContainsKey(room.RoomId))
+                return;
+
             var entry = competition.Entries[room.RoomId];
+
             entry.CompetitionVotes++;
             Session.GetHabbo().DailyCompetitionVotes--;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE rooms_competitions_entries SET votes = @votes WHERE competition_id = @competition_id AND room_id = @roomid");
+
                 queryReactor.AddParameter("votes", entry.CompetitionVotes);
                 queryReactor.AddParameter("competition_id", competition.Id);
                 queryReactor.AddParameter("roomid", room.RoomId);
                 queryReactor.RunQuery();
                 queryReactor.RunFastQuery("UPDATE users_stats SET daily_competition_votes = " + Session.GetHabbo().DailyCompetitionVotes + " WHERE id = " + Session.GetHabbo().Id);
             }
+
             var message = new ServerMessage();
             competition.AppendVoteMessage(message, Session.GetHabbo());
+
             Session.SendMessage(message);
         }
     }

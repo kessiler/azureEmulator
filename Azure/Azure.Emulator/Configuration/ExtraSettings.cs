@@ -131,119 +131,122 @@ namespace Azure.Configuration
         {
             if (File.Exists("Settings/Welcome/message.txt"))
                 WelcomeMessage = File.ReadAllText("Settings/Welcome/message.txt");
+
             if (!File.Exists("Settings/other.ini"))
                 return false;
-            foreach (var @params in from line in File.ReadAllLines("Settings/other.ini", Encoding.Default) where !String.IsNullOrWhiteSpace(line) && line.Contains("=") select line.Split('='))
+
+            foreach (var theParams in from line in File.ReadAllLines("Settings/other.ini", Encoding.Default) where !string.IsNullOrWhiteSpace(line) && line.Contains("=") select line.Split('='))
             {
-                switch (@params[0])
+                switch (theParams[0])
                 {
                     case "currency.loop.enabled":
-                        CurrencyLoopEnabled = @params[1] == "true";
+                        CurrencyLoopEnabled = theParams[1] == "true";
                         break;
 
                     case "youtube.thumbnail.suburl":
-                        YoutubeThumbnailSuburl = @params[1];
+                        YoutubeThumbnailSuburl = theParams[1];
                         break;
 
                     case "gamecenter.stories.url":
-                        GameCenterStoriesUrl = @params[1];
+                        GameCenterStoriesUrl = theParams[1];
                         break;
 
                     case "currency.loop.time.in.minutes":
                         int i;
-                        if (int.TryParse(@params[1], out i))
+                        if (int.TryParse(theParams[1], out i))
                             CurrentyLoopTimeInMinutes = i;
                         break;
 
                     case "credits.to.give":
                         int j;
-                        if (int.TryParse(@params[1], out j))
+                        if (int.TryParse(theParams[1], out j))
                             CreditsToGive = j;
                         break;
 
                     case "pixels.to.give":
                         int k;
-                        if (int.TryParse(@params[1], out k))
+                        if (int.TryParse(theParams[1], out k))
                             PixelsToGive = k;
                         break;
 
                     case "diamonds.loop.enabled":
-                        DiamondsLoopEnabled = @params[1] == "true";
+                        DiamondsLoopEnabled = theParams[1] == "true";
                         break;
 
                     case "diamonds.to.give":
                         int l;
-                        if (int.TryParse(@params[1], out l))
+                        if (int.TryParse(theParams[1], out l))
                             DiamondsToGive = l;
                         break;
 
                     case "diamonds.vip.only":
-                        DiamondsVipOnly = @params[1] == "true";
+                        DiamondsVipOnly = theParams[1] == "true";
                         break;
 
                     case "change.name.staff":
-                        ChangeNameStaff = @params[1] == "true";
+                        ChangeNameStaff = theParams[1] == "true";
                         break;
 
                     case "change.name.vip":
-                        ChangeNameVip = @params[1] == "true";
+                        ChangeNameVip = theParams[1] == "true";
                         break;
 
                     case "change.name.everyone":
-                        ChangeNameEveryone = @params[1] == "true";
+                        ChangeNameEveryone = theParams[1] == "true";
                         break;
 
                     case "enable.beta.camera":
-                        EnableBetaCamera = @params[1] == "true";
+                        EnableBetaCamera = theParams[1] == "true";
                         break;
 
                     case "newuser.gifts.enabled":
-                        NewUsersGiftsEnabled = @params[1] == "true";
+                        NewUsersGiftsEnabled = theParams[1] == "true";
                         break;
 
                     case "newuser.gift.yttv2.id":
                         uint u;
-                        if (uint.TryParse(@params[1], out u))
+                        if (uint.TryParse(theParams[1], out u))
                             NewUserGiftYttv2Id = u;
                         break;
 
                     case "everyone.use.floor":
-                        EveryoneUseFloor = @params[1] == "true";
+                        EveryoneUseFloor = theParams[1] == "true";
                         break;
 
                     case "figuredata.url":
-                        FiguredataUrl = @params[1];
+                        FiguredataUrl = theParams[1];
                         break;
 
                     case "furnidata.url":
-                        FurniDataUrl = @params[1];
+                        FurniDataUrl = theParams[1];
                         break;
 
                     case "admin.can.useHTML":
-                        AdminCanUseHtml = @params[1] == "true";
+                        AdminCanUseHtml = theParams[1] == "true";
                         break;
 
                     case "commands.new.page":
-                        NewPageCommands = @params[1] == "true";
+                        NewPageCommands = theParams[1] == "true";
                         break;
 
                     case "stories.api.url":
-                        StoriesApiServerUrl = @params[1];
+                        StoriesApiServerUrl = theParams[1];
                         break;
 
                     case "stories.api.thumbnail.url":
-                        StoriesApiThumbnailServerUrl = @params[1];
+                        StoriesApiThumbnailServerUrl = theParams[1];
                         break;
 
                     case "stories.api.host":
-                        StoriesApiHost = @params[1];
+                        StoriesApiHost = theParams[1];
                         break;
 
                     case "rc4.client.side.enabled":
-                        CryptoClientSide = @params[1] == "true";
+                        CryptoClientSide = theParams[1] == "true";
                         break;
                 }
             }
+
             return true;
         }
     }

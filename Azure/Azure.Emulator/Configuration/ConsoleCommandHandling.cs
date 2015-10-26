@@ -6,6 +6,7 @@ using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
+using Azure.Util;
 
 namespace Azure.Configuration
 {
@@ -18,31 +19,7 @@ namespace Azure.Configuration
         /// Gets the game.
         /// </summary>
         /// <returns>Game.</returns>
-        internal static Game GetGame()
-        {
-            return Azure.GetGame();
-        }
-
-        //private static void ConnectCallback(IAsyncResult ar)
-        //{
-        //    try
-        //    {
-        //        // Retrieve the socket from the state object.
-        //        System.Net.Sockets.Socket client = (System.Net.Sockets.Socket)ar.AsyncState;
-
-        //        // Complete the connection.
-        //        client.EndConnect(ar);
-
-        //        Console.WriteLine("Socket connected to {0}",
-        //            client.RemoteEndPoint.ToString());
-
-        //        // Signal that the connection has been made.
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e.ToString());
-        //    }
-        //}
+        internal static Game GetGame() => Azure.GetGame();
 
         /// <summary>
         /// Invokes the command.
@@ -50,13 +27,18 @@ namespace Azure.Configuration
         /// <param name="inputData">The input data.</param>
         internal static void InvokeCommand(string inputData)
         {
-            if (string.IsNullOrEmpty(inputData) && Logging.DisabledState) return;
+            if (string.IsNullOrEmpty(inputData) && Logging.DisabledState)
+                return;
+
             Console.WriteLine();
 
             try
             {
-                if (inputData == null) return;
+                if (inputData == null)
+                    return;
+
                 var strArray = inputData.Split(' ');
+
                 switch (strArray[0])
                 {
                     case "shutdown":
@@ -68,7 +50,7 @@ namespace Azure.Configuration
                         break;
 
                     case "restart":
-                        Logging.LogMessage(string.Format("Server Restarting at {0}", DateTime.Now));
+                        Logging.LogMessage($"Server Restarting at {DateTime.Now}");
                         Logging.DisablePrimaryWriting(true);
                         Out.WriteLine("Restart Initialized", "Azure.Life", ConsoleColor.DarkYellow);
                         Azure.PerformShutDown(true);
@@ -138,42 +120,6 @@ namespace Azure.Configuration
 
                             break;
                         }
-                    case "lag":
-                        //if (Azure.DebugMode)
-                        //{
-                        //    new System.Threading.Tasks.Task(() =>
-                        //    {
-                        //        for (uint i = 0; i < 5000; i++)
-                        //        {
-                        //            try
-                        //            {
-                        //                Azure.GetGame().GetRoomManager().LoadRoom(i);
-                        //            }
-                        //            catch (Exception exception)
-                        //            {
-                        //                Console.WriteLine(exception.Message);
-                        //            }
-                        //        }
-                        //    }).Start();
-                        //    int countable = 0;
-                        //    for (uint i = 0; i < 10000; i++)
-                        //    {
-                        //        countable++;
-                        //        new System.Threading.Tasks.Task(() =>
-                        //        {
-                        //            System.Net.IPAddress ipAddress = System.Net.IPAddress.Parse("127.0.0.1");
-                        //            System.Net.IPEndPoint remoteEP = new System.Net.IPEndPoint(ipAddress, 30000);
-                        //            System.Net.Sockets.Socket client = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork,System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
-
-                        //            // Connect to the remote endpoint.
-                        //            client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), client);
-                        //        }).Start();
-                        //        if (countable == 150) { System.Threading.Thread.Sleep(5000); countable = 0; }
-
-                        //    }
-                        //    Console.WriteLine("Lag Test started");
-                        //}
-                        break;
 
                     case "help":
                         Console.WriteLine("shutdown/close - for safe shutting down AzureEmulator");
@@ -193,6 +139,7 @@ namespace Azure.Configuration
                         UnknownCommand(inputData);
                         break;
                 }
+
                 switch (strArray[1])
                 {
                     case "database":
@@ -247,6 +194,7 @@ namespace Azure.Configuration
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -256,6 +204,7 @@ namespace Azure.Configuration
         /// <param name="command">The command.</param>
         private static void UnknownCommand(string command)
         {
+            Out.WriteLine("Manager", "Undefined Command: " + command);
         }
     }
 }

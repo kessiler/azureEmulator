@@ -1,4 +1,6 @@
-﻿namespace Azure.Security.BlackWords
+﻿using Azure.Security.BlackWords.Enums;
+
+namespace Azure.Security.BlackWords.Structs
 {
     /// <summary>
     /// Struct BlackWord

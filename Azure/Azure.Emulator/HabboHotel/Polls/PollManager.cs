@@ -41,25 +41,26 @@ namespace Azure.HabboHotel.Polls
         internal void Init(IQueryAdapter dbClient)
         {
             Polls.Clear();
+
             dbClient.SetQuery("SELECT * FROM polls_data WHERE enabled = '1'");
+
             var table = dbClient.GetTable();
+
             if (table == null)
-            {
                 return;
-            }
+
             foreach (DataRow dataRow in table.Rows)
             {
                 var num = uint.Parse(dataRow["id"].ToString());
-                dbClient.SetQuery(string.Format("SELECT * FROM polls_questions WHERE poll_id = {0}", num));
+
+                dbClient.SetQuery($"SELECT * FROM polls_questions WHERE poll_id = {num}");
+
                 var table2 = dbClient.GetTable();
-                var list = (from DataRow dataRow2 in table2.Rows
-                    select
-                        new PollQuestion(uint.Parse(dataRow2["id"].ToString()), (string) dataRow2["question"],
-                            int.Parse(dataRow2["answertype"].ToString()), dataRow2["answers"].ToString().Split('|'),
-                            (string) dataRow2["correct_answer"])).ToList();
-                var value = new Poll(num, uint.Parse(dataRow["room_id"].ToString()), (string) dataRow["caption"],
-                    (string) dataRow["invitation"], (string) dataRow["greetings"], (string) dataRow["prize"],
-                    int.Parse(dataRow["type"].ToString()), list);
+
+                var list = (from DataRow dataRow2 in table2.Rows select new PollQuestion(uint.Parse(dataRow2["id"].ToString()), (string) dataRow2["question"], int.Parse(dataRow2["answertype"].ToString()), dataRow2["answers"].ToString().Split('|'), (string) dataRow2["correct_answer"])).ToList();
+
+                var value = new Poll(num, uint.Parse(dataRow["room_id"].ToString()), (string) dataRow["caption"], (string) dataRow["invitation"], (string) dataRow["greetings"], (string) dataRow["prize"], int.Parse(dataRow["type"].ToString()), list);
+
                 Polls.Add(num, value);
             }
         }
@@ -77,7 +78,9 @@ namespace Azure.HabboHotel.Polls
                 poll = current;
                 return true;
             }
+
             poll = null;
+
             return false;
         }
 
@@ -86,13 +89,6 @@ namespace Azure.HabboHotel.Polls
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Poll.</returns>
-        internal Poll TryGetPollById(uint id)
-        {
-            foreach (var current in Polls.Values.Where(current => current.Id == id))
-            {
-                return current;
-            }
-            return null;
-        }
+        internal Poll TryGetPollById(uint id) => Polls.Values.FirstOrDefault(current => current.Id == id);
     }
 }

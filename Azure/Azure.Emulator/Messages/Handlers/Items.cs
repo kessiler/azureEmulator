@@ -10,6 +10,7 @@ using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Items.Wired;
 using Azure.HabboHotel.Pets;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms;
@@ -23,21 +24,22 @@ namespace Azure.Messages.Handlers
     {
         internal void PetBreedCancel()
         {
-            if (Session == null || Session.GetHabbo() == null)
+            if (Session?.GetHabbo() == null)
                 return;
 
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
             if (room == null || !room.CheckRights(Session, true))
                 return;
 
             var itemId = Request.GetUInteger();
 
             var item = room.GetRoomItemHandler().GetItem(itemId);
+
             if (item == null)
                 return;
 
-            if (item.GetBaseItem().InteractionType != Interaction.BreedingTerrier &&
-                item.GetBaseItem().InteractionType != Interaction.BreedingBear)
+            if (item.GetBaseItem().InteractionType != Interaction.BreedingTerrier && item.GetBaseItem().InteractionType != Interaction.BreedingBear)
                 return;
 
             foreach (var pet in item.PetsList)
@@ -58,21 +60,22 @@ namespace Azure.Messages.Handlers
 
         internal void PetBreedResult()
         {
-            if (Session == null || Session.GetHabbo() == null)
+            if (Session?.GetHabbo() == null)
                 return;
 
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
             if (room == null || !room.CheckRights(Session, true))
                 return;
 
             var itemId = Request.GetUInteger();
 
             var item = room.GetRoomItemHandler().GetItem(itemId);
+
             if (item == null)
                 return;
 
-            if (item.GetBaseItem().InteractionType != Interaction.BreedingTerrier &&
-                item.GetBaseItem().InteractionType != Interaction.BreedingBear)
+            if (item.GetBaseItem().InteractionType != Interaction.BreedingTerrier && item.GetBaseItem().InteractionType != Interaction.BreedingBear)
                 return;
 
             var petName = Request.GetString();
@@ -85,6 +88,7 @@ namespace Azure.Messages.Handlers
             var randomNmb = new Random().Next(101);
             var petType = 0;
             var randomResult = 3;
+
             switch (item.GetBaseItem().InteractionType)
             {
                 case Interaction.BreedingTerrier:

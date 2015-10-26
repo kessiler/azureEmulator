@@ -1,4 +1,4 @@
-namespace Azure.Encryption.Hurlant.Crypto.Rsa
+namespace Azure.Encryption.Encryption.Hurlant.Crypto.Rsa
 {
     public enum Pkcs1PadType
     {

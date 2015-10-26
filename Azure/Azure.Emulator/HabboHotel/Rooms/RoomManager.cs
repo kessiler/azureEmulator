@@ -11,6 +11,7 @@ using Azure.HabboHotel.Events;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Rooms.Data;
+using Azure.Util;
 
 namespace Azure.HabboHotel.Rooms
 {

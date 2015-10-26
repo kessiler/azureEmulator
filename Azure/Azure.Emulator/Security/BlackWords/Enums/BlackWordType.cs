@@ -1,4 +1,4 @@
-﻿namespace Azure.Security.BlackWords
+﻿namespace Azure.Security.BlackWords.Enums
 {
     /// <summary>
     /// Enum BlackWordType

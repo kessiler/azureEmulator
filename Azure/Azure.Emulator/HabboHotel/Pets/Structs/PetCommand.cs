@@ -1,4 +1,4 @@
-﻿namespace Azure.HabboHotel.Pets
+﻿namespace Azure.HabboHotel.Pets.Structs
 {
     /// <summary>
     ///     Struct PetCommand

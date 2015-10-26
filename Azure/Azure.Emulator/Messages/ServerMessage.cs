@@ -62,14 +62,6 @@ namespace Azure.Messages
 
                 return _message;
             }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                if (_onArray) _messageArrayJunk = value;
-                else _message = value;
-            }
         }
 
         /// <summary>
@@ -259,9 +251,7 @@ namespace Azure.Messages
                     CMessage.Add(b[i]);
             }
             else
-            {
                 CMessage.AddRange(b);
-            }
         }
 
         /// <summary>
@@ -277,10 +267,7 @@ namespace Azure.Messages
         /// Gets the bytes.
         /// </summary>
         /// <returns>System.Byte[].</returns>
-        public byte[] GetBytes()
-        {
-            return CMessage.ToArray();
-        }
+        public byte[] GetBytes() => CMessage.ToArray();
 
         /// <summary>
         /// Gets the reversed bytes.
@@ -312,10 +299,7 @@ namespace Azure.Messages
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString()
-        {
-            return HabboEncoding.GetCharFilter(Azure.GetDefaultEncoding().GetString(GetReversedBytes()));
-        }
+        public override string ToString() => HabboEncoding.GetCharFilter(Azure.GetDefaultEncoding().GetString(GetReversedBytes()));
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

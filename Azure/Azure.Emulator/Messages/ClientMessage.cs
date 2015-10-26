@@ -163,24 +163,15 @@ namespace Azure.Messages
         /// Gets the integer16.
         /// </summary>
         /// <returns>System.Int16.</returns>
-        internal Int16 GetInteger16()
-        {
-            return HabboEncoding.DecodeInt16(_body, ref _position);
-        }
+        internal Int16 GetInteger16() => HabboEncoding.DecodeInt16(_body, ref _position);
 
         /// <summary>
         /// Gets the integer.
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal int GetInteger()
-        {
-            return HabboEncoding.DecodeInt32(_body, ref _position);
-        }
+        internal int GetInteger() => HabboEncoding.DecodeInt32(_body, ref _position);
 
-        internal bool GetIntegerAsBool()
-        {
-            return HabboEncoding.DecodeInt32(_body, ref _position) == 1;
-        }
+        internal bool GetIntegerAsBool() => HabboEncoding.DecodeInt32(_body, ref _position) == 1;
 
         /// <summary>
         /// Gets the integer32.
@@ -196,9 +187,6 @@ namespace Azure.Messages
         /// Gets the integer16.
         /// </summary>
         /// <returns>System.UInt16.</returns>
-        internal ushort GetUInteger16()
-        {
-            return (ushort)GetInteger16();
-        }
+        internal ushort GetUInteger16() => (ushort)GetInteger16();
     }
 }

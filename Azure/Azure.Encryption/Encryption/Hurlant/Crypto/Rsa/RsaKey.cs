@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
-using Azure.Encryption.Utils;
+using Azure.Encryption.Encryption.Utils;
 
 #endregion
 
-namespace Azure.Encryption.Hurlant.Crypto.Rsa
+namespace Azure.Encryption.Encryption.Hurlant.Crypto.Rsa
 {
     public class RsaKey
     {

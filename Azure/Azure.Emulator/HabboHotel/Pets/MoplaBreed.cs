@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using Azure.HabboHotel.Pets.Enums;
 
 namespace Azure.HabboHotel.Pets
 {
@@ -62,8 +63,7 @@ namespace Azure.HabboHotel.Pets
         /// <param name="breedData">The breed data.</param>
         /// <param name="liveState">State of the live.</param>
         /// <param name="growingStatus">The growing status.</param>
-        internal MoplaBreed(Pet pet, uint petId, int rarity, string moplaName, string breedData, int liveState,
-            int growingStatus)
+        internal MoplaBreed(Pet pet, uint petId, int rarity, string moplaName, string breedData, int liveState, int growingStatus)
         {
             _pet = pet;
             _petId = petId;
@@ -78,15 +78,7 @@ namespace Azure.HabboHotel.Pets
         ///     Gets the grow status.
         /// </summary>
         /// <value>The grow status.</value>
-        internal string GrowStatus
-        {
-            get
-            {
-                if (LiveState == MoplaState.Dead)
-                    return "rip";
-                return LiveState == MoplaState.Grown ? "std" : $"grw{GrowingStatus}";
-            }
-        }
+        internal string GrowStatus => LiveState == MoplaState.Dead ? "rip" : (LiveState == MoplaState.Grown ? "std" : $"grw{GrowingStatus}");
 
         /// <summary>
         ///     Gets the name.
@@ -109,18 +101,20 @@ namespace Azure.HabboHotel.Pets
         {
             if (pet.Type != 16)
                 return null;
+
             var tuple = GeneratePlantData(pet.Rarity);
             var breed = new MoplaBreed(pet, pet.PetId, pet.Rarity, tuple.Item1, tuple.Item2, 0, 1);
+
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                adapter.SetQuery(
-                    "INSERT INTO pets_plants (pet_id, rarity, plant_name, plant_data) VALUES (@petid , @rarity , @plantname , @plantdata)");
+                adapter.SetQuery("INSERT INTO pets_plants (pet_id, rarity, plant_name, plant_data) VALUES (@petid , @rarity , @plantname , @plantdata)");
                 adapter.AddParameter("petid", pet.PetId);
                 adapter.AddParameter("rarity", pet.Rarity);
                 adapter.AddParameter("plantname", tuple.Item1);
                 adapter.AddParameter("plantdata", tuple.Item2);
                 adapter.RunQuery();
             }
+
             return breed;
         }
 
@@ -132,13 +126,17 @@ namespace Azure.HabboHotel.Pets
         internal static Tuple<string, string> GeneratePlantData(int rarity)
         {
             var str = string.Empty;
+
             int num;
             int num2;
+
             var random = new Random();
+
             switch (rarity)
             {
                 case 1:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 2) == 0)
                         {
                             num = 0;
@@ -149,11 +147,13 @@ namespace Azure.HabboHotel.Pets
                             num = 3;
                             str = $"{str}Viridulus ";
                         }
+                    }
                     else
                     {
                         num = 9;
                         str = $"{str}Fulvus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 1;
@@ -164,10 +164,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 3;
                         str = $"{str}Stumpy";
                     }
+
                     break;
 
                 case 2:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 2) == 0)
                         {
                             num = 5;
@@ -178,11 +180,14 @@ namespace Azure.HabboHotel.Pets
                             num = 2;
                             str = $"{str}Phoenicus ";
                         }
+
+                    }
                     else
                     {
                         num = 1;
                         str = $"{str}Griseus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 3;
@@ -193,10 +198,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 2;
                         str = $"{str}Wailzor";
                     }
+
                     break;
 
                 case 3:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 1;
@@ -212,11 +219,13 @@ namespace Azure.HabboHotel.Pets
                             num = 8;
                             str = $"{str}Amethyst ";
                         }
+                    }
                     else
                     {
                         num = 2;
                         str = $"{str}Phoenicus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 2;
@@ -232,10 +241,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 9;
                         str = $"{str}Weggytum";
                     }
+
                     break;
 
                 case 4:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 8;
@@ -251,7 +262,7 @@ namespace Azure.HabboHotel.Pets
                             num = 10;
                             str = $"{str}Cinereus ";
                         }
-                        else if (random.Next(0, 7)%2 != 0)
+                        else if (random.Next(0, 7) % 2 != 0)
                         {
                             num = 8;
                             str = $"{str}Amethyst ";
@@ -261,11 +272,13 @@ namespace Azure.HabboHotel.Pets
                             num = 7;
                             str = $"{str}Amatasc ";
                         }
+                    }
                     else
                     {
                         num = 5;
                         str = $"{str}Incarnatus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 7;
@@ -281,10 +294,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 4;
                         str = $"{str}Sunspike";
                     }
+
                     break;
 
                 case 5:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 4;
@@ -300,11 +315,13 @@ namespace Azure.HabboHotel.Pets
                             num = 7;
                             str = $"{str}Amatasc ";
                         }
+                    }
                     else
                     {
                         num = 3;
                         str = $"{str}Viridulus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 7;
@@ -320,10 +337,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 9;
                         str = $"{str}Weggytum";
                     }
+
                     break;
 
                 case 6:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 8;
@@ -339,11 +358,13 @@ namespace Azure.HabboHotel.Pets
                             num = 2;
                             str = $"{str}Phoenicus ";
                         }
+                    }
                     else
                     {
                         num = 6;
                         str = $"{str}Azureus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 10;
@@ -359,10 +380,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 3;
                         str = $"{str}Stumpy";
                     }
+
                     break;
 
                 case 7:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 6;
@@ -378,11 +401,13 @@ namespace Azure.HabboHotel.Pets
                             num = 1;
                             str = $"{str}Griseus ";
                         }
+                    }
                     else
                     {
                         num = 4;
                         str = $"{str}Cyaneus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 2;
@@ -403,10 +428,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 6;
                         str = $"{str}Shroomer";
                     }
+
                     break;
 
                 case 8:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 7;
@@ -417,7 +444,7 @@ namespace Azure.HabboHotel.Pets
                             num = 10;
                             str = $"{str}Cinereus ";
                         }
-                        else if ((random.Next(12, 0x13)%2) == 1)
+                        else if ((random.Next(12, 0x13) % 2) == 1)
                         {
                             num = 6;
                             str = $"{str}Azureus ";
@@ -427,11 +454,13 @@ namespace Azure.HabboHotel.Pets
                             num = 8;
                             str = $"{str}Amethyst ";
                         }
+                    }
                     else
                     {
                         num = 4;
                         str = $"{str}Cyaneus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 11;
@@ -452,10 +481,12 @@ namespace Azure.HabboHotel.Pets
                         num2 = 6;
                         str = $"{str}Shroomer";
                     }
+
                     break;
 
                 case 9:
                     if ((random.Next(0, 4)%2) != 0)
+                    {
                         if (random.Next(0, 7) == 5)
                         {
                             num = 7;
@@ -466,11 +497,13 @@ namespace Azure.HabboHotel.Pets
                             num = 6;
                             str = $"{str}Azureus ";
                         }
+                    }
                     else
                     {
                         num = 4;
                         str = $"{str}Cyaneus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 11;
@@ -486,6 +519,7 @@ namespace Azure.HabboHotel.Pets
                         num2 = 8;
                         str = $"{str}Abysswirl";
                     }
+
                     break;
 
                 case 10:
@@ -513,6 +547,7 @@ namespace Azure.HabboHotel.Pets
                         num = 0;
                         str = $"{str}Aenueus ";
                     }
+
                     if (random.Next(0, 2) == 1)
                     {
                         num2 = 5;
@@ -523,10 +558,10 @@ namespace Azure.HabboHotel.Pets
                         num2 = 1;
                         str = $"{str}Blungon";
                     }
+
                     break;
             }
-            return new Tuple<string, string>(str,
-                string.Concat("16 ", num, " ffffff 2 1 ", num2, " ", num, " 0 -1 7"));
+            return new Tuple<string, string>(str, string.Concat("16 ", num, " ffffff 2 1 ", num2, " ", num, " 0 -1 7"));
         }
 
         /// <summary>
@@ -545,14 +580,18 @@ namespace Azure.HabboHotel.Pets
         /// <param name="untilGrown">The until grown.</param>
         internal void OnTimerTick(DateTime lastHealth, DateTime untilGrown)
         {
-            if ((int) LiveState != 0)
+            if (LiveState != 0)
                 return;
+
             var span = lastHealth - DateTime.Now;
+
             if (span.TotalSeconds <= 0)
                 KillPlant();
+
             else if (GrowingStatus != 7)
             {
                 var span2 = untilGrown - DateTime.Now;
+
                 if (span2.TotalSeconds <= 10 && GrowingStatus == 6)
                 {
                     GrowingStatus = 7;
@@ -588,8 +627,10 @@ namespace Azure.HabboHotel.Pets
                 if (Math.Abs(span2.TotalSeconds%8) < 0)
                     _pet.Energy--;
             }
+
             if (!_dbUpdateNeeded)
                 return;
+
             UpdateInDb();
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using Azure.Configuration;
-using Azure.Encryption.Hurlant.Crypto.Prng;
+using Azure.Encryption.Encryption.Hurlant.Crypto.Prng;
 using Azure.Messages.Parsers;
 
 namespace Azure.Connection.Connection
@@ -12,20 +12,33 @@ namespace Azure.Connection.Connection
     /// </summary>
     public class ConnectionInformation : IDisposable
     {
+        /// <summary>
+        /// The _socket
+        /// </summary>
         private Socket _socket;
-        private EndPoint _remoteEndPoint;
+        /// <summary>
+        /// The _remote end point
+        /// </summary>
+        private readonly EndPoint _remoteEndPoint;
 
+        /// <summary>
+        /// Delegate OnClientDisconnectedEvent
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="exception">The exception.</param>
         public delegate void OnClientDisconnectedEvent(ConnectionInformation connection, Exception exception);
 
+        /// <summary>
+        /// Occurs when [disconnect action].
+        /// </summary>
         public event OnClientDisconnectedEvent DisconnectAction = delegate { };
 
         /// <summary>
-        ///     Identity of this channel
+        /// Identity of this channel
         /// </summary>
-        /// <remarks>
-        ///     Must be unique within a server.
-        /// </remarks>
-        public uint ChannelId { get; private set; }
+        /// <value>The channel identifier.</value>
+        /// <remarks>Must be unique within a server.</remarks>
+        public uint ChannelId { get; }
 
         /// <summary>
         /// The _is connected
@@ -54,11 +67,11 @@ namespace Azure.Connection.Connection
         internal ARC4 Arc4ClientSide;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInformation"/> class.
+        /// Initializes a new instance of the <see cref="ConnectionInformation" /> class.
         /// </summary>
-        /// <param name="socket"></param>
+        /// <param name="socket">The socket.</param>
         /// <param name="parser">The parser.</param>
-        /// <param name="channelId"></param>
+        /// <param name="channelId">The channel identifier.</param>
         public ConnectionInformation(Socket socket, IDataParser parser, uint channelId)
         {
             _socket = socket;
@@ -70,6 +83,10 @@ namespace Azure.Connection.Connection
             ChannelId = channelId;
         }
 
+        /// <summary>
+        /// Gets or sets the disconnected.
+        /// </summary>
+        /// <value>The disconnected.</value>
         public OnClientDisconnectedEvent Disconnected
         {
             get { return DisconnectAction; }
@@ -83,6 +100,9 @@ namespace Azure.Connection.Connection
             }
         }
 
+        /// <summary>
+        /// Reads the asynchronous.
+        /// </summary>
         private void ReadAsync()
         {
             try
@@ -95,11 +115,11 @@ namespace Azure.Connection.Connection
             }
         }
 
-        private void HandleDisconnect(Exception exception)
-        {
-            HandleDisconnect(SocketError.Success, exception);
-        }
-
+        /// <summary>
+        /// Handles the disconnect.
+        /// </summary>
+        /// <param name="socketError">The socket error.</param>
+        /// <param name="exception">The exception.</param>
         private void HandleDisconnect(SocketError socketError, Exception exception)
         {
             try
@@ -131,33 +151,35 @@ namespace Azure.Connection.Connection
             }
         }
 
+        /// <summary>
+        /// Called when [read completed].
+        /// </summary>
+        /// <param name="async">The asynchronous.</param>
         private void OnReadCompleted(IAsyncResult async)
         {
             try
             {
                 Socket dataSocket = (Socket)async.AsyncState;
+
                 if (_socket != null && _socket.Connected && _connected)
                 {
                     int bytesReceived = dataSocket.EndReceive(async);
+
                     if (bytesReceived != 0)
                     {
                         byte[] array = new byte[bytesReceived];
+
                         Array.Copy(_buffer, array, bytesReceived);
+
                         HandlePacketData(array, bytesReceived);
                     }
                     else
-                    {
                         Disconnect();
-                    }
                 }
             }
             catch (Exception exception)
             {
                 HandleDisconnect(SocketError.ProtocolNotSupported, exception);
-
-                // event handler closed the socket.
-                if (_socket == null || !_socket.Connected)
-                    return;
             }
             finally
             {
@@ -165,7 +187,6 @@ namespace Azure.Connection.Connection
                 {
                     if (_socket != null && _socket.Connected && _connected)
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, OnReadCompleted, _socket);
-                    // ReSharper disable once RedundantIfElseBlock
                     else
                         Disconnect();
                 }
@@ -177,6 +198,10 @@ namespace Azure.Connection.Connection
 
         }
 
+        /// <summary>
+        /// Called when [send completed].
+        /// </summary>
+        /// <param name="async">The asynchronous.</param>
         private void OnSendCompleted(IAsyncResult async)
         {
             try
@@ -191,15 +216,11 @@ namespace Azure.Connection.Connection
             catch (Exception exception)
             {
                 HandleDisconnect(SocketError.ProtocolNotSupported, exception);
-
-                // event handler closed the socket.
-                if (_socket == null || !_socket.Connected)
-                    return;
             }
         }
 
         /// <summary>
-        ///     Cleanup everything so that the channel can be reused.
+        /// Cleanup everything so that the channel can be reused.
         /// </summary>
         public void Cleanup()
         {
@@ -222,18 +243,13 @@ namespace Azure.Connection.Connection
         /// Gets the ip.
         /// </summary>
         /// <returns>System.String.</returns>
-        public string GetIp()
-        {
-            return _remoteEndPoint.ToString().Split(':')[0];
-        }
+        public string GetIp() => _remoteEndPoint.ToString().Split(':')[0];
 
         /// <summary>
         /// Gets the connection identifier.
         /// </summary>
-        public uint GetConnectionId()
-        {
-            return ChannelId;
-        }
+        /// <returns>System.UInt32.</returns>
+        public uint GetConnectionId() => ChannelId;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -248,7 +264,8 @@ namespace Azure.Connection.Connection
         /// </summary>
         internal void Disconnect()
         {
-            if (_connected) HandleDisconnect(SocketError.ConnectionReset, new SocketException((int)SocketError.ConnectionReset));
+            if (_connected)
+                HandleDisconnect(SocketError.ConnectionReset, new SocketException((int)SocketError.ConnectionReset));
         }
 
         /// <summary>

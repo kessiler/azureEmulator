@@ -16,6 +16,7 @@ namespace Azure.HabboHotel.Pathfinding
         internal static int Calculate(int x1, int y1, int x2, int y2)
         {
             var result = 0;
+
             if (x1 > x2 && y1 > y2)
                 result = 7;
             else if (x1 < x2 && y1 < y2)
@@ -32,6 +33,7 @@ namespace Azure.HabboHotel.Pathfinding
                 result = 4;
             else if (y1 > y2)
                 result = 0;
+
             return result;
         }
 
@@ -47,6 +49,7 @@ namespace Azure.HabboHotel.Pathfinding
         internal static int Calculate(int x1, int y1, int x2, int y2, bool moonwalk)
         {
             var num = Calculate(x1, y1, x2, y2);
+
             return !moonwalk ? num : RotationIverse(num);
         }
 
@@ -57,13 +60,12 @@ namespace Azure.HabboHotel.Pathfinding
         /// <returns>System.Int32.</returns>
         internal static int RotationIverse(int rot)
         {
-            {
-                if (rot > 3)
-                    rot -= 4;
-                else
-                    rot += 4;
-                return rot;
-            }
+            if (rot > 3)
+                rot -= 4;
+            else
+                rot += 4;
+
+            return rot;
         }
     }
 }

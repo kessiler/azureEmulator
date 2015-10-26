@@ -19,6 +19,7 @@ using Azure.HabboHotel.Users.Subscriptions;
 using Azure.HabboHotel.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
+using Azure.Util;
 
 namespace Azure.HabboHotel.Users
 {

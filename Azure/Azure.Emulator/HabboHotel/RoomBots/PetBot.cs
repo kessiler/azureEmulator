@@ -5,6 +5,7 @@ using Azure.Configuration;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Items.Interactions.Enums;
 using Azure.HabboHotel.Pets;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.User;
 using Azure.Messages;

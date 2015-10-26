@@ -165,6 +165,7 @@ namespace Azure.Messages.Handlers
             int giftLazo = Request.GetInteger();
             int giftColor = Request.GetInteger();
             var undef = Request.GetBool();
+
             Azure.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, 1, true, giftUser, giftMessage, giftSpriteId, giftLazo, giftColor, undef, 0u);
         }
 
@@ -230,9 +231,11 @@ namespace Azure.Messages.Handlers
         internal void SerializeGroupFurniPage()
         {
             var userGroups = Azure.GetGame().GetGroupManager().GetUserGroups(Session.GetHabbo().Id);
+
             Response.Init(LibraryParser.OutgoingRequest("GroupFurniturePageMessageComposer"));
 
             var responseList = new List<ServerMessage>();
+
             foreach (var habboGroup in userGroups.Where(current => current != null).Select(current => Azure.GetGame().GetGroupManager().GetGroup(current.GroupId)))
             {
                 if (habboGroup == null)

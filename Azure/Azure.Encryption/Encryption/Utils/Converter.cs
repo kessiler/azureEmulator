@@ -6,7 +6,7 @@ using System.IO.Compression;
 
 #endregion
 
-namespace Azure.Encryption.Utils
+namespace Azure.Encryption.Encryption.Utils
 {
     public class Converter
     {

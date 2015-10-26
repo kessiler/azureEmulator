@@ -13,6 +13,7 @@ using Azure.HabboHotel.Navigators.Interfaces;
 using Azure.HabboHotel.Pathfinding;
 using Azure.HabboHotel.PathFinding;
 using Azure.HabboHotel.Pets;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.RoomBots;
 using Azure.HabboHotel.Rooms.Data;

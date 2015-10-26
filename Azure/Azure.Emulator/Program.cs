@@ -15,6 +15,7 @@ namespace Azure
         public static void Main(string[] args)
         {
             StartEverything();
+
             while (Azure.IsLive)
             {
                 Console.CursorVisible = true;

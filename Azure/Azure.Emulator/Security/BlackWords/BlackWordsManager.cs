@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using Azure.Security.BlackWords.Enums;
+using Azure.Security.BlackWords.Structs;
+using Azure.Util;
 
 namespace Azure.Security.BlackWords
 {
@@ -19,8 +22,7 @@ namespace Azure.Security.BlackWords
         /// <summary>
         /// The replaces
         /// </summary>
-        private static readonly Dictionary<BlackWordType, BlackWordTypeSettings> Replaces =
-            new Dictionary<BlackWordType, BlackWordTypeSettings>();
+        private static readonly Dictionary<BlackWordType, BlackWordTypeSettings> Replaces = new Dictionary<BlackWordType, BlackWordTypeSettings>();
 
         private static readonly BlackWord Empty = new BlackWord(string.Empty, BlackWordType.All);
 
@@ -33,7 +35,9 @@ namespace Azure.Security.BlackWords
             {
                 adapter.SetQuery("SELECT * FROM server_blackwords");
                 var table = adapter.GetTable();
-                if (table == null) return;
+
+                if (table == null)
+                    return;
 
                 foreach (DataRow row in table.Rows)
                 {
@@ -62,9 +66,12 @@ namespace Azure.Security.BlackWords
         public static void AddBlackWord(string typeStr, string word)
         {
             BlackWordType type;
-            if (!Enum.TryParse(typeStr, true, out type)) return;
 
-            if (Words.Any(wordStruct => wordStruct.Type == type && word.Contains(wordStruct.Word))) return;
+            if (!Enum.TryParse(typeStr, true, out type))
+                return;
+
+            if (Words.Any(wordStruct => wordStruct.Type == type && word.Contains(wordStruct.Word)))
+                return;
 
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
@@ -80,12 +87,17 @@ namespace Azure.Security.BlackWords
         public static void DeleteBlackWord(string typeStr, string word)
         {
             BlackWordType type;
-            if (!Enum.TryParse(typeStr, true, out type)) return;
+
+            if (!Enum.TryParse(typeStr, true, out type))
+                return;
 
             var wordStruct = Words.FirstOrDefault(wordS => wordS.Type == type && word.Contains(wordS.Word));
-            if (string.IsNullOrEmpty(wordStruct.Word)) return;
+
+            if (string.IsNullOrEmpty(wordStruct.Word))
+                return;
 
             Words.Remove(wordStruct);
+
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("DELETE FROM server_blackwords WHERE word = @word AND type = @type");
@@ -98,6 +110,7 @@ namespace Azure.Security.BlackWords
         private static void AddPrivateBlackWord(string typeStr, string word)
         {
             BlackWordType type;
+
             switch (typeStr)
             {
                 case "hotel":
@@ -109,30 +122,27 @@ namespace Azure.Security.BlackWords
                     break;
 
                 case "all":
-                    Out.WriteLine("Word type [all] it's reserved for system. Word: " + word,
-                        "Azure.Security.BlackWords", ConsoleColor.DarkRed);
+                    Out.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security.BlackWords", ConsoleColor.DarkRed);
                     return;
 
                 default:
-                    Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word,
-                        "Azure.Security.BlackWords", ConsoleColor.DarkRed);
+                    Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security.BlackWords", ConsoleColor.DarkRed);
                     return;
             }
 
             Words.Add(new BlackWord(word, type));
 
-            if (Replaces.ContainsKey(type)) return;
+            if (Replaces.ContainsKey(type))
+                return;
 
-            string filter = Filter.Default,
-                   alert = "User [{0}] with Id: {1} has said a blackword. Word: {2}. Type: {3}. Message: {4}",
-                   imageAlert = "bobba";
+            string filter = Filter.Default, alert = "User [{0}] with Id: {1} has said a blackword. Word: {2}. Type: {3}. Message: {4}", imageAlert = "bobba";
+
             var maxAdvices = 7u;
             bool autoBan = true, showMessage = true;
+
             if (File.Exists("Settings\\BlackWords\\" + typeStr + ".ini"))
             {
-                foreach (var array in File.ReadAllLines("Settings\\BlackWords\\" + typeStr + ".ini")
-                    .Where(line => !line.StartsWith("#") || !line.StartsWith("//") || line.Contains("="))
-                    .Select(line => line.Split('=')))
+                foreach (var array in File.ReadAllLines("Settings\\BlackWords\\" + typeStr + ".ini").Where(line => !line.StartsWith("#") || !line.StartsWith("//") || line.Contains("=")).Select(line => line.Split('=')))
                 {
                     if (array[0] == "filterType") filter = array[1];
                     if (array[0] == "maxAdvices") maxAdvices = uint.Parse(array[1]);
@@ -142,7 +152,9 @@ namespace Azure.Security.BlackWords
                 }
             }
 
-            if (File.Exists("Settings\\BlackWords\\" + typeStr + ".alert.txt")) alert = File.ReadAllText("Settings\\BlackWords\\" + typeStr + ".alert.txt");
+            if (File.Exists("Settings\\BlackWords\\" + typeStr + ".alert.txt"))
+                alert = File.ReadAllText("Settings\\BlackWords\\" + typeStr + ".alert.txt");
+
             Replaces.Add(type, new BlackWordTypeSettings(filter, alert, maxAdvices, imageAlert, autoBan, showMessage));
         }
 
@@ -151,10 +163,7 @@ namespace Azure.Security.BlackWords
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>BlackWordTypeSettings.</returns>
-        public static BlackWordTypeSettings GetSettings(BlackWordType type)
-        {
-            return Replaces[type];
-        }
+        public static BlackWordTypeSettings GetSettings(BlackWordType type) => Replaces[type];
 
         /// <summary>
         /// Checks the specified string.
@@ -166,7 +175,9 @@ namespace Azure.Security.BlackWords
         public static bool Check(string str, BlackWordType type, out BlackWord word)
         {
             word = Empty;
-            if (!Replaces.ContainsKey(type)) return false;
+
+            if (!Replaces.ContainsKey(type))
+                return false;
 
             var data = Replaces[type];
 
@@ -175,6 +186,7 @@ namespace Azure.Security.BlackWords
             var wordFirst = Words.FirstOrDefault(wordStruct => wordStruct.Type == type && str.Contains(wordStruct.Word));
 
             word = wordFirst;
+
             return !string.IsNullOrEmpty(wordFirst.Word);
         }
     }

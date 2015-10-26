@@ -19,6 +19,8 @@ using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Security;
 using Azure.Security.BlackWords;
+using Azure.Security.BlackWords.Enums;
+using Azure.Security.BlackWords.Structs;
 using Azure.Util;
 
 namespace Azure.HabboHotel.Rooms.User

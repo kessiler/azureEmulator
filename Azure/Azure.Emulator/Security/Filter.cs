@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Script.Serialization;
+using Azure.Util;
 
 namespace Azure.Security
 {
@@ -33,18 +34,21 @@ namespace Azure.Security
             {
                 var array = line.Split('=');
                 var mode = array[0];
+
                 var jsonStr = string.Join("=", array.Skip(1));
 
                 var serializer = new JavaScriptSerializer();
+
                 dynamic items = serializer.Deserialize<object[]>(jsonStr);
 
                 var dic = new Dictionary<string, string>();
+
                 foreach (object[] item in items)
                 {
                     var key = item[0].ToString();
                     var value = string.Empty;
 
-                    if (item.Count() > 1)
+                    if (item.Length > 1)
                         value = item[1].ToString();
 
                     dic.Add(key, value);
@@ -52,6 +56,7 @@ namespace Azure.Security
 
                 if (dic.ContainsKey(mode))
                     continue;
+
                 if (Default == null)
                     Default = mode;
 
@@ -80,21 +85,15 @@ namespace Azure.Security
         {
             str = str.RemoveDiacritics().ToLower();
 
-            if (!Dictionary.ContainsKey(mode) || string.IsNullOrEmpty(str))
-                return str;
-
-            return Dictionary[mode].Aggregate(str, (current, array) => current.Replace(array.Key, array.Value));
+            return !Dictionary.ContainsKey(mode) || string.IsNullOrEmpty(str) ? str : Dictionary[mode].Aggregate(str, (current, array) => current.Replace(array.Key, array.Value));
         }
 
-        private static String RemoveDiacritics(this String s)
+        private static string RemoveDiacritics(this string s)
         {
             var normalizedString = s.Normalize(NormalizationForm.FormD);
             var stringBuilder = new StringBuilder();
 
-            foreach (
-                var c in
-                    normalizedString.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                )
+            foreach (var c in normalizedString.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark))
                 stringBuilder.Append(c);
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);

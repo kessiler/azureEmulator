@@ -5,6 +5,7 @@ using System.Linq;
 using Azure.HabboHotel.Commands.Controllers;
 using Azure.HabboHotel.Commands.Interfaces;
 using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.Util;
 
 namespace Azure.HabboHotel.Commands
 {

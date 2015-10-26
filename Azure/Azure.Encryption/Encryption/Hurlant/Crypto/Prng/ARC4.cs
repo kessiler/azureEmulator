@@ -1,4 +1,4 @@
-﻿namespace Azure.Encryption.Hurlant.Crypto.Prng
+﻿namespace Azure.Encryption.Encryption.Hurlant.Crypto.Prng
 {
     public class ARC4
     {

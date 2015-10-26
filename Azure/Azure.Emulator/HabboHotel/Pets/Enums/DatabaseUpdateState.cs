@@ -1,4 +1,4 @@
-namespace Azure.HabboHotel.Pets
+namespace Azure.HabboHotel.Pets.Enums
 {
     /// <summary>
     ///     Enum DatabaseUpdateState

@@ -37,10 +37,8 @@ namespace Azure.HabboHotel.Pets
         internal static string[] GetValue(string key)
         {
             string[] result;
-            if (_values.TryGetValue(key, out result))
-                return result;
 
-            return new[] {key};
+            return _values.TryGetValue(key, out result) ? result : new[] {key};
         }
     }
 }

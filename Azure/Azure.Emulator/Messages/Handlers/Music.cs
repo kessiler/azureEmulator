@@ -22,7 +22,9 @@ namespace Azure.Messages.Handlers
         internal void RetrieveSongId()
         {
             string text = Request.GetString();
+
             uint songId = SoundMachineSongManager.GetSongId(text);
+
             if (songId != 0u)
             {
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("RetrieveSongIDMessageComposer"));
@@ -38,18 +40,20 @@ namespace Azure.Messages.Handlers
         internal void GetMusicData()
         {
             int num = Request.GetInteger();
+
             var list = new List<SongData>();
 
+            for (int i = 0; i < num; i++)
             {
-                for (int i = 0; i < num; i++)
-                {
-                    SongData song = SoundMachineSongManager.GetSong(Request.GetUInteger());
-                    if (song != null)
-                        list.Add(song);
-                }
-                Session.SendMessage(SoundMachineComposer.Compose(list));
-                list.Clear();
+                SongData song = SoundMachineSongManager.GetSong(Request.GetUInteger());
+
+                if (song != null)
+                    list.Add(song);
             }
+
+            Session.SendMessage(SoundMachineComposer.Compose(list));
+
+            list.Clear();
         }
 
         /// <summary>
@@ -57,26 +61,40 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AddPlaylistItem()
         {
-            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
+            if (Session?.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
                 return;
+
             Room currentRoom = Session.GetHabbo().CurrentRoom;
+
             if (!currentRoom.CheckRights(Session, true))
                 return;
+
             SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
+
             if (roomMusicController.PlaylistSize >= roomMusicController.PlaylistCapacity)
                 return;
+
             uint num = Request.GetUInteger();
+
             UserItem item = Session.GetHabbo().GetInventoryComponent().GetItem(num);
+
             if (item == null || item.BaseItem.InteractionType != Interaction.MusicDisc)
                 return;
+
             var songItem = new SongItem(item);
+
             int num2 = roomMusicController.AddDisk(songItem);
+
             if (num2 < 0)
                 return;
+
             songItem.SaveToDatabase(currentRoom.RoomId);
+
             Session.GetHabbo().GetInventoryComponent().RemoveItem(num, true);
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET user_id='0' WHERE id={0} LIMIT 1", num));
+                queryReactor.RunFastQuery($"UPDATE items_rooms SET user_id='0' WHERE id={num} LIMIT 1");
+
             Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }
 
@@ -85,22 +103,29 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void RemovePlaylistItem()
         {
-            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
+            if (Session?.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
                 return;
+
             Room currentRoom = Session.GetHabbo().CurrentRoom;
+
             if (!currentRoom.GotMusicController())
                 return;
+
             SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
+
             SongItem songItem = roomMusicController.RemoveDisk(Request.GetInteger());
+
             if (songItem == null)
                 return;
+
             songItem.RemoveFromDatabase();
+
             Session.GetHabbo().GetInventoryComponent().AddNewItem(songItem.ItemId, songItem.BaseItem.ItemId, songItem.ExtraData, 0u, false, true, 0, 0, songItem.SongCode);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
+
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET user_id='{0}' WHERE id='{1}' LIMIT 1;", Session.GetHabbo().Id, songItem.ItemId));
-            }
+                queryReactor.RunFastQuery($"UPDATE items_rooms SET user_id='{Session.GetHabbo().Id}' WHERE id='{songItem.ItemId}' LIMIT 1;");
+
             Session.SendMessage(SoundMachineComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
             Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }
@@ -110,23 +135,28 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetDisks()
         {
-            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().GetInventoryComponent() == null)
+            if (Session?.GetHabbo() == null || Session.GetHabbo().GetInventoryComponent() == null)
                 return;
+
             if (Session.GetHabbo().GetInventoryComponent().SongDisks.Count == 0)
                 return;
+
             Session.SendMessage(SoundMachineComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));
         }
 
         /// <summary>
-        /// Gets the playlists.
+        /// Gets the Play lists.
         /// </summary>
         internal void GetPlaylists()
         {
-            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
+            if (Session?.GetHabbo() == null || Session.GetHabbo().CurrentRoom == null)
                 return;
+
             Room currentRoom = Session.GetHabbo().CurrentRoom;
+
             if (!currentRoom.GotMusicController())
                 return;
+
             SoundMachineManager roomMusicController = currentRoom.GetRoomMusicController();
             Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
         }

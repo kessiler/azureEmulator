@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Azure.HabboHotel.Polls.Enums;
 using Azure.Messages;
 
 namespace Azure.HabboHotel.Polls
@@ -69,8 +70,7 @@ namespace Azure.HabboHotel.Polls
         /// <param name="prize">The prize.</param>
         /// <param name="type">The type.</param>
         /// <param name="questions">The questions.</param>
-        internal Poll(uint id, uint roomId, string pollName, string pollInvitation, string thanks, string prize,
-            int type, List<PollQuestion> questions)
+        internal Poll(uint id, uint roomId, string pollName, string pollInvitation, string thanks, string prize, int type, List<PollQuestion> questions)
         {
             Id = id;
             RoomId = roomId;
@@ -91,35 +91,9 @@ namespace Azure.HabboHotel.Polls
         internal void Serialize(ServerMessage message)
         {
             message.AppendInteger(Id);
-            message.AppendString(""); //?
+            message.AppendString(string.Empty); //?
             message.AppendString(PollInvitation);
             message.AppendString("Test"); // whats this??
-        }
-
-        /// <summary>
-        ///     Enum PollType
-        /// </summary>
-        internal enum PollType
-        {
-            /// <summary>
-            ///     The opinion
-            /// </summary>
-            Opinion,
-
-            /// <summary>
-            ///     The prize_ badge
-            /// </summary>
-            PrizeBadge,
-
-            /// <summary>
-            ///     The prize_ furni
-            /// </summary>
-            PrizeFurni,
-
-            /// <summary>
-            ///     The matching
-            /// </summary>
-            Matching
         }
     }
 }

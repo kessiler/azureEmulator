@@ -27,12 +27,17 @@ namespace Azure.Util
         public static int Get(int min, int max)
         {
             var random = _localRandom;
+
             if (random != null)
                 return random.Next(min, max);
+
             int seed;
+
             lock (GlobalRandom)
                 seed = GlobalRandom.Next();
+
             random = (_localRandom = new Random(seed));
+
             return random.Next(min, max);
         }
     }

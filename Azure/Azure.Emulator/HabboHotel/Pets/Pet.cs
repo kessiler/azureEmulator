@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Azure.HabboHotel.Pets.Enums;
 using Azure.HabboHotel.Rooms;
 using Azure.Messages;
 using Azure.Messages.Parsers;
