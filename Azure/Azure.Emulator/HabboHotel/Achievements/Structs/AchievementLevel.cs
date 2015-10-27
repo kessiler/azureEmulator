@@ -1,4 +1,4 @@
-namespace Azure.HabboHotel.Achievements.Interfaces
+namespace Azure.HabboHotel.Achievements.Structs
 {
     /// <summary>
     ///     Struct AchievementLevel

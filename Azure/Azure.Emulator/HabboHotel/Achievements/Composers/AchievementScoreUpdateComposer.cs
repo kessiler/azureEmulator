@@ -17,6 +17,7 @@ namespace Azure.HabboHotel.Achievements.Composers
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("AchievementPointsMessageComposer"));
             serverMessage.AppendInteger(score);
+
             return serverMessage;
         }
     }

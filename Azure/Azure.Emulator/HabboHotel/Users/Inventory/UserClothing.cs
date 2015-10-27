@@ -65,24 +65,23 @@ namespace Azure.HabboHotel.Users.Inventory
         internal void Serialize(ServerMessage message)
         {
             message.StartArray();
-            foreach (
-                var item1 in
-                    Clothing.Select(clothing1 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
+
+            foreach (var item1 in Clothing.Select(clothing1 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
             {
                 foreach (var clothe in item1.Clothes)
                     message.AppendInteger(clothe);
 
                 message.SaveArray();
             }
+
             message.EndArray();
             message.StartArray();
 
-            foreach (
-                var item2 in
-                    Clothing.Select(clothing2 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
+            foreach (var item2 in Clothing.Select(clothing2 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
             {
                 foreach (var clothe in item2.Clothes)
                     message.AppendString(item2.ItemName);
+
                 message.SaveArray();
             }
 

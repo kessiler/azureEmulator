@@ -5,7 +5,7 @@ using System.Linq;
 using System.Timers;
 using Azure.Configuration;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Navigators.Interfaces;

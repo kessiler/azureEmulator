@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
@@ -802,6 +803,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             uint threadId = Request.GetUInteger();
             int startIndex = Request.GetInteger();
+
             Request.GetInteger();
 
             Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
@@ -819,7 +821,9 @@ namespace Azure.Messages.Handlers
                     return;
 
                 int b = (table.Rows.Count <= 20) ? table.Rows.Count : 20;
+
                 var posts = new List<GroupForumPost>();
+
                 int i = 1;
 
                 while (i <= b)
@@ -838,6 +842,7 @@ namespace Azure.Messages.Handlers
                         return;
 
                     posts.Add(thread);
+
                     i++;
                 }
 
@@ -847,6 +852,7 @@ namespace Azure.Messages.Handlers
                 message.AppendInteger(threadId);
                 message.AppendInteger(startIndex);
                 message.AppendInteger(b);
+
                 int indx = 0;
 
                 foreach (GroupForumPost post in posts)
@@ -856,7 +862,7 @@ namespace Azure.Messages.Handlers
                     message.AppendInteger(post.PosterId);
                     message.AppendString(post.PosterName);
                     message.AppendString(post.PosterLook);
-                    message.AppendInteger((Azure.GetUnixTimeStamp() - post.Timestamp));
+                    message.AppendInteger(Azure.GetUnixTimeStamp() - post.Timestamp);
                     message.AppendString(post.PostContent);
                     message.AppendByte(0);
                     message.AppendInteger(0);

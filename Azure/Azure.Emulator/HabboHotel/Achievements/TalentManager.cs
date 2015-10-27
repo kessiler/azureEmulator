@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
 using Azure.Messages.Parsers;

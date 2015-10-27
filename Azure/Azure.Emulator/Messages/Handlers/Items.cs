@@ -2343,18 +2343,27 @@ namespace Azure.Messages.Handlers
         internal void UsePurchasableClothing()
         {
             uint furniId = Request.GetUInteger();
+
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-            if (room == null) return;
-            var item = room.GetRoomItemHandler().GetItem(furniId);
-            if (item == null) return;
-            if (item.GetBaseItem().InteractionType != Interaction.Clothing) return;
+            var item = room?.GetRoomItemHandler().GetItem(furniId);
+
+            if (item?.GetBaseItem().InteractionType != Interaction.Clothing)
+                return;
             var clothes = Azure.GetGame().GetClothingManager().GetClothesInFurni(item.GetBaseItem().Name);
-            if (clothes == null) return;
-            if (Session.GetHabbo().ClothingManager.Clothing.Contains(clothes.ItemName)) return;
+
+            if (clothes == null)
+                return;
+
+            if (Session.GetHabbo().ClothingManager.Clothing.Contains(clothes.ItemName))
+                return;
+
             Session.GetHabbo().ClothingManager.Add(clothes.ItemName);
+
             GetResponse().Init(LibraryParser.OutgoingRequest("FigureSetIdsMessageComposer"));
             Session.GetHabbo().ClothingManager.Serialize(GetResponse());
+
             SendResponse();
+
             room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
             Session.SendMessage(StaticMessage.FiguresetRedeemed);
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Configuration;
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;

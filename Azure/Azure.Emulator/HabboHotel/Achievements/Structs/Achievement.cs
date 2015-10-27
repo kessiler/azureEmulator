@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Azure.HabboHotel.Achievements.Interfaces
+namespace Azure.HabboHotel.Achievements.Structs
 {
     /// <summary>
     ///     Class Achievement.

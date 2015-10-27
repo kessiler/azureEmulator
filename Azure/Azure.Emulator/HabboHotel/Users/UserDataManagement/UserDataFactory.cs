@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.Catalogs;
 using Azure.HabboHotel.Groups.Interfaces;
 using Azure.HabboHotel.Items.Interfaces;

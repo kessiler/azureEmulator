@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Pets;
 using Azure.HabboHotel.RoomBots;

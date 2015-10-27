@@ -1,4 +1,4 @@
-using Azure.HabboHotel.Achievements.Interfaces;
+using Azure.HabboHotel.Achievements.Structs;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
