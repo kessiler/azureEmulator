@@ -3,7 +3,7 @@ namespace Azure.HabboHotel.Achievements.Structs
     /// <summary>
     ///     Class UserAchievement.
     /// </summary>
-    internal struct UserAchievement
+    internal class UserAchievement
     {
         /// <summary>
         ///     The achievement group
@@ -26,19 +26,19 @@ namespace Azure.HabboHotel.Achievements.Structs
         /// <param name="achievementGroup">The achievement group.</param>
         /// <param name="level">The level.</param>
         /// <param name="progress">The progress.</param>
-        public UserAchievement(string achievementGroup, int level, int progress)
+        internal UserAchievement(string achievementGroup, int level, int progress)
         {
             AchievementGroup = achievementGroup;
             Level = level;
             Progress = progress;
         }
 
-        public void SetLevel(int level)
+        internal void SetLevel(int level)
         {
             Level = level;
         }
 
-        public void SetProgress(int progress)
+        internal void SetProgress(int progress)
         {
             Progress = progress;
         }

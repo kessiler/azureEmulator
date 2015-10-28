@@ -1158,51 +1158,33 @@ namespace Azure.HabboHotel.Users
         ///     Gets the subscription manager.
         /// </summary>
         /// <returns>SubscriptionManager.</returns>
-        internal SubscriptionManager GetSubscriptionManager()
-        {
-            return _subscriptionManager;
-        }
+        internal SubscriptionManager GetSubscriptionManager() => _subscriptionManager;
 
-        internal YoutubeManager GetYoutubeManager()
-        {
-            return YoutubeManager;
-        }
+        internal YoutubeManager GetYoutubeManager() => YoutubeManager;
 
         /// <summary>
         ///     Gets the messenger.
         /// </summary>
         /// <returns>HabboMessenger.</returns>
-        internal HabboMessenger GetMessenger()
-        {
-            return _messenger;
-        }
+        internal HabboMessenger GetMessenger() => _messenger;
 
         /// <summary>
         ///     Gets the badge component.
         /// </summary>
         /// <returns>BadgeComponent.</returns>
-        internal BadgeComponent GetBadgeComponent()
-        {
-            return _badgeComponent;
-        }
+        internal BadgeComponent GetBadgeComponent() => _badgeComponent;
 
         /// <summary>
         ///     Gets the inventory component.
         /// </summary>
         /// <returns>InventoryComponent.</returns>
-        internal InventoryComponent GetInventoryComponent()
-        {
-            return _inventoryComponent;
-        }
+        internal InventoryComponent GetInventoryComponent() => _inventoryComponent;
 
         /// <summary>
         ///     Gets the avatar effects inventory component.
         /// </summary>
         /// <returns>AvatarEffectsInventoryComponent.</returns>
-        internal AvatarEffectsInventoryComponent GetAvatarEffectsInventoryComponent()
-        {
-            return _avatarEffectsInventoryComponent;
-        }
+        internal AvatarEffectsInventoryComponent GetAvatarEffectsInventoryComponent() => _avatarEffectsInventoryComponent;
 
         /// <summary>
         ///     Runs the database update.
@@ -1210,9 +1192,7 @@ namespace Azure.HabboHotel.Users
         /// <param name="dbClient">The database client.</param>
         internal void RunDbUpdate(IQueryAdapter dbClient)
         {
-            dbClient.RunFastQuery(string.Concat("UPDATE users SET last_online = '", Azure.GetUnixTimeStamp(),
-                "', activity_points = '", ActivityPoints, "', credits = '", Credits, "', diamonds = '", Diamonds,
-                "' WHERE id = '", Id, "' LIMIT 1; "));
+            dbClient.RunFastQuery(string.Concat("UPDATE users SET last_online = '", Azure.GetUnixTimeStamp(), "', activity_points = '", ActivityPoints, "', credits = '", Credits, "', diamonds = '", Diamonds, "' WHERE id = '", Id, "' LIMIT 1; "));
         }
 
         /// <summary>
@@ -1223,7 +1203,9 @@ namespace Azure.HabboHotel.Users
         internal int GetQuestProgress(uint p)
         {
             int result;
+
             Quests.TryGetValue(p, out result);
+
             return result;
         }
 
@@ -1232,14 +1214,13 @@ namespace Azure.HabboHotel.Users
         /// </summary>
         /// <param name="p">The p.</param>
         /// <returns>UserAchievement.</returns>
-        internal UserAchievement? GetAchievementData(string p)
+        internal UserAchievement GetAchievementData(string p)
         {
             UserAchievement result;
 
-            if (Achievements.TryGetValue(p, out result))
-                return result;
+            Achievements.TryGetValue(p, out result);
 
-            return null;
+            return result;
         }
 
         /// <summary>
@@ -1250,7 +1231,9 @@ namespace Azure.HabboHotel.Users
         internal UserTalent GetTalentData(int t)
         {
             UserTalent result;
+
             Talents.TryGetValue(t, out result);
+
             return result;
         }
 
@@ -1258,30 +1241,22 @@ namespace Azure.HabboHotel.Users
         ///     Gets the current talent level.
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal int GetCurrentTalentLevel()
-        {
-            return
-                Talents.Values.Select(current => Azure.GetGame().GetTalentManager().GetTalent(current.TalentId).Level)
-                    .Concat(new[] {1})
-                    .Max();
-        }
+        internal int GetCurrentTalentLevel() => Talents.Values.Select(current => Azure.GetGame().GetTalentManager().GetTalent(current.TalentId).Level).Concat(new[] {1}).Max();
 
         /// <summary>
         ///     _s the load my groups.
         /// </summary>
         internal void _LoadMyGroups()
         {
-            DataTable dTable;
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryAdapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery($"SELECT id FROM groups_data WHERE owner_id = {Id}");
-                dTable = dbClient.GetTable();
-            }
+                queryAdapter.SetQuery($"SELECT id FROM groups_data WHERE owner_id = {Id}");
 
-            foreach (DataRow dRow in dTable.Rows)
-                _myGroups.Add(Convert.ToUInt32(dRow["id"]));
+                foreach (DataRow dRow in queryAdapter.GetTable().Rows)
+                    _myGroups.Add(Convert.ToUInt32(dRow["id"]));
 
-            _loadedMyGroups = true;
+                _loadedMyGroups = true;
+            }          
         }
 
         /// <summary>
@@ -1289,10 +1264,7 @@ namespace Azure.HabboHotel.Users
         /// </summary>
         /// <param name="pollId">The poll identifier.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool GotPollData(uint pollId)
-        {
-            return (AnsweredPolls.Contains(pollId));
-        }
+        internal bool GotPollData(uint pollId) => (AnsweredPolls.Contains(pollId));
 
         /// <summary>
         ///     Checks the trading.
@@ -1317,9 +1289,6 @@ namespace Azure.HabboHotel.Users
         ///     Gets the client.
         /// </summary>
         /// <returns>GameClient.</returns>
-        private GameClient GetClient()
-        {
-            return Azure.GetGame().GetClientManager().GetClientByUserId(Id);
-        }
+        private GameClient GetClient() => Azure.GetGame().GetClientManager().GetClientByUserId(Id);
     }
 }

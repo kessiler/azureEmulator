@@ -5,7 +5,7 @@ namespace Azure.HabboHotel.Achievements.Structs
     /// <summary>
     ///     Class Achievement.
     /// </summary>
-    internal struct Achievement
+    internal class Achievement
     {
         /// <summary>
         ///     The identifier
@@ -33,12 +33,11 @@ namespace Azure.HabboHotel.Achievements.Structs
         /// <param name="id">The identifier.</param>
         /// <param name="groupName">Name of the group.</param>
         /// <param name="category">The category.</param>
-        public Achievement(uint id, string groupName, string category)
+        internal Achievement(uint id, string groupName, string category)
         {
             Id = id;
             GroupName = groupName;
             Category = category;
-
             Levels = new Dictionary<int, AchievementLevel>();
         }
 
@@ -46,14 +45,11 @@ namespace Azure.HabboHotel.Achievements.Structs
         ///     Adds the level.
         /// </summary>
         /// <param name="level">The level.</param>
-        public void AddLevel(AchievementLevel level)
+        internal void AddLevel(AchievementLevel level)
         {
             Levels.Add(level.Level, level);
         }
 
-        public bool CheckLevel(AchievementLevel level)
-        {
-            return Levels.ContainsKey(level.Level);
-        }
+        internal bool CheckLevel(AchievementLevel level) => Levels.ContainsKey(level.Level);
     }
 }

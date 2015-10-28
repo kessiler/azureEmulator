@@ -81,7 +81,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>default</LangVersion>
+    <LangVersion>6</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>

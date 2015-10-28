@@ -23,28 +23,19 @@ namespace Azure.HabboHotel.Achievements.Factories
 
             dbClient.SetQuery("SELECT * FROM achievements_data");
 
-            DataTable table = dbClient.GetTable();
-
-            foreach (DataRow dataRow in table.Rows)
+            foreach (DataRow dataRow in dbClient.GetTable().Rows)
             {
-                string achievementName = (string)dataRow["group_name"];
+                string achievementName = dataRow["group_name"].ToString();
 
                 AchievementLevel level = new AchievementLevel((int)dataRow["level"], (int)dataRow["reward_pixels"], (int)dataRow["reward_points"], (int)dataRow["progress_needed"]);
 
                 if (!achievements.ContainsKey(achievementName))
-                {
-                    Achievement achievement = new Achievement((uint)dataRow["id"], achievementName, (string)dataRow["category"]);
+                    achievements.Add(achievementName, new Achievement((uint)dataRow["id"], achievementName, dataRow["category"].ToString()));        
 
-                    achievements.Add(achievementName, achievement);
-                    achievement.AddLevel(level);            
-                }
+                if (!achievements[achievementName].CheckLevel(level))
+                    achievements[achievementName].AddLevel(level);
                 else
-                {
-                    if (!achievements[achievementName].CheckLevel(level))
-                        achievements[achievementName].AddLevel(level);
-                    else
-                        Out.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "[Azure.Achievements]", ConsoleColor.Cyan);
-                }
+                    Out.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "[Azure.Achievements]", ConsoleColor.Cyan);
             }
         }
     }

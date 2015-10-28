@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Azure.HabboHotel.Achievements.Structs;
 using Azure.HabboHotel.GameClients.Interfaces;
 using Azure.Messages;
@@ -20,22 +21,23 @@ namespace Azure.HabboHotel.Achievements.Composers
         internal static ServerMessage Compose(GameClient session, List<Achievement> achievements)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("AchievementListMessageComposer"));
+
             serverMessage.AppendInteger(achievements.Count);
 
-            foreach (var achievement in achievements)
+            foreach (Achievement achievement in achievements)
             {
-                var achievementData = session.GetHabbo().GetAchievementData(achievement.GroupName);
+                UserAchievement achievementData = session.GetHabbo().GetAchievementData(achievement.GroupName);
 
-                var i = achievementData?.Level + 1 ?? 1;
+                int i = achievementData?.Level + 1 ?? 1;
 
-                var count = achievement.Levels.Count;
+                int count = achievement.Levels.Count;
 
                 if (i > count)
                     i = count;
 
-                var achievementLevel = achievement.Levels[i];
+                AchievementLevel achievementLevel = achievement.Levels[i];
 
-                var oldLevel = (achievement.Levels.ContainsKey(i - 1)) ? achievement.Levels[i - 1] : achievementLevel;
+                AchievementLevel oldLevel = (achievement.Levels.ContainsKey(i - 1)) ? achievement.Levels[i - 1] : achievementLevel;
 
                 serverMessage.AppendInteger(achievement.Id);
                 serverMessage.AppendInteger(i);
@@ -45,14 +47,7 @@ namespace Azure.HabboHotel.Achievements.Composers
                 serverMessage.AppendInteger(achievementLevel.RewardPoints);
                 serverMessage.AppendInteger(0);
                 serverMessage.AppendInteger(achievementData?.Progress ?? 0);
-
-                if (achievementData == null)
-                    serverMessage.AppendBool(false);
-                else if (achievementData.Value.Level >= count)
-                    serverMessage.AppendBool(true);
-                else
-                    serverMessage.AppendBool(false);
-
+                serverMessage.AppendBool(!(achievementData == null || achievementData.Level < count));
                 serverMessage.AppendString(achievement.Category);
                 serverMessage.AppendString(string.Empty);
                 serverMessage.AppendInteger(count);

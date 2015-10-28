@@ -58,8 +58,8 @@ namespace Azure.HabboHotel.Achievements
         internal bool LevelIsCompleted(GameClient session, string trackType, int talentLevel) => 
             GetTalents(trackType, talentLevel).All(
                 current =>
-                session.GetHabbo().GetAchievementData(current.AchievementGroup) == null || 
-                session.GetHabbo().GetAchievementData(current.AchievementGroup).Value.Level < current.AchievementLevel);
+                (!session.GetHabbo().Achievements.ContainsKey(current.AchievementGroup)) || 
+                session.GetHabbo().GetAchievementData(current.AchievementGroup).Level < current.AchievementLevel);
 
         /// <summary>
         ///     Completes the user talent.
@@ -120,18 +120,13 @@ namespace Azure.HabboHotel.Achievements
         ///     Tries the get talent.
         /// </summary>
         /// <param name="achGroup">The ach group.</param>
-        /// <param name="talent">The talent.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool TryGetTalent(string achGroup, out Talent talent)
+        internal Talent GetTalentData(string achGroup)
         {
-            foreach (var current in Talents.Values.Where(current => current.AchievementGroup == achGroup))
-            {
-                talent = current;
-                return true;
-            }
-
-            talent = new Talent();
-            return false;
+            foreach (Talent current in Talents.Values.Where(current => current.AchievementGroup == achGroup))
+                return current;
+                          
+            return new Talent();
         }
 
         /// <summary>

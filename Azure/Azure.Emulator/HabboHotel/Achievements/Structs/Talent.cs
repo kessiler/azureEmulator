@@ -72,12 +72,6 @@ namespace Azure.HabboHotel.Achievements.Structs
         ///     Gets the achievement.
         /// </summary>
         /// <returns>Achievement.</returns>
-        internal Achievement GetAchievement()
-        {
-            if (string.IsNullOrEmpty(AchievementGroup) || ParentCategory == -1)
-                return new Achievement();
-
-            return Azure.GetGame().GetAchievementManager().GetAchievement(AchievementGroup);
-        }
+        internal Achievement GetAchievement() => string.IsNullOrEmpty(AchievementGroup) || ParentCategory == -1 ? null : Azure.GetGame().GetAchievementManager().GetAchievement(AchievementGroup);
     }
 }
