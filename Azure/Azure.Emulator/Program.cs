@@ -32,11 +32,11 @@ namespace Azure
 
         public static void StartConsoleWindow()
         {
-            Console.BackgroundColor = ConsoleColor.White;
+            //Console.BackgroundColor = ConsoleColor.White;
             Console.Clear();
-            Console.SetWindowSize(Console.LargestWindowWidth > 149 ? 150 : Console.WindowWidth, Console.LargestWindowHeight > 49 ? 50 : Console.WindowHeight);
+            //Console.SetWindowSize(Console.LargestWindowWidth > 149 ? 150 : Console.WindowWidth, Console.LargestWindowHeight > 49 ? 50 : Console.WindowHeight);
             Console.SetCursorPosition(0, 0);
-            Console.ForegroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
             Console.WriteLine(@"     " + @"                                            |         |              ");
             Console.WriteLine(@"     " + @",---.,---,.   .,---.,---.    ,---.,-.-..   .|    ,---.|--- ,---.,---.");
@@ -46,8 +46,8 @@ namespace Azure
             Console.WriteLine(@"     " + @"  BUILD " + Azure.Version + "." + Azure.Build + " RELEASE 63B CRYPTO BOTH SIDE");
             Console.WriteLine(@"     " + @"  .NET Framework " + Environment.Version + "     C# 6 Roslyn");
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.WriteLine(Console.LargestWindowWidth > 149 ? "---------------------------------------------------------------------------------------------------------------------------------------------------" : "-------------------------------------------------------------------------");
+            Console.ForegroundColor = ConsoleColor.White;
+            //Console.WriteLine(Console.LargestWindowWidth > 149 ? "---------------------------------------------------------------------------------------------------------------------------------------------------" : "-------------------------------------------------------------------------");
         }
 
         /// <summary>

@@ -3,13 +3,20 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Configuration;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.HabboHotel.Achievements.Structs;
+using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.HabboHotel.Groups.Interfaces;
+using Azure.HabboHotel.Items.Interfaces;
 using Azure.HabboHotel.Quests;
 using Azure.HabboHotel.Quests.Composer;
 using Azure.HabboHotel.Rooms;
 using Azure.HabboHotel.Rooms.Data;
+using Azure.HabboHotel.Rooms.User;
 using Azure.HabboHotel.Users;
 using Azure.HabboHotel.Users.Badges;
+using Azure.HabboHotel.Users.Inventory;
+using Azure.HabboHotel.Users.Messenger;
 using Azure.HabboHotel.Users.Relationships;
 using Azure.Messages.Parsers;
 
@@ -25,7 +32,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void SendBullyReport()
         {
-            var reportedId = Request.GetUInteger();
+            uint reportedId = Request.GetUInteger();
             Azure.GetGame()
                 .GetModerationTool()
                 .SendNewTicket(Session, 104, 9, reportedId, "", new List<string>());
@@ -74,7 +81,7 @@ namespace Azure.Messages.Handlers
             //var i = 0;
             //var i2 = 0;
             Session.GetHabbo().GetSubscriptionManager().GetSubscription();
-            var serverMessage = new ServerMessage();
+            ServerMessage serverMessage = new ServerMessage();
             serverMessage.Init(LibraryParser.OutgoingRequest("LoadCatalogClubGiftsMessageComposer"));
             serverMessage.AppendInteger(0); // i
             serverMessage.AppendInteger(0); // i2
@@ -96,10 +103,10 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetUserTags()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
-            var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
+            RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
             if (roomUserByHabbo == null || roomUserByHabbo.IsBot)
                 return;
             Response.Init(LibraryParser.OutgoingRequest("UserTagsMessageComposer"));
@@ -122,10 +129,10 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetUserBadges()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room != null)
             {
-                var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
+                RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
                 if (roomUserByHabbo != null && !roomUserByHabbo.IsBot && roomUserByHabbo.GetClient() != null && roomUserByHabbo.GetClient().GetHabbo() != null)
                 {
                     Session.GetHabbo().LastSelectedUser = roomUserByHabbo.UserId;
@@ -134,7 +141,7 @@ namespace Azure.Messages.Handlers
 
                     Response.StartArray();
                     foreach (
-                        var badge in
+                        Badge badge in
                             roomUserByHabbo.GetClient()
                                 .GetHabbo()
                                 .GetBadgeComponent()
@@ -158,10 +165,10 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GiveRespect()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || Session.GetHabbo().DailyRespectPoints <= 0)
                 return;
-            var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
+            RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
             if (roomUserByHabbo == null || roomUserByHabbo.GetClient().GetHabbo().Id == Session.GetHabbo().Id ||
                 roomUserByHabbo.IsBot)
                 return;
@@ -174,14 +181,14 @@ namespace Azure.Messages.Handlers
             {
                 Session.GetHabbo().DailyRespectPoints--;
                 roomUserByHabbo.GetClient().GetHabbo().Respect++;
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery("UPDATE users_stats SET respect = respect + 1 WHERE id = " + roomUserByHabbo.GetClient().GetHabbo().Id + " LIMIT 1;UPDATE users_stats SET daily_respect_points = daily_respect_points - 1 WHERE id= " + Session.GetHabbo().Id + " LIMIT 1");
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("GiveRespectsMessageComposer"));
+                ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("GiveRespectsMessageComposer"));
                 serverMessage.AppendInteger(roomUserByHabbo.GetClient().GetHabbo().Id);
                 serverMessage.AppendInteger(roomUserByHabbo.GetClient().GetHabbo().Respect);
                 room.SendMessage(serverMessage);
 
-                var thumbsUp = new ServerMessage();
+                ServerMessage thumbsUp = new ServerMessage();
                 thumbsUp.Init(LibraryParser.OutgoingRequest("RoomUserActionMessageComposer"));
                 thumbsUp.AppendInteger(
                     room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().UserName).VirtualId);
@@ -195,8 +202,8 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ApplyEffect()
         {
-            var effectId = Request.GetInteger();
-            var roomUserByHabbo =
+            int effectId = Request.GetInteger();
+            RoomUser roomUserByHabbo =
                 Azure.GetGame()
                     .GetRoomManager()
                     .GetRoom(Session.GetHabbo().CurrentRoomId)
@@ -211,13 +218,13 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void EnableEffect()
         {
-            var currentRoom = Session.GetHabbo().CurrentRoom;
+            Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (currentRoom == null)
                 return;
-            var roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+            RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
             if (roomUserByHabbo == null)
                 return;
-            var num = Request.GetInteger();
+            int num = Request.GetInteger();
             if (roomUserByHabbo.RidingHorse)
                 return;
             if (num == 0)
@@ -235,14 +242,14 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void MuteUser()
         {
-            var num = Request.GetUInteger();
+            uint num = Request.GetUInteger();
             Request.GetUInteger();
-            var num2 = Request.GetUInteger();
-            var currentRoom = Session.GetHabbo().CurrentRoom;
+            uint num2 = Request.GetUInteger();
+            Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) ||
                 (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session)) || Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
-            var roomUserByHabbo = currentRoom.GetRoomUserManager()
+            RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager()
                 .GetRoomUserByHabbo(Azure.GetHabboById(num).UserName);
             if (roomUserByHabbo == null)
                 return;
@@ -303,8 +310,8 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void LoadSettings()
         {
-            var preferences = Session.GetHabbo().Preferences;
-            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("LoadVolumeMessageComposer"));
+            UserPreferences preferences = Session.GetHabbo().Preferences;
+            ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("LoadVolumeMessageComposer"));
 
             serverMessage.AppendIntegersArray(preferences.Volume, ',', 3, 0, 100);
 
@@ -321,9 +328,9 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SaveSettings()
         {
-            var num = Request.GetInteger();
-            var num2 = Request.GetInteger();
-            var num3 = Request.GetInteger();
+            int num = Request.GetInteger();
+            int num2 = Request.GetInteger();
+            int num3 = Request.GetInteger();
             Session.GetHabbo().Preferences.Volume = num + "," + num2 + "," + num3;
             Session.GetHabbo().Preferences.Save();
         }
@@ -366,17 +373,17 @@ namespace Azure.Messages.Handlers
         internal void UpdateBadges()
         {
             Session.GetHabbo().GetBadgeComponent().ResetSlots();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE users_badges SET badge_slot = 0 WHERE user_id = {0}",
                     Session.GetHabbo().Id));
-            for (var i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
-                var slot = Request.GetInteger();
-                var code = Request.GetString();
+                int slot = Request.GetInteger();
+                string code = Request.GetString();
                 if (code.Length == 0) continue;
                 if (!Session.GetHabbo().GetBadgeComponent().HasBadge(code) || slot < 1 || slot > 5) return;
                 Session.GetHabbo().GetBadgeComponent().GetBadge(code).Slot = slot;
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery("UPDATE users_badges SET badge_slot = " + slot +
                                            " WHERE badge_id = @badge AND user_id = " + Session.GetHabbo().Id);
@@ -385,12 +392,12 @@ namespace Azure.Messages.Handlers
                 }
             }
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileBadge);
-            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
+            ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
             serverMessage.AppendInteger(Session.GetHabbo().Id);
 
             serverMessage.StartArray();
             foreach (
-                var badge in
+                Badge badge in
                     Session.GetHabbo()
                         .GetBadgeComponent()
                         .BadgeList.Values.Cast<Badge>()
@@ -428,7 +435,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void PrepareCampaing()
         {
-            var text = Request.GetString();
+            string text = Request.GetString();
             Response.Init(LibraryParser.OutgoingRequest("SendCampaignBadgeMessageComposer"));
             Response.AppendString(text);
             Response.AppendBool(Session.GetHabbo().GetBadgeComponent().HasBadge(text));
@@ -440,16 +447,16 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void LoadProfile()
         {
-            var userId = Request.GetUInteger();
+            uint userId = Request.GetUInteger();
             Request.GetBool();
 
-            var habbo = Azure.GetHabboById(userId);
+            Habbo habbo = Azure.GetHabboById(userId);
             if (habbo == null)
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
                 return;
             }
-            var createTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(habbo.CreateDate);
+            DateTime createTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(habbo.CreateDate);
 
             Response.Init(LibraryParser.OutgoingRequest("UserProfileMessageComposer"));
             Response.AppendInteger(habbo.Id);
@@ -465,9 +472,9 @@ namespace Azure.Messages.Handlers
                                 !Session.GetHabbo().GetMessenger().FriendshipExists(habbo.Id) &&
                                 Session.GetHabbo().GetMessenger().RequestExists(habbo.Id));
             Response.AppendBool(Azure.GetGame().GetClientManager().GetClientByUserId(habbo.Id) != null);
-            var groups = Azure.GetGame().GetGroupManager().GetUserGroups(habbo.Id);
+            HashSet<GroupMember> groups = Azure.GetGame().GetGroupManager().GetUserGroups(habbo.Id);
             Response.AppendInteger(groups.Count);
-            foreach (var @group in groups.Select(groupUs => Azure.GetGame().GetGroupManager().GetGroup(groupUs.GroupId))
+            foreach (Guild @group in groups.Select(groupUs => Azure.GetGame().GetGroupManager().GetGroup(groupUs.GroupId))
                 )
                 if (@group != null)
                 {
@@ -505,7 +512,7 @@ namespace Azure.Messages.Handlers
             Response.StartArray();
 
             foreach (
-                var badge in habbo.GetBadgeComponent().BadgeList.Values.Cast<Badge>().Where(badge => badge.Slot > 0))
+                Badge badge in habbo.GetBadgeComponent().BadgeList.Values.Cast<Badge>().Where(badge => badge.Slot > 0))
             {
                 Response.AppendInteger(badge.Slot);
                 Response.AppendString(badge.Code);
@@ -522,14 +529,14 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ChangeLook()
         {
-            var text = Request.GetString().ToUpper();
-            var text2 = Request.GetString();
+            string text = Request.GetString().ToUpper();
+            string text2 = Request.GetString();
             text2 = Azure.FilterFigure(text2);
 
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook);
             Session.GetHabbo().Look = text2;
             Session.GetHabbo().Gender = text.ToLower() == "f" ? "f" : "m";
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("UPDATE users SET look = @look, gender = @gender WHERE id = {0}",
                     Session.GetHabbo().Id));
@@ -557,13 +564,13 @@ namespace Azure.Messages.Handlers
             Session.GetMessageHandler().SendResponse();
             if (!Session.GetHabbo().InRoom)
                 return;
-            var currentRoom = Session.GetHabbo().CurrentRoom;
+            Room currentRoom = Session.GetHabbo().CurrentRoom;
             if (currentRoom == null)
                 return;
-            var roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+            RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
             if (roomUserByHabbo == null)
                 return;
-            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
+            ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
             serverMessage.AppendInteger(roomUserByHabbo.VirtualId); //BUGG
             //serverMessage.AppendInt32(-1);
             serverMessage.AppendString(Session.GetHabbo().Look);
@@ -580,11 +587,11 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ChangeMotto()
         {
-            var text = Request.GetString();
+            string text = Request.GetString();
             if (text == Session.GetHabbo().Motto)
                 return;
             Session.GetHabbo().Motto = text;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("UPDATE users SET motto = @motto WHERE id = '{0}'",
                     Session.GetHabbo().Id));
@@ -594,13 +601,13 @@ namespace Azure.Messages.Handlers
             Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeMotto);
             if (Session.GetHabbo().InRoom)
             {
-                var currentRoom = Session.GetHabbo().CurrentRoom;
+                Room currentRoom = Session.GetHabbo().CurrentRoom;
                 if (currentRoom == null)
                     return;
-                var roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+                RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
                 if (roomUserByHabbo == null)
                     return;
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
+                ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UpdateUserDataMessageComposer"));
                 serverMessage.AppendInteger(roomUserByHabbo.VirtualId); //BUGG
                 //serverMessage.AppendInt32(-1);
                 serverMessage.AppendString(Session.GetHabbo().Look);
@@ -619,12 +626,12 @@ namespace Azure.Messages.Handlers
         {
             GetResponse().Init(LibraryParser.OutgoingRequest("LoadWardrobeMessageComposer"));
             GetResponse().AppendInteger(0);
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     string.Format("SELECT slot_id, look, gender FROM users_wardrobe WHERE user_id = {0}",
                         Session.GetHabbo().Id));
-                var table = queryReactor.GetTable();
+                DataTable table = queryReactor.GetTable();
                 if (table == null)
                     GetResponse().AppendInteger(0);
                 else
@@ -646,13 +653,13 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SaveWardrobe()
         {
-            var num = Request.GetUInteger();
-            var text = Request.GetString();
-            var text2 = Request.GetString().ToUpper() == "F" ? "F" : "M";
+            uint num = Request.GetUInteger();
+            string text = Request.GetString();
+            string text2 = Request.GetString().ToUpper() == "F" ? "F" : "M";
 
             text = Azure.FilterFigure(text);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Concat("SELECT null FROM users_wardrobe WHERE user_id = ", Session.GetHabbo().Id, " AND slot_id = ", num));
                 queryReactor.AddParameter("look", text);
@@ -701,7 +708,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CheckName()
         {
-            var text = Request.GetString();
+            string text = Request.GetString();
             if (text.ToLower() == Session.GetHabbo().UserName.ToLower())
             {
                 Response.Init(LibraryParser.OutgoingRequest("NameChangedUpdatesMessageComposer"));
@@ -711,14 +718,14 @@ namespace Azure.Messages.Handlers
                 SendResponse();
                 return;
             }
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT username FROM users WHERE Username=@name LIMIT 1");
                 queryReactor.AddParameter("name", text);
-                var @string = queryReactor.GetString();
-                var array = text.ToLower().ToCharArray();
+                string @string = queryReactor.GetString();
+                char[] array = text.ToLower().ToCharArray();
                 const string source = "abcdefghijklmnopqrstuvwxyz1234567890.,_-;:?!@áéíóúÁÉÍÓÚñÑÜüÝý ";
-                var array2 = array;
+                char[] array2 = array;
                 if (array2.Any(c => !source.Contains(char.ToLower(c))))
                 {
                     Response.Init(LibraryParser.OutgoingRequest("NameChangedUpdatesMessageComposer"));
@@ -764,7 +771,7 @@ namespace Azure.Messages.Handlers
                 else
                 {
                     queryReactor.SetQuery("SELECT tag FROM users_tags ORDER BY RAND() LIMIT 3");
-                    var table = queryReactor.GetTable();
+                    DataTable table = queryReactor.GetTable();
                     Response.Init(LibraryParser.OutgoingRequest("NameChangedUpdatesMessageComposer"));
                     Response.AppendInteger(5);
                     Response.AppendString(text);
@@ -781,15 +788,15 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ChangeName()
         {
-            var text = Request.GetString();
-            var userName = Session.GetHabbo().UserName;
+            string text = Request.GetString();
+            string userName = Session.GetHabbo().UserName;
 
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT username FROM users WHERE Username=@name LIMIT 1");
                     queryReactor.AddParameter("name", text);
-                    var @String = queryReactor.GetString();
+                    string @String = queryReactor.GetString();
 
                     if (!string.IsNullOrWhiteSpace(String) &&
                         !String.Equals(userName, text, StringComparison.CurrentCultureIgnoreCase))
@@ -828,18 +835,18 @@ namespace Azure.Messages.Handlers
                         Response.AppendInteger(Session.GetHabbo().CurrentRoom.RoomId);
                         Response.AppendString(text);
                     }
-                    foreach (var current in Session.GetHabbo().UsersRooms)
+                    foreach (RoomData current in Session.GetHabbo().UsersRooms)
                     {
                         current.Owner = text;
                         current.SerializeRoomData(Response, Session, false, true);
-                        var room = Azure.GetGame().GetRoomManager().GetRoom(current.Id);
+                        Room room = Azure.GetGame().GetRoomManager().GetRoom(current.Id);
                         if (room != null)
                             room.RoomData.Owner = text;
                     }
-                    foreach (var current2 in Session.GetHabbo().GetMessenger().Friends.Values)
+                    foreach (MessengerBuddy current2 in Session.GetHabbo().GetMessenger().Friends.Values)
                         if (current2.Client != null)
                             foreach (
-                                var current3 in
+                                MessengerBuddy current3 in
                                     current2.Client.GetHabbo()
                                         .GetMessenger()
                                         .Friends.Values.Where(current3 => current3.UserName == userName))
@@ -856,25 +863,25 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetRelationships()
         {
-            var userId = Request.GetUInteger();
-            var habboForId = Azure.GetHabboById(userId);
+            uint userId = Request.GetUInteger();
+            Habbo habboForId = Azure.GetHabboById(userId);
             if (habboForId == null)
                 return;
-            var rand = new Random();
+            Random rand = new Random();
             habboForId.Relationships = (
                 from x in habboForId.Relationships
                 orderby rand.Next()
                 select x).ToDictionary(item => item.Key,
                     item => item.Value);
-            var num = habboForId.Relationships.Count(x => x.Value.Type == 1);
-            var num2 = habboForId.Relationships.Count(x => x.Value.Type == 2);
-            var num3 = habboForId.Relationships.Count(x => x.Value.Type == 3);
+            int num = habboForId.Relationships.Count(x => x.Value.Type == 1);
+            int num2 = habboForId.Relationships.Count(x => x.Value.Type == 2);
+            int num3 = habboForId.Relationships.Count(x => x.Value.Type == 3);
             Response.Init(LibraryParser.OutgoingRequest("RelationshipMessageComposer"));
             Response.AppendInteger(habboForId.Id);
             Response.AppendInteger(habboForId.Relationships.Count);
-            foreach (var current in habboForId.Relationships.Values)
+            foreach (Relationship current in habboForId.Relationships.Values)
             {
-                var habboForId2 = Azure.GetHabboById(Convert.ToUInt32(current.UserId));
+                Habbo habboForId2 = Azure.GetHabboById(Convert.ToUInt32(current.UserId));
                 if (habboForId2 == null)
                 {
                     Response.AppendInteger(0);
@@ -900,11 +907,11 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SetRelationship()
         {
-            var num = Request.GetUInteger();
-            var num2 = Request.GetInteger();
+            uint num = Request.GetUInteger();
+            int num2 = Request.GetInteger();
 
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     if (num2 == 0)
                     {
@@ -912,7 +919,7 @@ namespace Azure.Messages.Handlers
                             "SELECT id FROM users_relationships WHERE user_id=@id AND target=@target LIMIT 1");
                         queryReactor.AddParameter("id", Session.GetHabbo().Id);
                         queryReactor.AddParameter("target", num);
-                        var integer = queryReactor.GetInteger();
+                        int integer = queryReactor.GetInteger();
                         queryReactor.SetQuery(
                             "DELETE FROM users_relationships WHERE user_id=@id AND target=@target LIMIT 1");
                         queryReactor.AddParameter("id", Session.GetHabbo().Id);
@@ -927,7 +934,7 @@ namespace Azure.Messages.Handlers
                             "SELECT id FROM users_relationships WHERE user_id=@id AND target=@target LIMIT 1");
                         queryReactor.AddParameter("id", Session.GetHabbo().Id);
                         queryReactor.AddParameter("target", num);
-                        var integer2 = queryReactor.GetInteger();
+                        int integer2 = queryReactor.GetInteger();
                         if (integer2 > 0)
                         {
                             queryReactor.SetQuery(
@@ -943,10 +950,10 @@ namespace Azure.Messages.Handlers
                         queryReactor.AddParameter("id", Session.GetHabbo().Id);
                         queryReactor.AddParameter("target", num);
                         queryReactor.AddParameter("type", num2);
-                        var num3 = (int)queryReactor.InsertQuery();
+                        int num3 = (int)queryReactor.InsertQuery();
                         Session.GetHabbo().Relationships.Add(num3, new Relationship(num3, (int)num, num2));
                     }
-                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(num);
+                    GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(num);
                     Session.GetHabbo().GetMessenger().UpdateFriend(num, clientByUserId, true);
                 }
             }
@@ -982,9 +989,9 @@ namespace Azure.Messages.Handlers
         public void StartSeasonalQuest()
         {
             RoomData roomData;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                var quest = Azure.GetGame().GetQuestManager().GetQuest(Request.GetUInteger());
+                Quest quest = Azure.GetGame().GetQuestManager().GetQuest(Request.GetUInteger());
                 if (quest == null)
                     return;
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (", Session.GetHabbo().Id, ", ", quest.Id, ")"));
@@ -993,7 +1000,7 @@ namespace Azure.Messages.Handlers
                 Session.SendMessage(QuestStartedComposer.Compose(Session, quest));
                 Azure.GetGame().GetQuestManager().ActivateQuest(Session, Request);
                 queryReactor.SetQuery("SELECT id FROM rooms_data WHERE state='open' ORDER BY users_now DESC LIMIT 1");
-                var @string = queryReactor.GetString();
+                string @string = queryReactor.GetString();
                 roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(uint.Parse(@string));
             }
             if (roomData != null)
@@ -1021,7 +1028,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
+            UserItem item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
             Session.GetHabbo().Diamonds += 25;
@@ -1029,7 +1036,7 @@ namespace Azure.Messages.Handlers
             if (item != null)
                 Session.GetHabbo().GetInventoryComponent().SendNewItems(item.Id);
 
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
                 if (Session.GetHabbo().Vip)
                     dbClient.RunFastQuery(
                         string.Format(
@@ -1053,7 +1060,7 @@ namespace Azure.Messages.Handlers
             if (ExtraSettings.NewUsersGiftsEnabled == false || Request.GetInteger() != 0)
                 return;
 
-            var nuxGifts = new ServerMessage(LibraryParser.OutgoingRequest("NuxListGiftsMessageComposer"));
+            ServerMessage nuxGifts = new ServerMessage(LibraryParser.OutgoingRequest("NuxListGiftsMessageComposer"));
             nuxGifts.AppendInteger(3); //Cantidad
 
             nuxGifts.AppendInteger(0);
@@ -1094,47 +1101,44 @@ namespace Azure.Messages.Handlers
         /// <exception cref="System.NullReferenceException"></exception>
         internal void Talents()
         {
-            var trackType = Request.GetString();
-            var talents = Azure.GetGame().GetTalentManager().GetTalents(trackType, -1);
-            var failLevel = -1;
+            string trackType = Request.GetString();
+
+            List<Talent> talents = Azure.GetGame().GetTalentManager().GetTalents(trackType, -1);
+
+            int failLevel = -1;
 
             if (talents == null)
                 return;
 
             Response.Init(LibraryParser.OutgoingRequest("TalentsTrackMessageComposer"));
+
             Response.AppendString(trackType);
             Response.AppendInteger(talents.Count);
 
-            foreach (var current in talents)
+            foreach (Talent current in talents)
             {
                 Response.AppendInteger(current.Level);
 
-                var nm = (failLevel == -1) ? 1 : 0;
-
+                int nm = (failLevel == -1) ? 1 : 0;
                 Response.AppendInteger(nm);
 
-                var talents2 = Azure.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
+                List<Talent> talents2 = Azure.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
+
                 Response.AppendInteger(talents2.Count);
 
-                foreach (var current2 in talents2)
+                foreach (Talent current2 in talents2)
                 {
-                    var num = (failLevel != -1 && failLevel < current2.Level)
-                        ? 0
-                        : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null)
-                            ? 1
-                            : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Level >=
-                               current2.AchievementLevel)
-                                ? 2
-                                : 1;
+                    if (current2.GetAchievement() == null)
+                        throw new NullReferenceException($"The following talent achievement can't be found: {current2.AchievementGroup}");
+
+                    int num = (failLevel != -1 && failLevel < current2.Level) ? 0 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup) == null) ? 1 : (Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Level >= current2.AchievementLevel) ? 2 : 1;
+
                     Response.AppendInteger(current2.GetAchievement().Id);
                     Response.AppendInteger(0);
                     Response.AppendString($"{current2.AchievementGroup}{current2.AchievementLevel}");
                     Response.AppendInteger(num);
-
-                    UserAchievement achievementData = Session.GetHabbo().GetAchievementData(current2.AchievementGroup);
-
-                    Response.AppendInteger(achievementData.Progress);
-                    Response.AppendInteger(current2.GetAchievement().Levels[current2.AchievementLevel].Requirement);
+                    Response.AppendInteger((Session.GetHabbo().GetAchievementData(current2.AchievementGroup) != null) ? Session.GetHabbo().GetAchievementData(current2.AchievementGroup).Progress : 0);
+                    Response.AppendInteger((current2.GetAchievement() == null) ? 0 : current2.GetAchievement().Levels[current2.AchievementLevel].Requirement);
 
                     if (num != 2 && failLevel == -1)
                         failLevel = current2.Level;
@@ -1194,12 +1198,12 @@ namespace Azure.Messages.Handlers
 
         internal void FindMoreFriends()
         {
-            var allRooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+            KeyValuePair<RoomData, uint>[] allRooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
             if (allRooms != null)
             {
                 Random rnd = new Random();
-                var randomRoom = allRooms[rnd.Next(allRooms.Length)].Key;
-                var success = new ServerMessage(LibraryParser.OutgoingRequest("FindMoreFriendsSuccessMessageComposer"));
+                RoomData randomRoom = allRooms[rnd.Next(allRooms.Length)].Key;
+                ServerMessage success = new ServerMessage(LibraryParser.OutgoingRequest("FindMoreFriendsSuccessMessageComposer"));
                 if (randomRoom == null)
                 {
                     success.AppendBool(false);
@@ -1208,7 +1212,7 @@ namespace Azure.Messages.Handlers
                 }
                 success.AppendBool(true);
                 Session.SendMessage(success);
-                var roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
+                ServerMessage roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
                 roomFwd.AppendInteger(randomRoom.Id);
                 Session.SendMessage(roomFwd);
             }
@@ -1217,10 +1221,10 @@ namespace Azure.Messages.Handlers
         internal void HotelViewRequestBadge()
         {
             string name = Request.GetString();
-            var hotelViewBadges = Azure.GetGame().GetHotelView().HotelViewBadges;
+            Dictionary<string, string> hotelViewBadges = Azure.GetGame().GetHotelView().HotelViewBadges;
             if (!hotelViewBadges.ContainsKey(name))
                 return;
-            var badge = hotelViewBadges[name];
+            string badge = hotelViewBadges[name];
             Session.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, Session, true);
         }
 

@@ -38,7 +38,7 @@ namespace Azure.Connection.Connection
 
             if ((GetConnectionAmount(iP) > maxIpConnectionCount))
             {
-                Out.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.TcpAntiDDoS", ConsoleColor.Blue);
+                Out.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.Security", ConsoleColor.Blue);
 
                 _mLastIpBlocked = iP;
 

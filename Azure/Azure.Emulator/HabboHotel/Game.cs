@@ -166,9 +166,9 @@ namespace Azure.HabboHotel
         /// <param name="conns">The conns.</param>
         internal Game(int conns)
         {
-            Console.WriteLine();
+            //Console.WriteLine();
             Out.WriteLine(@"Starting up Azure Emulator for " + Environment.MachineName + "...", @"Azure.Boot");
-            Console.WriteLine();
+            //Console.WriteLine();
 
             _clientManager = new GameClientManager();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())

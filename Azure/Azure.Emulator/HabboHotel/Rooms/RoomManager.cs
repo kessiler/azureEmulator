@@ -232,7 +232,7 @@ namespace Azure.HabboHotel.Rooms
 
             room.Start(roomData, forceLoad);
 
-            Out.WriteLine($"Room #{id} was loaded", "Azure.Room.Manager", ConsoleColor.DarkCyan);
+            Out.WriteLine($"Room #{id} was loaded", "Azure.Rooms", ConsoleColor.DarkCyan);
 
             room.InitBots();
             room.InitPets();
@@ -486,7 +486,7 @@ namespace Azure.HabboHotel.Rooms
             foreach (var current in LoadedRooms.Values)
                 Azure.GetGame().GetRoomManager().UnloadRoom(current, "RemoveAllRooms void called");
 
-            Out.WriteLine("RoomManager Destroyed", "Azure.RoomManager", ConsoleColor.DarkYellow);
+            Out.WriteLine("RoomManager Destroyed", "Azure.Rooms", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
@@ -611,7 +611,7 @@ namespace Azure.HabboHotel.Rooms
             junkRoom = null;
 
             Out.WriteLine(string.Format("Room #{0} was unloaded, reason: " + reason, room.RoomId),
-                "Azure.Room.Manager", ConsoleColor.DarkGray);
+                "Azure.Rooms", ConsoleColor.DarkGray);
 
             room.Destroy();
             room = null;

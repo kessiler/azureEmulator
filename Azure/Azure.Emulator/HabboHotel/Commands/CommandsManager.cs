@@ -178,14 +178,14 @@ namespace Azure.HabboHotel.Commands
                         {
                             if (AliasDictionary.ContainsKey(alias))
                             {
-                                Out.WriteLine("Duplicate alias key: " + alias, "Azure.HabboHotel.CommandsManager",
+                                Out.WriteLine("Duplicate alias key: " + alias, "Azure.Commands",
                                     ConsoleColor.DarkRed);
                                 continue;
                             }
                             if (CommandsDictionary.ContainsKey(alias))
                             {
                                 Out.WriteLine("An alias cannot have same name as a normal command",
-                                    "Azure.HabboHotel.CommandsManager", ConsoleColor.DarkRed);
+                                    "Azure.Commands", ConsoleColor.DarkRed);
                                 continue;
                             }
                             AliasDictionary.Add(alias, key);

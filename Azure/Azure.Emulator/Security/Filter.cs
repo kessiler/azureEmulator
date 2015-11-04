@@ -63,7 +63,7 @@ namespace Azure.Security
                 Dictionary.Add(mode, dic);
             }
 
-            Out.WriteLine("Loaded " + Dictionary.Count + " filter modes.", "Azure.Security.Filter");
+            Out.WriteLine("Loaded " + Dictionary.Count + " filter modes.", "Azure.Security");
         }
 
         /// <summary>

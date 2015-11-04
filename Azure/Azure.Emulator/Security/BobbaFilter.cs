@@ -92,9 +92,9 @@ namespace Azure.Security
                     Word.Add(row[0].ToString().ToLower());
             }
 
-            Out.WriteLine("Loaded " + Word.Count + " Bobba Filters", "Azure.Security.BobbaFilter");
+            Out.WriteLine("Loaded " + Word.Count + " Bobba Filters", "Azure.Security");
 
-            Console.WriteLine();
+            //Console.WriteLine();
         }
 
         /// <summary>

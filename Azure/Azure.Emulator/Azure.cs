@@ -329,7 +329,7 @@ namespace Azure
 
                 ServerLanguage = (Convert.ToString(ConfigurationData.Data["system.lang"]));
                 _languages = new Languages(ServerLanguage);
-                Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Lang");
+                Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Interpreters");
 
                 if (plugins != null)
                     foreach (var itemTwo in plugins)
@@ -340,7 +340,7 @@ namespace Azure
 
                 ClientMessageFactory.Init();
 
-                Out.WriteLine("Starting up asynchronous sockets server for game connections for port " + int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.AsyncSocketListener");
+                Out.WriteLine("Game server started at port " + int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.Game");
 
                 _connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
                    int.Parse(ConfigurationData.Data["game.tcp.conlimit"]),
@@ -357,11 +357,11 @@ namespace Azure
                 else
                     Out.WriteLine("The encryption system is disabled. This affects badly to the safety.", "Azure.Crypto", ConsoleColor.DarkYellow);
 
-                Console.WriteLine();
+                //Console.WriteLine();
 
-                Out.WriteLine(
-                    "Asynchronous sockets server for game connections running on port " +
-                    int.Parse(ConfigurationData.Data["game.tcp.port"]) + Environment.NewLine, "Server.AsyncSocketListener");
+                //Out.WriteLine(
+                //    "Asynchronous sockets server for game connections running on port " +
+                //    int.Parse(ConfigurationData.Data["game.tcp.port"]) + Environment.NewLine, "Server.AsyncSocketListener");
 
 
                 // Removed MusSocket from the Server
@@ -371,7 +371,7 @@ namespace Azure
                 //    int.Parse(ConfigurationData.Data["mus.tcp.port"]), allowedIps, 0);
 
                 LibraryParser.Initialize();
-                Console.WriteLine();
+                //Console.WriteLine();
 
                 if (ConsoleTimerOn)
                 {
@@ -673,7 +673,7 @@ namespace Azure
             try
             {
                 Manager.Destroy();
-                Out.WriteLine("Game Manager destroyed", "Azure.GameManager", ConsoleColor.DarkYellow);
+                Out.WriteLine("Game Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
             }
             catch (Exception e)
             {

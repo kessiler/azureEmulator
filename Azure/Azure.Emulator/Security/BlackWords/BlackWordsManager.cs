@@ -48,8 +48,8 @@ namespace Azure.Security.BlackWords
                 }
             }
 
-            Out.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security.BlackWords");
-            Console.WriteLine();
+            Out.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security");
+            //Console.WriteLine();
         }
 
         /// <summary>
@@ -122,11 +122,11 @@ namespace Azure.Security.BlackWords
                     break;
 
                 case "all":
-                    Out.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security.BlackWords", ConsoleColor.DarkRed);
+                    Out.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
 
                 default:
-                    Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security.BlackWords", ConsoleColor.DarkRed);
+                    Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
             }
 

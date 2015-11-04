@@ -204,7 +204,7 @@ namespace Azure.Configuration
         /// <param name="command">The command.</param>
         private static void UnknownCommand(string command)
         {
-            Out.WriteLine("Undefined Command: " + command, "Azure.Commands");
+            //Out.WriteLine("Undefined Command: " + command, "Azure.Commands");
         }
     }
 }

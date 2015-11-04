@@ -31,15 +31,15 @@ namespace Azure.Messages.Parsers
             if (Outgoing.TryGetValue(packetName, out packetId))
                 return packetId;
 
-            Writer.Writer.LogMessage("Outgoing " + packetName + " doesn't exist.");
+            Out.WriteLine("Outgoing " + packetName + " doesn't exist.", "Azure.Communication");
 
             return -1;
         }
 
         public static void Initialize()
         {
-            Out.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Packets");
-            Out.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Packets");
+            Out.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Communication");
+            Out.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Communication");
         }
 
         public static void HandlePacket(GameClientMessageHandler handler, ClientMessage message)
@@ -126,7 +126,7 @@ namespace Azure.Messages.Parsers
                         if (packetId == -1)
                             continue;
 
-                        Console.WriteLine("> A Incoming Packet with same Id was found: " + packetId);
+                        Out.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
                     }
                     else
                         Incoming.Add(packetId, new StaticRequestHandler(del));

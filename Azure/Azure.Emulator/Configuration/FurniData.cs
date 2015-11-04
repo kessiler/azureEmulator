@@ -118,14 +118,14 @@ namespace Azure.Configuration
             }
             catch (WebException e)
             {
-                Out.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData", ConsoleColor.Red);
+                Out.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
             catch (XmlException e)
             {
-                Out.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData",
+                Out.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.XML",
                     ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
@@ -133,7 +133,7 @@ namespace Azure.Configuration
             }
             catch (NullReferenceException e)
             {
-                Out.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.FurniData", ConsoleColor.Red);
+                Out.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
                 Out.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
