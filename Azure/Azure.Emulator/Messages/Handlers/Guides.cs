@@ -1,5 +1,5 @@
 ﻿using System;
-using Azure.HabboHotel.GameClients.Interfaces;
+using Azure.Game.GameClients.Interfaces;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers

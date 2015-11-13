@@ -1,8 +1,7 @@
-﻿using Azure.HabboHotel.Navigators;
-using Azure.HabboHotel.Navigators.Enums;
-using Azure.HabboHotel.Navigators.Interfaces;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Data;
+﻿using Azure.Game.Browser;
+using Azure.Game.Browser.Enums;
+using Azure.Game.Browser.Interfaces;
+using Azure.Game.Rooms.Data;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers
@@ -93,12 +92,12 @@ namespace Azure.Messages.Handlers
             }
             string value1 = Request.GetString();
             string value2 = Request.GetString();
-            var naviLogs = new NaviLogs(Session.GetHabbo().NavigatorLogs.Count, value1, value2);
+            var naviLogs = new UserSearchLog(Session.GetHabbo().NavigatorLogs.Count, value1, value2);
             if (!Session.GetHabbo().NavigatorLogs.ContainsKey(naviLogs.Id))
                 Session.GetHabbo().NavigatorLogs.Add(naviLogs.Id, naviLogs);
             var message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
             message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
-            foreach (NaviLogs navi in Session.GetHabbo().NavigatorLogs.Values)
+            foreach (UserSearchLog navi in Session.GetHabbo().NavigatorLogs.Values)
             {
                 message.AppendInteger(navi.Id);
                 message.AppendString(navi.Value1);
@@ -155,7 +154,7 @@ namespace Azure.Messages.Handlers
             Session.GetHabbo().NavigatorLogs.Remove(searchId);
             var message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorSavedSearchesComposer"));
             message.AppendInteger(Session.GetHabbo().NavigatorLogs.Count);
-            foreach (NaviLogs navi in Session.GetHabbo().NavigatorLogs.Values)
+            foreach (UserSearchLog navi in Session.GetHabbo().NavigatorLogs.Values)
             {
                 message.AppendInteger(navi.Id);
                 message.AppendString(navi.Value1);
@@ -334,7 +333,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(NavigatorManager.SerializePromoted(Session, Request.GetInteger()));
+            Session.SendMessage(HotelBrowserManager.SerializePromoted(Session, Request.GetInteger()));
         }
 
         /// <summary>
@@ -345,7 +344,7 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo() == null)
                 return;
             Session.SendMessage(
-                NavigatorManager.SerializeSearchResults(Request.GetString()));
+                HotelBrowserManager.SerializeSearchResults(Request.GetString()));
         }
 
         /// <summary>

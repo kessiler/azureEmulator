@@ -9,6 +9,7 @@
     <IgnoreExtensions>
     </IgnoreExtensions>
     <IgnoreFiles>
+      <IgnoreFile>.\Azure\Azure.Emulator\Data\CacheManager.cs</IgnoreFile>
     </IgnoreFiles>
   </SpellChecker>
 <HelpConfigurations selected="HelpFile">
@@ -35,10 +36,6 @@
     <ResolveCrefLinks>true</ResolveCrefLinks>
     <HeaderText />
     <FooterText />
-    <ConceptualContent>
-      <ContentLayout />
-      <MediaContent />
-    </ConceptualContent>
     <SelectedProjects />
   </HelpConfiguration>
 </HelpConfigurations>

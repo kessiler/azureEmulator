@@ -2,16 +2,15 @@
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using Azure.Configuration;
-using Azure.Connection;
-using Azure.Encryption;
+using Azure.Settings;
 using Azure.Encryption.Encryption;
 using Azure.Encryption.Encryption.Hurlant.Crypto.Prng;
 using Azure.Encryption.Encryption.Utils;
-using Azure.HabboHotel.GameClients.Interfaces;
-using Azure.HabboHotel.Quests.Composer;
-using Azure.HabboHotel.Rooms;
+using Azure.Game.GameClients.Interfaces;
+using Azure.Game.Quests.Composers;
+using Azure.Game.Rooms;
 using Azure.Messages.Parsers;
+using Azure.Net.Web;
 
 namespace Azure.Messages.Handlers
 {
@@ -201,7 +200,7 @@ namespace Azure.Messages.Handlers
             {
                 Response.Init(LibraryParser.OutgoingRequest("SecretKeyMessageComposer"));
                 Response.AppendString(Handler.GetRsaDiffieHellmanPublicKey());
-                Response.AppendBool(ExtraSettings.CryptoClientSide);
+                Response.AppendBool(ServerExtraSettings.EncryptionClientSide);
                 SendResponse();
 
                 var data = sharedKey.ToByteArray();
@@ -212,7 +211,7 @@ namespace Azure.Messages.Handlers
                 Array.Reverse(data, 0, data.Length);
 
                 Session.GetConnection().Arc4ServerSide = new ARC4(data);
-                if (ExtraSettings.CryptoClientSide)
+                if (ServerExtraSettings.EncryptionClientSide)
                     Session.GetConnection().Arc4ClientSide = new ARC4(data);
             }
             else
@@ -274,7 +273,7 @@ namespace Azure.Messages.Handlers
             Response.AppendInteger(2);
             SendResponse();
             var tradeLocked = Session.GetHabbo().CheckTrading();
-            var canUseFloorEditor = (ExtraSettings.EveryoneUseFloor || Session.GetHabbo().Vip || Session.GetHabbo().Rank >= 4);
+            var canUseFloorEditor = (ServerExtraSettings.EveryoneUseFloor || Session.GetHabbo().Vip || Session.GetHabbo().Rank >= 4);
             Response.Init(LibraryParser.OutgoingRequest("SendPerkAllowancesMessageComposer"));
             Response.AppendInteger(11);
             Response.AppendString("BUILDER_AT_WORK");
@@ -313,7 +312,7 @@ namespace Azure.Messages.Handlers
             Response.AppendBool(tradeLocked);
             Response.AppendString("CAMERA");
             Response.AppendString("");
-            Response.AppendBool(ExtraSettings.EnableBetaCamera);
+            Response.AppendBool(ServerExtraSettings.EnableBetaCamera);
             Response.AppendString("NAVIGATOR_PHASE_TWO_2014");
             Response.AppendString("");
             Response.AppendBool(true);
@@ -524,7 +523,7 @@ namespace Azure.Messages.Handlers
                 byte[] bytes = Request.GetBytes(count);
                 var outData = Converter.Deflate(bytes);
 
-                var url = Web.HttpPostJson(ExtraSettings.StoriesApiThumbnailServerUrl, outData);
+                var url = WebManager.HttpPostJson(ServerExtraSettings.StoriesApiThumbnailServerUrl, outData);
 
                 var thumb = new ServerMessage(LibraryParser.OutgoingRequest("ThumbnailSuccessMessageComposer"));
                 thumb.AppendBool(true);

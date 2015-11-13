@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Catalogs.Composers;
-using Azure.HabboHotel.Groups.Interfaces;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Data;
-using Azure.HabboHotel.Rooms.User;
-using Azure.HabboHotel.Users;
+using Azure.Game.Catalogs.Composers;
+using Azure.Game.Groups.Interfaces;
+using Azure.Game.Rooms;
+using Azure.Game.Rooms.Data;
+using Azure.Game.Rooms.User;
+using Azure.Game.Users;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers

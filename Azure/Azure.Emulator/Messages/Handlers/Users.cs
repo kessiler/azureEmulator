@@ -2,22 +2,21 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Configuration;
+using Azure.Settings;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Achievements.Structs;
-using Azure.HabboHotel.GameClients.Interfaces;
-using Azure.HabboHotel.Groups.Interfaces;
-using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Quests;
-using Azure.HabboHotel.Quests.Composer;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Data;
-using Azure.HabboHotel.Rooms.User;
-using Azure.HabboHotel.Users;
-using Azure.HabboHotel.Users.Badges;
-using Azure.HabboHotel.Users.Inventory;
-using Azure.HabboHotel.Users.Messenger;
-using Azure.HabboHotel.Users.Relationships;
+using Azure.Game.Achievements.Structs;
+using Azure.Game.GameClients.Interfaces;
+using Azure.Game.Groups.Interfaces;
+using Azure.Game.Items.Interfaces;
+using Azure.Game.Quests;
+using Azure.Game.Quests.Composers;
+using Azure.Game.Rooms;
+using Azure.Game.Rooms.Data;
+using Azure.Game.Rooms.User;
+using Azure.Game.Users;
+using Azure.Game.Users.Badges;
+using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Relationships;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers
@@ -1017,7 +1016,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void ReceiveNuxGifts()
         {
-            if (!ExtraSettings.NewUsersGiftsEnabled)
+            if (!ServerExtraSettings.NewUsersGiftsEnabled)
             {
                 Session.SendNotif(Azure.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_1"));
                 return;
@@ -1028,7 +1027,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            UserItem item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
+            UserItem item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ServerExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
             Session.GetHabbo().Diamonds += 25;
@@ -1057,7 +1056,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void AcceptNuxGifts()
         {
-            if (ExtraSettings.NewUsersGiftsEnabled == false || Request.GetInteger() != 0)
+            if (ServerExtraSettings.NewUsersGiftsEnabled == false || Request.GetInteger() != 0)
                 return;
 
             ServerMessage nuxGifts = new ServerMessage(LibraryParser.OutgoingRequest("NuxListGiftsMessageComposer"));

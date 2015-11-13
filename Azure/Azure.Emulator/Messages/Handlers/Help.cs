@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Data;
-using Azure.HabboHotel.Support;
+using Azure.Game.Rooms;
+using Azure.Game.Rooms.Data;
+using Azure.Game.Support;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers

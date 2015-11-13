@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.HabboHotel.Quests;
+using Azure.Game.Quests;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers

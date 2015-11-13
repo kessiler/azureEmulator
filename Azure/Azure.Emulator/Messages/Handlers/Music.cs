@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.HabboHotel.Items.Interactions.Enums;
-using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.SoundMachine;
-using Azure.HabboHotel.SoundMachine.Composers;
-using Azure.HabboHotel.SoundMachine.Songs;
+using Azure.Game.Items.Interactions.Enums;
+using Azure.Game.Items.Interfaces;
+using Azure.Game.Rooms;
+using Azure.Game.SoundMachine;
+using Azure.Game.SoundMachine.Composers;
+using Azure.Game.SoundMachine.Songs;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers

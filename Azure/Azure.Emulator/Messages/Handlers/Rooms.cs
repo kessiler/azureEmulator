@@ -8,28 +8,30 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
-using Azure.Configuration;
-using Azure.HabboHotel.Polls.Enums;
-using Azure.Connection;
+using Azure.Settings;
 using Azure.Encryption.Encryption.Utils;
-using Azure.HabboHotel.Catalogs;
-using Azure.HabboHotel.Catalogs.Composers;
-using Azure.HabboHotel.Items.Interactions.Enums;
-using Azure.HabboHotel.Items.Interfaces;
-using Azure.HabboHotel.PathFinding;
-using Azure.HabboHotel.Pets;
-using Azure.HabboHotel.Pets.Enums;
-using Azure.HabboHotel.Polls;
-using Azure.HabboHotel.Quests;
-using Azure.HabboHotel.RoomBots;
-using Azure.HabboHotel.Rooms;
-using Azure.HabboHotel.Rooms.Data;
-using Azure.HabboHotel.Rooms.User;
 using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
 using Azure.Security.BlackWords.Enums;
 using Azure.Security.BlackWords.Structs;
 using Azure.Util;
+using Azure.Data;
+using Azure.Game.Catalogs;
+using Azure.Game.Catalogs.Composers;
+using Azure.Game.Items.Interactions.Enums;
+using Azure.Game.Items.Interfaces;
+using Azure.Game.Pathfinding;
+using Azure.Game.Pets;
+using Azure.Game.Pets.Enums;
+using Azure.Game.Polls;
+using Azure.Game.Polls.Enums;
+using Azure.Game.Quests;
+using Azure.Game.RoomBots;
+using Azure.Game.Rooms;
+using Azure.Game.Rooms.Data;
+using Azure.Game.Rooms.User;
+using Azure.Net.Web;
+using Azure.Util.IO;
 
 namespace Azure.Messages.Handlers
 {
@@ -106,22 +108,22 @@ namespace Azure.Messages.Handlers
 
         internal void OnlineConfirmationEvent()
         {
-            Out.WriteLine("User, " + Request.GetString() + " connected with ip, " + Session.GetConnection().GetIp(), "Azure.Users",
+            ConsoleOutputWriter.WriteLine("User, " + Request.GetString() + " connected with ip, " + Session.GetConnection().GetIp(), "Azure.Users",
                 ConsoleColor.DarkGreen);
 
-            if (!ConfigurationData.Data.ContainsKey("welcome.message.enabled") ||
-                ConfigurationData.Data["welcome.message.enabled"] != "true")
+            if (!ServerConfigurationSettings.Data.ContainsKey("welcome.message.enabled") ||
+                ServerConfigurationSettings.Data["welcome.message.enabled"] != "true")
                 return;
 
-            if (!ConfigurationData.Data.ContainsKey("welcome.message.image") ||
-                string.IsNullOrEmpty(ConfigurationData.Data["welcome.message.image"]))
-                Session.SendNotifWithScroll(ExtraSettings.WelcomeMessage.Replace("%username%",
+            if (!ServerConfigurationSettings.Data.ContainsKey("welcome.message.image") ||
+                string.IsNullOrEmpty(ServerConfigurationSettings.Data["welcome.message.image"]))
+                Session.SendNotifWithScroll(ServerExtraSettings.WelcomeMessage.Replace("%username%",
                     Session.GetHabbo().UserName));
             else
-                Session.SendNotif(ExtraSettings.WelcomeMessage.Replace("%username%", Session.GetHabbo().UserName),
-                    ConfigurationData.Data.ContainsKey("welcome.message.title")
-                        ? ConfigurationData.Data["welcome.message.title"]
-                        : string.Empty, ConfigurationData.Data["welcome.message.image"]);
+                Session.SendNotif(ServerExtraSettings.WelcomeMessage.Replace("%username%", Session.GetHabbo().UserName),
+                    ServerConfigurationSettings.Data.ContainsKey("welcome.message.title")
+                        ? ServerConfigurationSettings.Data["welcome.message.title"]
+                        : string.Empty, ServerConfigurationSettings.Data["welcome.message.image"]);
         }
 
         internal void GoToHotelView()
@@ -313,7 +315,7 @@ namespace Azure.Messages.Handlers
                 }
                 catch (Exception pException)
                 {
-                    Logging.HandleException(pException, "Rooms.SendRoomData3");
+                    ServerLogManager.HandleException(pException, "Rooms.SendRoomData3");
                 }
             }
             queuedServerMessage.SendResponse();
@@ -1819,7 +1821,7 @@ namespace Azure.Messages.Handlers
                                 .Aggregate(string.Empty,
                                     (current, speech) =>
                                         current +
-                                        (TextHandling.FilterHtml(speech, Session.GetHabbo().GotCommand("ha")) + ";"));
+                                        (ServerUserChatTextHandler.FilterHtml(speech, Session.GetHabbo().GotCommand("ha")) + ";"));
                         using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                         {
                             queryReactor.SetQuery(
@@ -1859,7 +1861,7 @@ namespace Azure.Messages.Handlers
                     break;
 
                 case 5:
-                    var name = TextHandling.FilterHtml(data, Session.GetHabbo().GotCommand("ha"));
+                    var name = ServerUserChatTextHandler.FilterHtml(data, Session.GetHabbo().GotCommand("ha"));
                     if (name.Length < 15)
                         bot.BotData.Name = name;
                     else
@@ -2007,8 +2009,8 @@ namespace Azure.Messages.Handlers
             }
             catch (Exception ex)
             {
-                Logging.LogException("Unable to load room ID [" + Session.GetHabbo().LoadingRoom + "]" + ex);
-                Logging.HandleException(ex, "Azure.Messages.Handlers.Rooms");
+                ServerLogManager.LogException("Unable to load room ID [" + Session.GetHabbo().LoadingRoom + "]" + ex);
+                ServerLogManager.HandleException(ex, "Azure.Messages.Handlers.Rooms");
             }
         }
 
@@ -2550,11 +2552,11 @@ namespace Azure.Messages.Handlers
                 byte[] bytes = Request.GetBytes(count);
                 var outData = Converter.Deflate(bytes);
 
-                var url = Web.HttpPostJson(ExtraSettings.StoriesApiServerUrl, outData);
+                var url = WebManager.HttpPostJson(ServerExtraSettings.StoriesApiServerUrl, outData);
                 var serializer = new JavaScriptSerializer();
 
                 dynamic jsonArray = serializer.Deserialize<object>(outData);
-                string encodedurl = ExtraSettings.StoriesApiHost + url;
+                string encodedurl = ServerExtraSettings.StoriesApiHost + url;
                 encodedurl = encodedurl.Replace("\n", string.Empty);
 
                 int roomId = jsonArray["roomid"];

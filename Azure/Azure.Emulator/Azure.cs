@@ -9,25 +9,27 @@ using System.Reflection;
 using System.Text;
 using System.Timers;
 using System.Windows.Forms;
-using Azure.Configuration;
+using Azure.Settings;
 using Azure.Database;
-using Azure.Encryption;
 using Azure.Encryption.Encryption;
-using Azure.HabboHotel;
-using Azure.HabboHotel.GameClients.Interfaces;
-using Azure.HabboHotel.Groups.Interfaces;
-using Azure.HabboHotel.Misc;
-using Azure.HabboHotel.Pets;
-using Azure.HabboHotel.Users;
-using Azure.HabboHotel.Users.Messenger;
-using Azure.HabboHotel.Users.UserDataManagement;
-using Azure.Manager;
 using Azure.Messages;
 using Azure.Messages.Factorys;
 using Azure.Messages.Parsers;
 using Azure.Util;
 using MySql.Data.MySqlClient;
 using Timer = System.Timers.Timer;
+using Azure.Data;
+using Azure.Data.Structs;
+using Azure.Game.GameClients.Interfaces;
+using Azure.Game.Groups.Interfaces;
+using Azure.Game.Pets;
+using Azure.Game.Users;
+using Azure.Game.Users.Messenger;
+using Azure.Game.Users.UserDataManagement;
+using Azure.Net.Connection;
+using Azure.Security;
+using Azure.Util.IO;
+using Azure.Util.Math;
 
 namespace Azure
 {
@@ -76,7 +78,7 @@ namespace Azure
         /// <summary>
         /// The configuration data
         /// </summary>
-        internal static ConfigData ConfigData;
+        internal static ServerDatabaseSettings ConfigData;
 
         /// <summary>
         /// The server started
@@ -111,7 +113,7 @@ namespace Azure
         /// <summary>
         /// The _connection manager
         /// </summary>
-        private static ConnectionHandling _connectionManager;
+        private static ConnectionHandler _connectionManager;
 
         /// <summary>
         /// The _default encoding
@@ -121,12 +123,12 @@ namespace Azure
         /// <summary>
         /// The _game
         /// </summary>
-        private static Game _game;
+        private static Game.Game _game;
 
         /// <summary>
         /// The _languages
         /// </summary>
-        private static Languages _languages;
+        private static ServerLanguageSettings _languages;
 
         /// <summary>
         /// The allowed special chars
@@ -236,7 +238,7 @@ namespace Azure
             Console.Clear();
             Console.WriteLine();
 
-            Out.WriteLine($"Console Cleared in: {DateTime.Now} Next Time on: {ConsoleTimer} Seconds ", "Azure.Boot", ConsoleColor.DarkGreen);
+            ConsoleOutputWriter.WriteLine($"Console Cleared in: {DateTime.Now} Next Time on: {ConsoleTimer} Seconds ", "Azure.Boot", ConsoleColor.DarkGreen);
 
             Console.WriteLine();
             GC.Collect();
@@ -258,20 +260,20 @@ namespace Azure
             CultureInfo = CultureInfo.CreateSpecificCulture("en-GB");
             try
             {
-                ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/main.ini"));
-                ConfigurationData.Load(Path.Combine(Application.StartupPath, "Settings/Welcome/settings.ini"), true);
+                ServerConfigurationSettings.Load(Path.Combine(Application.StartupPath, "Settings/main.ini"));
+                ServerConfigurationSettings.Load(Path.Combine(Application.StartupPath, "Settings/Welcome/settings.ini"), true);
 
-                DatabaseConnectionType = ConfigurationData.Data["db.type"];
+                DatabaseConnectionType = ServerConfigurationSettings.Data["db.type"];
 
                 var mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder
                 {
-                    Server = (ConfigurationData.Data["db.hostname"]),
-                    Port = (uint.Parse(ConfigurationData.Data["db.port"])),
-                    UserID = (ConfigurationData.Data["db.username"]),
-                    Password = (ConfigurationData.Data["db.password"]),
-                    Database = (ConfigurationData.Data["db.name"]),
-                    MinimumPoolSize = (uint.Parse(ConfigurationData.Data["db.pool.minsize"])),
-                    MaximumPoolSize = (uint.Parse(ConfigurationData.Data["db.pool.maxsize"])),
+                    Server = (ServerConfigurationSettings.Data["db.hostname"]),
+                    Port = (uint.Parse(ServerConfigurationSettings.Data["db.port"])),
+                    UserID = (ServerConfigurationSettings.Data["db.username"]),
+                    Password = (ServerConfigurationSettings.Data["db.password"]),
+                    Database = (ServerConfigurationSettings.Data["db.name"]),
+                    MinimumPoolSize = (uint.Parse(ServerConfigurationSettings.Data["db.pool.minsize"])),
+                    MaximumPoolSize = (uint.Parse(ServerConfigurationSettings.Data["db.pool.maxsize"])),
                     Pooling = (true),
                     AllowZeroDateTime = (true),
                     ConvertZeroDateTime = (true),
@@ -283,16 +285,16 @@ namespace Azure
 
                 using (var queryReactor = GetDatabaseManager().GetQueryReactor())
                 {
-                    ConfigData = new ConfigData(queryReactor);
+                    ConfigData = new ServerDatabaseSettings(queryReactor);
                     PetCommandHandler.Init(queryReactor);
                     PetLocale.Init(queryReactor);
                     OfflineMessages = new Dictionary<uint, List<OfflineMessage>>();
                     OfflineMessage.InitOfflineMessages(queryReactor);
                 }
 
-                ConsoleTimer = (int.Parse(ConfigurationData.Data["console.clear.time"]));
-                ConsoleTimerOn = (bool.Parse(ConfigurationData.Data["console.clear.enabled"]));
-                FriendRequestLimit = ((uint)int.Parse(ConfigurationData.Data["client.maxrequests"]));
+                ConsoleTimer = (int.Parse(ServerConfigurationSettings.Data["console.clear.time"]));
+                ConsoleTimerOn = (bool.Parse(ServerConfigurationSettings.Data["console.clear.enabled"]));
+                FriendRequestLimit = ((uint)int.Parse(ServerConfigurationSettings.Data["client.maxrequests"]));
 
                 LibraryParser.Incoming = new Dictionary<int, LibraryParser.StaticRequestHandler>();
                 LibraryParser.Library = new Dictionary<string, string>();
@@ -314,48 +316,48 @@ namespace Azure
                     {
                         Plugins.Add(item.PluginName, item);
 
-                        Out.WriteLine("Loaded Plugin: " + item.PluginName + " Version: " + item.PluginVersion, "Azure.Plugins", ConsoleColor.DarkBlue);
+                        ConsoleOutputWriter.WriteLine("Loaded Plugin: " + item.PluginName + " Version: " + item.PluginVersion, "Azure.Plugins", ConsoleColor.DarkBlue);
                     }
                 }
 
-                ExtraSettings.RunExtraSettings();
-                FurniDataParser.SetCache();
-                CrossDomainPolicy.Set();
+                ServerExtraSettings.RunExtraSettings();
+                FurnitureDataManager.SetCache();
+                CrossDomainSettings.Set();
 
-                _game = new Game(int.Parse(ConfigurationData.Data["game.tcp.conlimit"]));
+                _game = new Game.Game(int.Parse(ServerConfigurationSettings.Data["game.tcp.conlimit"]));
                 _game.GetNavigator().LoadNewPublicRooms();
                 _game.ContinueLoading();
-                FurniDataParser.Clear();
+                FurnitureDataManager.Clear();
 
-                ServerLanguage = (Convert.ToString(ConfigurationData.Data["system.lang"]));
-                _languages = new Languages(ServerLanguage);
-                Out.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Interpreters");
+                ServerLanguage = (Convert.ToString(ServerConfigurationSettings.Data["system.lang"]));
+                _languages = new ServerLanguageSettings(ServerLanguage);
+                ConsoleOutputWriter.WriteLine("Loaded " + _languages.Count() + " Languages Vars", "Azure.Interpreters");
 
                 if (plugins != null)
                     foreach (var itemTwo in plugins)
                         itemTwo?.message_void();
 
                 if (ConsoleTimerOn)
-                    Out.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
+                    ConsoleOutputWriter.WriteLine("Console Clear Timer is Enabled, with " + ConsoleTimer + " Seconds.", "Azure.Boot");
 
                 ClientMessageFactory.Init();
 
-                Out.WriteLine("Game server started at port " + int.Parse(ConfigurationData.Data["game.tcp.port"]), "Server.Game");
+                ConsoleOutputWriter.WriteLine("Game server started at port " + int.Parse(ServerConfigurationSettings.Data["game.tcp.port"]), "Server.Game");
 
-                _connectionManager = new ConnectionHandling(int.Parse(ConfigurationData.Data["game.tcp.port"]),
-                   int.Parse(ConfigurationData.Data["game.tcp.conlimit"]),
-                   int.Parse(ConfigurationData.Data["game.tcp.conperip"]),
-                   ConfigurationData.Data["game.tcp.antiddos"].ToLower() == "true",
-                   ConfigurationData.Data["game.tcp.enablenagles"].ToLower() == "true");
+                _connectionManager = new ConnectionHandler(int.Parse(ServerConfigurationSettings.Data["game.tcp.port"]),
+                   int.Parse(ServerConfigurationSettings.Data["game.tcp.conlimit"]),
+                   int.Parse(ServerConfigurationSettings.Data["game.tcp.conperip"]),
+                   ServerConfigurationSettings.Data["game.tcp.antiddos"].ToLower() == "true",
+                   ServerConfigurationSettings.Data["game.tcp.enablenagles"].ToLower() == "true");
 
                 if (LibraryParser.Config["Crypto.Enabled"] == "true")
                 {
                     Handler.Initialize(LibraryParser.Config["Crypto.RSA.N"], LibraryParser.Config["Crypto.RSA.D"], LibraryParser.Config["Crypto.RSA.E"]);
 
-                    Out.WriteLine("Started RSA crypto service", "Azure.Crypto");
+                    ConsoleOutputWriter.WriteLine("Started RSA crypto service", "Azure.Crypto");
                 }
                 else
-                    Out.WriteLine("The encryption system is disabled. This affects badly to the safety.", "Azure.Crypto", ConsoleColor.DarkYellow);
+                    ConsoleOutputWriter.WriteLine("The encryption system is disabled. This affects badly to the safety.", "Azure.Crypto", ConsoleColor.DarkYellow);
 
                 //Console.WriteLine();
 
@@ -380,33 +382,33 @@ namespace Azure
                     Timer.Start();
                 }
 
-                if (ConfigurationData.Data.ContainsKey("StaffAlert.MinRank"))
-                    StaffAlertMinRank = uint.Parse(ConfigurationData.Data["StaffAlert.MinRank"]);
+                if (ServerConfigurationSettings.Data.ContainsKey("StaffAlert.MinRank"))
+                    StaffAlertMinRank = uint.Parse(ServerConfigurationSettings.Data["StaffAlert.MinRank"]);
 
-                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInMainLoops.enabled") && ConfigurationData.Data["SeparatedTasksInMainLoops.enabled"] == "true")
+                if (ServerConfigurationSettings.Data.ContainsKey("SeparatedTasksInMainLoops.enabled") && ServerConfigurationSettings.Data["SeparatedTasksInMainLoops.enabled"] == "true")
                     SeparatedTasksInMainLoops = true;
 
-                if (ConfigurationData.Data.ContainsKey("SeparatedTasksInGameClientManager.enabled") && ConfigurationData.Data["SeparatedTasksInGameClientManager.enabled"] == "true")
+                if (ServerConfigurationSettings.Data.ContainsKey("SeparatedTasksInGameClientManager.enabled") && ServerConfigurationSettings.Data["SeparatedTasksInGameClientManager.enabled"] == "true")
                     SeparatedTasksInGameClientManager = true;
 
-                if (ConfigurationData.Data.ContainsKey("Debug"))
-                    if (ConfigurationData.Data["Debug"] == "true")
+                if (ServerConfigurationSettings.Data.ContainsKey("Debug"))
+                    if (ServerConfigurationSettings.Data["Debug"] == "true")
                         DebugMode = true;
 
-                Out.WriteLine("Azure Emulator ready. Status: idle", "Azure.Boot");
+                ConsoleOutputWriter.WriteLine("Azure Emulator ready. Status: idle", "Azure.Boot");
 
                 IsLive = true;
             }
             catch (Exception e)
             {
-                Out.WriteLine("Error loading config.ini: Configuration file is invalid" + Environment.NewLine + e.Message, "Azure.Boot", ConsoleColor.Red);
-                Out.WriteLine("Please press Y to get more details or press other Key to Exit", "Azure.Boot", ConsoleColor.Red);
+                ConsoleOutputWriter.WriteLine("Error loading config.ini: Configuration file is invalid" + Environment.NewLine + e.Message, "Azure.Boot", ConsoleColor.Red);
+                ConsoleOutputWriter.WriteLine("Please press Y to get more details or press other Key to Exit", "Azure.Boot", ConsoleColor.Red);
                 ConsoleKeyInfo key = Console.ReadKey();
 
                 if (key.Key == ConsoleKey.Y)
                 {
                     Console.WriteLine();
-                    Out.WriteLine(
+                    ConsoleOutputWriter.WriteLine(
                         Environment.NewLine + "[Message] Error Details: " + Environment.NewLine + e.StackTrace +
                         Environment.NewLine + e.InnerException + Environment.NewLine + e.TargetSite +
                         Environment.NewLine + "[Message]Press Any Key To Exit", "Azure.Boot", ConsoleColor.Red);
@@ -445,7 +447,7 @@ namespace Azure
         /// <param name="min">The minimum.</param>
         /// <param name="max">The maximum.</param>
         /// <returns>System.Int32.</returns>
-        internal static int GetRandomNumber(int min, int max) => RandomNumber.Get(min, max);
+        internal static int GetRandomNumber(int min, int max) => RandomNumberGenerator.Get(min, max);
 
         /// <summary>
         /// Get's the Actual Timestamp in Unix Format
@@ -502,7 +504,7 @@ namespace Azure
         }
 
         /// <summary>
-        /// Filter's the Habbo Avatars Figure
+        /// Filter's the Habbo Avatars AvatarFigureParts
         /// </summary>
         /// <param name="figure">The figure.</param>
         /// <returns>System.String.</returns>
@@ -563,7 +565,7 @@ namespace Azure
         /// Get the Database Configuration Data
         /// </summary>
         /// <returns>ConfigData.</returns>
-        internal static ConfigData GetDbConfig() => ConfigData;
+        internal static ServerDatabaseSettings GetDbConfig() => ConfigData;
 
         /// <summary>
         /// Get's the Default Emulator Encoding
@@ -575,19 +577,19 @@ namespace Azure
         /// Get's the Game Connection Manager Handler
         /// </summary>
         /// <returns>ConnectionHandling.</returns>
-        internal static ConnectionHandling GetConnectionManager() => _connectionManager;
+        internal static ConnectionHandler GetConnectionManager() => _connectionManager;
 
         /// <summary>
         /// Get's the Game Environment Handler
         /// </summary>
         /// <returns>Game.</returns>
-        internal static Game GetGame() => _game;
+        internal static Game.Game GetGame() => _game;
 
         /// <summary>
         /// Gets the language.
         /// </summary>
         /// <returns>Languages.</returns>
-        internal static Languages GetLanguage() => _languages;
+        internal static ServerLanguageSettings GetLanguage() => _languages;
 
         /// <summary>
         /// Filter's SQL Injection Characters
@@ -635,7 +637,7 @@ namespace Azure
         {
             DateTime now = DateTime.Now;
 
-            Cache.StopProcess();
+            CacheManager.StopProcess();
 
             ShutdownStarted = true;
 
@@ -673,7 +675,7 @@ namespace Azure
             try
             {
                 Manager.Destroy();
-                Out.WriteLine("Game Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
+                ConsoleOutputWriter.WriteLine("Game Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
             }
             catch (Exception e)
             {
@@ -682,10 +684,10 @@ namespace Azure
 
             TimeSpan span = DateTime.Now - now;
 
-            Out.WriteLine("Elapsed " + TimeSpanToString(span) + "ms on Shutdown Proccess", "Azure.Life", ConsoleColor.DarkYellow);
+            ConsoleOutputWriter.WriteLine("Elapsed " + TimeSpanToString(span) + "ms on Shutdown Proccess", "Azure.Life", ConsoleColor.DarkYellow);
 
             if (!restart)
-                Out.WriteLine("Shutdown Completed. Press Any Key to Continue...", string.Empty, ConsoleColor.DarkRed);
+                ConsoleOutputWriter.WriteLine("Shutdown Completed. Press Any Key to Continue...", string.Empty, ConsoleColor.DarkRed);
 
             if (!restart)
                 Console.ReadKey();

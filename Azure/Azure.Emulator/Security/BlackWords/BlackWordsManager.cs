@@ -6,6 +6,7 @@ using System.Linq;
 using Azure.Security.BlackWords.Enums;
 using Azure.Security.BlackWords.Structs;
 using Azure.Util;
+using Azure.Util.IO;
 
 namespace Azure.Security.BlackWords
 {
@@ -48,7 +49,7 @@ namespace Azure.Security.BlackWords
                 }
             }
 
-            Out.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security");
+            ConsoleOutputWriter.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security");
             //Console.WriteLine();
         }
 
@@ -122,11 +123,11 @@ namespace Azure.Security.BlackWords
                     break;
 
                 case "all":
-                    Out.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security", ConsoleColor.DarkRed);
+                    ConsoleOutputWriter.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
 
                 default:
-                    Out.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security", ConsoleColor.DarkRed);
+                    ConsoleOutputWriter.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
             }
 
@@ -135,7 +136,7 @@ namespace Azure.Security.BlackWords
             if (Replaces.ContainsKey(type))
                 return;
 
-            string filter = Filter.Default, alert = "User [{0}] with Id: {1} has said a blackword. Word: {2}. Type: {3}. Message: {4}", imageAlert = "bobba";
+            string filter = UserChatInputFilter.Default, alert = "User [{0}] with Id: {1} has said a blackword. Word: {2}. Type: {3}. Message: {4}", imageAlert = "bobba";
 
             var maxAdvices = 7u;
             bool autoBan = true, showMessage = true;
@@ -181,7 +182,7 @@ namespace Azure.Security.BlackWords
 
             var data = Replaces[type];
 
-            str = Filter.Replace(data.Filter, str);
+            str = UserChatInputFilter.Replace(data.Filter, str);
 
             var wordFirst = Words.FirstOrDefault(wordStruct => wordStruct.Type == type && str.Contains(wordStruct.Word));
 

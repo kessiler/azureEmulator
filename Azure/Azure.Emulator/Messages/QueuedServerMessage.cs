@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Azure.Connection.Connection;
+using Azure.Net.Connection;
 
 namespace Azure.Messages
 {
@@ -16,13 +16,13 @@ namespace Azure.Messages
         /// <summary>
         /// The _user connection
         /// </summary>
-        private ConnectionInformation _userConnection;
+        private ConnectionData _userConnection;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueuedServerMessage"/> class.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        public QueuedServerMessage(ConnectionInformation connection)
+        public QueuedServerMessage(ConnectionData connection)
         {
             _userConnection = connection;
             _packet = new List<byte>();

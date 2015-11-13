@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using Azure.Configuration;
+using Azure.Settings;
+using Azure.Data;
 
 namespace Azure
 {
@@ -19,7 +20,7 @@ namespace Azure
             while (Azure.IsLive)
             {
                 Console.CursorVisible = true;
-                ConsoleCommandHandling.InvokeCommand(Console.ReadLine());
+                ConsoleCommandHandler.InvokeCommand(Console.ReadLine());
             }
         }
 
@@ -71,9 +72,9 @@ namespace Azure
         /// <param name="args">The <see cref="UnhandledExceptionEventArgs"/> instance containing the event data.</param>
         private static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
-            Logging.DisablePrimaryWriting(true);
+            ServerLogManager.DisablePrimaryWriting(true);
             var ex = (Exception)args.ExceptionObject;
-            Logging.LogCriticalException($"SYSTEM CRITICAL EXCEPTION: {ex}");
+            ServerLogManager.LogCriticalException($"SYSTEM CRITICAL EXCEPTION: {ex}");
         }
 
         [DllImport("user32.dll")]

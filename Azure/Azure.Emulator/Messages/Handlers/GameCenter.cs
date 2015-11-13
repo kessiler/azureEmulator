@@ -1,5 +1,5 @@
 ﻿using System;
-using Azure.Configuration;
+using Azure.Settings;
 using Azure.Messages.Parsers;
 
 namespace Azure.Messages.Handlers
@@ -145,7 +145,7 @@ namespace Azure.Messages.Handlers
             ServerMessage loadGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLoadGameUrlMessageComposer"));
             loadGame.AppendInteger(18);
             loadGame.AppendString(Convert.ToString(Azure.GetUnixTimeStamp()));
-            loadGame.AppendString(ExtraSettings.GameCenterStoriesUrl);
+            loadGame.AppendString(ServerExtraSettings.GameCenterStoriesUrl);
             Session.SendMessage(loadGame);
         }
     }
