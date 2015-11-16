@@ -140,7 +140,7 @@ namespace Azure.Game.Users.UserDataManagement
                 myRoomsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT * FROM bots WHERE user_id = {Convert.ToUInt32(userid)} AND room_id = 0 AND ai_type='pet'");
+                    $"SELECT * FROM bots_data WHERE user_id = {Convert.ToUInt32(userid)} AND room_id = 0 AND ai_type='pet'");
                 petsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
@@ -148,7 +148,7 @@ namespace Azure.Game.Users.UserDataManagement
                 questsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT * FROM bots WHERE user_id = {Convert.ToUInt32(userid)} AND room_id=0 AND ai_type='generic'");
+                    $"SELECT * FROM bots_data WHERE user_id = {Convert.ToUInt32(userid)} AND room_id=0 AND ai_type='generic'");
                 botsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(

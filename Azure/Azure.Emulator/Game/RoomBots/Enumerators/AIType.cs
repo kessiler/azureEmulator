@@ -1,4 +1,4 @@
-namespace Azure.Game.RoomBots
+namespace Azure.Game.RoomBots.Enumerators
 {
     /// <summary>
     ///     Enum AIType

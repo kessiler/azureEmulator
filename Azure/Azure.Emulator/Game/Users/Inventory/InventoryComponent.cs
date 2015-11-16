@@ -334,7 +334,7 @@ namespace Azure.Game.Users.Inventory
 
             using (var queryReactor2 = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor2.SetQuery($"SELECT * FROM bots WHERE user_id = {UserId} AND room_id = 0");
+                queryReactor2.SetQuery($"SELECT * FROM bots_data WHERE user_id = {UserId} AND room_id = 0");
                 var table2 = queryReactor2.GetTable();
 
                 if (table2 == null)
@@ -761,7 +761,7 @@ namespace Azure.Game.Users.Inventory
                         queryChunk.AddParameter($"{current.PetId}race", current.Race);
                         queryChunk.AddParameter($"{current.PetId}color", current.Color);
 
-                        queryChunk.AddQuery(string.Concat("UPDATE bots SET room_id = ", current.RoomId, ", name = @", current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z, " WHERE id = ", current.PetId));
+                        queryChunk.AddQuery(string.Concat("UPDATE bots_data SET room_id = ", current.RoomId, ", name = @", current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z, " WHERE id = ", current.PetId));
 
                         queryChunk.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId, "race, color = @", current.PetId, "color, type = ", current.Type, ", experience = ", current.Experience, ", energy = ", current.Energy, ", nutrition = ", current.Nutrition, ", respect = ", current.Respect, ", createstamp = '", current.CreationStamp, "', lasthealth_stamp = ", Azure.DateTimeToUnix(current.LastHealth), ", untilgrown_stamp = ", Azure.DateTimeToUnix(current.UntilGrown), " WHERE id = ", current.PetId));
                     }

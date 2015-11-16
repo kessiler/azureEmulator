@@ -12,6 +12,7 @@ using Azure.Game.Items.Datas;
 using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Items.Wired;
 using Azure.Game.RoomBots;
+using Azure.Game.RoomBots.Enumerators;
 using Azure.Game.Rooms.Chat;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.Items.Games;
@@ -391,7 +392,7 @@ namespace Azure.Game.Rooms
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery($"SELECT * FROM bots WHERE room_id = {RoomId} AND ai_type = 'generic'");
+                queryReactor.SetQuery($"SELECT * FROM bots_data WHERE room_id = {RoomId} AND ai_type = 'generic'");
                 var table = queryReactor.GetTable();
                 if (table == null)
                     return;
@@ -435,7 +436,7 @@ namespace Azure.Game.Rooms
         {
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery($"SELECT * FROM bots WHERE room_id = '{RoomId}' AND ai_type='pet'");
+                queryReactor.SetQuery($"SELECT * FROM bots_data WHERE room_id = '{RoomId}' AND ai_type='pet'");
                 var table = queryReactor.GetTable();
 
                 if (table == null)
@@ -451,7 +452,7 @@ namespace Azure.Game.Rooms
 
                     var pet = CatalogManager.GeneratePetFromRow(dataRow, row);
 
-                    var bot = new RoomBot(pet.PetId, Convert.ToUInt32(RoomData.OwnerId), AiType.Pet, false);
+                    var bot = new RoomBot(pet.PetId, Convert.ToUInt32(RoomData.OwnerId), AiType.Pet, "");
                     bot.Update(RoomId, "freeroam", pet.Name, "", pet.Look, pet.X, pet.Y, ((int) pet.Z), 4, 0, 0, 0, 0,
                         null, null, "", 0, 0, false, false);
                     _roomUserManager.DeployBot(bot, pet);

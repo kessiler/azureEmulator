@@ -228,6 +228,39 @@ namespace Azure.Game.Commands
         }
 
         /// <summary>
+        ///     Tries the execute.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="client">The client.</param>
+        /// <param name="scommand"></param>
+        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        public static bool TryExecute(string scommand, string parameters, GameClient client)
+        {
+            if (string.IsNullOrEmpty(scommand) || string.IsNullOrEmpty(parameters) || client.GetHabbo() == null || !client.GetHabbo().InRoom)
+                return false;
+
+            var pms = parameters.Split(' ');
+
+            var commandName = scommand;
+
+            if (AliasDictionary.ContainsKey(commandName)) commandName = AliasDictionary[commandName];
+
+            if (!CommandsDictionary.ContainsKey(commandName)) return false;
+            var command = CommandsDictionary[commandName];
+
+            if (!CanUse(command.MinRank, client)) return false;
+
+            if (command.MinParams == -2 || (command.MinParams == -1 && pms.Length > 1) || command.MinParams != -1 && command.MinParams == pms.Length - 1)
+            {
+                return command.Execute(client, pms.Skip(1).ToArray());
+            }
+
+            client.SendWhisper(Azure.GetLanguage().GetVar("use_the_command_as") + command.Usage);
+
+            return true;
+        }
+
+        /// <summary>
         ///     Determines whether this instance can use the specified minimum rank.
         /// </summary>
         /// <param name="minRank">The minimum rank.</param>

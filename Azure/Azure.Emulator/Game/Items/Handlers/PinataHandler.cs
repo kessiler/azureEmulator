@@ -15,7 +15,7 @@ namespace Azure.Game.Items.Handlers
     internal class PinataHandler
     {
         /// <summary>
-        ///     The _table
+        ///     The Table
         /// </summary>
         private DataTable _table;
 

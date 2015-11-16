@@ -22,20 +22,23 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             ushort itemId;
-            if (!ushort.TryParse(pms[0], out itemId)) return true;
 
-            var user = session.GetHabbo()
-                .CurrentRoom.GetRoomUserManager()
-                .GetRoomUserByHabbo(session.GetHabbo().UserName);
+            if (!ushort.TryParse(pms[0], out itemId))
+                return true;
+
+            var user = session.GetHabbo().CurrentRoom.GetRoomUserManager().GetRoomUserByHabbo(session.GetHabbo().UserName);
+
             if (user.RidingHorse)
             {
                 session.SendWhisper(Azure.GetLanguage().GetVar("horse_handitem_error"));
                 return true;
             }
+
             if (user.IsLyingDown)
                 return true;
 
             user.CarryItem(itemId);
+
             return true;
         }
     }

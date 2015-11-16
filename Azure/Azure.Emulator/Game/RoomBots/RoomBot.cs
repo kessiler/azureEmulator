@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Game.RoomBots.Enumerators;
+using Azure.Game.RoomBots.Interfaces;
+using Azure.Game.RoomBots.Models;
 using Azure.Game.Rooms.User;
 
 namespace Azure.Game.RoomBots
@@ -9,26 +12,6 @@ namespace Azure.Game.RoomBots
     /// </summary>
     internal class RoomBot
     {
-        /// <summary>
-        ///     The maximum x
-        /// </summary>
-        private readonly int _maxX;
-
-        /// <summary>
-        ///     The maximum y
-        /// </summary>
-        private readonly int _maxY;
-
-        /// <summary>
-        ///     The minimum x
-        /// </summary>
-        private readonly int _minX;
-
-        /// <summary>
-        ///     The minimum y
-        /// </summary>
-        private readonly int _minY;
-
         /// <summary>
         ///     The ai type
         /// </summary>
@@ -53,11 +36,6 @@ namespace Azure.Game.RoomBots
         ///     The gender
         /// </summary>
         internal string Gender;
-
-        /// <summary>
-        ///     The is bartender
-        /// </summary>
-        internal bool IsBartender;
 
         /// <summary>
         ///     The last spoken phrase
@@ -165,21 +143,26 @@ namespace Azure.Game.RoomBots
         internal double Z;
 
         /// <summary>
+        /// The bot type
+        /// </summary>
+        internal string BotType;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="RoomBot" /> class.
         /// </summary>
         /// <param name="botId">The bot identifier.</param>
         /// <param name="ownerId">The owner identifier.</param>
         /// <param name="aiType">Type of the ai.</param>
-        /// <param name="bartender">if set to <c>true</c> [bartender].</param>
-        internal RoomBot(uint botId, uint ownerId, AiType aiType, bool bartender)
+        /// <param name="botType"></param>
+        internal RoomBot(uint botId, uint ownerId, AiType aiType, string botType)
         {
             OwnerId = ownerId;
             BotId = botId;
             AiType = aiType;
             VirtualId = -1;
+            BotType = botType;
             RoomUser = null;
             LastSpokenPhrase = 1;
-            IsBartender = bartender;
         }
 
         /// <summary>
@@ -197,18 +180,12 @@ namespace Azure.Game.RoomBots
         /// <param name="y">The y.</param>
         /// <param name="z">The z.</param>
         /// <param name="rot">The rot.</param>
-        /// <param name="minX">The minimum x.</param>
-        /// <param name="minY">The minimum y.</param>
-        /// <param name="maxX">The maximum x.</param>
-        /// <param name="maxY">The maximum y.</param>
         /// <param name="speeches">The speeches.</param>
         /// <param name="responses">The responses.</param>
         /// <param name="gender">The gender.</param>
         /// <param name="dance">The dance.</param>
-        /// <param name="bartender">if set to <c>true</c> [bartender].</param>
-        internal RoomBot(uint botId, uint ownerId, uint roomId, AiType aiType, string walkingMode, string name,
-            string motto, string look, int x, int y, double z, int rot, int minX, int minY, int maxX, int maxY,
-            List<string> speeches, List<string> responses, string gender, int dance, bool bartender)
+        /// <param name="botType"></param>
+        internal RoomBot(uint botId, uint ownerId, uint roomId, AiType aiType, string walkingMode, string name, string motto, string look, int x, int y, double z, int rot, List<string> speeches, List<string> responses, string gender, int dance, string botType)
         {
             OwnerId = ownerId;
             BotId = botId;
@@ -222,18 +199,14 @@ namespace Azure.Game.RoomBots
             Y = y;
             Z = z;
             Rot = rot;
-            _minX = minX;
-            _minY = minY;
-            _maxX = maxX;
-            _maxY = maxY;
             Gender = gender.ToUpper();
             VirtualId = -1;
             RoomUser = null;
+            BotType = botType;
             DanceId = dance;
             RandomSpeech = speeches;
             Responses = responses;
             LastSpokenPhrase = 1;
-            IsBartender = bartender;
             WasPicked = roomId == 0;
         }
 
@@ -266,10 +239,7 @@ namespace Azure.Game.RoomBots
         /// <param name="speechInterval">The speech interval.</param>
         /// <param name="automaticChat">if set to <c>true</c> [automatic chat].</param>
         /// <param name="mixPhrases">if set to <c>true</c> [mix phrases].</param>
-        internal void Update(uint roomId, string walkingMode, string name, string motto, string look, int x, int y,
-            double z, int rot, int minX, int minY, int maxX, int maxY, List<string> speeches,
-            List<string> responses, string gender, int dance, int speechInterval, bool automaticChat,
-            bool mixPhrases)
+        internal void Update(uint roomId, string walkingMode, string name, string motto, string look, int x, int y, double z, int rot, int minX, int minY, int maxX, int maxY, List<string> speeches, List<string> responses, string gender, int dance, int speechInterval, bool automaticChat, bool mixPhrases)
         {
             RoomId = roomId;
             WalkingMode = walkingMode;
@@ -304,17 +274,19 @@ namespace Azure.Game.RoomBots
         internal string GetRandomSpeech(bool mixPhrases)
         {
             if (!RandomSpeech.Any())
-                return "";
+                return string.Empty;
 
-            {
-                if (mixPhrases)
-                    return RandomSpeech[Azure.GetRandomNumber(0, RandomSpeech.Count - 1)];
-                if (LastSpokenPhrase >= RandomSpeech.Count)
-                    LastSpokenPhrase = 1;
-                var result = RandomSpeech[LastSpokenPhrase - 1];
-                LastSpokenPhrase++;
-                return result;
-            }
+            if (mixPhrases)
+                return RandomSpeech[Azure.GetRandomNumber(0, RandomSpeech.Count - 1)];
+
+            if (LastSpokenPhrase >= RandomSpeech.Count)
+                LastSpokenPhrase = 1;
+
+            var result = RandomSpeech[LastSpokenPhrase - 1];
+
+            LastSpokenPhrase++;
+
+            return result;
         }
 
         /// <summary>
@@ -330,7 +302,7 @@ namespace Azure.Game.RoomBots
             if (aiType == AiType.Pet)
                 return new PetBot(virtualId);
 
-            return new GenericBot(this, virtualId, botId, AiType, IsBartender, SpeechInterval);
+            return new GenericBot(this, virtualId, SpeechInterval);
         }
     }
 }

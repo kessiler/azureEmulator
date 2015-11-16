@@ -1,32 +1,24 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Azure.Game.Commands;
 using Azure.Game.GameClients.Interfaces;
+using Azure.Game.RoomBots.Interfaces;
 using Azure.Game.Rooms.User;
 using Azure.Game.Rooms.User.Path;
 using Azure.IO;
 
-namespace Azure.Game.RoomBots
+namespace Azure.Game.RoomBots.Models
 {
     /// <summary>
     ///     Class GenericBot.
     /// </summary>
-    internal class GenericBot : BotAi
+    internal class GenericBot : BaseBot
     {
         /// <summary>
         ///     The random
         /// </summary>
         private static readonly Random Random = new Random();
-
-        /// <summary>
-        ///     The _id
-        /// </summary>
-        private readonly int _id;
-
-        /// <summary>
-        ///     The _is bartender
-        /// </summary>
-        private readonly bool _isBartender;
 
         /// <summary>
         ///     The _virtual identifier
@@ -53,22 +45,19 @@ namespace Azure.Game.RoomBots
         /// </summary>
         /// <param name="roomBot">The room bot.</param>
         /// <param name="virtualId">The virtual identifier.</param>
-        /// <param name="botId">The bot identifier.</param>
-        /// <param name="type">The type.</param>
-        /// <param name="isBartender">if set to <c>true</c> [is bartender].</param>
         /// <param name="speechInterval">The speech interval.</param>
-        internal GenericBot(RoomBot roomBot, int virtualId, int botId, AiType type, bool isBartender, int speechInterval)
+        internal GenericBot(RoomBot roomBot, int virtualId, int speechInterval)
         {
-            _id = botId;
             _virtualId = virtualId;
-            _isBartender = isBartender;
             _speechInterval = speechInterval < 2 ? 2000 : speechInterval*1000;
 
             // Get random speach
             // @issue #80
             //if (roomBot != null && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any()) _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
+
             if (roomBot != null && roomBot.AutomaticChat && roomBot.RandomSpeech != null && roomBot.RandomSpeech.Any())
                 _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
+
             _actionCount = Random.Next(10, 30 + virtualId);
         }
 
@@ -77,14 +66,18 @@ namespace Azure.Game.RoomBots
         /// </summary>
         internal override void Modified()
         {
-            if (GetBotData() == null) return;
+            if (GetBotData() == null)
+                return;
+
             // @issue #80
             //if (GetBotData().RandomSpeech == null || !GetBotData().RandomSpeech.Any())
+
             if (!GetBotData().AutomaticChat || GetBotData().RandomSpeech == null || !GetBotData().RandomSpeech.Any())
             {
                 StopTimerTick();
                 return;
             }
+
             _speechInterval = GetBotData().SpeechInterval < 2 ? 2000 : GetBotData().SpeechInterval*1000;
 
             if (_chatTimer == null)
@@ -92,6 +85,7 @@ namespace Azure.Game.RoomBots
                 _chatTimer = new Timer(ChatTimerTick, null, _speechInterval, _speechInterval);
                 return;
             }
+
             _chatTimer.Change(_speechInterval, _speechInterval);
         }
 
@@ -100,13 +94,15 @@ namespace Azure.Game.RoomBots
         /// </summary>
         internal override void OnTimerTick()
         {
-            if (GetBotData() == null) return;
+            if (GetBotData() == null)
+                return;
 
             if (_actionCount > 0)
             {
                 _actionCount--;
                 return;
             }
+
             _actionCount = Random.Next(5, 45);
 
             switch (GetBotData().WalkingMode.ToLower())
@@ -114,7 +110,9 @@ namespace Azure.Game.RoomBots
                 case "freeroam":
                 {
                     var randomPoint = GetRoom().GetGameMap().GetRandomWalkableSquare();
-                    if (randomPoint.X == 0 || randomPoint.Y == 0) return;
+
+                    if (randomPoint.X == 0 || randomPoint.Y == 0)
+                            return;
 
                     GetRoomUser().MoveTo(randomPoint.X, randomPoint.Y);
                     break;
@@ -122,44 +120,16 @@ namespace Azure.Game.RoomBots
                 case "specified_range":
                 {
                     var list = GetRoom().GetGameMap().WalkableList.ToList();
-                    if (!list.Any()) return;
+
+                    if (!list.Any())
+                            return;
 
                     var randomNumber = new Random(DateTime.Now.Millisecond + _virtualId ^ 2).Next(0, list.Count - 1);
+
                     GetRoomUser().MoveTo(list[randomNumber].X, list[randomNumber].Y);
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        ///     Called when [self enter room].
-        /// </summary>
-        internal override void OnSelfEnterRoom()
-        {
-        }
-
-        /// <summary>
-        ///     Called when [self leave room].
-        /// </summary>
-        /// <param name="kicked">if set to <c>true</c> [kicked].</param>
-        internal override void OnSelfLeaveRoom(bool kicked)
-        {
-        }
-
-        /// <summary>
-        ///     Called when [user enter room].
-        /// </summary>
-        /// <param name="user">The user.</param>
-        internal override void OnUserEnterRoom(RoomUser user)
-        {
-        }
-
-        /// <summary>
-        ///     Called when [user leave room].
-        /// </summary>
-        /// <param name="client">The client.</param>
-        internal override void OnUserLeaveRoom(GameClient client)
-        {
         }
 
         /// <summary>
@@ -169,20 +139,40 @@ namespace Azure.Game.RoomBots
         /// <param name="message">The message.</param>
         internal override void OnUserSay(RoomUser user, string message)
         {
-            if (Gamemap.TileDistance(GetRoomUser().X, GetRoomUser().Y, user.X, user.Y) > 16) return;
-
-            if (!_isBartender) return;
-
-            try
-            {
-                message = message.Substring(1);
-            }
-            catch
-            {
+            if (Gamemap.TileDistance(GetRoomUser().X, GetRoomUser().Y, user.X, user.Y) > 16)
                 return;
-            }
-            switch (message.ToLower())
+
+            if (message.Length < 2)
+                return;
+
+            BotCommand command = BotManager.GetBotCommandByInput(message.Substring(1).ToLower());
+
+            if (command == null)
             {
+                GetRoomUser().Chat(null, "Precisa de Algo?", false, 0);
+                return;
+            }   
+
+            if (GetBotData().BotType != command.BotType)
+                return;
+
+            if(command.SpeechOutput != string.Empty)
+                GetRoomUser().Chat(null, command.SpeechOutput, false, 0);
+
+            if (command.ActionCommand != string.Empty && command.ActionCommandParameters != string.Empty)
+                CommandsManager.TryExecute(command.ActionCommand, command.ActionCommandParameters, user.GetClient());
+
+            switch (command.ActionBot)
+            {
+                default:
+                case "bot_move_to_user":
+                    GetRoomUser().MoveTo(user.SquareInFront);
+                    break;
+            }
+
+            #region old
+            //switch (message.Substring(1).ToLower())
+            /*{
                 case "ven":
                 case "comehere":
                 case "come here":
@@ -372,9 +362,8 @@ namespace Azure.Game.RoomBots
 
                 case "tyrex":
                     GetRoomUser().Chat(null, "Por favor, me chame de Deus Tyrex!", true, 0);
-                    return;
-            }
-            GetRoomUser().Chat(null, "Precisa de Algo?", false, 0);
+                    return;*/
+            #endregion
         }
 
         /// <summary>
@@ -384,11 +373,7 @@ namespace Azure.Game.RoomBots
         /// <param name="message">The message.</param>
         internal override void OnUserShout(RoomUser user, string message)
         {
-            if (_isBartender)
-            {
-                GetRoomUser()
-                    .Chat(null, "Não precisa gritar, caramba! Se precisa de algo basta vir aqui.", false, 0);
-            }
+            GetRoomUser().Chat(null, "Não precisa gritar, caramba! Se precisa de algo basta vir aqui.", false, 0);
         }
 
         /// <summary>

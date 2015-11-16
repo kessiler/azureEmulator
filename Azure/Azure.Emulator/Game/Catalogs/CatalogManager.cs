@@ -8,6 +8,7 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.Catalogs.Composers;
 using Azure.Game.Catalogs.Interfaces;
 using Azure.Game.GameClients.Interfaces;
+using Azure.Game.Groups.Interfaces;
 using Azure.Game.Items.Interactions;
 using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Items.Interfaces;
@@ -16,6 +17,7 @@ using Azure.Game.Pets.Enums;
 using Azure.Game.Quests;
 using Azure.Game.RoomBots;
 using Azure.Game.SoundMachine;
+using Azure.Game.SoundMachine.Songs;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -66,42 +68,7 @@ namespace Azure.Game.Catalogs
         /// </summary>
         /// <param name="petName">Name of the pet.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal static bool CheckPetName(string petName)
-        {
-            return petName.Length >= 3 && petName.Length <= 15 && Azure.IsValidAlphaNumeric(petName);
-        }
-
-        /// <summary>
-        ///     Creates the bot.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="look">The look.</param>
-        /// <param name="motto">The motto.</param>
-        /// <param name="gender">The gender.</param>
-        /// <param name="bartender">if set to <c>true</c> [bartender].</param>
-        /// <returns>RoomBot.</returns>
-        internal static RoomBot CreateBot(uint userId, string name, string look, string motto, string gender,
-            bool bartender)
-        {
-            uint botId;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.SetQuery(
-                    "INSERT INTO bots (user_id,name,motto,look,gender,walk_mode,is_bartender) VALUES (@h_user,@b_name,@b_motto,@b_look,@b_gender,@b_walk,@b_bartender)");
-                queryReactor.AddParameter("h_user", userId);
-                queryReactor.AddParameter("b_name", name);
-                queryReactor.AddParameter("b_motto", motto);
-                queryReactor.AddParameter("b_look", look);
-                queryReactor.AddParameter("b_gender", gender);
-                queryReactor.AddParameter("b_walk", "freeroam");
-                queryReactor.AddParameter("b_bartender", bartender ? "1" : "0");
-                botId = Convert.ToUInt32(queryReactor.InsertQuery());
-            }
-
-            return new RoomBot(botId, userId, 0u, AiType.Generic, "freeroam", name, motto, look, 0, 0, 0.0, 0, 0, 0, 0,
-                0, null, null, gender, 0, bartender);
-        }
+        internal static bool CheckPetName(string petName) => petName.Length >= 3 && petName.Length <= 15 && Azure.IsValidAlphaNumeric(petName);
 
         /// <summary>
         ///     Creates the pet.
@@ -115,27 +82,20 @@ namespace Azure.Game.Catalogs
         /// <returns>Pet.</returns>
         internal static Pet CreatePet(uint userId, string name, int type, string race, string color, int rarity = 0)
         {
-            var pet = new Pet(404u, userId, 0u, name, (uint)type, race, color, 0, 100, 150, 0, Azure.GetUnixTimeStamp(),
-                0, 0, 0.0, false, 0, 0, -1, rarity, DateTime.Now.AddHours(36.0), DateTime.Now.AddHours(48.0), null)
+            Pet pet = new Pet(404u, userId, 0u, name, (uint) type, race, color, 0, 100, 150, 0, Azure.GetUnixTimeStamp(), 0, 0, 0.0, false, 0, 0, -1, rarity, DateTime.Now.AddHours(36.0), DateTime.Now.AddHours(48.0), null)
             {
                 DbState = DatabaseUpdateState.NeedsUpdate
             };
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(string.Concat("INSERT INTO bots (user_id,name, ai_type) VALUES (", pet.OwnerId,
-                    ",@", pet.PetId, "name, 'pet')"));
+                queryReactor.SetQuery($"INSERT INTO bots_data (user_id, name, ai_type) VALUES ('{pet.OwnerId}', @{$"{pet.PetId}name"}, 'pet')");
 
                 queryReactor.AddParameter($"{pet.PetId}name", pet.Name);
 
                 pet.PetId = (uint)queryReactor.InsertQuery();
 
-                queryReactor.SetQuery(
-                    string.Concat(
-                        "INSERT INTO pets_data (id,type,race,color,experience,energy,createstamp,rarity,lasthealth_stamp,untilgrown_stamp) VALUES (",
-                        pet.PetId, ", ", pet.Type, ",@", pet.PetId, "race,@", pet.PetId,
-                        "color,0,100,UNIX_TIMESTAMP(), ", rarity,
-                        ", UNIX_TIMESTAMP(now() + INTERVAL 36 HOUR), UNIX_TIMESTAMP(now() + INTERVAL 48 HOUR))"));
+                queryReactor.SetQuery(string.Concat("INSERT INTO pets_data (id,type,race,color,experience,energy,createstamp,rarity,lasthealth_stamp,untilgrown_stamp) VALUES (", pet.PetId, ", ", pet.Type, ",@", pet.PetId, "race,@", pet.PetId, "color,0,100,UNIX_TIMESTAMP(), ", rarity, ", UNIX_TIMESTAMP(now() + INTERVAL 36 HOUR), UNIX_TIMESTAMP(now() + INTERVAL 48 HOUR))"));
 
                 queryReactor.AddParameter($"{pet.PetId}race", pet.Race);
                 queryReactor.AddParameter($"{pet.PetId}color", pet.Color);
@@ -149,7 +109,7 @@ namespace Azure.Game.Catalogs
                 pet.DbState = DatabaseUpdateState.NeedsUpdate;
             }
 
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId != null)
                 Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_PetLover", 1);
@@ -172,10 +132,12 @@ namespace Azure.Game.Catalogs
 
             if (Convert.ToUInt32(mRow["type"]) == 16u)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery($"SELECT * FROM pets_plants WHERE pet_id = {Convert.ToUInt32(Row["id"])}");
-                    var row = queryReactor.GetRow();
+
+                    DataRow row = queryReactor.GetRow();
+
                     moplaBreed = new MoplaBreed(row);
                 }
             }
@@ -230,13 +192,13 @@ namespace Azure.Game.Catalogs
             HabboClubItems = new List<CatalogItem>();
 
             dbClient.SetQuery("SELECT * FROM catalog_items ORDER BY order_num ASC");
-            var table = dbClient.GetTable();
+            DataTable table = dbClient.GetTable();
             dbClient.SetQuery("SELECT * FROM catalog_pages ORDER BY order_num ASC");
-            var table2 = dbClient.GetTable();
+            DataTable table2 = dbClient.GetTable();
             dbClient.SetQuery("SELECT * FROM catalog_ecotron_items ORDER BY reward_level ASC");
-            var table3 = dbClient.GetTable();
+            DataTable table3 = dbClient.GetTable();
             dbClient.SetQuery("SELECT * FROM catalog_items WHERE specialName LIKE 'HABBO_CLUB_VIP%'");
-            var table4 = dbClient.GetTable();
+            DataTable table4 = dbClient.GetTable();
 
             if (table != null)
             {
@@ -246,19 +208,19 @@ namespace Azure.Game.Catalogs
                         string.IsNullOrEmpty(dataRow["amounts"].ToString()))
                         continue;
 
-                    var source = dataRow["item_names"].ToString();
-                    var firstItem = dataRow["item_names"].ToString().Split(';')[0];
+                    string source = dataRow["item_names"].ToString();
+                    string firstItem = dataRow["item_names"].ToString().Split(';')[0];
 
                     Item item;
 
                     if (!Azure.GetGame().GetItemManager().GetItem(firstItem, out item))
                         continue;
 
-                    var num = !source.Contains(';') ? item.FlatId : -1;
+                    int num = !source.Contains(';') ? item.FlatId : -1;
                     if (!dataRow.IsNull("specialName"))
                         item.PublicName = (string)dataRow["specialName"];
 
-                    var catalogItem = new CatalogItem(dataRow, item.PublicName);
+                    CatalogItem catalogItem = new CatalogItem(dataRow, item.PublicName);
 
                     if (catalogItem.GetFirstBaseItem() == null)
                         continue;
@@ -274,8 +236,8 @@ namespace Azure.Game.Catalogs
             {
                 foreach (DataRow dataRow2 in table2.Rows)
                 {
-                    var visible = false;
-                    var enabled = false;
+                    bool visible = false;
+                    bool enabled = false;
 
                     if (dataRow2["visible"].ToString() == "1")
                         visible = true;
@@ -320,20 +282,14 @@ namespace Azure.Game.Catalogs
         /// </summary>
         /// <param name="itemId">The item identifier.</param>
         /// <returns>CatalogItem.</returns>
-        internal CatalogItem GetItem(uint itemId)
-        {
-            return Offers.Contains(itemId) ? (CatalogItem)Offers[itemId] : null;
-        }
+        internal CatalogItem GetItem(uint itemId) => Offers.Contains(itemId) ? (CatalogItem)Offers[itemId] : null;
 
         /// <summary>
         ///     Gets the page.
         /// </summary>
         /// <param name="page">The page.</param>
         /// <returns>CatalogPage.</returns>
-        internal CatalogPage GetPage(int page)
-        {
-            return !Categories.Contains(page) ? null : (CatalogPage)Categories[page];
-        }
+        internal CatalogPage GetPage(int page) => !Categories.Contains(page) ? null : (CatalogPage)Categories[page];
 
         /// <summary>
         ///     Handles the purchase.
@@ -353,11 +309,9 @@ namespace Azure.Game.Catalogs
         /// <param name="theGroup">The theGroup.</param>
         internal void HandlePurchase(GameClient session, int pageId, uint itemId, string extraData, int priceAmount, bool isGift, string giftUser, string giftMessage, int giftSpriteId, int giftLazo, int giftColor, bool undef, uint theGroup)
         {
-            priceAmount = (priceAmount < 1 || priceAmount > 100) ? 1 : priceAmount;
+            priceAmount = priceAmount < 1 || priceAmount > 100 ? 1 : priceAmount;
 
-            var totalPrice = priceAmount;
-            var limitedId = 0;
-            var limtot = 0;
+            int totalPrice = priceAmount, limitedId = 0, limtot = 0;
 
             if (priceAmount >= 6)
                 totalPrice -= Convert.ToInt32(Math.Ceiling(Convert.ToDouble(priceAmount) / 6)) * 2 - 1;
@@ -365,7 +319,7 @@ namespace Azure.Game.Catalogs
             if (!Categories.Contains(pageId))
                 return;
 
-            var catalogPage = (CatalogPage)Categories[pageId];
+            CatalogPage catalogPage = (CatalogPage)Categories[pageId];
 
             if (catalogPage == null || !catalogPage.Enabled || !catalogPage.Visible || session?.GetHabbo() == null)
                 return;
@@ -373,30 +327,34 @@ namespace Azure.Game.Catalogs
             if (catalogPage.MinRank > session.GetHabbo().Rank || catalogPage.Layout == "sold_ltd_items")
                 return;
 
-            var item = catalogPage.GetItem(itemId);
+            CatalogItem item = catalogPage.GetItem(itemId);
 
             if (item == null)
                 return;
 
+            if (session.GetHabbo().Credits < item.CreditsCost)
+                return;
+            if (session.GetHabbo().ActivityPoints < item.DucketsCost)
+                return;
+            if (session.GetHabbo().Diamonds < item.DiamondsCost)
+                return;
+
+            if (item.Name == "room_ad_plus_badge")
+                return;
+
+            #region Habbo Club Purchase
             if (catalogPage.Layout == "vip_buy" || catalogPage.Layout == "club_buy" || HabboClubItems.Contains(item))
             {
-                if (session.GetHabbo().Credits < item.CreditsCost)
-                    return;
-                if (session.GetHabbo().ActivityPoints < item.DucketsCost)
-                    return;
-                if (session.GetHabbo().Diamonds < item.DiamondsCost)
-                    return;
-
-                var array = item.Name.Split('_');
+                string[] array = item.Name.Split('_');
 
                 double dayLength;
 
                 if (item.Name.Contains("DAY"))
                     dayLength = double.Parse(array[3]);
                 else if (item.Name.Contains("MONTH"))
-                    dayLength = Math.Ceiling((double.Parse(array[3]) * 31) - 0.205);
+                    dayLength = Math.Ceiling(double.Parse(array[3]) * 31 - 0.205);
                 else if (item.Name.Contains("YEAR"))
-                    dayLength = (double.Parse(array[3]) * 31 * 12);
+                    dayLength = double.Parse(array[3]) * 31 * 12;
                 else
                     dayLength = 31;
 
@@ -420,23 +378,28 @@ namespace Azure.Game.Catalogs
 
                 return;
             }
+            #endregion
 
-            if (item.Name == "room_ad_plus_badge")
-                return;
-
+            #region Is Only for Habbo Club users Check
             if (item.ClubOnly && !session.GetHabbo().GetSubscriptionManager().HasSubscription)
             {
-                var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("CatalogPurchaseNotAllowedMessageComposer"));
+                ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("CatalogPurchaseNotAllowedMessageComposer"));
                 serverMessage.AppendInteger(1);
                 session.SendMessage(serverMessage);
                 return;
             }
+            #endregion
 
-            var flag = item.Items.Keys.Any(current => InteractionTypes.AreFamiliar(GlobalInteractions.Pet, current.InteractionType));
+            #region Check of Multiplier Items Price
+
+            bool flag = item.Items.Keys.Any(current => InteractionTypes.AreFamiliar(GlobalInteractions.Pet, current.InteractionType));
 
             if (!flag && (item.CreditsCost * totalPrice < 0 || item.DucketsCost * totalPrice < 0 || item.DiamondsCost * totalPrice < 0))
                 return;
 
+            #endregion
+
+            #region Limited Items Purchase
             if (item.IsLimited)
             {
                 totalPrice = 1;
@@ -450,9 +413,10 @@ namespace Azure.Game.Catalogs
 
                 item.LimitedSelled++;
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.RunFastQuery(string.Concat("UPDATE catalog_items SET limited_sells = ", item.LimitedSelled, " WHERE id = ", item.Id));
+
                     limitedId = item.LimitedSelled;
                     limtot = item.LimitedStack;
                 }
@@ -462,8 +426,9 @@ namespace Azure.Game.Catalogs
                 totalPrice = 1;
                 priceAmount = 1;
             }
+            #endregion
 
-            var toUserId = 0u;
+            uint toUserId = 0u;
 
             if (session.GetHabbo().Credits < item.CreditsCost * totalPrice)
                 return;
@@ -472,23 +437,26 @@ namespace Azure.Game.Catalogs
             if (session.GetHabbo().Diamonds < item.DiamondsCost * totalPrice)
                 return;
 
-            if (item.CreditsCost > 0 && !isGift)
+            if (!isGift)
             {
-                session.GetHabbo().Credits -= (int)item.CreditsCost * totalPrice;
-                session.GetHabbo().UpdateCreditsBalance();
+                if (item.CreditsCost > 0)
+                {
+                    session.GetHabbo().Credits -= (int)item.CreditsCost * totalPrice;
+                    session.GetHabbo().UpdateCreditsBalance();
+                }
+                if (item.DucketsCost > 0)
+                {
+                    session.GetHabbo().ActivityPoints -= (int)item.DucketsCost * totalPrice;
+                    session.GetHabbo().UpdateActivityPointsBalance();
+                }
+                if (item.DiamondsCost > 0)
+                {
+                    session.GetHabbo().Diamonds -= (int)item.DiamondsCost * totalPrice;
+                    session.GetHabbo().UpdateSeasonalCurrencyBalance();
+                }
             }
-            if (item.DucketsCost > 0 && !isGift)
-            {
-                session.GetHabbo().ActivityPoints -= (int)item.DucketsCost * totalPrice;
-                session.GetHabbo().UpdateActivityPointsBalance();
-            }
-            if (item.DiamondsCost > 0 && !isGift)
-            {
-                session.GetHabbo().Diamonds -= (int)item.DiamondsCost * totalPrice;
-                session.GetHabbo().UpdateSeasonalCurrencyBalance();
-            }
-
-            foreach (var baseItem in item.Items.Keys)
+           
+            foreach (Item baseItem in item.Items.Keys)
             {
                 if (isGift)
                 {
@@ -503,7 +471,7 @@ namespace Azure.Game.Catalogs
 
                     DataRow row;
 
-                    using (var queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryreactor3.SetQuery("SELECT id FROM users WHERE username = @gift_user");
                         queryreactor3.AddParameter("gift_user", giftUser);
@@ -556,19 +524,18 @@ namespace Azure.Game.Catalogs
 
                 if (item.Name.StartsWith("builders_club_addon_"))
                 {
-                    var furniAmount = Convert.ToInt32(item.Name.Replace("builders_club_addon_", "").Replace("furnis", ""));
+                    int furniAmount = Convert.ToInt32(item.Name.Replace("builders_club_addon_", "").Replace("furnis", ""));
 
                     session.GetHabbo().BuildersItemsMax += furniAmount;
 
-                    var update =
-                        new ServerMessage(LibraryParser.OutgoingRequest("BuildersClubMembershipMessageComposer"));
+                    ServerMessage update = new ServerMessage(LibraryParser.OutgoingRequest("BuildersClubMembershipMessageComposer"));
 
                     update.AppendInteger(session.GetHabbo().BuildersExpire);
                     update.AppendInteger(session.GetHabbo().BuildersItemsMax);
                     update.AppendInteger(2);
                     session.SendMessage(update);
 
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("UPDATE users SET builders_items_max = @max WHERE id = @userId");
                         queryReactor.AddParameter("max", session.GetHabbo().BuildersItemsMax);
@@ -583,11 +550,11 @@ namespace Azure.Game.Catalogs
 
                 if (item.Name.StartsWith("builders_club_time_"))
                 {
-                    var timeAmount = Convert.ToInt32(item.Name.Replace("builders_club_time_", "").Replace("seconds", ""));
+                    int timeAmount = Convert.ToInt32(item.Name.Replace("builders_club_time_", "").Replace("seconds", ""));
 
                     session.GetHabbo().BuildersExpire += timeAmount;
 
-                    var update =
+                    ServerMessage update =
                         new ServerMessage(LibraryParser.OutgoingRequest("BuildersClubMembershipMessageComposer"));
 
                     update.AppendInteger(session.GetHabbo().BuildersExpire);
@@ -595,7 +562,7 @@ namespace Azure.Game.Catalogs
                     update.AppendInteger(2);
                     session.SendMessage(update);
 
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("UPDATE users SET builders_expire = @max WHERE id = @userId");
                         queryReactor.AddParameter("max", session.GetHabbo().BuildersExpire);
@@ -608,9 +575,9 @@ namespace Azure.Game.Catalogs
                     return;
                 }
 
-                var text = string.Empty;
+                string text = string.Empty;
 
-                var interactionType = baseItem.InteractionType;
+                Interaction interactionType = baseItem.InteractionType;
 
                 switch (interactionType)
                 {
@@ -641,7 +608,7 @@ namespace Azure.Game.Catalogs
                         break;
 
                     case Interaction.RoomEffect:
-                        var number = string.IsNullOrEmpty(extraData) ? 0.0 : double.Parse(extraData, Azure.CultureInfo);
+                        double number = string.IsNullOrEmpty(extraData) ? 0.0 : double.Parse(extraData, Azure.CultureInfo);
                         extraData = number.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
                         break;
 
@@ -694,10 +661,10 @@ namespace Azure.Game.Catalogs
                     case Interaction.Pet32:
                     case Interaction.Pet33:
                     case Interaction.Pet34:
-                        var data = extraData.Split('\n');
-                        var petName = data[0];
-                        var race = data[1];
-                        var color = data[2];
+                        string[] data = extraData.Split('\n');
+                        string petName = data[0];
+                        string race = data[1];
+                        string color = data[2];
 
                         if (!CheckPetName(petName))
                             return;
@@ -710,8 +677,7 @@ namespace Azure.Game.Catalogs
                         break;
 
                     case Interaction.Mannequin:
-                        extraData = string.Concat("m", Convert.ToChar(5), "ch-215-92.lg-3202-1322-73", Convert.ToChar(5),
-                            "Mannequin");
+                        extraData = string.Concat("m", Convert.ToChar(5), "ch-215-92.lg-3202-1322-73", Convert.ToChar(5), "Mannequin");
                         break;
 
                     case Interaction.VipGate:
@@ -760,7 +726,7 @@ namespace Azure.Game.Catalogs
 
                     case Interaction.MusicDisc:
 
-                        var song = SoundMachineSongManager.GetSongById(item.SongId);
+                        SongData song = SoundMachineSongManager.GetSongById(item.SongId);
 
                         extraData = string.Empty;
 
@@ -786,14 +752,14 @@ namespace Azure.Game.Catalogs
 
                 if (isGift)
                 {
-                    var itemBySprite = Azure.GetGame().GetItemManager().GetItemBySpriteId(giftSpriteId);
+                    Item itemBySprite = Azure.GetGame().GetItemManager().GetItemBySpriteId(giftSpriteId);
 
                     if (itemBySprite == null)
                         return;
 
                     uint insertId;
 
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("INSERT INTO items_rooms (item_name,user_id) VALUES (" + itemBySprite.Name + ", " + toUserId + ")");
 
@@ -813,7 +779,7 @@ namespace Azure.Game.Catalogs
                         }
                     }
 
-                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(toUserId);
+                    GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(toUserId);
 
                     if (clientByUserId != null)
                     {
@@ -832,19 +798,18 @@ namespace Azure.Game.Catalogs
 
                 session.GetMessageHandler().GetResponse().AppendInteger(1);
 
-                var i = 1;
+                int i = 1;
 
                 if (baseItem.Type == 's')
                     i = InteractionTypes.AreFamiliar(GlobalInteractions.Pet, baseItem.InteractionType) ? 3 : 1;
 
                 session.GetMessageHandler().GetResponse().AppendInteger(i);
 
-                var list = DeliverItems(session, baseItem, priceAmount * (int)item.Items[baseItem], extraData, limitedId,
-                    limtot, text);
+                List<UserItem> list = DeliverItems(session, baseItem, priceAmount * (int)item.Items[baseItem], extraData, limitedId, limtot, text);
 
                 session.GetMessageHandler().GetResponse().AppendInteger(list.Count);
 
-                foreach (var current3 in list)
+                foreach (UserItem current3 in list)
                     session.GetMessageHandler().GetResponse().AppendInteger(current3.Id);
 
                 session.GetMessageHandler().SendResponse();
@@ -871,206 +836,192 @@ namespace Azure.Game.Catalogs
         /// <returns>List&lt;UserItem&gt;.</returns>
         internal List<UserItem> DeliverItems(GameClient session, Item item, int amount, string extraData, int limno, int limtot, string songCode)
         {
-            var list = new List<UserItem>();
+            List<UserItem> list = new List<UserItem>();
 
             if (item.InteractionType == Interaction.PostIt)
                 amount = amount * 20;
 
-            var a = item.Type;
-            if (a == 'i' || a == 's')
+            char a = item.Type;
+            switch (a)
             {
-                var i = 0;
+                case 'i':
+                case 's':
+                    int i = 0;
 
-                while (i < amount)
-                {
-                    var interactionType = item.InteractionType;
-
-                    switch (interactionType)
+                    while (i < amount)
                     {
-                        case Interaction.Dimmer:
-                            var userItem33 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0);
-                            var id33 = userItem33.Id;
+                        Interaction interactionType = item.InteractionType;
 
-                            list.Add(userItem33);
+                        switch (interactionType)
+                        {
+                            case Interaction.Dimmer:
+                                UserItem userItem33 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0);
+                                uint id33 = userItem33.Id;
 
-                            using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                                queryreactor2.RunFastQuery(
-                                    $"INSERT INTO items_moodlight (item_id,enabled,current_preset,preset_one,preset_two,preset_three) VALUES ({id33},'0',1,'#000000,255,0','#000000,255,0','#000000,255,0')");
+                                list.Add(userItem33);
 
-                            break;
+                                using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                                    queryreactor2.RunFastQuery(
+                                        $"INSERT INTO items_moodlight (item_id,enabled,current_preset,preset_one,preset_two,preset_three) VALUES ({id33},'0',1,'#000000,255,0','#000000,255,0','#000000,255,0')");
 
-                        case Interaction.Trophy:
-                        case Interaction.Bed:
-                        case Interaction.PressurePadBed:
-                        case Interaction.Guillotine:
-                        case Interaction.ScoreBoard:
-                        case Interaction.VendingMachine:
-                        case Interaction.Alert:
-                        case Interaction.OneWayGate:
-                        case Interaction.LoveShuffler:
-                        case Interaction.HabboWheel:
-                        case Interaction.Dice:
-                        case Interaction.Bottle:
-                        case Interaction.Hopper:
-                        case Interaction.Rentals:
-                        case Interaction.Pet:
-                        case Interaction.Pool:
-                        case Interaction.Roller:
-                        case Interaction.FootballGate:
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
-                            break;
+                                break;
 
-                        case Interaction.Teleport:
-                        case Interaction.QuickTeleport:
-                            var userItem = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", 0u, true, false, 0, 0);
-                            var id = userItem.Id;
-                            var userItem2 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", 0u, true, false, 0, 0);
-                            var id2 = userItem2.Id;
+                            case Interaction.Trophy:
+                            case Interaction.Bed:
+                            case Interaction.PressurePadBed:
+                            case Interaction.Guillotine:
+                            case Interaction.ScoreBoard:
+                            case Interaction.VendingMachine:
+                            case Interaction.Alert:
+                            case Interaction.OneWayGate:
+                            case Interaction.LoveShuffler:
+                            case Interaction.HabboWheel:
+                            case Interaction.Dice:
+                            case Interaction.Bottle:
+                            case Interaction.Hopper:
+                            case Interaction.Rentals:
+                            case Interaction.Pet:
+                            case Interaction.Pool:
+                            case Interaction.Roller:
+                            case Interaction.FootballGate:
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
+                                break;
 
-                            list.Add(userItem);
-                            list.Add(userItem2);
+                            case Interaction.Teleport:
+                            case Interaction.QuickTeleport:
+                                UserItem userItem = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", 0u, true, false, 0, 0);
+                                uint id = userItem.Id;
+                                UserItem userItem2 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", 0u, true, false, 0, 0);
+                                uint id2 = userItem2.Id;
 
-                            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                                queryReactor.RunFastQuery($"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id}','{id2}');" + $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id2}','{id}')");
+                                list.Add(userItem);
+                                list.Add(userItem2);
 
-                            break;
+                                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                                    queryReactor.RunFastQuery($"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id}','{id2}');" + $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id2}','{id}')");
 
-                        case Interaction.PetDog:
-                        case Interaction.PetCat:
-                        case Interaction.PetCrocodile:
-                        case Interaction.PetTerrier:
-                        case Interaction.PetBear:
-                        case Interaction.PetPig:
-                        case Interaction.PetLion:
-                        case Interaction.PetRhino:
-                        case Interaction.PetSpider:
-                        case Interaction.PetTurtle:
-                        case Interaction.PetChick:
-                        case Interaction.PetFrog:
-                        case Interaction.PetDragon:
-                        case Interaction.PetHorse:
-                        case Interaction.PetMonkey:
-                        case Interaction.PetGnomo:
-                        case Interaction.PetMonsterPlant:
-                        case Interaction.PetWhiteRabbit:
-                        case Interaction.PetEvilRabbit:
-                        case Interaction.PetLoveRabbit:
-                        case Interaction.PetPigeon:
-                        case Interaction.PetEvilPigeon:
-                        case Interaction.PetDemonMonkey:
-                        case Interaction.Pet24:
-                        case Interaction.Pet25:
-                        case Interaction.Pet26:
-                        case Interaction.Pet27:
-                        case Interaction.Pet28:
-                        case Interaction.Pet29:
-                        case Interaction.Pet30:
-                        case Interaction.Pet31:
-                        case Interaction.Pet32:
-                        case Interaction.Pet33:
-                        case Interaction.Pet34:
-                            var petData = extraData.Split('\n');
-                            var petId = int.Parse(item.Name.Replace("a0 pet", string.Empty));
-                            var generatedPet = CreatePet(session.GetHabbo().Id, petData[0], petId, petData[1],
-                                petData[2]);
+                                break;
 
-                            session.GetHabbo().GetInventoryComponent().AddPet(generatedPet);
+                            case Interaction.PetDog:
+                            case Interaction.PetCat:
+                            case Interaction.PetCrocodile:
+                            case Interaction.PetTerrier:
+                            case Interaction.PetBear:
+                            case Interaction.PetPig:
+                            case Interaction.PetLion:
+                            case Interaction.PetRhino:
+                            case Interaction.PetSpider:
+                            case Interaction.PetTurtle:
+                            case Interaction.PetChick:
+                            case Interaction.PetFrog:
+                            case Interaction.PetDragon:
+                            case Interaction.PetHorse:
+                            case Interaction.PetMonkey:
+                            case Interaction.PetGnomo:
+                            case Interaction.PetMonsterPlant:
+                            case Interaction.PetWhiteRabbit:
+                            case Interaction.PetEvilRabbit:
+                            case Interaction.PetLoveRabbit:
+                            case Interaction.PetPigeon:
+                            case Interaction.PetEvilPigeon:
+                            case Interaction.PetDemonMonkey:
+                            case Interaction.Pet24:
+                            case Interaction.Pet25:
+                            case Interaction.Pet26:
+                            case Interaction.Pet27:
+                            case Interaction.Pet28:
+                            case Interaction.Pet29:
+                            case Interaction.Pet30:
+                            case Interaction.Pet31:
+                            case Interaction.Pet32:
+                            case Interaction.Pet33:
+                            case Interaction.Pet34:
+                                string[] petData = extraData.Split('\n');
+                                int petId = int.Parse(item.Name.Replace("a0 pet", string.Empty));
+                                Pet generatedPet = CreatePet(session.GetHabbo().Id, petData[0], petId, petData[1],
+                                    petData[2]);
 
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0, item.Name, "0", 0u, true, false, 0, 0, string.Empty));
-                            break;
+                                session.GetHabbo().GetInventoryComponent().AddPet(generatedPet);
 
-                        case Interaction.MusicDisc:
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0, songCode));
-                            break;
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0, item.Name, "0", 0u, true, false, 0, 0, string.Empty));
+                                break;
 
-                        case Interaction.PuzzleBox:
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
-                            break;
+                            case Interaction.MusicDisc:
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0, songCode));
+                                break;
 
-                        case Interaction.RoomBg:
-                            var userItem44 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0, string.Empty);
-                            var id44 = userItem44.Id;
+                            case Interaction.PuzzleBox:
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
+                                break;
 
-                            list.Add(userItem44);
+                            case Interaction.RoomBg:
+                                UserItem userItem44 = session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, 0, 0, string.Empty);
+                                uint id44 = userItem44.Id;
 
-                            using (var queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
-                                queryreactor3.RunFastQuery($"INSERT INTO items_toners VALUES ({id44},'0',0,0,0)");
+                                list.Add(userItem44);
 
-                            break;
+                                using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+                                    queryreactor3.RunFastQuery($"INSERT INTO items_toners VALUES ({id44},'0',0,0,0)");
 
-                        case Interaction.GuildItem:
-                        case Interaction.GuildGate:
-                        case Interaction.GroupForumTerminal:
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
-                            break;
+                                break;
 
-                        case Interaction.GuildForum:
-                            uint groupId;
+                            case Interaction.GuildItem:
+                            case Interaction.GuildGate:
+                            case Interaction.GroupForumTerminal:
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
+                                break;
 
-                            uint.TryParse(extraData, out groupId);
+                            case Interaction.GuildForum:
+                                uint groupId;
 
-                            var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                                uint.TryParse(extraData, out groupId);
 
-                            if (group != null)
-                            {
-                                if (group.CreatorId == session.GetHabbo().Id)
+                                Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+
+                                if (@group != null)
                                 {
-                                    session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
-                                    session.GetMessageHandler().GetResponse().AppendString("forums.delivered");
-                                    session.GetMessageHandler().GetResponse().AppendInteger(2);
-                                    session.GetMessageHandler().GetResponse().AppendString("groupId");
-                                    session.GetMessageHandler().GetResponse().AppendString(extraData);
-                                    session.GetMessageHandler().GetResponse().AppendString("groupName");
-                                    session.GetMessageHandler().GetResponse().AppendString(group.Name);
-                                    session.GetMessageHandler().SendResponse();
-
-                                    if (!group.HasForum)
+                                    if (@group.CreatorId == session.GetHabbo().Id)
                                     {
-                                        group.HasForum = true;
-                                        group.UpdateForum();
+                                        session.GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
+                                        session.GetMessageHandler().GetResponse().AppendString("forums.delivered");
+                                        session.GetMessageHandler().GetResponse().AppendInteger(2);
+                                        session.GetMessageHandler().GetResponse().AppendString("groupId");
+                                        session.GetMessageHandler().GetResponse().AppendString(extraData);
+                                        session.GetMessageHandler().GetResponse().AppendString("groupName");
+                                        session.GetMessageHandler().GetResponse().AppendString(@group.Name);
+                                        session.GetMessageHandler().SendResponse();
+
+                                        if (!@group.HasForum)
+                                        {
+                                            @group.HasForum = true;
+                                            @group.UpdateForum();
+                                        }
                                     }
+                                    else
+                                        session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
                                 }
-                                else
-                                    session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
-                            }
 
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
-                            break;
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
+                                break;
 
-                        default:
-                            list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
-                            break;
+                            default:
+                                list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, extraData, 0u, true, false, limno, limtot));
+                                break;
+                        }
+
+                        i++;
                     }
 
-                    i++;
-                }
-
-                return list;
-            }
-
-            if (a == 'e')
-            {
-                for (var j = 0; j < amount; j++)
-                    session.GetHabbo().GetAvatarEffectsInventoryComponent().AddNewEffect(item.SpriteId, 7200, 0);
-            }
-            else if (a == 'r')
-            {
-                if (item.Name == "bot_bartender")
-                {
-                    var bot = CreateBot(session.GetHabbo().Id, "Mahw",
-                        "hr-9534-39.hd-600-1.ch-819-92.lg-3058-64.sh-3064-110.wa-2005",
-                        "Sacia a sede e você pode dançar!", "f", true);
+                    return list;
+                case 'e':
+                    for (int j = 0; j < amount; j++)
+                        session.GetHabbo().GetAvatarEffectsInventoryComponent().AddNewEffect(item.SpriteId, 7200, 0);
+                    break;
+                case 'r':
+                    RoomBot bot = BotManager.CreateBotFromCatalog(item.Name, session.GetHabbo().Id);
                     session.GetHabbo().GetInventoryComponent().AddBot(bot);
                     session.SendMessage(session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
-                }
-                else
-                {
-                    var bot2 = CreateBot(session.GetHabbo().Id, "Claudio",
-                        "hr-3020-34.hd-3091-2.ch-225-92.lg-3058-100.sh-3089-1338.ca-3084-78-108.wa-2005",
-                        "Fala, caminhadas, danças e vestidos", "m", false);
-                    session.GetHabbo().GetInventoryComponent().AddBot(bot2);
-                    session.SendMessage(session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
-                }
+                    break;
             }
 
             return list;
@@ -1082,7 +1033,7 @@ namespace Azure.Game.Catalogs
         /// <returns>EcotronReward.</returns>
         internal EcotronReward GetRandomEcotronReward()
         {
-            var level = 1u;
+            uint level = 1u;
 
             if (Azure.GetRandomNumber(1, 2000) == 2000)
                 level = 5u;
@@ -1093,7 +1044,7 @@ namespace Azure.Game.Catalogs
             else if (Azure.GetRandomNumber(1, 4) == 4)
                 level = 2u;
 
-            var ecotronRewardsForLevel = GetEcotronRewardsForLevel(level);
+            List<EcotronReward> ecotronRewardsForLevel = GetEcotronRewardsForLevel(level);
 
             return ecotronRewardsForLevel[Azure.GetRandomNumber(0, (ecotronRewardsForLevel.Count - 1))];
         }

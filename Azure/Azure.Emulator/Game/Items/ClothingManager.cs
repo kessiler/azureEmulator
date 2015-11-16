@@ -11,7 +11,7 @@ namespace Azure.Game.Items
     internal class ClothingManager
     {
         /// <summary>
-        ///     The _table
+        ///     The Table
         /// </summary>
         private DataTable _table;
 

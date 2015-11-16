@@ -11,6 +11,8 @@ using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Pathfinding;
 using Azure.Game.Pets;
 using Azure.Game.RoomBots;
+using Azure.Game.RoomBots.Enumerators;
+using Azure.Game.RoomBots.Interfaces;
 using Azure.Game.Rooms.Items.Enums;
 using Azure.Game.Rooms.Items.Games.Teams.Enums;
 using Azure.Game.Rooms.Items.Games.Types.Freeze.Enum;

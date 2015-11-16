@@ -3,7 +3,7 @@ using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.User;
 
-namespace Azure.Game.RoomBots
+namespace Azure.Game.RoomBots.Interfaces
 {
     /// <summary>
     ///     Class BotAI.
@@ -16,19 +16,9 @@ namespace Azure.Game.RoomBots
         private Room _room;
 
         /// <summary>
-        ///     The _room identifier
-        /// </summary>
-        private uint _roomId;
-
-        /// <summary>
         ///     The _room user
         /// </summary>
         private RoomUser _roomUser;
-
-        /// <summary>
-        ///     The _room user identifier
-        /// </summary>
-        private int _roomUserId;
 
         /// <summary>
         ///     The base identifier
@@ -46,8 +36,6 @@ namespace Azure.Game.RoomBots
         internal void Init(uint baseId, int roomUserId, uint roomId, RoomUser user, Room room)
         {
             BaseId = baseId;
-            _roomUserId = roomUserId;
-            _roomId = roomId;
             _roomUser = user;
             _room = room;
         }
@@ -56,19 +44,13 @@ namespace Azure.Game.RoomBots
         ///     Gets the room.
         /// </summary>
         /// <returns>Room.</returns>
-        internal Room GetRoom()
-        {
-            return _room;
-        }
+        internal Room GetRoom() => _room;
 
         /// <summary>
         ///     Gets the room user.
         /// </summary>
         /// <returns>RoomUser.</returns>
-        internal RoomUser GetRoomUser()
-        {
-            return _roomUser;
-        }
+        internal RoomUser GetRoomUser() => _roomUser;
 
         /// <summary>
         ///     Gets the bot data.
@@ -86,8 +68,6 @@ namespace Azure.Game.RoomBots
         {
             _room = null;
             _roomUser = null;
-            _roomId = 0;
-            _roomUserId = 0;
 
             GC.SuppressFinalize(this);
         }

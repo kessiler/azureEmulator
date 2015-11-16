@@ -15,6 +15,7 @@ using Azure.Game.Pets;
 using Azure.Game.Pets.Enums;
 using Azure.Game.Quests;
 using Azure.Game.RoomBots;
+using Azure.Game.RoomBots.Enumerators;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.Items;
 using Azure.Game.Rooms.Items.Enums;
@@ -590,12 +591,13 @@ namespace Azure.Game.Rooms.User
         /// <param name="dbClient">The database client.</param>
         internal void AppendPetsUpdateString(IQueryAdapter dbClient)
         {
-            var queryChunk = new DatabaseQueryChunk("INSERT INTO bots (id,user_id,room_id,name,x,y,z) VALUES ");
-            var queryChunk2 =
-                new DatabaseQueryChunk(
-                    "INSERT INTO pets_data (type,race,color,experience,energy,createstamp,nutrition,respect) VALUES ");
+            var queryChunk = new DatabaseQueryChunk("INSERT INTO bots_data (id,user_id,room_id,name,x,y,z) VALUES ");
+            var queryChunk2 = new DatabaseQueryChunk("INSERT INTO pets_data (type,race,color,experience,energy,createstamp,nutrition,respect) VALUES ");
+
             var queryChunk3 = new DatabaseQueryChunk();
+
             var list = new List<uint>();
+
             foreach (var current in GetPets().Where(current => !list.Contains(current.PetId)))
             {
                 list.Add(current.PetId);
@@ -615,7 +617,7 @@ namespace Azure.Game.Rooms.User
                         queryChunk3.AddParameter($"{current.PetId}name", current.Name);
                         queryChunk3.AddParameter($"{current.PetId}race", current.Race);
                         queryChunk3.AddParameter($"{current.PetId}color", current.Color);
-                        queryChunk3.AddQuery(string.Concat("UPDATE bots SET room_id = ", current.RoomId, ", name = @",
+                        queryChunk3.AddQuery(string.Concat("UPDATE bots_data SET room_id = ", current.RoomId, ", name = @",
                             current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z,
                             " WHERE id = ", current.PetId));
                         queryChunk3.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId,

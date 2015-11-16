@@ -12,7 +12,7 @@ namespace Azure.Game.Pets
     internal class PetCommandHandler
     {
         /// <summary>
-        ///     The _table
+        ///     The Table
         /// </summary>
         private static DataTable _table;
 

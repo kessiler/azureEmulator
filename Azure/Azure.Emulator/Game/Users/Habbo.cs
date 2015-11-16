@@ -948,7 +948,7 @@ namespace Azure.Game.Users
                     queryReactor.SetQuery("UPDATE users SET activity_points = " + ActivityPoints + ", credits = " +
                                           Credits + ", diamonds = " + Diamonds + ", online='0', last_online = '" +
                                           Azure.GetUnixTimeStamp() + "', builders_items_used = " + BuildersItemsUsed +
-                                          ", navilogs = @navilogs  WHERE id = " + Id +
+                                          ", navigator_logs = @navilogs  WHERE id = " + Id +
                                           " LIMIT 1;UPDATE users_stats SET achievement_score=" + AchievementPoints +
                                           " WHERE id=" + Id + " LIMIT 1;");
                     queryReactor.AddParameter("navilogs", navilogs);

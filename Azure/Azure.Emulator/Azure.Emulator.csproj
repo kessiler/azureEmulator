@@ -171,6 +171,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Coord.cs" />
+    <Compile Include="Game\RoomBots\Interfaces\BotCommand.cs" />
+    <Compile Include="Game\RoomBots\Interfaces\CatalogBot.cs" />
+    <Compile Include="Game\RoomBots\Models\BaseBot.cs" />
     <Compile Include="Net\Web\WebManager.cs" />
     <Compile Include="Data\FurnitureDataManager.cs" />
     <Compile Include="Data\Structs\FurnitureData.cs" />
@@ -564,11 +567,11 @@
     <Compile Include="Game\Quests\QuestType.cs" />
     <Compile Include="Game\Quests\QuestTypeUtillity.cs" />
     <Compile Include="Game\Roles\RoleManager.cs" />
-    <Compile Include="Game\RoomBots\AIType.cs" />
-    <Compile Include="Game\RoomBots\BotAI.cs" />
+    <Compile Include="Game\RoomBots\Enumerators\AIType.cs" />
+    <Compile Include="Game\RoomBots\Interfaces\BotAi.cs" />
     <Compile Include="Game\RoomBots\BotManager.cs" />
-    <Compile Include="Game\RoomBots\GenericBot.cs" />
-    <Compile Include="Game\RoomBots\PetBot.cs" />
+    <Compile Include="Game\RoomBots\Models\GenericBot.cs" />
+    <Compile Include="Game\RoomBots\Models\PetBot.cs" />
     <Compile Include="Game\RoomBots\RoomBot.cs" />
     <Compile Include="Game\SoundMachine\Composers\SoundMachineComposer.cs" />
     <Compile Include="Game\SoundMachine\SoundMachineManager.cs" />

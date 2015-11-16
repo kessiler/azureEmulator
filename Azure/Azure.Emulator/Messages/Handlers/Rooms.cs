@@ -27,6 +27,7 @@ using Azure.Game.Polls;
 using Azure.Game.Polls.Enums;
 using Azure.Game.Quests;
 using Azure.Game.RoomBots;
+using Azure.Game.RoomBots.Enumerators;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.User;
@@ -1664,11 +1665,11 @@ namespace Azure.Messages.Handlers
             Response.AppendInteger(pet.PetId);
             SendResponse();
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("UPDATE bots SET room_id = '", room.RoomId, "', x = '", getX, "', y = '", getY, "' WHERE id = '", pet.PetId, "'"));
+                queryReactor.RunFastQuery(string.Concat("UPDATE bots_data SET room_id = '", room.RoomId, "', x = '", getX, "', y = '", getY, "' WHERE id = '", pet.PetId, "'"));
             pet.PlacedInRoom = true;
             pet.RoomId = room.RoomId;
             var bot = new RoomBot(pet.PetId, pet.OwnerId, pet.RoomId, AiType.Pet, "freeroam", pet.Name, "", pet.Look,
-                getX, getY, 0.0, 4, 0, 0, 0, 0, null, null, "", 0, false);
+                getX, getY, 0.0, 4, null, null, "", 0, "");
             room.GetRoomUserManager().DeployBot(bot, pet);
 
             if (pet.DbState != DatabaseUpdateState.NeedsInsert)
@@ -1714,7 +1715,7 @@ namespace Azure.Messages.Handlers
                 return;
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery("UPDATE bots SET room_id = '" + room.RoomId + "', x = '" + x + "', y = '" + y + "' WHERE id = '" + petId + "'");
+                queryReactor.RunFastQuery("UPDATE bots_data SET room_id = '" + room.RoomId + "', x = '" + x + "', y = '" + y + "' WHERE id = '" + petId + "'");
 
             pet.PlacedInRoom = true;
             pet.RoomId = room.RoomId;
@@ -1722,7 +1723,7 @@ namespace Azure.Messages.Handlers
             room.GetRoomUserManager()
                 .DeployBot(
                     new RoomBot(pet.PetId, Convert.ToUInt32(pet.OwnerId), pet.RoomId, AiType.Pet, "freeroam", pet.Name,
-                        "", pet.Look, x, y, 0.0, 4, 0, 0, 0, 0, null, null, "", 0, false), pet);
+                        "", pet.Look, x, y, 0.0, 4, null, null, "", 0, ""), pet);
             Session.GetHabbo().GetInventoryComponent().MovePetToRoom(pet.PetId);
             if (pet.DbState != DatabaseUpdateState.NeedsInsert)
                 pet.DbState = DatabaseUpdateState.NeedsUpdate;
@@ -1825,7 +1826,7 @@ namespace Azure.Messages.Handlers
                         using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                         {
                             queryReactor.SetQuery(
-                                "UPDATE bots SET automatic_chat = @autochat, speaking_interval = @interval, mix_phrases = @mix_phrases, speech = @speech WHERE id = @botid");
+                                "UPDATE bots_data SET automatic_chat = @autochat, speaking_interval = @interval, mix_phrases = @mix_phrases, speech = @speech WHERE id = @botid");
 
                             queryReactor.AddParameter("autochat", speak ? "1" : "0");
                             queryReactor.AddParameter("interval", speechDelay);
@@ -1851,7 +1852,7 @@ namespace Azure.Messages.Handlers
                     bot.BotData.WalkingMode = bot.BotData.WalkingMode == "freeroam" ? "stand" : "freeroam";
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery("UPDATE bots SET walk_mode = @walkmode WHERE id = @botid");
+                        queryReactor.SetQuery("UPDATE bots_data SET walk_mode = @walkmode WHERE id = @botid");
                         queryReactor.AddParameter("walkmode", bot.BotData.WalkingMode);
                         queryReactor.AddParameter("botid", botId);
                         queryReactor.RunQuery();

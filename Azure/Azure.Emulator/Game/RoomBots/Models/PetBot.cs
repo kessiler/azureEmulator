@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Azure.Data;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Items.Interactions.Enums;
+using Azure.Game.Items.Interfaces;
 using Azure.Game.Pets;
 using Azure.Game.Pets.Enums;
 using Azure.Game.Rooms.User;
@@ -11,12 +13,12 @@ using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.Game.RoomBots
+namespace Azure.Game.RoomBots.Models
 {
     /// <summary>
     ///     Class PetBot.
     /// </summary>
-    internal class PetBot : BotAi
+    internal class PetBot : BaseBot
     {
         /// <summary>
         ///     The _action timer
@@ -52,29 +54,9 @@ namespace Azure.Game.RoomBots
         internal override void OnSelfEnterRoom()
         {
             var randomWalkableSquare = GetRoom().GetGameMap().GetRandomWalkableSquare();
+
             if (GetRoomUser() != null && GetRoomUser().PetData.Type != 16u)
-            {
                 GetRoomUser().MoveTo(randomWalkableSquare.X, randomWalkableSquare.Y);
-            }
-        }
-
-        /// <summary>
-        ///     Called when [self leave room].
-        /// </summary>
-        /// <param name="kicked">if set to <c>true</c> [kicked].</param>
-        internal override void OnSelfLeaveRoom(bool kicked)
-        {
-        }
-
-        internal override void OnChatTick()
-        {
-        }
-
-        /// <summary>
-        ///     Modifieds this instance.
-        /// </summary>
-        internal override void Modified()
-        {
         }
 
         /// <summary>
@@ -353,18 +335,21 @@ namespace Azure.Game.RoomBots
                             GetRoom()
                                 .GetRoomItemHandler()
                                 .FloorItems.Values.Where(x => x.GetBaseItem().InteractionType == Interaction.PetNest);
-                        if (!petNest.Any())
-                        {
+
+                        IEnumerable<RoomItem> enumerable = petNest as RoomItem[] ?? petNest.ToArray();
+
+                        if (!enumerable.Any())
                             lazy = true;
-                        }
-                        var roomItems = petNest.FirstOrDefault();
-                        roomUser.MoveTo(roomItems.X, roomItems.Y);
+
+                        var roomItems = enumerable.FirstOrDefault();
+
+                        if (roomItems != null) roomUser.MoveTo(roomItems.X, roomItems.Y);
                         roomUser.PetData.AddExperience(40);
                         var rndmEnergy = new Random().Next(25, 51);
+
                         if (roomUser.PetData.Energy < (Pet.MaxEnergy - rndmEnergy))
-                        {
                             roomUser.PetData.Energy += rndmEnergy;
-                        }
+
                         roomUser.PetData.Nutrition += 15;
                         roomUser.AddStatus("lay", "");
                         roomUser.AddStatus("gst", "eyb");

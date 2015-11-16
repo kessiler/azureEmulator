@@ -563,7 +563,7 @@ namespace Azure.Game.Rooms
                         {
                             if (current.PetData == null)
                                 continue;
-                            queryReactor.SetQuery("UPDATE bots SET x=@x, y=@y, z=@z WHERE id=@id LIMIT 1");
+                            queryReactor.SetQuery("UPDATE bots_data SET x=@x, y=@y, z=@z WHERE id=@id LIMIT 1");
                             queryReactor.AddParameter("x", current.X);
                             queryReactor.AddParameter("y", current.Y);
                             queryReactor.AddParameter("z", current.Z);
@@ -580,7 +580,7 @@ namespace Azure.Game.Rooms
                             if (current.BotData == null)
                                 continue;
                             queryReactor.SetQuery(
-                                "UPDATE bots SET x=@x, y=@y, z=@z, name=@name, motto=@motto, look=@look, rotation=@rotation, dance=@dance WHERE id=@id LIMIT 1");
+                                "UPDATE bots_data SET x=@x, y=@y, z=@z, name=@name, motto=@motto, look=@look, rotation=@rotation, dance=@dance WHERE id=@id LIMIT 1");
                             queryReactor.AddParameter("name", current.BotData.Name);
                             queryReactor.AddParameter("motto", current.BotData.Motto);
                             queryReactor.AddParameter("look", current.BotData.Look);

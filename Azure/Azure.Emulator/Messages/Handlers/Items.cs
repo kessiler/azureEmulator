@@ -13,6 +13,7 @@ using Azure.Game.Pets;
 using Azure.Game.Pets.Enums;
 using Azure.Game.Quests;
 using Azure.Game.RoomBots;
+using Azure.Game.RoomBots.Enumerators;
 using Azure.Game.Rooms.User;
 using Azure.IO;
 using Azure.Messages.Enums;
@@ -150,7 +151,7 @@ namespace Azure.Messages.Handlers
                 room.GetRoomUserManager()
                     .DeployBot(
                         new RoomBot(pet.PetId, pet.OwnerId, pet.RoomId, AiType.Pet, "freeroam", pet.Name, "", pet.Look,
-                            item.X, item.Y, 0.0, 4, 0, 0, 0, 0, null, null, "", 0, false), pet);
+                            item.X, item.Y, 0.0, 4, null, null, "", 0, ""), pet);
             if (petUser == null)
                 return;
 
@@ -1292,7 +1293,7 @@ namespace Azure.Messages.Handlers
                     Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_5"));
                 }
 
-                dbClient.RunFastQuery($"DELETE FROM bots WHERE id = {moplaId};");
+                dbClient.RunFastQuery($"DELETE FROM bots_data WHERE id = {moplaId};");
                 dbClient.RunFastQuery($"DELETE FROM pets_plants WHERE pet_id = {moplaId};");
                 dbClient.RunFastQuery($"DELETE FROM pets_data WHERE id = {moplaId};");
             }
@@ -1986,7 +1987,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("UPDATE bots SET room_id = '", room.RoomId, "', x = '", x, "', y = '", y, "' WHERE id = '", num, "'"));
+                queryReactor.RunFastQuery(string.Concat("UPDATE bots_data SET room_id = '", room.RoomId, "', x = '", x, "', y = '", y, "' WHERE id = '", num, "'"));
             bot.RoomId = room.RoomId;
 
             bot.X = x;
@@ -2011,7 +2012,7 @@ namespace Azure.Messages.Handlers
                 return;
             Session.GetHabbo().GetInventoryComponent().AddBot(bot.BotData);
             using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                queryreactor2.RunFastQuery("UPDATE bots SET room_id = '0' WHERE id = " + id);
+                queryreactor2.RunFastQuery("UPDATE bots_data SET room_id = '0' WHERE id = " + id);
             room.GetRoomUserManager().RemoveBot(bot.VirtualId, false);
             bot.BotData.WasPicked = true;
             Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
