@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Game.GameClients.Interfaces;
+using Azure.IO;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Security
 {
@@ -93,7 +93,7 @@ namespace Azure.Security
                     Word.Add(row[0].ToString().ToLower());
             }
 
-            ConsoleOutputWriter.WriteLine("Loaded " + Word.Count + " Bobba Filters", "Azure.Security");
+            Writer.WriteLine("Loaded " + Word.Count + " Bobba Filters", "Azure.Security");
         }
 
         /// <summary>

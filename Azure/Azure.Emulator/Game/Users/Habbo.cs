@@ -16,10 +16,10 @@ using Azure.Game.Users.Messenger;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
 using Azure.Game.Users.UserDataManagement;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Settings;
-using Azure.Util.IO;
 
 namespace Azure.Game.Users
 {
@@ -935,8 +935,7 @@ namespace Azure.Game.Users
 
             Azure.GetGame().GetClientManager().UnregisterClient(Id, UserName);
 
-            ConsoleOutputWriter.WriteLine(UserName + " disconnected from game. Reason: " + reason, "Azure.Users",
-                ConsoleColor.DarkYellow);
+            Writer.WriteLine(UserName + " disconnected from game. Reason: " + reason, "Azure.Users", ConsoleColor.DarkYellow);
 
             var getOnlineSeconds = DateTime.Now - TimeLoggedOn;
             var secondsToGive = getOnlineSeconds.Seconds;

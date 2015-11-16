@@ -1,10 +1,4 @@
-﻿#region
-
-using System;
-
-#endregion
-
-namespace Azure
+﻿namespace Azure.IO
 {
     public abstract class AbstractBar
     {
@@ -14,8 +8,8 @@ namespace Azure
         /// <param name="msg">Message to print</param>
         public void PrintMessage(string msg)
         {
-            Console.Write("  {0}", msg);
-            Console.Write("\r".PadLeft(Console.WindowWidth - Console.CursorLeft - 1));
+            System.Console.Write("  {0}", msg);
+            System.Console.Write("\r".PadLeft(System.Console.WindowWidth - System.Console.CursorLeft - 1));
         }
 
         public abstract void Step();

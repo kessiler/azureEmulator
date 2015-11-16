@@ -4,6 +4,7 @@ using System.Threading;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms.User;
 using Azure.Game.Rooms.User.Path;
+using Azure.IO;
 
 namespace Azure.Game.RoomBots
 {
@@ -477,7 +478,7 @@ namespace Azure.Game.RoomBots
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
             }
         }
 

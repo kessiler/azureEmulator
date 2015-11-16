@@ -75,11 +75,11 @@ namespace Azure.Game.Users.Authenticator
             var releaseVersion = (int)dRow["release_version"];
 
             /* guides */
-            var onDuty = Convert.ToBoolean(dRow["OnDuty"]);
-            var DutyLevel = uint.Parse(dRow["DutyLevel"].ToString());
+            var onDuty = Convert.ToBoolean(dRow["on_duty"]);
+            var dutyLevel = uint.Parse(dRow["duty_level"].ToString());
 
             var navilogs = new Dictionary<int, UserSearchLog>();
-            var navilogstring = (string)dRow["navilogs"];
+            var navilogstring = (string)dRow["navigator_logs"];
             if (navilogstring.Length > 0)
                 foreach (
                     var naviLogs in
@@ -97,7 +97,7 @@ namespace Azure.Game.Users.Authenticator
                 hasFriendRequestsDisabled, currentQuestId, currentQuestProgress, achievementPoints, regTimestamp,
                 lastOnline, appearOffline, hideInRoom, vip, createDate, online, citizenship, diamonds, group, favId,
                 lastChange, tradeLocked, tradeLockExpire, nuxPassed, buildersExpire, buildersItemsMax,
-                buildersItemsUsed, releaseVersion, onDuty, navilogs, dailyCompetitionVotes, DutyLevel);
+                buildersItemsUsed, releaseVersion, onDuty, navilogs, dailyCompetitionVotes, dutyLevel);
         }
     }
 }

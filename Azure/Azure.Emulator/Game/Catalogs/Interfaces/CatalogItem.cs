@@ -87,6 +87,11 @@ namespace Azure.Game.Catalogs.Interfaces
         internal uint BaseId;
 
         /// <summary>
+        /// The base name
+        /// </summary>
+        internal string BaseName;
+
+        /// <summary>
         ///     The first amount
         /// </summary>
         internal uint FirstAmount;
@@ -110,9 +115,13 @@ namespace Azure.Game.Catalogs.Interfaces
         {
             Id = Convert.ToUInt32(row["id"]);
             Name = name;
+
             ItemNamesString = row["item_names"].ToString();
+
             Items = new Dictionary<Item, uint>();
+
             var itemNames = ItemNamesString.Split(';');
+
             var amounts = row["amounts"].ToString().Split(';');
 
             for (var i = 0; i < itemNames.Length; i++)
@@ -120,12 +129,15 @@ namespace Azure.Game.Catalogs.Interfaces
                 uint amount;
                 Item item;
 
-                if (!Azure.GetGame().GetItemManager().GetItem(itemNames[i], out item)) continue;
+                if (!Azure.GetGame().GetItemManager().GetItem(itemNames[i], out item))
+                    continue;
+
                 uint.TryParse(amounts[i], out amount);
 
                 Items.Add(item, amount);
             }
 
+            BaseName = Items.Keys.First().Name;
             BaseId = Items.Keys.First().ItemId;
             FirstAmount = Items.Values.First();
             PageId = (int)row["page_id"];
@@ -149,18 +161,12 @@ namespace Azure.Game.Catalogs.Interfaces
         /// </summary>
         /// <param name="itemId">The item ids.</param>
         /// <returns>Item.</returns>
-        internal Item GetBaseItem(uint itemId)
-        {
-            return Azure.GetGame().GetItemManager().GetItem(itemId);
-        }
+        internal Item GetBaseItem(uint itemId) => Azure.GetGame().GetItemManager().GetItem(itemId);
 
         /// <summary>
         ///     Gets the first base item.
         /// </summary>
         /// <returns>Item.</returns>
-        internal Item GetFirstBaseItem()
-        {
-            return GetBaseItem(BaseId);
-        }
+        internal Item GetFirstBaseItem() => GetBaseItem(BaseId);
     }
 }

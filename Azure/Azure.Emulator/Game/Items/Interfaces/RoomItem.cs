@@ -23,8 +23,8 @@ using Azure.Game.SoundMachine;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Settings;
-using Azure.Util.IO;
 using Azure.Util.Math;
+using Azure.IO;
 
 namespace Azure.Game.Items.Interfaces
 {
@@ -59,9 +59,9 @@ namespace Azure.Game.Items.Interfaces
         internal int BallValue;
 
         /// <summary>
-        ///     The base item
+        /// The base name
         /// </summary>
-        internal uint BaseItem;
+        internal string BaseName;
 
         /// <summary>
         ///     The come direction
@@ -227,12 +227,12 @@ namespace Azure.Game.Items.Interfaces
         /// <param name="flatId">The flat identifier.</param>
         /// <param name="songCode">The song code.</param>
         /// <param name="isBuilder">if set to <c>true</c> [is builder].</param>
-        internal RoomItem(uint id, uint roomId, uint baseItem, string extraData, int x, int y, double z, int rot,
+        internal RoomItem(uint id, uint roomId, string baseName, string extraData, int x, int y, double z, int rot,
             Room pRoom, uint userid, uint eGroup, int flatId, string songCode, bool isBuilder)
         {
             Id = id;
             RoomId = roomId;
-            BaseItem = baseItem;
+            BaseName = baseName;
             ExtraData = extraData;
             GroupId = eGroup;
             X = x;
@@ -251,10 +251,11 @@ namespace Azure.Game.Items.Interfaces
             SongCode = songCode;
             IsBuilder = isBuilder;
 
-            _mBaseItem = Azure.GetGame().GetItemManager().GetItem(baseItem);
+            _mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
             _mRoom = pRoom;
 
-            if (GetBaseItem() == null) ServerLogManager.LogException(string.Format("Unknown baseID: {0}", baseItem));
+            if (GetBaseItem() == null)
+                ServerLogManager.LogException(string.Format("Unknown Base Item (By Name): {0}", baseName));
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
@@ -384,15 +385,16 @@ namespace Azure.Game.Items.Interfaces
         /// <param name="eGroup">The group.</param>
         /// <param name="flatId">The flat identifier.</param>
         /// <param name="isBuilder">if set to <c>true</c> [is builder].</param>
-        internal RoomItem(uint id, uint roomId, uint baseItem, string extraData, WallCoordinate wallCoord, Room pRoom,
+        internal RoomItem(uint id, uint roomId, string baseName, string extraData, WallCoordinate wallCoord, Room pRoom,
             uint userid, uint eGroup, int flatId, bool isBuilder)
         {
-            BaseItem = baseItem;
+            BaseName = baseName;
 
-            _mBaseItem = Azure.GetGame().GetItemManager().GetItem(baseItem);
+            _mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
             _mRoom = pRoom;
 
-            if (GetBaseItem() == null) ServerLogManager.LogException(string.Format("Unknown baseID: {0}", baseItem));
+            if (GetBaseItem() == null)
+                ServerLogManager.LogException($"Unknown Base Item (By Name): {baseName}");
 
             Id = id;
             RoomId = roomId;
@@ -494,15 +496,20 @@ namespace Azure.Game.Items.Interfaces
             {
                 try
                 {
-                    if (GetBaseItem() == null) return 0;
-                    if (!GetBaseItem().StackMultipler) return GetBaseItem().Height;
-                    if (string.IsNullOrEmpty(ExtraData)) ExtraData = "0";
+                    if (GetBaseItem() == null)
+                        return 0;
+
+                    if (!GetBaseItem().StackMultipler)
+                        return GetBaseItem().Height;
+
+                    if (string.IsNullOrEmpty(ExtraData))
+                        ExtraData = "0";
 
                     return GetBaseItem().ToggleHeight[int.Parse(ExtraData)];
                 }
                 catch (Exception e)
                 {
-                    Writer.Writer.LogException("TotalHeight with furni BaseId: " + BaseItem + " in RoomId:" + RoomId +
+                    Writer.LogException("TotalHeight with furni BaseName: " + BaseName + " in RoomId:" + RoomId +
                                                Environment.NewLine + e);
                     return 0;
                 }
@@ -527,7 +534,7 @@ namespace Azure.Game.Items.Interfaces
                 }
                 catch (Exception e)
                 {
-                    Writer.Writer.LogException("TotalHeight with furni BaseId: " + BaseItem + " in RoomId:" + RoomId +
+                    Writer.LogException("TotalHeight with furni Base Name: " + BaseName + " in RoomId:" + RoomId +
                                                Environment.NewLine + e);
                     return 1;
                 }
@@ -1803,19 +1810,13 @@ namespace Azure.Game.Items.Interfaces
         ///     Gets the base item.
         /// </summary>
         /// <returns>Item.</returns>
-        internal Item GetBaseItem()
-        {
-            return _mBaseItem ?? (_mBaseItem = Azure.GetGame().GetItemManager().GetItem(BaseItem));
-        }
+        internal Item GetBaseItem() => _mBaseItem ?? (_mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(BaseName));
 
         /// <summary>
         ///     Gets the room.
         /// </summary>
         /// <returns>Room.</returns>
-        internal Room GetRoom()
-        {
-            return _mRoom ?? (_mRoom = Azure.GetGame().GetRoomManager().GetRoom(RoomId));
-        }
+        internal Room GetRoom() => _mRoom ?? (_mRoom = Azure.GetGame().GetRoomManager().GetRoom(RoomId));
 
         /// <summary>
         ///     Users the walks on furni.

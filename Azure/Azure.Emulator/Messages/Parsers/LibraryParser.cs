@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Azure.IO;
 using Azure.Messages.Handlers;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Messages.Parsers
 {
@@ -32,15 +32,15 @@ namespace Azure.Messages.Parsers
             if (Outgoing.TryGetValue(packetName, out packetId))
                 return packetId;
 
-            ConsoleOutputWriter.WriteLine("Outgoing " + packetName + " doesn't exist.", "Azure.Communication");
+            Writer.WriteLine("Outgoing " + packetName + " doesn't exist.", "Azure.Communication");
 
             return -1;
         }
 
         public static void Initialize()
         {
-            ConsoleOutputWriter.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Communication");
-            ConsoleOutputWriter.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Communication");
+            Writer.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Communication");
+            Writer.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Communication");
         }
 
         public static void HandlePacket(GameClientMessageHandler handler, ClientMessage message)
@@ -127,7 +127,7 @@ namespace Azure.Messages.Parsers
                         if (packetId == -1)
                             continue;
 
-                        ConsoleOutputWriter.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
+                        Writer.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
                     }
                     else
                         Incoming.Add(packetId, new StaticRequestHandler(del));
@@ -163,7 +163,7 @@ namespace Azure.Messages.Parsers
                 if (packetId != -1)
                 {
                     if (_registeredOutoings.Contains((uint)packetId))
-                        Writer.Writer.LogMessage("A Outgoing Packet With Same ID Was Encountred. Packet Id: " + packetId, false);
+                        Writer.LogMessage("A Outgoing Packet With Same ID Was Encountred. Packet Id: " + packetId, false);
                     else
                         _registeredOutoings.Add((uint)packetId);
                 }

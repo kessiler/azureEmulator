@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.Achievements.Structs;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Game.Achievements.Factories
 {
@@ -25,17 +25,17 @@ namespace Azure.Game.Achievements.Factories
 
             foreach (DataRow dataRow in dbClient.GetTable().Rows)
             {
-                string achievementName = dataRow["group_name"].ToString();
+                string achievementName = dataRow["achievement_name"].ToString();
 
-                AchievementLevel level = new AchievementLevel((int)dataRow["level"], (int)dataRow["reward_pixels"], (int)dataRow["reward_points"], (int)dataRow["progress_needed"]);
+                AchievementLevel level = new AchievementLevel((int)dataRow["achievement_level"], (int)dataRow["reward_pixels"], (int)dataRow["reward_points"], (int)dataRow["progress_needed"]);
 
                 if (!achievements.ContainsKey(achievementName))
-                    achievements.Add(achievementName, new Achievement((uint)dataRow["id"], achievementName, dataRow["category"].ToString()));        
+                    achievements.Add(achievementName, new Achievement((uint)dataRow["id"], achievementName, dataRow["achievement_category"].ToString()));        
 
                 if (!achievements[achievementName].CheckLevel(level))
                     achievements[achievementName].AddLevel(level);
                 else
-                    ConsoleOutputWriter.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "[Azure.Achievements]", ConsoleColor.Cyan);
+                    Writer.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "[Azure.Achievements]", ConsoleColor.Cyan);
             }
         }
     }

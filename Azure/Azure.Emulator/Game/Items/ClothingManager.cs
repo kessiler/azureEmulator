@@ -26,7 +26,7 @@ namespace Azure.Game.Items
         /// <param name="dbClient">The database client.</param>
         internal void Initialize(IQueryAdapter dbClient)
         {
-            dbClient.SetQuery("SELECT * FROM catalog_clothing");
+            dbClient.SetQuery("SELECT * FROM catalog_wearables");
             ClothingItems = new Dictionary<string, ClothingItem>();
             _table = dbClient.GetTable();
 

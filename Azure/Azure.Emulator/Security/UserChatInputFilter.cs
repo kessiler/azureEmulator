@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Script.Serialization;
+using Azure.IO;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Security
 {
@@ -64,7 +64,7 @@ namespace Azure.Security
                 Dictionary.Add(mode, dic);
             }
 
-            ConsoleOutputWriter.WriteLine("Loaded " + Dictionary.Count + " filter modes.", "Azure.Security");
+            Writer.WriteLine("Loaded " + Dictionary.Count + " filter modes.", "Azure.Security");
         }
 
         /// <summary>

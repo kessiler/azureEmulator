@@ -37,15 +37,15 @@ namespace Azure.Game.SoundMachine.Songs
         /// </summary>
         /// <param name="itemId">The item identifier.</param>
         /// <param name="songId">The song identifier.</param>
-        /// <param name="baseItem">The base item.</param>
+        /// <param name="baseName">The base item.</param>
         /// <param name="extraData">The extra data.</param>
         /// <param name="songCode">The song code.</param>
-        public SongItem(uint itemId, uint songId, int baseItem, string extraData, string songCode)
+        public SongItem(uint itemId, uint songId, string baseName, string extraData, string songCode)
         {
             ItemId = itemId;
             SongId = songId;
 
-            BaseItem = Azure.GetGame().GetItemManager().GetItem(((uint) baseItem));
+            BaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
 
             ExtraData = extraData;
             SongCode = songCode;

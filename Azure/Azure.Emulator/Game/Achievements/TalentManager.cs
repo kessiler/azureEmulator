@@ -25,7 +25,7 @@ namespace Azure.Game.Achievements
         /// <param name="dbClient">The database client.</param>
         internal void Initialize(IQueryAdapter dbClient)
         {
-            dbClient.SetQuery("SELECT * FROM achievements_talents ORDER BY `order_num` ASC");
+            dbClient.SetQuery("SELECT * FROM talents_data ORDER BY `order_num` ASC");
 
             DataTable table = dbClient.GetTable();
 

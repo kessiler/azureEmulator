@@ -11,7 +11,7 @@ using Azure.Game.Catalogs.Wrappers;
 using Azure.Game.Items.Interactions;
 using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Items.Interfaces;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Game.Items
 {
@@ -24,11 +24,6 @@ namespace Azure.Game.Items
         ///     The items
         /// </summary>
         private readonly HybridDictionary _items;
-
-        /// <summary>
-        ///     The photo identifier
-        /// </summary>
-        internal uint PhotoId;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ItemManager" /> class.
@@ -61,7 +56,7 @@ namespace Azure.Game.Items
 
             GiftWrapper.Clear();
 
-            dbClient.SetQuery("SELECT * FROM catalog_furnis");
+            dbClient.SetQuery("SELECT * FROM catalog_furnitures");
 
             var table = dbClient.GetTable();
             if (table == null) return;
@@ -96,8 +91,6 @@ namespace Azure.Game.Items
                     ushort x = ushort.MinValue, y = ushort.MinValue;
                     var publicName = Convert.ToString(dataRow["item_name"]);
                     bool canWalk = false, canSit = false, stackMultiple = false;
-
-                    if (name.StartsWith("external_image_wallitem_poster")) PhotoId = id;
 
                     if (name == "landscape" || name == "floor" || name == "wallpaper")
                     {
@@ -161,7 +154,7 @@ namespace Azure.Game.Items
                 {
                     Console.WriteLine(ex.ToString());
                     Console.ReadKey();
-                    ConsoleOutputWriter.WriteLine($"Could not load item #{Convert.ToUInt32(dataRow[0])}, please verify the data is okay.", "Azure.Items", ConsoleColor.DarkRed);
+                    Writer.WriteLine($"Could not load item #{Convert.ToUInt32(dataRow[0])}, please verify the data is okay.", "Azure.Items", ConsoleColor.DarkRed);
                 }
             }
         }
@@ -193,5 +186,7 @@ namespace Azure.Game.Items
         /// <param name="id">The identifier.</param>
         /// <returns><c>true</c> if the specified identifier contains item; otherwise, <c>false</c>.</returns>
         internal bool ContainsItem(uint id) => _items.Contains(id);
+
+        internal bool ContainsItemByName(string name) => (from DictionaryEntry entry in _items select (Item)entry.Value).FirstOrDefault(item => item.Name == name) != null;
     }
 }

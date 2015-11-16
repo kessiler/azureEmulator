@@ -1,4 +1,4 @@
-namespace Azure
+namespace Azure.IO
 {
     /// <summary>
     /// Summary description for ConsoleWriter.

@@ -1,4 +1,4 @@
-﻿using Azure.Util.IO;
+﻿using Azure.IO;
 
 namespace Azure.Game.Items
 {

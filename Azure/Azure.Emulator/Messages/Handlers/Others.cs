@@ -388,7 +388,7 @@ namespace Azure.Messages.Handlers
                         queryReactor2.RunQuery();
 
                         var newPhotoData = "{\"t\":" + date + ",\"u\":\"" + photo + "\",\"m\":\"\",\"s\":" + room + ",\"w\":\"" + image + "\"}";
-                        var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, Azure.GetGame().GetItemManager().PhotoId, newPhotoData, 0, true, false, 0, 0);
+                        var item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, "external_image_wallitem_poster", newPhotoData, 0, true, false, 0, 0);
 
                         Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
                         Session.GetHabbo().Credits -= 2;

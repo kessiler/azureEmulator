@@ -60,17 +60,16 @@ namespace Azure.Game.Items.Handlers
                 return;
 
             item.RefreshItem();
-            item.BaseItem = pinataItem.Rewards[new Random().Next((pinataItem.Rewards.Count - 1))];
+
+            //@TODO :: KESSILER, now PINATA DOESNT WORK. MUST CREATE SOLUTION LATER.
+
+            //item.BaseName = pinataItem.Rewards[new Random().Next((pinataItem.Rewards.Count - 1))];
 
             item.ExtraData = string.Empty;
             room.GetRoomItemHandler().RemoveFurniture(user.GetClient(), item.Id, false);
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-            {
-                queryReactor.RunFastQuery(
-                    $"UPDATE items_rooms SET base_item='{item.BaseItem}', extra_data='' WHERE id='{item.Id}'");
-                queryReactor.RunQuery();
-            }
+                queryReactor.RunFastQuery($"UPDATE items_rooms SET item_name='{item.BaseName}', extra_data='' WHERE id='{item.Id}'");
 
             if (!room.GetRoomItemHandler().SetFloorItem(user.GetClient(), item, item.X, item.Y, 0, true, false, true))
                 user.GetClient().GetHabbo().GetInventoryComponent().AddItem(item);

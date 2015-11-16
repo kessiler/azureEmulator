@@ -6,7 +6,7 @@ using Azure.Game.Commands.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Items.Interfaces;
 using Azure.Game.Rooms.User;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Game.Commands.Controllers
 {
@@ -113,8 +113,8 @@ namespace Azure.Game.Commands.Controllers
                             .GetAllRoomItemForSquare(user.CopyX, user.CopyY))
                 {
                     queryReactor.SetQuery(
-                        "INSERT INTO items_rooms (base_item, user_id, room_id, extra_data, x, y, z, rot, group_id) VALUES (" +
-                        item.GetBaseItem().ItemId + ", " + user.UserId + ", " + user.RoomId + ", @extraData, " +
+                        "INSERT INTO items_rooms (item_name, user_id, room_id, extra_data, x, y, z, rot, group_id) VALUES (" +
+                        item.GetBaseItem().Name + ", " + user.UserId + ", " + user.RoomId + ", @extraData, " +
                         user.LastSelectedX + ", " + user.LastSelectedY + ", @height, " + item.Rot + ", " + item.GroupId +
                         ")");
                     queryReactor.AddParameter("extraData", item.ExtraData);
@@ -122,7 +122,7 @@ namespace Azure.Game.Commands.Controllers
 
                     var insertId = (uint)queryReactor.InsertQuery();
 
-                    var roomItem = new RoomItem(insertId, user.RoomId, item.GetBaseItem().ItemId, item.ExtraData,
+                    var roomItem = new RoomItem(insertId, user.RoomId, item.GetBaseItem().Name, item.ExtraData,
                         user.LastSelectedX, user.LastSelectedY, item.Z, item.Rot, session.GetHabbo().CurrentRoom,
                         user.UserId, item.GroupId,
                         Azure.GetGame().GetItemManager().GetItem(item.GetBaseItem().ItemId).FlatId, item.SongCode,

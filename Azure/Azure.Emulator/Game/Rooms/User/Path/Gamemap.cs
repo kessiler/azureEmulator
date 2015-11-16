@@ -13,6 +13,7 @@ using Azure.Game.Pathfinding;
 using Azure.Game.Rooms.Chat.Enums;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.Items.Games.Teams.Enums;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Util.Coordinates;
@@ -1365,7 +1366,7 @@ namespace Azure.Game.Rooms.User.Path
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
             }
         }
 
@@ -1450,7 +1451,7 @@ namespace Azure.Game.Rooms.User.Path
                     }
                     catch (Exception e)
                     {
-                        Writer.Writer.LogException(e.ToString());
+                        Writer.LogException(e.ToString());
                     }
 
                     if (item.GetBaseItem().Walkable)

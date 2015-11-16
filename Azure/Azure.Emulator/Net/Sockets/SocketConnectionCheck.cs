@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
+using Azure.IO;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Net.Sockets
 {
@@ -39,7 +39,7 @@ namespace Azure.Net.Sockets
 
             if ((GetConnectionAmount(iP) > maxIpConnectionCount))
             {
-                ConsoleOutputWriter.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.Security", ConsoleColor.Blue);
+                Writer.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.Security", ConsoleColor.Blue);
 
                 _mLastIpBlocked = iP;
 

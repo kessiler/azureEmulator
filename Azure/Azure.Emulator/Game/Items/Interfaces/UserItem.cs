@@ -15,11 +15,6 @@ namespace Azure.Game.Items.Interfaces
         internal readonly Item BaseItem;
 
         /// <summary>
-        ///     The base item identifier
-        /// </summary>
-        internal uint BaseItemId;
-
-        /// <summary>
         ///     The extra data
         /// </summary>
         internal string ExtraData;
@@ -53,17 +48,17 @@ namespace Azure.Game.Items.Interfaces
         ///     Initializes a new instance of the <see cref="UserItem" /> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="baseItemId">The base item identifier.</param>
+        /// <param name="baseName">The base item identifier.</param>
         /// <param name="extraData">The extra data.</param>
         /// <param name="group">The group.</param>
         /// <param name="songCode">The song code.</param>
-        internal UserItem(uint id, uint baseItemId, string extraData, uint group, string songCode)
+        internal UserItem(uint id, string baseName, string extraData, uint group, string songCode)
         {
             Id = id;
-            BaseItemId = baseItemId;
             ExtraData = extraData;
             GroupId = group;
-            BaseItem = Azure.GetGame().GetItemManager().GetItem(baseItemId);
+
+            BaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
 
             if (BaseItem == null)
                 return;

@@ -207,13 +207,13 @@ namespace Azure.Game.Users.UserDataManagement
                     (int) subscriptionsRow["timestamp_lastgift"]);
 
             var items = (from DataRow row in itemsTable.Rows
-                let id = Convert.ToUInt32(row[0])
-                let itemId = Convert.ToUInt32(row[3])
-                where Azure.GetGame().GetItemManager().ContainsItem(itemId)
+                let id = Convert.ToUInt32(row["id"])
+                let itemName = row["item_name"].ToString()
+                where Azure.GetGame().GetItemManager().ContainsItemByName(itemName)
                 let extraData = !DBNull.Value.Equals(row[4]) ? (string) row[4] : string.Empty
-                let @group = Convert.ToUInt32(row["group_id"])
+                let theGroup = Convert.ToUInt32(row["group_id"])
                 let songCode = (string) row["songcode"]
-                select new UserItem(id, itemId, extraData, @group, songCode)).ToList();
+                select new UserItem(id, itemName, extraData, theGroup, songCode)).ToList();
 
             var effects = (from DataRow row in effectsTable.Rows
                 let effectId = (int) row["effect_id"]

@@ -11,7 +11,7 @@ using Azure.Game.Browser.Interfaces;
 using Azure.Game.Events;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms.Data;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Game.Rooms
 {
@@ -232,7 +232,7 @@ namespace Azure.Game.Rooms
 
             room.Start(roomData, forceLoad);
 
-            ConsoleOutputWriter.WriteLine($"Room #{id} was loaded", "Azure.Rooms", ConsoleColor.DarkCyan);
+            Writer.WriteLine($"Room #{id} was loaded", "Azure.Rooms", ConsoleColor.DarkCyan);
 
             room.InitBots();
             room.InitPets();
@@ -486,7 +486,7 @@ namespace Azure.Game.Rooms
             foreach (var current in LoadedRooms.Values)
                 Azure.GetGame().GetRoomManager().UnloadRoom(current, "RemoveAllRooms void called");
 
-            ConsoleOutputWriter.WriteLine("RoomManager Destroyed", "Azure.Rooms", ConsoleColor.DarkYellow);
+            Writer.WriteLine("RoomManager Destroyed", "Azure.Rooms", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
@@ -550,7 +550,7 @@ namespace Azure.Game.Rooms
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
             }
 
             if (room.GetRoomUserManager() != null && room.GetRoomUserManager().UserList != null)
@@ -610,7 +610,7 @@ namespace Azure.Game.Rooms
             LoadedRooms.TryRemove(room.RoomId, out junkRoom);
             junkRoom = null;
 
-            ConsoleOutputWriter.WriteLine(string.Format("Room #{0} was unloaded, reason: " + reason, room.RoomId),
+            Writer.WriteLine(string.Format("Room #{0} was unloaded, reason: " + reason, room.RoomId),
                 "Azure.Rooms", ConsoleColor.DarkGray);
 
             room.Destroy();

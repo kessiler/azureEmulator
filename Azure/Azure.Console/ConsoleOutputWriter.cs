@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Azure.Util.IO
+namespace Azure.IO
 {
     internal class ConsoleOutputWriter
     {
@@ -10,10 +10,10 @@ namespace Azure.Util.IO
         /// <param name="format">The format.</param>
         /// <param name="header">The header.</param>
         /// <param name="color">The color.</param>
-        public static void WriteLine(string format, string header = "", ConsoleColor color = ConsoleColor.White)
+        internal static void WriteLine(string format, string header, ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(@"  " + @"[" + DateTime.Now + "] ");
+            Console.Write(@" ");// + @" [" + DateTime.Now + "] ");
 
             if (header != "")
             {
@@ -21,7 +21,7 @@ namespace Azure.Util.IO
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write(header);
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Write("] ");
+                Console.Write("]");
             }
 
             Console.Write(" >> ");
@@ -36,7 +36,7 @@ namespace Azure.Util.IO
         /// <param name="format">The format.</param>
         /// <param name="header">The header.</param>
         /// <param name="color">The color.</param>
-        public static void Write(string format, string header = "", ConsoleColor color = ConsoleColor.White)
+        internal static void Write(string format, string header = "", ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(@"  " + @"[" + DateTime.Now + "] ");

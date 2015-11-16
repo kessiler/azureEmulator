@@ -204,7 +204,7 @@ namespace Azure.Game.Items.Interfaces
             using (var queryReacter = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReacter.SetQuery(
-                    "UPDATE LOW_PRIORITY catalog_furnis SET stack_height = @height, can_stack = @stack, allow_trade = @trade, interaction_modes_count = @modes WHERE id = " +
+                    "UPDATE LOW_PRIORITY catalog_furnitures SET stack_height = @height, can_stack = @stack, allow_trade = @trade, interaction_modes_count = @modes WHERE id = " +
                     id);
                 queryReacter.AddParameter("height", string.Join(";", height).Replace(',', '.'));
                 queryReacter.AddParameter("stack", stackable ? "1" : "0");

@@ -7,9 +7,9 @@ using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Pets;
 using Azure.Game.Pets.Enums;
 using Azure.Game.Rooms.User;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-using Azure.Util.IO;
 
 namespace Azure.Game.RoomBots
 {

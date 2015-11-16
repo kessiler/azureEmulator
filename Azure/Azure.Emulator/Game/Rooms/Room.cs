@@ -27,6 +27,7 @@ using Azure.Game.Rooms.User.Path;
 using Azure.Game.Rooms.User.Trade;
 using Azure.Game.SoundMachine;
 using Azure.Game.SoundMachine.Songs;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
@@ -574,7 +575,7 @@ namespace Azure.Game.Rooms
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery($"SELECT items_songs.songid,items_rooms.id,items_rooms.base_item FROM items_songs LEFT JOIN items_rooms ON items_rooms.id = items_songs.itemid WHERE items_songs.roomid = {RoomId}");
+                queryReactor.SetQuery($"SELECT items_songs.songid,items_rooms.id,items_rooms.item_name FROM items_songs LEFT JOIN items_rooms ON items_rooms.id = items_songs.itemid WHERE items_songs.roomid = {RoomId}");
 
                 table = queryReactor.GetTable();
             }
@@ -584,15 +585,16 @@ namespace Azure.Game.Rooms
 
             foreach (DataRow dataRow in table.Rows)
             {
-                var songId = (uint) dataRow[0];
-                var num = Convert.ToUInt32(dataRow[1]);
-                var baseItem = Convert.ToInt32(dataRow[2]);
+                var songId = (uint) dataRow["songid"];
+                var num = Convert.ToUInt32(dataRow["id"]);
+                var baseName = dataRow["item_name"].ToString();
                 var songCode = string.Empty;
                 var extraData = string.Empty;
 
                 using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery($"SELECT extra_data,songcode FROM items_rooms WHERE id = {num}");
+
                     var row = queryreactor2.GetRow();
 
                     if (row != null)
@@ -602,7 +604,7 @@ namespace Azure.Game.Rooms
                     }
                 }
 
-                var diskItem = new SongItem(num, songId, baseItem, extraData, songCode);
+                var diskItem = new SongItem(num, songId, baseName, extraData, songCode);
 
                 GetRoomMusicController().AddDisk(diskItem);
             }
@@ -805,7 +807,7 @@ namespace Azure.Game.Rooms
                 }
                 catch (Exception e)
                 {
-                    Writer.Writer.LogException(e.ToString());
+                    Writer.LogException(e.ToString());
                     OnRoomCrash(e);
                 }
             }

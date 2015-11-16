@@ -10,6 +10,7 @@ using Azure.Game.Items.Wired.Handlers.Effects;
 using Azure.Game.Items.Wired.Handlers.Triggers;
 using Azure.Game.Items.Wired.Interfaces;
 using Azure.Game.Rooms;
+using Azure.IO;
 
 namespace Azure.Game.Items.Wired
 {
@@ -156,7 +157,7 @@ namespace Azure.Game.Items.Wired
             }
             catch (Exception e)
             {
-                Writer.Writer.HandleException(e, "WiredHandler.cs:ExecuteWired Type: " + type);
+                Writer.HandleException(e, "WiredHandler.cs:ExecuteWired Type: " + type);
             }
 
             return false;
@@ -189,7 +190,7 @@ namespace Azure.Game.Items.Wired
             }
             catch (Exception e)
             {
-                Writer.Writer.HandleException(e, "WiredHandler.cs:OnCycle");
+                Writer.HandleException(e, "WiredHandler.cs:OnCycle");
             }
         }
 

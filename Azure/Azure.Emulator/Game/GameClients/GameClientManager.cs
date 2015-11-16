@@ -8,10 +8,10 @@ using System.Text;
 using Azure.Data;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Users.Messenger;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 using Azure.Net.Connection;
-using Azure.Util.IO;
 
 namespace Azure.Game.GameClients
 {
@@ -343,7 +343,7 @@ namespace Azure.Game.GameClients
             var stringBuilder = new StringBuilder();
             var flag = false;
 
-            ConsoleOutputWriter.WriteLine("Saving Inventary Content....", "Azure.Boot", ConsoleColor.DarkCyan);
+            Writer.WriteLine("Saving Inventary Content....", "Azure.Boot", ConsoleColor.DarkCyan);
 
             foreach (var current2 in Clients.Values.Where(current2 => current2.GetHabbo() != null))
             {
@@ -354,7 +354,7 @@ namespace Azure.Game.GameClients
                 Console.ForegroundColor = ConsoleColor.DarkMagenta;
             }
 
-            ConsoleOutputWriter.WriteLine("Inventary Content Saved!", "Azure.Boot", ConsoleColor.DarkCyan);
+            Writer.WriteLine("Inventary Content Saved!", "Azure.Boot", ConsoleColor.DarkCyan);
 
             if (flag)
             {
@@ -366,7 +366,7 @@ namespace Azure.Game.GameClients
             }
             try
             {
-                ConsoleOutputWriter.WriteLine("Closing Connection Manager...", "Azure.Boot", ConsoleColor.DarkMagenta);
+                Writer.WriteLine("Closing Connection Manager...", "Azure.Boot", ConsoleColor.DarkMagenta);
 
                 foreach (var current3 in Clients.Values.Where(current3 => current3.GetConnection() != null))
                 {
@@ -374,7 +374,7 @@ namespace Azure.Game.GameClients
 
                     Console.ForegroundColor = ConsoleColor.DarkMagenta;
 
-                    ConsoleOutputWriter.WriteLine("Connection Manager Closed!", "Azure.Boot", ConsoleColor.DarkMagenta);
+                    Writer.WriteLine("Connection Manager Closed!", "Azure.Boot", ConsoleColor.DarkMagenta);
                 }
             }
             catch (Exception ex)
@@ -383,7 +383,7 @@ namespace Azure.Game.GameClients
             }
 
             Clients.Clear();
-            ConsoleOutputWriter.WriteLine("Connections closed", "Azure.Conn", ConsoleColor.DarkYellow);
+            Writer.WriteLine("Connections closed", "Azure.Conn", ConsoleColor.DarkYellow);
         }
 
         /// <summary>

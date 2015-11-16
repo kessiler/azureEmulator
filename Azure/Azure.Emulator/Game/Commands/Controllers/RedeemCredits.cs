@@ -1,6 +1,7 @@
 ﻿using System;
 using Azure.Game.Commands.Interfaces;
 using Azure.Game.GameClients.Interfaces;
+using Azure.IO;
 
 namespace Azure.Game.Commands.Controllers
 {
@@ -26,7 +27,7 @@ namespace Azure.Game.Commands.Controllers
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
                 session.SendNotif(Azure.GetLanguage().GetVar("command_redeem_credits"));
             }
             return true;

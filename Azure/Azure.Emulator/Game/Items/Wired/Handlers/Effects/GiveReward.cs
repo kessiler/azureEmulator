@@ -133,7 +133,7 @@ namespace Azure.Game.Items.Wired.Handlers.Effects
                         user.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().AddNewEffect(roomItem.SpriteId, 3600, 1);
                     else
                     {
-                        user.GetClient().GetHabbo().GetInventoryComponent().AddNewItem(0u, roomItem.ItemId, "0", 0u, true, false, 0, 0);
+                        user.GetClient().GetHabbo().GetInventoryComponent().AddNewItem(0u, roomItem.Name, "0", 0u, true, false, 0, 0);
                         user.GetClient().SendMessage(new ServerMessage(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer")));
                     }
 

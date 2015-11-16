@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Timers;
+using Azure.IO;
 using Azure.Settings;
 
 namespace Azure.Game.Users
@@ -53,7 +54,7 @@ namespace Azure.Game.Users
             }
             catch (Exception ex)
             {
-                Writer.Writer.LogException(ex.ToString());
+                Writer.LogException(ex.ToString());
             }
         }
 

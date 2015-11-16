@@ -120,7 +120,7 @@ namespace Azure.Messages.Handlers
 
             songItem.RemoveFromDatabase();
 
-            Session.GetHabbo().GetInventoryComponent().AddNewItem(songItem.ItemId, songItem.BaseItem.ItemId, songItem.ExtraData, 0u, false, true, 0, 0, songItem.SongCode);
+            Session.GetHabbo().GetInventoryComponent().AddNewItem(songItem.ItemId, songItem.BaseItem.Name, songItem.ExtraData, 0u, false, true, 0, 0, songItem.SongCode);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())

@@ -5,8 +5,8 @@ using System.Net;
 using System.Xml;
 using Azure.Util;
 using Azure.Data.Structs;
+using Azure.IO;
 using Azure.Settings;
-using Azure.Util.IO;
 
 namespace Azure.Data
 {
@@ -76,23 +76,23 @@ namespace Azure.Data
             }
             catch (WebException e)
             {
-                ConsoleOutputWriter.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
-                ConsoleOutputWriter.WriteLine("Type a key to close");
+                Writer.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
+                Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
             catch (XmlException e)
             {
-                ConsoleOutputWriter.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.XML",
+                Writer.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.XML",
                     ConsoleColor.Red);
-                ConsoleOutputWriter.WriteLine("Type a key to close");
+                Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
             catch (NullReferenceException e)
             {
-                ConsoleOutputWriter.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
-                ConsoleOutputWriter.WriteLine("Type a key to close");
+                Writer.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
+                Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }

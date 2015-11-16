@@ -18,9 +18,9 @@ using Azure.Game.Pets;
 using Azure.Game.Rooms.Chat.Enums;
 using Azure.Game.Rooms.User;
 using Azure.Game.Rooms.User.Path;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-using Azure.Util.IO;
 
 namespace Azure.Game.Rooms.Items.Handlers
 {
@@ -459,42 +459,35 @@ namespace Azure.Game.Rooms.Items.Handlers
                         var z = Convert.ToDouble(dataRow["z"]);
                         var rot = Convert.ToSByte(dataRow["rot"]);
                         var ownerId = Convert.ToUInt32(dataRow["user_id"]);
-                        var baseItemId = Convert.ToUInt32(dataRow["base_item"]);
-                        var item = Azure.GetGame().GetItemManager().GetItem(baseItemId);
-                        if (item == null) continue;
+                        var baseItemName = dataRow["item_name"].ToString();
+
+                        var item = Azure.GetGame().GetItemManager().GetItemByName(baseItemName);
+
+                        if (item == null)
+                            continue;
 
                         if (ownerId == 0)
-                            queryReactor.RunFastQuery("UPDATE items_rooms SET user_id = " + _room.RoomData.OwnerId +
-                                                      " WHERE id = " + id);
+                            queryReactor.RunFastQuery("UPDATE items_rooms SET user_id = " + _room.RoomData.OwnerId + " WHERE id = " + id);
 
-                        var locationData = item.Type == 'i' && string.IsNullOrWhiteSpace(dataRow["wall_pos"].ToString())
-                            ? ":w=0,2 l=11,53 l"
-                            : dataRow["wall_pos"].ToString();
+                        var locationData = item.Type == 'i' && string.IsNullOrWhiteSpace(dataRow["wall_pos"].ToString()) ? ":w=0,2 l=11,53 l" : dataRow["wall_pos"].ToString();
 
-                        string extraData;
-                        if (DBNull.Value.Equals(dataRow["extra_data"])) extraData = string.Empty;
-                        else extraData = (string)dataRow["extra_data"];
+                        var extraData = (DBNull.Value.Equals(dataRow["extra_data"])) ? string.Empty : dataRow["extra_data"].ToString();
 
-                        string songCode;
-                        if (DBNull.Value.Equals(dataRow["songcode"])) songCode = string.Empty;
-                        else songCode = (string)dataRow["songcode"];
+                        var songCode = DBNull.Value.Equals(dataRow["songcode"]) ? string.Empty : (string) dataRow["songcode"];
 
                         var groupId = Convert.ToUInt32(dataRow["group_id"]);
+
                         if (item.Type == 'i')
                         {
                             var wallCoord = new WallCoordinate(':' + locationData.Split(':')[1]);
-                            var value = new RoomItem(id, _room.RoomId, baseItemId, extraData, wallCoord, _room, ownerId,
-                                groupId, item.FlatId,
-                                Azure.EnumToBool((string)dataRow["builders"]));
+
+                            var value = new RoomItem(id, _room.RoomId, baseItemName, extraData, wallCoord, _room, ownerId, groupId, item.FlatId, Azure.EnumToBool((string)dataRow["builders"]));
 
                             WallItems.TryAdd(id, value);
                         }
                         else
                         {
-                            var roomItem = new RoomItem(id, _room.RoomId, baseItemId, extraData, x, y, z, rot, _room,
-                                ownerId,
-                                groupId, item.FlatId, songCode,
-                                Azure.EnumToBool((string)dataRow["builders"]));
+                            var roomItem = new RoomItem(id, _room.RoomId, baseItemName, extraData, x, y, z, rot, _room, ownerId, groupId, item.FlatId, songCode, Azure.EnumToBool((string)dataRow["builders"]));
 
                             if (!_room.GetGameMap().ValidTile(x, y))
                             {
@@ -504,8 +497,9 @@ namespace Azure.Game.Rooms.Items.Handlers
                                 {
                                     clientByUserId2.GetHabbo()
                                         .GetInventoryComponent()
-                                        .AddNewItem(roomItem.Id, roomItem.BaseItem, roomItem.ExtraData, groupId, true,
+                                        .AddNewItem(roomItem.Id, roomItem.BaseName, roomItem.ExtraData, groupId, true,
                                             true, 0, 0);
+
                                     clientByUserId2.GetHabbo().GetInventoryComponent().UpdateItems(true);
                                 }
 
@@ -529,8 +523,10 @@ namespace Azure.Game.Rooms.Items.Handlers
                 {
                     if (current.IsWired)
                         _room.GetWiredHandler().LoadWired(_room.GetWiredHandler().GenerateNewItem(current));
+
                     if (current.IsRoller)
                         GotRollers = true;
+
                     else if (current.GetBaseItem().InteractionType == Interaction.Dimmer)
                     {
                         if (_room.MoodlightData == null)

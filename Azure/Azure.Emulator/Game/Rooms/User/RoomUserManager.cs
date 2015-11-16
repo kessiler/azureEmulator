@@ -20,9 +20,9 @@ using Azure.Game.Rooms.Items;
 using Azure.Game.Rooms.Items.Enums;
 using Azure.Game.Rooms.Items.Games.Teams.Enums;
 using Azure.Game.Rooms.Items.Games.Types.Freeze;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-using Azure.Util.IO;
 
 namespace Azure.Game.Rooms.User
 {
@@ -1529,7 +1529,7 @@ namespace Azure.Game.Rooms.User
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException("Disco mode: " + e);
+                Writer.LogException("Disco mode: " + e);
             }
 
             // Region: Main User Procedure... Really Main..

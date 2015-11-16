@@ -5,6 +5,7 @@ using System.Linq;
 using Azure.Game.Browser.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms.Data;
+using Azure.IO;
 using Azure.Messages;
 
 namespace Azure.Game.Browser
@@ -219,7 +220,7 @@ namespace Azure.Game.Browser
                     }
                     catch (Exception e)
                     {
-                        Writer.Writer.LogException(e.ToString());
+                        Writer.LogException(e.ToString());
                         message.AppendInteger(0);
                     }
                     break;

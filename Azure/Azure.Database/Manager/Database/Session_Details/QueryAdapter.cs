@@ -8,6 +8,7 @@ using FirebirdSql.Data.FirebirdClient;
 using Ingres.Client;
 using MySql.Data.MySqlClient;
 using Npgsql;
+using Azure.IO;
 
 #endregion
 
@@ -93,7 +94,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -107,7 +108,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -120,7 +121,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -133,7 +134,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;
@@ -155,7 +156,7 @@ namespace Azure.Database.Manager.Database.Session_Details
             }
             catch (Exception exception)
             {
-                Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                Writer.LogQueryError(exception, CommandMySql.CommandText);
                 throw exception;
             }
             return result;
@@ -180,7 +181,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -197,7 +198,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -213,7 +214,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -229,7 +230,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;
@@ -255,7 +256,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -270,7 +271,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -284,7 +285,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -298,7 +299,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;
@@ -323,7 +324,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -337,7 +338,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -350,7 +351,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -363,7 +364,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;
@@ -386,7 +387,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -399,7 +400,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -411,7 +412,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -424,7 +425,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;
@@ -456,7 +457,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandFireBird.CommandText);
+                        Writer.LogQueryError(exception, CommandFireBird.CommandText);
                         throw exception;
                     }
                     break;
@@ -469,7 +470,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandIngress.CommandText);
+                        Writer.LogQueryError(exception, CommandIngress.CommandText);
                         throw exception;
                     }
                     break;
@@ -481,7 +482,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandPgSql.CommandText);
+                        Writer.LogQueryError(exception, CommandPgSql.CommandText);
                         throw exception;
                     }
                     break;
@@ -493,7 +494,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     catch (Exception exception)
                     {
-                        Writer.Writer.LogQueryError(exception, CommandMySql.CommandText);
+                        Writer.LogQueryError(exception, CommandMySql.CommandText);
                         throw exception;
                     }
                     break;

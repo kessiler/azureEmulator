@@ -1027,7 +1027,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            UserItem item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ServerExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
+            /*UserItem item = Session.GetHabbo().GetInventoryComponent().AddNewItem(0, ServerExtraSettings.NewUserGiftYttv2Id, "", 0, true, false, 0, 0);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
             Session.GetHabbo().Diamonds += 25;
@@ -1048,7 +1048,7 @@ namespace Azure.Messages.Handlers
                             Session.GetHabbo().Id));
 
             Session.GetHabbo().NuxPassed = true;
-            Session.GetHabbo().Vip = true;
+            Session.GetHabbo().Vip = true;*/
         }
 
         /// <summary>

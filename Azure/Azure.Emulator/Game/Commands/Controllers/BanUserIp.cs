@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Azure.Game.Commands.Interfaces;
 using Azure.Game.GameClients.Interfaces;
+using Azure.IO;
 
 namespace Azure.Game.Commands.Controllers
 {
@@ -43,7 +44,7 @@ namespace Azure.Game.Commands.Controllers
             }
             catch
             {
-                Writer.Writer.LogException("Error while banning");
+                Writer.LogException("Error while banning");
             }
 
             return true;

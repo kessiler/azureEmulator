@@ -10,9 +10,9 @@ using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Items.Interfaces;
 using Azure.Game.Rooms.Items.Games.Teams.Enums;
 using Azure.Game.Rooms.User;
+using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
-using Azure.Util.IO;
 
 namespace Azure.Game.Rooms.Items.Games.Types.Banzai
 {

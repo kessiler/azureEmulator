@@ -5,7 +5,7 @@ using System.Linq;
 using Azure.Game.Commands.Controllers;
 using Azure.Game.Commands.Interfaces;
 using Azure.Game.GameClients.Interfaces;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Game.Commands
 {
@@ -178,13 +178,13 @@ namespace Azure.Game.Commands
                         {
                             if (AliasDictionary.ContainsKey(alias))
                             {
-                                ConsoleOutputWriter.WriteLine("Duplicate alias key: " + alias, "Azure.Commands",
+                                Writer.WriteLine("Duplicate alias key: " + alias, "Azure.Commands",
                                     ConsoleColor.DarkRed);
                                 continue;
                             }
                             if (CommandsDictionary.ContainsKey(alias))
                             {
-                                ConsoleOutputWriter.WriteLine("An alias cannot have same name as a normal command",
+                                Writer.WriteLine("An alias cannot have same name as a normal command",
                                     "Azure.Commands", ConsoleColor.DarkRed);
                                 continue;
                             }

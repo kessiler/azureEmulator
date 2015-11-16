@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Azure.IO;
 
 namespace Azure.Data
 {
@@ -60,7 +61,7 @@ namespace Azure.Data
                 }
                 catch (Exception e)
                 {
-                    Writer.Writer.LogException(e.ToString());
+                    Writer.LogException(e.ToString());
                 }
             }
         }

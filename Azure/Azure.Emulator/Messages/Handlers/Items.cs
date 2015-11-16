@@ -14,6 +14,7 @@ using Azure.Game.Pets.Enums;
 using Azure.Game.Quests;
 using Azure.Game.RoomBots;
 using Azure.Game.Rooms.User;
+using Azure.IO;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
 
@@ -255,7 +256,7 @@ namespace Azure.Messages.Handlers
             try
             {
                 var wallCoord = new WallCoordinate(":" + locationData.Split(':')[1]);
-                var item2 = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData, wallCoord, room,
+                var item2 = new RoomItem(item.Id, room.RoomId, item.BaseItem.Name, item.ExtraData, wallCoord, room,
                     Session.GetHabbo().Id, item.GroupId, item.BaseItem.FlatId, false);
                 if (room.GetRoomItemHandler().SetWallItem(Session, item2))
                     Session.GetHabbo().GetInventoryComponent().RemoveItem(id, true);
@@ -329,7 +330,7 @@ namespace Azure.Messages.Handlers
                                 case Interaction.BreedingTerrier:
                                 case Interaction.BreedingBear:
                                     {
-                                        var roomItemBreed = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData,
+                                        var roomItemBreed = new RoomItem(item.Id, room.RoomId, item.BaseItem.Name, item.ExtraData,
                                             x, y, z, rot, room, Session.GetHabbo().Id, 0, 0, string.Empty, false);
 
                                         if (item.BaseItem.InteractionType == Interaction.BreedingTerrier)
@@ -394,7 +395,7 @@ namespace Azure.Messages.Handlers
 
                 PlaceWall:
                 var coordinate = new WallCoordinate(":" + placementData.Split(':')[1]);
-                var roomItemWall = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData,
+                var roomItemWall = new RoomItem(item.Id, room.RoomId, item.BaseItem.Name, item.ExtraData,
                     coordinate, room, Session.GetHabbo().Id, item.GroupId, 0, false);
                 if (room.GetRoomItemHandler().SetWallItem(Session, roomItemWall))
                     Session.GetHabbo().GetInventoryComponent().RemoveItem(itemId, true);
@@ -403,7 +404,7 @@ namespace Azure.Messages.Handlers
                 if (room.CheckRights(Session))
                     Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace);
 
-                var roomItem = new RoomItem(item.Id, room.RoomId, item.BaseItemId, item.ExtraData, x, y, z, rot,
+                var roomItem = new RoomItem(item.Id, room.RoomId, item.BaseItem.Name, item.ExtraData, x, y, z, rot,
                     room, Session.GetHabbo().Id, item.GroupId, item.BaseItem.FlatId, item.SongCode, false);
 
                 if (room.GetRoomItemHandler().SetFloorItem(Session, roomItem, x, y, rot, true, false, true))
@@ -427,7 +428,7 @@ namespace Azure.Messages.Handlers
             catch (Exception e)
             {
                 Session.SendMessage(StaticMessage.ErrorCantSetItem);
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
             }
         }
 
@@ -495,7 +496,7 @@ namespace Azure.Messages.Handlers
                 room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
                 Session.GetHabbo()
                     .GetInventoryComponent()
-                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0);
+                    .AddNewItem(item.Id, item.BaseName, item.ExtraData, item.GroupId, true, true, 0, 0);
                 Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
             }
         }
@@ -743,32 +744,42 @@ namespace Azure.Messages.Handlers
 
             Session.GetHabbo().LastGiftOpenTime = DateTime.Now;
             var queryReactor = Azure.GetDatabaseManager().GetQueryReactor();
+
             queryReactor.SetQuery("SELECT * FROM users_gifts WHERE gift_id = " + item.Id);
             var row = queryReactor.GetRow();
+
             if (row == null)
             {
                 currentRoom.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
                 return;
             }
             var item2 = Azure.GetGame().GetItemManager().GetItem(Convert.ToUInt32(row["item_id"]));
+
             if (item2 == null)
             {
                 currentRoom.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
                 return;
             }
+
             if (item2.Type.Equals('s'))
             {
                 currentRoom.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
+
                 var extraData = row["extradata"].ToString();
-                var num = uint.Parse(row["item_id"].ToString());
-                queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET base_item='{0}' WHERE id='{1}'", num, item.Id));
+                var itemName = row["item_name"].ToString();
+
+                queryReactor.RunFastQuery($"UPDATE items_rooms SET item_name='{itemName}' WHERE id='{item.Id}'");
+
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", extraData);
                 queryReactor.RunQuery();
-                queryReactor.RunFastQuery(string.Format("DELETE FROM users_gifts WHERE gift_id='{0}'", item.Id));
-                item.BaseItem = num;
+
+                queryReactor.RunFastQuery($"DELETE FROM users_gifts WHERE gift_id='{item.Id}'");
+
+                item.BaseName = itemName;
                 item.RefreshItem();
                 item.ExtraData = extraData;
+
                 if (!currentRoom.GetRoomItemHandler().SetFloorItem(item, item.X, item.Y, item.Z, item.Rot, true))
                 {
                     Session.SendNotif(Azure.GetLanguage().GetVar("error_creating_gift"));
@@ -776,6 +787,7 @@ namespace Azure.Messages.Handlers
                 else
                 {
                     Response.Init(LibraryParser.OutgoingRequest("OpenGiftMessageComposer"));
+
                     Response.AppendString(item2.Type.ToString());
                     Response.AppendInteger(item2.SpriteId);
                     Response.AppendString(item2.Name);
@@ -784,44 +796,52 @@ namespace Azure.Messages.Handlers
                     Response.AppendBool(true);
                     Response.AppendString(extraData);
                     SendResponse();
+
                     var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("AddFloorItemMessageComposer"));
+
                     item.Serialize(serverMessage);
                     serverMessage.AppendString(currentRoom.RoomData.Owner);
                     currentRoom.SendMessage(serverMessage);
-                    currentRoom.GetRoomItemHandler()
-                        .SetFloorItem(Session, item, item.X, item.Y, 0, true, false, true);
+
+                    currentRoom.GetRoomItemHandler().SetFloorItem(Session, item, item.X, item.Y, 0, true, false, true);
                 }
             }
             else
             {
                 currentRoom.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
+
                 queryReactor.RunFastQuery("DELETE FROM users_gifts WHERE gift_id = " + item.Id);
                 Response.Init(LibraryParser.OutgoingRequest("NewInventoryObjectMessageComposer"));
                 Response.AppendInteger(1);
+
                 var i = 2;
+
                 if (item2.Type == 's')
                     i = item2.InteractionType == Interaction.Pet ? 3 : 1;
 
                 Response.AppendInteger(i);
-                var list = Azure.GetGame()
-                    .GetCatalog()
-                    .DeliverItems(Session, item2, 1, (string)row["extradata"], 0, 0, string.Empty);
+                var list = Azure.GetGame().GetCatalog().DeliverItems(Session, item2, 1, (string)row["extradata"], 0, 0, string.Empty);
+
                 Response.AppendInteger(list.Count);
+
                 foreach (var current in list)
                     Response.AppendInteger(current.Id);
+
                 SendResponse();
                 Session.GetHabbo().GetInventoryComponent().UpdateItems(true);
             }
+
             Response.Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
             SendResponse();
         }
 
         internal void GetMoodlight()
         {
-            var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
             if (room == null || !room.CheckRights(Session, true))
                 return;
+
             if (room.MoodlightData == null)
                 foreach (
                     var current in
@@ -832,9 +852,11 @@ namespace Azure.Messages.Handlers
 
             if (room.MoodlightData == null)
                 return;
+
             Response.Init(LibraryParser.OutgoingRequest("DimmerDataMessageComposer"));
             Response.AppendInteger(room.MoodlightData.Presets.Count);
             Response.AppendInteger(room.MoodlightData.CurrentPreset);
+
             var num = 0;
 
             {
@@ -1085,12 +1107,14 @@ namespace Azure.Messages.Handlers
                 uint insertId;
                 using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryreactor2.SetQuery(
-                        "INSERT INTO items_rooms (user_id,base_item,extra_data) VALUES ( @userid , @baseItem, @timestamp)");
+                    queryreactor2.SetQuery("INSERT INTO items_rooms (user_id,item_name,extra_data) VALUES ( @userid , @baseName, @timestamp)");
+
                     queryreactor2.AddParameter("userid", (int)Session.GetHabbo().Id);
                     queryreactor2.AddParameter("timestamp", DateTime.Now.ToLongDateString());
-                    queryreactor2.AddParameter("baseItem", Convert.ToUInt32(Azure.GetDbConfig().DbData["recycler.box_id"]));
+                    queryreactor2.AddParameter("baseName", Azure.GetDbConfig().DbData["recycler.box_name"]);
+
                     insertId = (uint)queryreactor2.InsertQuery();
+
                     queryreactor2.RunFastQuery("INSERT INTO users_gifts (gift_id,item_id,gift_sprite,extradata) VALUES (" + insertId + "," + randomEcotronReward.BaseId + ", " + randomEcotronReward.DisplayId + ",'')");
                 }
                 Session.GetHabbo().GetInventoryComponent().UpdateItems(true);
@@ -1249,25 +1273,28 @@ namespace Azure.Messages.Handlers
             room.GetRoomUserManager().RemoveBot(pet.VirtualId, false);
             using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(
-                    "INSERT INTO items_rooms (user_id, room_id, base_item, extra_data, x, y, z) VALUES (@uid, @rid, @bit, '0', @ex, @wai, @zed)");
+                dbClient.SetQuery("INSERT INTO items_rooms (user_id, room_id, item_name, extra_data, x, y, z) VALUES (@uid, @rid, @bit, '0', @ex, @wai, @zed)");
                 dbClient.AddParameter("uid", Session.GetHabbo().Id);
                 dbClient.AddParameter("rid", room.RoomId);
-                dbClient.AddParameter("bit", compostItem.ItemId);
+                dbClient.AddParameter("bit", compostItem.Name);
                 dbClient.AddParameter("ex", x);
                 dbClient.AddParameter("wai", y);
                 dbClient.AddParameter("zed", z);
+
                 var itemId = (uint)dbClient.InsertQuery();
-                var roomItem = new RoomItem(itemId, room.RoomId, compostItem.ItemId, "0", x, y, z, 0, room,
+
+                var roomItem = new RoomItem(itemId, room.RoomId, compostItem.Name, "0", x, y, z, 0, room,
                     Session.GetHabbo().Id, 0, -1, "", false);
+
                 if (!room.GetRoomItemHandler().SetFloorItem(Session, roomItem, x, y, 0, true, false, true))
                 {
                     Session.GetHabbo().GetInventoryComponent().AddItem(roomItem);
                     Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_5"));
                 }
-                dbClient.RunFastQuery(string.Format("DELETE FROM bots WHERE id = {0};", moplaId));
-                dbClient.RunFastQuery(string.Format("DELETE FROM pets_plants WHERE pet_id = {0};", moplaId));
-                dbClient.RunFastQuery(string.Format("DELETE FROM pets_data WHERE id = {0};", moplaId));
+
+                dbClient.RunFastQuery($"DELETE FROM bots WHERE id = {moplaId};");
+                dbClient.RunFastQuery($"DELETE FROM pets_plants WHERE pet_id = {moplaId};");
+                dbClient.RunFastQuery($"DELETE FROM pets_data WHERE id = {moplaId};");
             }
         }
 
@@ -1280,6 +1307,7 @@ namespace Azure.Messages.Handlers
                 Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_6"));
                 return;
             }
+
             var petId = Request.GetUInteger();
             var pet = room.GetRoomUserManager().GetPet(petId);
 
@@ -1602,28 +1630,34 @@ namespace Azure.Messages.Handlers
 
         internal void RemoveSaddle()
         {
-            var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
             if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
+
             var petId = Request.GetUInteger();
+
             var pet = room.GetRoomUserManager().GetPet(petId);
-            if (pet == null || pet.PetData == null || pet.PetData.OwnerId != Session.GetHabbo().Id)
+
+            if (pet?.PetData == null || pet.PetData.OwnerId != Session.GetHabbo().Id)
                 return;
+
             pet.PetData.HaveSaddle = false;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.RunFastQuery(string.Format("UPDATE pets_data SET have_saddle = 0 WHERE id = {0}",
-                    pet.PetData.PetId));
-                queryReactor.RunFastQuery(
-                    string.Format("INSERT INTO items_rooms (user_id, base_item) VALUES ({0}, 4221);",
-                        Session.GetHabbo().Id));
+                queryReactor.RunFastQuery($"UPDATE pets_data SET have_saddle = 0 WHERE id = {pet.PetData.PetId}");
+
+                queryReactor.RunFastQuery($"INSERT INTO items_rooms (user_id, item_name) VALUES ({Session.GetHabbo().Id}, 'horse_saddle1');");
             }
+
             Session.GetHabbo().GetInventoryComponent().UpdateItems(true);
+
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SetRoomUserMessageComposer"));
             serverMessage.AppendInteger(1);
             pet.Serialize(serverMessage, false);
             room.SendMessage(serverMessage);
+
             var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("SerializePetMessageComposer"));
             serverMessage2.AppendInteger(pet.PetData.VirtualId);
             serverMessage2.AppendInteger(pet.PetData.PetId);
@@ -2018,25 +2052,29 @@ namespace Azure.Messages.Handlers
             var dir = Request.GetInteger();
             var actualRoom = Session.GetHabbo().CurrentRoom;
             var item = Azure.GetGame().GetCatalog().GetItem(itemId);
+
             if (actualRoom == null || item == null)
                 return;
+
             Session.GetHabbo().BuildersItemsUsed++;
             BuildersClubUpdateFurniCount();
+
             var z = actualRoom.GetGameMap().SqAbsoluteHeight(x, y);
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                adapter.SetQuery(
-                    "INSERT INTO items_rooms (user_id,room_id,base_item,x,y,z,rot,builders) VALUES (@userId,@roomId,@baseItem,@x,@y,@z,@rot,'1')");
+                adapter.SetQuery("INSERT INTO items_rooms (user_id,room_id,item_name,x,y,z,rot,builders) VALUES (@userId,@roomId,@itemName,@x,@y,@z,@rot,'1')");
                 adapter.AddParameter("userId", Session.GetHabbo().Id);
                 adapter.AddParameter("roomId", actualRoom.RoomId);
-                adapter.AddParameter("baseItem", item.BaseId);
+                adapter.AddParameter("itemName", item.BaseName);
                 adapter.AddParameter("x", x);
                 adapter.AddParameter("y", y);
                 adapter.AddParameter("z", z);
                 adapter.AddParameter("rot", dir);
+
                 var insertId = (uint)adapter.InsertQuery();
-                var newItem = new RoomItem(insertId, actualRoom.RoomId, item.BaseId, extradata, x, y, z, dir, actualRoom,
-                    Session.GetHabbo().Id, 0, item.GetFirstBaseItem().FlatId, "", true);
+
+                var newItem = new RoomItem(insertId, actualRoom.RoomId, item.BaseName, extradata, x, y, z, dir, actualRoom, Session.GetHabbo().Id, 0, item.GetFirstBaseItem().FlatId, "", true);
+
                 Session.GetHabbo().BuildersItemsUsed++;
 
                 actualRoom.GetRoomItemHandler().FloorItems.TryAdd(newItem.Id, newItem);
@@ -2062,20 +2100,21 @@ namespace Azure.Messages.Handlers
 
             Session.GetHabbo().BuildersItemsUsed++;
             BuildersClubUpdateFurniCount();
+
             using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                adapter.SetQuery(
-                    "INSERT INTO items_rooms (user_id,room_id,base_item,wall_pos,builders) VALUES (@userId,@roomId,@baseItem,@wallpos,'1')");
+                adapter.SetQuery("INSERT INTO items_rooms (user_id,room_id,item_name,wall_pos,builders) VALUES (@userId,@roomId,@baseName,@wallpos,'1')");
                 adapter.AddParameter("userId", Session.GetHabbo().Id);
                 adapter.AddParameter("roomId", actualRoom.RoomId);
-                adapter.AddParameter("baseItem", item.BaseId);
+                adapter.AddParameter("baseName", item.BaseName);
                 adapter.AddParameter("wallpos", wallcoords);
 
                 var insertId = (uint)adapter.InsertQuery();
-                var newItem = new RoomItem(insertId, actualRoom.RoomId, item.BaseId, extradata,
-                    new WallCoordinate(wallcoords), actualRoom, Session.GetHabbo().Id, 0, item.GetFirstBaseItem().FlatId,
-                    true);
+
+                var newItem = new RoomItem(insertId, actualRoom.RoomId, item.BaseName, extradata, new WallCoordinate(wallcoords), actualRoom, Session.GetHabbo().Id, 0, item.GetFirstBaseItem().FlatId, true);
+
                 actualRoom.GetRoomItemHandler().WallItems.TryAdd(newItem.Id, newItem);
+
                 var message = new ServerMessage(LibraryParser.OutgoingRequest("AddWallItemMessageComposer"));
                 newItem.Serialize(message);
                 message.AppendString(Session.GetHabbo().UserName);
@@ -2088,7 +2127,9 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo().BuildersItemsUsed < 0)
                 Session.GetHabbo().BuildersItemsUsed = 0;
+
             var message = new ServerMessage(LibraryParser.OutgoingRequest("BuildersClubUpdateFurniCountMessageComposer"));
+
             message.AppendInteger(Session.GetHabbo().BuildersItemsUsed);
             Session.SendMessage(message);
         }
@@ -2099,10 +2140,8 @@ namespace Azure.Messages.Handlers
             var confirmLoveLock = Request.GetBool();
 
             var room = Session.GetHabbo().CurrentRoom;
-            if (room == null)
-                return;
 
-            var item = room.GetRoomItemHandler().GetItem(pId);
+            var item = room?.GetRoomItemHandler().GetItem(pId);
             if (item == null || item.GetBaseItem().InteractionType != Interaction.LoveShuffler)
                 return;
 
@@ -2117,6 +2156,7 @@ namespace Azure.Messages.Handlers
                 item.InteractingUser2 = 0;
                 return;
             }
+
             if (userOne == null)
             {
                 userTwo.CanWalk = true;
@@ -2126,6 +2166,7 @@ namespace Azure.Messages.Handlers
                 item.InteractingUser2 = 0;
                 return;
             }
+
             if (userTwo == null)
             {
                 userOne.CanWalk = true;
@@ -2135,6 +2176,7 @@ namespace Azure.Messages.Handlers
                 item.InteractingUser2 = 0;
                 return;
             }
+
             if (!confirmLoveLock)
             {
                 item.InteractingUser = 0;
@@ -2164,15 +2206,16 @@ namespace Azure.Messages.Handlers
             // Now check if both of the users have confirmed.
             if (userOne.LoveLockPartner == 0 || userTwo.LoveLockPartner == 0)
                 return;
-            item.ExtraData = string.Format("1{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}", (char)5, userOne.GetUserName(),
-                (char)5, userTwo.GetUserName(), (char)5, userOne.GetClient().GetHabbo().Look, (char)5,
-                userTwo.GetClient().GetHabbo().Look, (char)5, DateTime.Now.ToString("dd/MM/yyyy"));
+
+            item.ExtraData = $"1{(char) 5}{userOne.GetUserName()}{(char) 5}{userTwo.GetUserName()}{(char) 5}{userOne.GetClient().GetHabbo().Look}{(char) 5}{userTwo.GetClient().GetHabbo().Look}{(char) 5}{DateTime.Now.ToString("dd/MM/yyyy")}";
+
             userOne.LoveLockPartner = 0;
             userTwo.LoveLockPartner = 0;
             item.InteractingUser = 0;
             item.InteractingUser2 = 0;
 
             item.UpdateState(true, false);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
@@ -2199,40 +2242,34 @@ namespace Azure.Messages.Handlers
             var look = Request.GetString();
 
             var room = Session.GetHabbo().CurrentRoom;
-            if (room == null)
-                return;
-            var item = room.GetRoomItemHandler().GetItem(pId);
+
+            var item = room?.GetRoomItemHandler().GetItem(pId);
+
             if (item == null || item.GetBaseItem().InteractionType != Interaction.FootballGate)
                 return;
 
             var figures = item.ExtraData.Split(',');
             var newFigures = new string[2];
+
             switch (gender.ToUpper())
             {
                 case "M":
                     {
                         newFigures[0] = look;
-                        if (figures.Length > 1)
-                            newFigures[1] = figures[1];
-                        else
-                            newFigures[1] = "hd-99999-99999.ch-630-62.lg-695-62";
 
-                        item.ExtraData = String.Join(",", newFigures);
-                        //item.UpdateState();
-                        //    return;
+                        newFigures[1] = (figures.Length > 1) ? figures[1] : "hd-99999-99999.ch-630-62.lg-695-62";
+
+                        item.ExtraData = string.Join(",", newFigures);
                     }
                     break;
 
                 case "F":
                     {
-                        if (!string.IsNullOrWhiteSpace(figures[0]))
-                            newFigures[0] = figures[0];
-                        else
-                            newFigures[0] = "hd-99999-99999.lg-270-62";
+                        newFigures[0] = !string.IsNullOrWhiteSpace(figures[0]) ? figures[0] : "hd-99999-99999.lg-270-62";
+
                         newFigures[1] = look;
 
-                        item.ExtraData = String.Join(",", newFigures);
-                        //  item.UpdateState();
+                        item.ExtraData = string.Join(",", newFigures);
                     }
                     break;
             }
@@ -2247,7 +2284,6 @@ namespace Azure.Messages.Handlers
             var message = new ServerMessage(LibraryParser.OutgoingRequest("UpdateRoomItemMessageComposer"));
             item.Serialize(message);
             Session.SendMessage(message);
-            message = null;
         }
 
         internal void SaveMannequin()
@@ -2255,17 +2291,24 @@ namespace Azure.Messages.Handlers
             var pId = Request.GetUInteger();
             var text = Request.GetString();
             var item = Session.GetHabbo().CurrentRoom.GetRoomItemHandler().GetItem(pId);
+
             if (item == null)
                 return;
+
             if (!item.ExtraData.Contains(Convert.ToChar(5)))
                 return;
+
             if (!Session.GetHabbo().CurrentRoom.CheckRights(Session, true))
                 return;
+
             var array = item.ExtraData.Split(Convert.ToChar(5));
+
             array[2] = text;
+
             item.ExtraData = string.Concat(array[0], Convert.ToChar(5), array[1], Convert.ToChar(5), array[2]);
             item.Serialize(Response);
             item.UpdateState(true, true);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
@@ -2288,6 +2331,7 @@ namespace Azure.Messages.Handlers
             array[0] = Session.GetHabbo().Gender.ToLower();
             array[1] = string.Empty;
             var array2 = Session.GetHabbo().Look.Split('.');
+
             foreach (
                 string text in
                     array2.Where(
@@ -2296,12 +2340,14 @@ namespace Azure.Messages.Handlers
                             !text.Contains("ha")))
             {
                 string[] array3;
-                (array3 = array)[1] = string.Format("{0}{1}.", array3[1], text);
+                (array3 = array)[1] = $"{array3[1]}{text}.";
             }
+
             array[1] = array[1].TrimEnd('.');
             item.ExtraData = string.Concat(array[0], Convert.ToChar(5), array[1], Convert.ToChar(5), array[2]);
             item.UpdateNeeded = true;
             item.UpdateState(true, true);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
@@ -2313,30 +2359,37 @@ namespace Azure.Messages.Handlers
         internal void EjectFurni()
         {
             Request.GetInteger();
-            var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
+            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
             if (room == null || !room.CheckRights(Session))
                 return;
+
             var pId = Request.GetUInteger();
             var item = room.GetRoomItemHandler().GetItem(pId);
+
             if (item == null)
                 return;
-            var clientByUserId =
-                Azure.GetGame().GetClientManager().GetClientByUserId(item.UserId);
+
+            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(item.UserId);
+
             if (item.GetBaseItem().InteractionType == Interaction.PostIt)
                 return;
+
             if (clientByUserId != null)
             {
                 room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
                 clientByUserId.GetHabbo()
                     .GetInventoryComponent()
-                    .AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0);
+                    .AddNewItem(item.Id, item.BaseName, item.ExtraData, item.GroupId, true, true, 0, 0);
                 clientByUserId.GetHabbo().GetInventoryComponent().UpdateItems(true);
                 return;
             }
+
             room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE items_rooms SET room_id='0' WHERE id='{0}' LIMIT 1", item.Id));
+                queryReactor.RunFastQuery($"UPDATE items_rooms SET room_id='0' WHERE id='{item.Id}' LIMIT 1");
         }
 
         internal void UsePurchasableClothing()

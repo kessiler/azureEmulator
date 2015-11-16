@@ -5,6 +5,7 @@ using Azure.Game.Items.Interactions.Enums;
 using Azure.Game.Items.Interfaces;
 using Azure.Game.Items.Wired.Interfaces;
 using Azure.Game.Rooms;
+using Azure.IO;
 
 namespace Azure.Game.Items.Wired.Handlers.Conditions
 {
@@ -70,7 +71,7 @@ namespace Azure.Game.Items.Wired.Handlers.Conditions
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException(e.ToString());
+                Writer.LogException(e.ToString());
 
                 return false;
             }

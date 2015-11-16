@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using Azure.IO;
 using Azure.Security.BlackWords.Enums;
 using Azure.Security.BlackWords.Structs;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Security.BlackWords
 {
@@ -49,7 +49,7 @@ namespace Azure.Security.BlackWords
                 }
             }
 
-            ConsoleOutputWriter.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security");
+            Writer.WriteLine("Loaded " + Words.Count + " BlackWords", "Azure.Security");
             //Console.WriteLine();
         }
 
@@ -123,11 +123,11 @@ namespace Azure.Security.BlackWords
                     break;
 
                 case "all":
-                    ConsoleOutputWriter.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security", ConsoleColor.DarkRed);
+                    Writer.WriteLine("Word type [all] it's reserved for system. Word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
 
                 default:
-                    ConsoleOutputWriter.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security", ConsoleColor.DarkRed);
+                    Writer.WriteLine("Undefined type [" + typeStr + "] of word: " + word, "Azure.Security", ConsoleColor.DarkRed);
                     return;
             }
 

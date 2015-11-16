@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Azure.IO;
 
 namespace Azure.Data
 {
@@ -14,8 +15,8 @@ namespace Azure.Data
         /// <value><c>true</c> if [disabled state]; otherwise, <c>false</c>.</value>
         internal static bool DisabledState
         {
-            get { return Writer.Writer.DisabledState; }
-            set { Writer.Writer.DisabledState = value; }
+            get { return Writer.DisabledState; }
+            set { Writer.DisabledState = value; }
         }
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace Azure.Data
         /// <param name="query">The query.</param>
         public static void LogQueryError(Exception exception, string query)
         {
-            Writer.Writer.LogQueryError(exception, query);
+            Writer.LogQueryError(exception, query);
         }
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace Azure.Data
         /// <param name="logText">The log text.</param>
         internal static void LogException(string logText)
         {
-            Writer.Writer.LogException($"{Environment.NewLine}{logText}{Environment.NewLine}");
+            Writer.LogException($"{Environment.NewLine}{logText}{Environment.NewLine}");
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace Azure.Data
         /// <param name="logText">The log text.</param>
         internal static void LogCriticalException(string logText)
         {
-            Writer.Writer.LogCriticalException(logText);
+            Writer.LogCriticalException(logText);
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Azure.Data
         /// <param name="logText">The log text.</param>
         internal static void LogCacheError(string logText)
         {
-            Writer.Writer.LogCacheError(logText);
+            Writer.LogCacheError(logText);
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Azure.Data
         /// <param name="logText">The log text.</param>
         internal static void LogMessage(string logText)
         {
-            Writer.Writer.LogMessage(logText);
+            Writer.LogMessage(logText);
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Azure.Data
         /// <param name="threadname">The threadname.</param>
         internal static void LogThreadException(string exception, string threadname)
         {
-            Writer.Writer.LogThreadException(exception, threadname);
+            Writer.LogThreadException(exception, threadname);
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace Azure.Data
         /// <param name="exception">The exception.</param>
         internal static void LogPacketException(string packet, string exception)
         {
-            Writer.Writer.LogPacketException(packet, exception);
+            Writer.LogPacketException(packet, exception);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace Azure.Data
         /// <param name="pLocation">The p location.</param>
         internal static void HandleException(Exception pException, string pLocation)
         {
-            Writer.Writer.HandleException(pException, pLocation);
+            Writer.HandleException(pException, pLocation);
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace Azure.Data
         /// <param name="clearConsole">if set to <c>true</c> [clear console].</param>
         internal static void DisablePrimaryWriting(bool clearConsole)
         {
-            Writer.Writer.DisablePrimaryWriting(clearConsole);
+            Writer.DisablePrimaryWriting(clearConsole);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace Azure.Data
         /// <param name="builder">The builder.</param>
         internal static void LogShutdown(StringBuilder builder)
         {
-            Writer.Writer.LogShutdown(builder);
+            Writer.LogShutdown(builder);
         }
     }
 }

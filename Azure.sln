@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.AStar", "Azure\Azure.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Collections", "Azure\Azure.Collections\Azure.Collections.csproj", "{A59D019B-C611-4182-82CC-3CA9D58EF170}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Console", "Azure\Azure.Console\Azure.Console.csproj", "{90B88926-D336-458A-BE86-16E181A659FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.IO", "Azure\Azure.Console\Azure.IO.csproj", "{90B88926-D336-458A-BE86-16E181A659FC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Database", "Azure\Azure.Database\Azure.Database.csproj", "{BEABA059-531E-4DEB-A5C2-262D64C7951F}"
 	ProjectSection(ProjectDependencies) = postProject

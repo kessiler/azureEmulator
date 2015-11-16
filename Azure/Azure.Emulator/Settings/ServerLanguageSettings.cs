@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Data;
+using Azure.IO;
 using Azure.Util;
-using Azure.Util.IO;
 
 namespace Azure.Settings
 {
@@ -52,7 +52,7 @@ namespace Azure.Settings
             if (Texts.Contains(var))
                 return Texts[var].ToString();
 
-            ConsoleOutputWriter.WriteLine("Variable not found: " + var, "Azure.Languages");
+            Writer.WriteLine("Variable not found: " + var, "Azure.Languages");
 
             return "Language variable not Found: " + var;
         }

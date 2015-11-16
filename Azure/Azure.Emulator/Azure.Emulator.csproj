@@ -170,6 +170,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Coord.cs" />
     <Compile Include="Net\Web\WebManager.cs" />
     <Compile Include="Data\FurnitureDataManager.cs" />
     <Compile Include="Data\Structs\FurnitureData.cs" />
@@ -619,9 +620,7 @@
     <Compile Include="Data\Structs\PluginData.cs" />
     <Compile Include="Util\Enumerators\TextEndingTypes.cs" />
     <Compile Include="Data\ServerMemoryContainer.cs" />
-    <Compile Include="Util\Io\ConsoleOutputWriter.cs" />
     <Compile Include="Util\Coordinates\CoordinatesFormatter.cs" />
-    <Compile Include="Util\Io\ServerUserChatTextHandler.cs" />
     <Compile Include="Data\DatabaseQueryChunk.cs" />
     <Compile Include="Util\Math\RandomNumberGenerator.cs" />
   </ItemGroup>
@@ -663,9 +662,9 @@
       <Name>Azure.Collections</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Azure.Console\Azure.Console.csproj">
+    <ProjectReference Include="..\Azure.Console\Azure.IO.csproj">
       <Project>{90b88926-d336-458a-be86-16e181a659fc}</Project>
-      <Name>Azure.Console</Name>
+      <Name>Azure.IO</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Azure.Database\Azure.Database.csproj">

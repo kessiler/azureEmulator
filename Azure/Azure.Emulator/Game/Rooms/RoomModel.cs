@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Azure.Game.Rooms.Chat.Enums;
+using Azure.IO;
 
 namespace Azure.Game.Rooms
 {
@@ -189,7 +190,7 @@ namespace Azure.Game.Rooms
             }
             catch (Exception e)
             {
-                Writer.Writer.LogCriticalException(e.ToString());
+                Writer.LogCriticalException(e.ToString());
             }
         }
     }

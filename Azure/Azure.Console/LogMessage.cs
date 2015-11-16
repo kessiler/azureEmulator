@@ -1,4 +1,4 @@
-namespace Azure.Writer
+namespace Azure.IO
 {
     internal class LogMessage
     {

@@ -19,7 +19,7 @@ namespace Azure.Game.Catalogs
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery("SELECT * FROM catalog_targetedoffers WHERE enabled = '1' LIMIT 1");
+                queryReactor.SetQuery("SELECT * FROM catalog_targeted_offers WHERE enabled = '1' LIMIT 1");
 
                 var row = queryReactor.GetRow();
 

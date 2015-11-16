@@ -7,7 +7,7 @@ using Azure.Security;
 using Azure.Security.BlackWords;
 using Azure.Util;
 using Azure.Data;
-using Azure.Util.IO;
+using Azure.IO;
 
 namespace Azure.Settings
 {
@@ -45,7 +45,7 @@ namespace Azure.Settings
                     case "shutdown":
                     case "close":
                         ServerLogManager.DisablePrimaryWriting(true);
-                        ConsoleOutputWriter.WriteLine("Shutdown Initalized", "Azure.Life", ConsoleColor.DarkYellow);
+                        Writer.WriteLine("Shutdown Initalized", "Azure.Life", ConsoleColor.DarkYellow);
                         Azure.PerformShutDown(false);
                         Console.WriteLine();
                         break;
@@ -53,7 +53,7 @@ namespace Azure.Settings
                     case "restart":
                         ServerLogManager.LogMessage($"Server Restarting at {DateTime.Now}");
                         ServerLogManager.DisablePrimaryWriting(true);
-                        ConsoleOutputWriter.WriteLine("Restart Initialized", "Azure.Life", ConsoleColor.DarkYellow);
+                        Writer.WriteLine("Restart Initialized", "Azure.Life", ConsoleColor.DarkYellow);
                         Azure.PerformShutDown(true);
                         Console.WriteLine();
                         break;

@@ -292,10 +292,10 @@ namespace Azure.Game.Users.Inventory
 
             foreach (DataRow dataRow in table.Rows)
             {
-                var id = Convert.ToUInt32(dataRow[0]);
-                var itemId = Convert.ToUInt32(dataRow[3]);
+                var id = Convert.ToUInt32(dataRow["id"]);
+                var itemName = dataRow["item_name"].ToString();
 
-                if (!Azure.GetGame().GetItemManager().ContainsItem(itemId))
+                if (!Azure.GetGame().GetItemManager().ContainsItemByName(itemName))
                     continue;
 
                 string extraData;
@@ -314,7 +314,7 @@ namespace Azure.Game.Users.Inventory
                 else
                     songCode = string.Empty;
 
-                var userItem = new UserItem(id, itemId, extraData, group, songCode);
+                var userItem = new UserItem(id, itemName, extraData, group, songCode);
 
                 if (userItem.BaseItem.InteractionType == Interaction.MusicDisc && !SongDisks.Contains(id))
                     SongDisks.Add(id, userItem);
@@ -472,7 +472,7 @@ namespace Azure.Game.Users.Inventory
         ///     Adds the new item.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="baseItem">The base item.</param>
+        /// <param name="baseName">The base item.</param>
         /// <param name="extraData">The extra data.</param>
         /// <param name="thGroup">The thGroup.</param>
         /// <param name="insert">if set to <c>true</c> [insert].</param>
@@ -481,7 +481,7 @@ namespace Azure.Game.Users.Inventory
         /// <param name="limtot">The limtot.</param>
         /// <param name="songCode">The song code.</param>
         /// <returns>UserItem.</returns>
-        internal UserItem AddNewItem(uint id, uint baseItem, string extraData, uint thGroup, bool insert, bool fromRoom, int limno, int limtot, string songCode = "")
+        internal UserItem AddNewItem(uint id, string baseName, string extraData, uint thGroup, bool insert, bool fromRoom, int limno, int limtot, string songCode = "")
         {
             _isUpdated = false;
 
@@ -496,7 +496,7 @@ namespace Azure.Game.Users.Inventory
                 {
                     using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.SetQuery($"INSERT INTO items_rooms (base_item, user_id, group_id) VALUES ('{baseItem}', '{UserId}', '{thGroup}');");
+                        queryReactor.SetQuery($"INSERT INTO items_rooms (item_name, user_id, group_id) VALUES ('{baseName}', '{UserId}', '{thGroup}');");
 
                         if (id == 0)
                             id = ((uint) queryReactor.InsertQuery());
@@ -525,7 +525,7 @@ namespace Azure.Game.Users.Inventory
             if (id == 0)
                 return null;
 
-            var userItem = new UserItem(id, baseItem, extraData, thGroup, songCode);
+            var userItem = new UserItem(id, baseName, extraData, thGroup, songCode);
 
             if (UserHoldsItem(id))
                 RemoveItem(id, false);
@@ -700,7 +700,7 @@ namespace Azure.Game.Users.Inventory
         /// <param name="item">The item.</param>
         internal void AddItem(RoomItem item)
         {
-            AddNewItem(item.Id, item.BaseItem, item.ExtraData, item.GroupId, true, true, 0, 0, item.SongCode);
+            AddNewItem(item.Id, item.BaseName, item.ExtraData, item.GroupId, true, true, 0, 0, item.SongCode);
         }
 
         /// <summary>

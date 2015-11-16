@@ -22,10 +22,10 @@ using Azure.Game.SoundMachine;
 using Azure.Game.Support;
 using Azure.Game.Users;
 using Azure.Game.Users.Helpers;
+using Azure.IO;
 using Azure.Messages.Enums;
 using Azure.Security;
 using Azure.Security.BlackWords;
-using Azure.Util.IO;
 
 namespace Azure.Game
 {
@@ -165,7 +165,7 @@ namespace Azure.Game
         internal Game(int conns)
         {
             //Console.WriteLine();
-            ConsoleOutputWriter.WriteLine(@"Starting up Azure Emulator for " + Environment.MachineName + "...", @"Azure.Boot");
+            Writer.WriteLine(@"Starting up Azure Emulator for " + Environment.MachineName + "...", @"Azure.Boot");
             //Console.WriteLine();
 
             _clientManager = new GameClientManager();
@@ -575,7 +575,7 @@ namespace Azure.Game
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 DatabaseCleanup(queryReactor);
             GetClientManager();
-            ConsoleOutputWriter.WriteLine("Client Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
+            Writer.WriteLine("Client Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
         }
 
         /// <summary>

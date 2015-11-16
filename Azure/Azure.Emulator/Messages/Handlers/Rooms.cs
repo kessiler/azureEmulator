@@ -30,8 +30,8 @@ using Azure.Game.RoomBots;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.User;
+using Azure.IO;
 using Azure.Net.Web;
-using Azure.Util.IO;
 
 namespace Azure.Messages.Handlers
 {
@@ -108,7 +108,7 @@ namespace Azure.Messages.Handlers
 
         internal void OnlineConfirmationEvent()
         {
-            ConsoleOutputWriter.WriteLine("User, " + Request.GetString() + " connected with ip, " + Session.GetConnection().GetIp(), "Azure.Users",
+            Writer.WriteLine("User, " + Request.GetString() + " connected with ip, " + Session.GetConnection().GetIp(), "Azure.Users",
                 ConsoleColor.DarkGreen);
 
             if (!ServerConfigurationSettings.Data.ContainsKey("welcome.message.enabled") ||
@@ -219,7 +219,7 @@ namespace Azure.Messages.Handlers
                 }
                 catch (Exception e)
                 {
-                    Writer.Writer.LogException(e.ToString());
+                    Writer.LogException(e.ToString());
                     Response.Clear();
                 }
             }
@@ -465,7 +465,7 @@ namespace Azure.Messages.Handlers
             }
             catch (Exception e)
             {
-                Writer.Writer.LogException("PrepareRoomForUser. RoomId: " + id + "; UserId: " +
+                Writer.LogException("PrepareRoomForUser. RoomId: " + id + "; UserId: " +
                                            (Session != null
                                                ? Session.GetHabbo().Id.ToString(CultureInfo.InvariantCulture)
                                                : "null") + Environment.NewLine + e);
@@ -1844,7 +1844,7 @@ namespace Azure.Messages.Handlers
                     }
                     catch (Exception e)
                     {
-                        Writer.Writer.LogException(e.ToString());
+                        Writer.LogException(e.ToString());
                         return;
                     }
                 case 3:
