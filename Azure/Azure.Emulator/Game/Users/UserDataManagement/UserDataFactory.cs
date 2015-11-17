@@ -11,8 +11,10 @@ using Azure.Game.RoomBots;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Users.Authenticator;
 using Azure.Game.Users.Badges;
+using Azure.Game.Users.Badges.Models;
 using Azure.Game.Users.Inventory;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
 
@@ -253,13 +255,12 @@ namespace Azure.Game.Users.UserDataManagement
                 var pUsername = (string) row["username"];
                 var pLook = (string) row["look"];
                 var pMotto = (string) row["motto"];
-                var pLastOnline = Convert.ToInt32(row["last_online"]);
                 var pAppearOffline = Azure.EnumToBool(row["hide_online"].ToString());
                 var pHideInroom = Azure.EnumToBool(row["hide_inroom"].ToString());
 
                 if (num4 != userid && !friends.ContainsKey(num4))
                     friends.Add(num4,
-                        new MessengerBuddy(num4, pUsername, pLook, pMotto, pLastOnline, pAppearOffline, pHideInroom));
+                        new MessengerBuddy(num4, pUsername, pLook, pMotto, pAppearOffline, pHideInroom));
             }
 
             var friendsRequests = new Dictionary<uint, MessengerRequest>();
@@ -332,7 +333,7 @@ namespace Azure.Game.Users.UserDataManagement
                 friends.Add(0,
                     new MessengerBuddy(0, "Staff Chat",
                         "hr-831-45.fa-1206-91.sh-290-1331.ha-3129-100.hd-180-2.cc-3039-73.ch-3215-92.lg-270-73",
-                        string.Empty, 0, false, true));
+                        string.Empty, false, true));
 
             return new UserData(userid, achievements, talents, favorites, ignoreUsers, tags, subscriptions, badges,
                 items, effects, friends, friendsRequests, myRooms, pets, quests, user, inventoryBots, relationShips,

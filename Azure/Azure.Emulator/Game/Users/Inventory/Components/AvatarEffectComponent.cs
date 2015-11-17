@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms;
+using Azure.Game.Rooms.User;
 using Azure.Game.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 
-namespace Azure.Game.Users.Inventory
+namespace Azure.Game.Users.Inventory.Components
 {
     /// <summary>
-    ///     Class AvatarEffectsInventoryComponent.
+    ///     Class AvatarEffectComponent.
     /// </summary>
-    internal class AvatarEffectsInventoryComponent
+    internal class AvatarEffectComponent
     {
         /// <summary>
         ///     The _user identifier
@@ -34,23 +36,28 @@ namespace Azure.Game.Users.Inventory
         internal int CurrentEffect;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="AvatarEffectsInventoryComponent" /> class.
+        ///     Initializes a new instance of the <see cref="AvatarEffectComponent" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="client">The client.</param>
         /// <param name="data">The data.</param>
-        internal AvatarEffectsInventoryComponent(uint userId, GameClient client, UserData data)
+        internal AvatarEffectComponent(uint userId, GameClient client, UserData data)
         {
             _userId = userId;
             _session = client;
             _effects = new List<AvatarEffect>();
-            foreach (var current in data.Effects)
+
+            foreach (AvatarEffect current in data.Effects)
+            {
                 if (!current.HasExpired)
                     _effects.Add(current);
-                else
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                        queryReactor.RunFastQuery("DELETE FROM users_effects WHERE user_id = " + userId +
-                                                  " AND effect_id = " + current.EffectId + "; ");
+
+                if (!current.HasExpired)
+                    return;
+
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        queryReactor.RunFastQuery("DELETE FROM users_effects WHERE user_id = " + userId + " AND effect_id = " + current.EffectId + "; ");
+            }
         }
 
         /// <summary>
@@ -59,17 +66,18 @@ namespace Azure.Game.Users.Inventory
         /// <returns>ServerMessage.</returns>
         internal ServerMessage GetPacket()
         {
-            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("EffectsInventoryMessageComposer"));
+            ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("EffectsInventoryMessageComposer"));
+
             serverMessage.AppendInteger(_effects.Count);
 
-            foreach (var current in _effects)
+            foreach (AvatarEffect current in _effects)
             {
                 serverMessage.AppendInteger(current.EffectId);
-                serverMessage.AppendInteger(current.Type); // type (0 : normal - 1 : costume)
+                serverMessage.AppendInteger(current.Type); 
                 serverMessage.AppendInteger(current.TotalDuration);
-                serverMessage.AppendInteger(0); // count (0 : 1 - 1 : 2 ...)
+                serverMessage.AppendInteger(0);
                 serverMessage.AppendInteger(current.TimeLeft);
-                serverMessage.AppendBool(current.TotalDuration == -1); // permanent
+                serverMessage.AppendBool(current.TotalDuration == -1);
             }
 
             return serverMessage;
@@ -83,21 +91,18 @@ namespace Azure.Game.Users.Inventory
         /// <param name="type">The type.</param>
         internal void AddNewEffect(int effectId, int duration, short type)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(
-                    string.Concat(
-                        "INSERT INTO users_effects (user_id,effect_id,total_duration,is_activated,activated_stamp) VALUES (",
-                        _userId, ",", effectId, ",", duration, ",'0',0)"));
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                queryReactor.RunFastQuery(string.Concat("INSERT INTO users_effects (user_id,effect_id,total_duration,is_activated,activated_stamp) VALUES (", _userId, ",", effectId, ",", duration, ",'0',0)"));
 
             _effects.Add(new AvatarEffect(effectId, duration, false, 0.0, type));
-            GetClient()
-                .GetMessageHandler()
-                .GetResponse()
-                .Init(LibraryParser.OutgoingRequest("AddEffectToInventoryMessageComposer"));
+
+            GetClient().GetMessageHandler().GetResponse().Init(LibraryParser.OutgoingRequest("AddEffectToInventoryMessageComposer"));
+
             GetClient().GetMessageHandler().GetResponse().AppendInteger(effectId);
             GetClient().GetMessageHandler().GetResponse().AppendInteger(type);
             GetClient().GetMessageHandler().GetResponse().AppendInteger(duration);
             GetClient().GetMessageHandler().GetResponse().AppendBool(duration == -1);
+
             GetClient().GetMessageHandler().SendResponse();
         }
 
@@ -106,13 +111,7 @@ namespace Azure.Game.Users.Inventory
         /// </summary>
         /// <param name="effectId">The effect identifier.</param>
         /// <returns><c>true</c> if the specified effect identifier has effect; otherwise, <c>false</c>.</returns>
-        internal bool HasEffect(int effectId)
-        {
-            return effectId < 1 || (
-                from x in _effects
-                where x.EffectId == effectId
-                select x).Any();
-        }
+        internal bool HasEffect(int effectId) => effectId < 1 || _effects.Any(x => x.EffectId == effectId);
 
         /// <summary>
         ///     Activates the effect.
@@ -127,22 +126,17 @@ namespace Azure.Game.Users.Inventory
                 return;
 
             if (effectId < 1)
-            {
                 ActivateCustomEffect(effectId);
-                return;
-            }
 
-            var avatarEffect = (
-                from x in _effects
-                where x.EffectId == effectId
-                select x).Last();
+            if (effectId < 1)
+                return;
+
+            AvatarEffect avatarEffect = _effects.Last(x => x.EffectId == effectId);
 
             avatarEffect.Activate();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(
-                    string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ",
-                        Azure.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                queryReactor.RunFastQuery(string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ", Azure.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
 
             EnableInRoom(effectId);
         }
@@ -172,9 +166,12 @@ namespace Azure.Game.Users.Inventory
         {
             if (!_effects.Any())
                 return;
-            var list = _effects.Where(current => current.HasExpired).ToList();
-            foreach (var current2 in list)
+
+            List<AvatarEffect> list = _effects.Where(current => current.HasExpired).ToList();
+
+            foreach (AvatarEffect current2 in list)
                 StopEffect(current2.EffectId);
+
             list.Clear();
         }
 
@@ -184,20 +181,17 @@ namespace Azure.Game.Users.Inventory
         /// <param name="effectId">The effect identifier.</param>
         internal void StopEffect(int effectId)
         {
-            var avatarEffect = (
-                from x in _effects
-                where x.EffectId == effectId
-                select x).ToList();
+            List<AvatarEffect> avatarEffect = _effects.Where(x => x.EffectId == effectId).ToList();
 
             if (!avatarEffect.Any())
                 return;
 
-            var effect = avatarEffect.Last();
+            AvatarEffect effect = avatarEffect.Last();
 
             if (effect == null || !effect.HasExpired)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM users_effects WHERE user_id = ", _userId,
                     " AND effect_id = ", effectId, " AND is_activated = 1"));
 
@@ -229,10 +223,7 @@ namespace Azure.Game.Users.Inventory
         ///     Gets the client.
         /// </summary>
         /// <returns>GameClient.</returns>
-        internal GameClient GetClient()
-        {
-            return _session;
-        }
+        internal GameClient GetClient() => _session;
 
         /// <summary>
         ///     Enables the in room.
@@ -241,9 +232,9 @@ namespace Azure.Game.Users.Inventory
         /// <param name="setAsCurrentEffect">if set to <c>true</c> [set as current effect].</param>
         private void EnableInRoom(int effectId, bool setAsCurrentEffect = true)
         {
-            var userRoom = GetUserRoom();
+            Room userRoom = GetUserRoom();
 
-            var roomUserByHabbo = userRoom?.GetRoomUserManager().GetRoomUserByHabbo(GetClient().GetHabbo().Id);
+            RoomUser roomUserByHabbo = userRoom?.GetRoomUserManager().GetRoomUserByHabbo(GetClient().GetHabbo().Id);
 
             if (roomUserByHabbo == null)
                 return;
@@ -251,10 +242,12 @@ namespace Azure.Game.Users.Inventory
             if (setAsCurrentEffect)
                 CurrentEffect = effectId;
 
-            var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ApplyEffectMessageComposer"));
+            ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ApplyEffectMessageComposer"));
+
             serverMessage.AppendInteger(roomUserByHabbo.VirtualId);
             serverMessage.AppendInteger(effectId);
             serverMessage.AppendInteger(0);
+
             userRoom.SendMessage(serverMessage);
         }
 
@@ -262,9 +255,6 @@ namespace Azure.Game.Users.Inventory
         ///     Gets the user room.
         /// </summary>
         /// <returns>Room.</returns>
-        private Room GetUserRoom()
-        {
-            return _session.GetHabbo().CurrentRoom;
-        }
+        private Room GetUserRoom() => _session.GetHabbo().CurrentRoom;
     }
 }

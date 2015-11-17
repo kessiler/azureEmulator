@@ -4,7 +4,7 @@ using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms;
 using Azure.Messages;
 
-namespace Azure.Game.Users.Messenger
+namespace Azure.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Class MessengerBuddy.
@@ -49,17 +49,14 @@ namespace Azure.Game.Users.Messenger
         /// <param name="userName">Name of the user.</param>
         /// <param name="look">The look.</param>
         /// <param name="motto">The motto.</param>
-        /// <param name="lastOnline">The last online.</param>
         /// <param name="appearOffline">if set to <c>true</c> [appear offline].</param>
         /// <param name="hideInroom">if set to <c>true</c> [hide inroom].</param>
-        internal MessengerBuddy(uint userId, string userName, string look, string motto, int lastOnline,
-            bool appearOffline, bool hideInroom)
+        internal MessengerBuddy(uint userId, string userName, string look, string motto, bool appearOffline, bool hideInroom)
         {
             Id = userId;
             UserName = userName;
             _look = look;
             _motto = motto;
-            //_lastOnline = lastOnline;
             _appearOffline = appearOffline;
             _hideInroom = hideInroom;
         }
@@ -74,10 +71,7 @@ namespace Azure.Game.Users.Messenger
         ///     Gets a value indicating whether this instance is online.
         /// </summary>
         /// <value><c>true</c> if this instance is online; otherwise, <c>false</c>.</value>
-        internal bool IsOnline
-            =>
-                Client?.GetHabbo() != null && Client.GetHabbo().GetMessenger() != null &&
-                !Client.GetHabbo().GetMessenger().AppearOffline;
+        internal bool IsOnline => Client?.GetHabbo() != null && Client.GetHabbo().GetMessenger() != null && !Client.GetHabbo().GetMessenger().AppearOffline;
 
         /// <summary>
         ///     Gets a value indicating whether [in room].
@@ -113,8 +107,7 @@ namespace Azure.Game.Users.Messenger
         /// <param name="session">The session.</param>
         internal void Serialize(ServerMessage message, GameClient session)
         {
-            var value =
-                session.GetHabbo().Relationships.FirstOrDefault(x => x.Value.UserId == Convert.ToInt32(Id)).Value;
+            var value = session.GetHabbo().Relationships.FirstOrDefault(x => x.Value.UserId == Convert.ToInt32(Id)).Value;
 
             var i = value?.Type ?? 0;
 

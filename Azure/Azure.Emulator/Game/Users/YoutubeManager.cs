@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Messages;
 
@@ -13,8 +15,7 @@ namespace Azure.Game.Users
     /// </summary>
     internal class YoutubeManager
     {
-        internal static readonly Regex YoutubeVideoRegex =
-            new Regex(@"youtu(?:\.be|be\.com)/(?:.*v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]+)", RegexOptions.IgnoreCase);
+        internal static readonly Regex YoutubeVideoRegex = new Regex(@"youtu(?:\.be|be\.com)/(?:.*v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]+)", RegexOptions.IgnoreCase);
 
         internal uint UserId;
         internal Dictionary<string, YoutubeVideo> Videos;
@@ -30,46 +31,45 @@ namespace Azure.Game.Users
         {
             Videos.Clear();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM users_videos_youtube WHERE user_id = @user_id");
                 queryReactor.AddParameter("user_id", UserId);
 
-                var table = queryReactor.GetTable();
+                DataTable table = queryReactor.GetTable();
 
                 if (table == null)
                     return;
 
                 foreach (DataRow row in table.Rows)
-                    Videos.Add((string) row["video_id"],
-                        new YoutubeVideo((string) row["video_id"], (string) row["name"], (string) row["description"]));
+                    Videos.Add((string) row["video_id"], new YoutubeVideo((string) row["video_id"], (string) row["name"], (string) row["description"]));
             }
         }
 
         public string GetTitle(string url)
         {
-            var id = GetArgs(url, "v", '?');
+            string id = GetArgs(url, "v", '?');
 
-            var client = new WebClient();
+            WebClient client = new WebClient();
 
             return GetArgs(client.DownloadString("http://youtube.com/get_video_info?video_id=" + id), "title", '&');
         }
 
         public string GetTitleById(string videoId)
         {
-            var client = new WebClient();
+            WebClient client = new WebClient();
 
             return GetArgs(client.DownloadString("http://youtube.com/get_video_info?video_id=" + videoId), "title", '&');
         }
 
         private string GetArgs(string args, string key, char query)
         {
-            var iqs = args.IndexOf(query);
+            int iqs = args.IndexOf(query);
 
             if (iqs != -1)
             {
-                var querystring = (iqs < args.Length - 1) ? args.Substring(iqs + 1) : string.Empty;
-                var nvcArgs = HttpUtility.ParseQueryString(querystring);
+                string querystring = (iqs < args.Length - 1) ? args.Substring(iqs + 1) : string.Empty;
+                NameValueCollection nvcArgs = HttpUtility.ParseQueryString(querystring);
                 return nvcArgs[key];
             }
             return string.Empty;
@@ -79,7 +79,7 @@ namespace Azure.Game.Users
         {
             if (client != null)
             {
-                var youtubeMatch = YoutubeVideoRegex.Match(video);
+                Match youtubeMatch = YoutubeVideoRegex.Match(video);
 
                 string id;
                 string videoName;
@@ -103,7 +103,7 @@ namespace Azure.Game.Users
 
                 UserId = client.GetHabbo().Id;
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery(
                         "INSERT INTO users_videos_youtube (user_id, video_id, name, description) VALUES (@user_id, @video_id, @name, @name)");

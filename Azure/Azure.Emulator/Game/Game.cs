@@ -14,14 +14,14 @@ using Azure.Game.Items.Handlers;
 using Azure.Game.Pets;
 using Azure.Game.Polls;
 using Azure.Game.Quests;
-using Azure.Game.Roles;
 using Azure.Game.RoomBots;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.SoundMachine;
 using Azure.Game.Support;
 using Azure.Game.Users;
-using Azure.Game.Users.Helpers;
+using Azure.Game.Users.Fuses;
+using Azure.Game.Users.Guides;
 using Azure.IO;
 using Azure.Messages.Enums;
 using Azure.Security;
@@ -519,7 +519,7 @@ namespace Azure.Game
         /// <summary>
         ///     Gets the clothing manager.
         /// </summary>
-        /// <returns>ClothingManager.</returns>
+        /// <returns>ClothesManagerManager.</returns>
         internal ClothingManager GetClothingManager()
         {
             return _clothingManager;

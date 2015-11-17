@@ -23,6 +23,7 @@ using Azure.Game.Groups.Interfaces;
 using Azure.Game.Pets;
 using Azure.Game.Users;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.UserDataManagement;
 using Azure.Net.Connection;
 using Azure.Security;

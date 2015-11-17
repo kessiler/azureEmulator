@@ -2407,13 +2407,13 @@ namespace Azure.Messages.Handlers
             if (clothes == null)
                 return;
 
-            if (Session.GetHabbo().ClothingManager.Clothing.Contains(clothes.ItemName))
+            if (Session.GetHabbo().ClothesManagerManager.Clothing.Contains(clothes.ItemName))
                 return;
 
-            Session.GetHabbo().ClothingManager.Add(clothes.ItemName);
+            Session.GetHabbo().ClothesManagerManager.Add(clothes.ItemName);
 
             GetResponse().Init(LibraryParser.OutgoingRequest("FigureSetIdsMessageComposer"));
-            Session.GetHabbo().ClothingManager.Serialize(GetResponse());
+            Session.GetHabbo().ClothesManagerManager.Serialize(GetResponse());
 
             SendResponse();
 

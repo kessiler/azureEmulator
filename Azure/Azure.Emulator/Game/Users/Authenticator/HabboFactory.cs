@@ -21,75 +21,58 @@ namespace Azure.Game.Users.Authenticator
         /// <returns>Habbo.</returns>
         internal static Habbo GenerateHabbo(DataRow dRow, DataRow mRow, HashSet<GroupMember> group)
         {
-            var id = uint.Parse(dRow["id"].ToString());
-            var userName = (string)dRow["username"];
-            var realName = (string)dRow["real_name"];
-            var ras = uint.Parse(dRow["rank"].ToString());
-            var motto = (string)dRow["motto"];
-            var look = (string)dRow["look"];
-            var gender = (string)dRow["gender"];
-            var lastOnline = int.Parse(dRow["last_online"].ToString());
-            var credits = (int)dRow["credits"];
-            var activityPoints = (int)dRow["activity_points"];
-            var lastActivityPointsUpdate = Convert.ToDouble(dRow["activity_points_lastupdate"]);
-            var muted = Azure.EnumToBool(dRow["is_muted"].ToString());
-            var homeRoom = Convert.ToUInt32(dRow["home_room"]);
+            uint id = (uint)dRow["id"];
+            string userName = (string)dRow["username"];
+            string realName = (string)dRow["real_name"];
+            uint ras = (uint)dRow["rank"];
+            string motto = (string)dRow["motto"];
+            string look = (string)dRow["look"];
+            string gender = (string)dRow["gender"];
+            int lastOnline = int.Parse(dRow["last_online"].ToString());
+            int credits = (int)dRow["credits"];
+            int activityPoints = (int)dRow["activity_points"];
+            double lastActivityPointsUpdate = (double)dRow["activity_points_lastupdate"];
+            bool muted = Azure.EnumToBool(dRow["is_muted"].ToString());
+            uint homeRoom = (uint)dRow["home_room"];
 
-            int respect = 0, dailyRespectPoints = 3, dailyPetRespectPoints = 3, currentQuestProgress = 0, achievementPoints = 0, dailyCompetitionVotes = 3;
-            uint currentQuestId = 0, favId = 0;
-            try
-            {
-                respect = (int)mRow["respect"];
-                dailyRespectPoints = (int)mRow["daily_respect_points"];
-                dailyPetRespectPoints = (int)mRow["daily_pet_respect_points"];
-                currentQuestId = Convert.ToUInt32(mRow["quest_id"]);
-                currentQuestProgress = (int)mRow["quest_progress"];
-                achievementPoints = (int)mRow["achievement_score"];
-                favId = uint.Parse(mRow["favourite_group"].ToString());
-                dailyCompetitionVotes = (int)mRow["daily_competition_votes"];
-            }
-            catch (Exception)
-            {
-            }
+            int respect = (int)mRow["respect"];
+            int dailyRespectPoints = (int)mRow["daily_respect_points"];
+            int dailyPetRespectPoints = (int)mRow["daily_pet_respect_points"];
+            uint currentQuestId = (uint)mRow["quest_id"];
+            int currentQuestProgress = (int)mRow["quest_progress"];
+            int achievementPoints = (int)mRow["achievement_score"];
+            uint favId = (uint)mRow["favourite_group"];
+            int dailyCompetitionVotes = (int)mRow["daily_competition_votes"];
 
-            //AQUI
-            var hasFriendRequestsDisabled = Azure.EnumToBool(dRow["block_newfriends"].ToString());
-            var appearOffline = Azure.EnumToBool(dRow["hide_online"].ToString());
-            var hideInRoom = Azure.EnumToBool(dRow["hide_inroom"].ToString());
-            // TERMINA
-            var vip = Azure.EnumToBool(dRow["vip"].ToString());
-            var createDate = Convert.ToDouble(dRow["account_created"]);
-            var online = Azure.EnumToBool(dRow["online"].ToString());
-            var citizenship = dRow["talent_status"].ToString();
-            var diamonds = int.Parse(dRow["diamonds"].ToString());
-            var lastChange = (int)dRow["last_name_change"];
-            var regTimestamp = int.Parse(dRow["account_created"].ToString());
-            var tradeLocked = Azure.EnumToBool(dRow["trade_lock"].ToString());
-            var tradeLockExpire = int.Parse(dRow["trade_lock_expire"].ToString());
-            var nuxPassed = Azure.EnumToBool(dRow["nux_passed"].ToString());
+            bool hasFriendRequestsDisabled = Azure.EnumToBool(dRow["block_newfriends"].ToString());
+            bool appearOffline = Azure.EnumToBool(dRow["hide_online"].ToString());
+            bool hideInRoom = Azure.EnumToBool(dRow["hide_inroom"].ToString());
 
-            /* builders club */
-            var buildersExpire = (int)dRow["builders_expire"];
-            var buildersItemsMax = (int)dRow["builders_items_max"];
-            var buildersItemsUsed = (int)dRow["builders_items_used"];
-            var releaseVersion = (int)dRow["release_version"];
+            bool vip = Azure.EnumToBool(dRow["vip"].ToString());
+            double createDate = Convert.ToDouble(dRow["account_created"]);
+            bool online = Azure.EnumToBool(dRow["online"].ToString());
+            string citizenship = dRow["talent_status"].ToString();
+            int diamonds = (int)dRow["diamonds"];
+            int lastChange = (int)dRow["last_name_change"];
+            int regTimestamp = (int)dRow["account_created"];
+            bool tradeLocked = Azure.EnumToBool(dRow["trade_lock"].ToString());
+            int tradeLockExpire = (int)dRow["trade_lock_expire"];
+            bool nuxPassed = Azure.EnumToBool(dRow["nux_passed"].ToString());
 
-            /* guides */
-            var onDuty = Convert.ToBoolean(dRow["on_duty"]);
-            var dutyLevel = uint.Parse(dRow["duty_level"].ToString());
+            int buildersExpire = (int)dRow["builders_expire"];
+            int buildersItemsMax = (int)dRow["builders_items_max"];
+            int buildersItemsUsed = (int)dRow["builders_items_used"];
+            int releaseVersion = (int)dRow["release_version"];
 
-            var navilogs = new Dictionary<int, UserSearchLog>();
-            var navilogstring = (string)dRow["navigator_logs"];
+            bool onDuty = (bool)dRow["on_duty"];
+            uint dutyLevel = (uint)dRow["duty_level"];
+
+            Dictionary<int, UserSearchLog> navilogs = new Dictionary<int, UserSearchLog>();
+
+            string navilogstring = (string)dRow["navigator_logs"];
+
             if (navilogstring.Length > 0)
-                foreach (
-                    var naviLogs in
-                        navilogstring.Split(';')
-                            .Where(value => navilogstring.Contains(","))
-                            .Select(
-                                value =>
-                                    new UserSearchLog(int.Parse(value.Split(',')[0]), value.Split(',')[1],
-                                        value.Split(',')[2]))
-                            .Where(naviLogs => !navilogs.ContainsKey(naviLogs.Id)))
+                foreach (UserSearchLog naviLogs in navilogstring.Split(';').Where(value => navilogstring.Contains(",")).Select(value => new UserSearchLog(int.Parse(value.Split(',')[0]), value.Split(',')[1], value.Split(',')[2])).Where(naviLogs => !navilogs.ContainsKey(naviLogs.Id)))
                     navilogs.Add(naviLogs.Id, naviLogs);
 
             return new Habbo(id, userName, realName, ras, motto, look, gender, credits, activityPoints,

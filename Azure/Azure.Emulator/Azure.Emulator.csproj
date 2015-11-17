@@ -473,7 +473,7 @@
     <Compile Include="Game\Users\YoutubeManager.cs" />
     <Compile Include="Game\Users\HallOfFame.cs" />
     <Compile Include="Game\Users\UserPreferences.cs" />
-    <Compile Include="Game\Users\Inventory\UserClothing.cs" />
+    <Compile Include="Game\Users\Inventory\UserClothesManager.cs" />
     <Compile Include="Data\CacheManager.cs" />
     <Compile Include="Messages\Factorys\ClientMessageFactory.cs" />
     <Compile Include="Messages\Handlers\Catalogs.cs" />
@@ -566,7 +566,7 @@
     <Compile Include="Game\Quests\QuestManager.cs" />
     <Compile Include="Game\Quests\QuestType.cs" />
     <Compile Include="Game\Quests\QuestTypeUtillity.cs" />
-    <Compile Include="Game\Roles\RoleManager.cs" />
+    <Compile Include="Game\Users\Fuses\RoleManager.cs" />
     <Compile Include="Game\RoomBots\Enumerators\AIType.cs" />
     <Compile Include="Game\RoomBots\Interfaces\BotAi.cs" />
     <Compile Include="Game\RoomBots\BotManager.cs" />
@@ -588,18 +588,18 @@
     <Compile Include="Game\Support\SupportTicket.cs" />
     <Compile Include="Game\Support\TicketStatus.cs" />
     <Compile Include="Game\Users\Authenticator\HabboFactory.cs" />
-    <Compile Include="Game\Users\Badges\Badge.cs" />
-    <Compile Include="Game\Users\Badges\BadgeComponent.cs" />
+    <Compile Include="Game\Users\Badges\Models\Badge.cs" />
+    <Compile Include="Game\Users\Badges\UserBadgeManager.cs" />
     <Compile Include="Game\Users\Habbo.cs" />
-    <Compile Include="Game\Users\Helpers\GuideManager.cs" />
+    <Compile Include="Game\Users\Guides\GuideManager.cs" />
     <Compile Include="Game\Users\Inventory\AvatarEffect.cs" />
-    <Compile Include="Game\Users\Inventory\AvatarEffectsInventoryComponent.cs" />
-    <Compile Include="Game\Users\Inventory\InventoryComponent.cs" />
+    <Compile Include="Game\Users\Inventory\Components\AvatarEffectComponent.cs" />
+    <Compile Include="Game\Users\Inventory\Components\InventoryComponent.cs" />
     <Compile Include="Game\Users\Messenger\HabboMessenger.cs" />
-    <Compile Include="Game\Users\Messenger\MessengerBuddy.cs" />
-    <Compile Include="Game\Users\Messenger\MessengerRequest.cs" />
-    <Compile Include="Game\Users\Messenger\OfflineMessage.cs" />
-    <Compile Include="Game\Users\Messenger\SearchResult.cs" />
+    <Compile Include="Game\Users\Messenger\Structs\MessengerBuddy.cs" />
+    <Compile Include="Game\Users\Messenger\Structs\MessengerRequest.cs" />
+    <Compile Include="Game\Users\Messenger\Structs\OfflineMessage.cs" />
+    <Compile Include="Game\Users\Messenger\Structs\SearchResult.cs" />
     <Compile Include="Game\Users\Messenger\SearchResultFactory.cs" />
     <Compile Include="Game\Users\Relationships\Relationship.cs" />
     <Compile Include="Game\Users\Subscriptions\Subscription.cs" />
@@ -686,7 +686,9 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Game\Users\Inventory\Structs\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

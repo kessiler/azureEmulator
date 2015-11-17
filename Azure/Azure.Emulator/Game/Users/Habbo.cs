@@ -12,7 +12,9 @@ using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Users.Badges;
 using Azure.Game.Users.Inventory;
+using Azure.Game.Users.Inventory.Components;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
 using Azure.Game.Users.UserDataManagement;
@@ -37,21 +39,15 @@ namespace Azure.Game.Users
         /// </summary>
         private readonly List<uint> _myGroups;
 
-        private readonly bool _online;
-
-        private readonly int _regTimestamp;
-
-        private readonly int _releaseVersion;
-
         /// <summary>
         ///     The _avatar effects inventory component
         /// </summary>
-        private AvatarEffectsInventoryComponent _avatarEffectsInventoryComponent;
+        private AvatarEffectComponent _avatarEffectComponent;
 
         /// <summary>
         ///     The _badge component
         /// </summary>
-        private BadgeComponent _badgeComponent;
+        private UserBadgeManager _badgeComponent;
 
         /// <summary>
         ///     The _habboinfo saved
@@ -129,7 +125,7 @@ namespace Azure.Game.Users
         /// <summary>
         ///     The _clothing manager
         /// </summary>
-        internal UserClothing ClothingManager;
+        internal UserClothesManager ClothesManagerManager;
 
         /// <summary>
         ///     The create date
@@ -497,7 +493,6 @@ namespace Azure.Game.Users
             BuildersExpire = buildersExpire;
             BuildersItemsMax = buildersItemsMax;
             BuildersItemsUsed = buildersItemsUsed;
-            _releaseVersion = releaseVersion;
 
             if (rank < 1u)
                 rank = 1u;
@@ -521,11 +516,9 @@ namespace Azure.Game.Users
             _lastActivityPointsUpdate = lastActivityPointsUpdate;
             Diamonds = diamonds;
             AchievementPoints = achievementPoints;
-            _regTimestamp = regTimestamp;
             Muted = muted;
             LoadingRoom = 0u;
             CreateDate = createDate;
-            _online = online;
             LoadingChecksPassed = false;
             FloodTime = 0;
             NuxPassed = nuxPassed;
@@ -700,7 +693,7 @@ namespace Azure.Game.Users
         internal void InitInformation(UserData data)
         {
             _subscriptionManager = new SubscriptionManager(Id, data);
-            _badgeComponent = new BadgeComponent(Id, data);
+            _badgeComponent = new UserBadgeManager(Id, data);
             Quests = data.Quests;
             _messenger = new HabboMessenger(Id);
             _messenger.Init(data.Friends, data.Requests);
@@ -720,10 +713,10 @@ namespace Azure.Game.Users
         {
             _mClient = client;
             _subscriptionManager = new SubscriptionManager(Id, data);
-            _badgeComponent = new BadgeComponent(Id, data);
+            _badgeComponent = new UserBadgeManager(Id, data);
             _inventoryComponent = new InventoryComponent(Id, client, data);
             _inventoryComponent.SetActiveState(client);
-            _avatarEffectsInventoryComponent = new AvatarEffectsInventoryComponent(Id, client, data);
+            _avatarEffectComponent = new AvatarEffectComponent(Id, client, data);
             Quests = data.Quests;
             _messenger = new HabboMessenger(Id);
             _messenger.Init(data.Friends, data.Requests);
@@ -734,7 +727,7 @@ namespace Azure.Game.Users
             MinimailUnreadMessages = data.MiniMailCount;
             Relationships = data.Relations;
             AnsweredPolls = data.SuggestedPolls;
-            ClothingManager = new UserClothing(Id);
+            ClothesManagerManager = new UserClothesManager(Id);
             Preferences = new UserPreferences(Id);
             YoutubeManager = new YoutubeManager(Id);
         }
@@ -977,7 +970,7 @@ namespace Azure.Game.Users
                 _messenger = null;
             }
 
-            _avatarEffectsInventoryComponent?.Dispose();
+            _avatarEffectComponent?.Dispose();
 
             _mClient = null;
         }
@@ -1171,7 +1164,7 @@ namespace Azure.Game.Users
         ///     Gets the badge component.
         /// </summary>
         /// <returns>BadgeComponent.</returns>
-        internal BadgeComponent GetBadgeComponent() => _badgeComponent;
+        internal UserBadgeManager GetBadgeComponent() => _badgeComponent;
 
         /// <summary>
         ///     Gets the inventory component.
@@ -1182,8 +1175,8 @@ namespace Azure.Game.Users
         /// <summary>
         ///     Gets the avatar effects inventory component.
         /// </summary>
-        /// <returns>AvatarEffectsInventoryComponent.</returns>
-        internal AvatarEffectsInventoryComponent GetAvatarEffectsInventoryComponent() => _avatarEffectsInventoryComponent;
+        /// <returns>AvatarEffectComponent.</returns>
+        internal AvatarEffectComponent GetAvatarEffectsInventoryComponent() => _avatarEffectComponent;
 
         /// <summary>
         ///     Runs the database update.

@@ -7,6 +7,7 @@ using Azure.Game.Items.Wired.Interfaces;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.User;
 using Azure.Game.Users.Badges;
+using Azure.Game.Users.Badges.Models;
 
 namespace Azure.Game.Items.Wired.Handlers.Conditions
 {

@@ -16,7 +16,7 @@ using Azure.Messages;
 using Azure.Messages.Enums;
 using Azure.Messages.Parsers;
 
-namespace Azure.Game.Users.Inventory
+namespace Azure.Game.Users.Inventory.Components
 {
     /// <summary>
     ///     Class InventoryComponent.

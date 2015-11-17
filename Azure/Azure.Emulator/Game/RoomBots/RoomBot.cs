@@ -260,7 +260,7 @@ namespace Azure.Game.RoomBots
             DanceId = dance;
             RandomSpeech = speeches;
             Responses = responses;
-            WasPicked = (roomId == 0);
+            WasPicked = roomId == 0;
             MixPhrases = mixPhrases;
             AutomaticChat = automaticChat;
             SpeechInterval = speechInterval;

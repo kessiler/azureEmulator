@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Azure.IO;
 
-namespace Azure.Game.Roles
+namespace Azure.Game.Users.Fuses
 {
     /// <summary>
     ///     Class RoleManager.
@@ -44,53 +44,33 @@ namespace Azure.Game.Roles
         internal void LoadRights(IQueryAdapter dbClient)
         {
             ClearRights();
-            dbClient.SetQuery("SELECT command,rank FROM server_fuses;");
-            var table = dbClient.GetTable();
-            if (table != null)
-            {
-                foreach (DataRow dataRow in table.Rows)
-                {
-                    if (!_cmdRights.ContainsKey((string) dataRow[0]))
-                    {
-                        _cmdRights.Add((string) dataRow[0], (string) dataRow[1]);
-                    }
-                    else
-                    {
-                        ServerLogManager.LogException(string.Format("Duplicate Fuse Command \"{0}\" found", dataRow[0]));
-                    }
-                }
-            }
-            dbClient.SetQuery("SELECT * FROM server_fuserights");
-            var table2 = dbClient.GetTable();
-            if (table2 == null)
-            {
+
+            dbClient.SetQuery("SELECT * FROM server_fuses;");
+
+            DataTable table = dbClient.GetTable();
+
+            if (table == null)
                 return;
-            }
-            foreach (DataRow dataRow2 in table2.Rows)
-            {
-                if ((int) dataRow2[3] == 0)
-                {
-                    if (!_rights.ContainsKey((string) dataRow2[0]))
-                    {
-                        _rights.Add((string) dataRow2[0], Convert.ToUInt32(dataRow2[1]));
-                    }
-                    else
-                    {
-                        ServerLogManager.LogException(string.Format("Unknown Subscription Fuse \"{0}\" found", dataRow2[0]));
-                    }
-                }
+
+            foreach (DataRow dataRow in table.Rows)
+                if (!_cmdRights.ContainsKey(dataRow["command"].ToString()))
+                    _cmdRights.Add(dataRow["command"].ToString(), dataRow["rank"].ToString());
                 else
-                {
-                    if ((int) dataRow2[3] > 0)
-                    {
-                        _subRights.Add((string) dataRow2[0], (int) dataRow2[3]);
-                    }
-                    else
-                    {
-                        ServerLogManager.LogException(string.Format("Unknown fuse type \"{0}\" found", dataRow2[3]));
-                    }
-                }
-            }
+                    Writer.WriteLine($"Duplicate Fuse Command \"{dataRow[0]}\" found", "Azure.Fuses");
+
+            dbClient.SetQuery("SELECT * FROM server_fuserights");
+
+            DataTable table2 = dbClient.GetTable();
+
+            if (table2 == null)
+                return;
+
+            foreach (DataRow dataRow2 in table2.Rows)
+                if ((int) dataRow2["min_sub"] > 0)
+                    _subRights.Add(dataRow2["fuse"].ToString(), (int) dataRow2["min_sub"]);
+                else
+                    if (!_rights.ContainsKey(dataRow2["fuse"].ToString()))
+                        _rights.Add(dataRow2["fuse"].ToString(), (uint)dataRow2["min_rank"]);             
         }
 
         /// <summary>
@@ -102,17 +82,14 @@ namespace Azure.Game.Roles
         internal bool RankGotCommand(uint rankId, string cmd)
         {
             if (!_cmdRights.ContainsKey(cmd))
-            {
                 return false;
-            }
-            if (!_cmdRights[cmd].Contains(";"))
-            {
-                return rankId >= uint.Parse(_cmdRights[cmd]);
-            }
 
-            var cmdranks = _cmdRights[cmd].Split(';');
-            return cmdranks.Any(rank => rank.Contains(Convert.ToString(rankId))) ||
-                   _cmdRights[cmd].Contains(Convert.ToString(rankId));
+            if (!_cmdRights[cmd].Contains(";"))
+                return rankId >= uint.Parse(_cmdRights[cmd]);
+
+            string[] cmdranks = _cmdRights[cmd].Split(';');
+
+            return cmdranks.Any(rank => rank.Contains(Convert.ToString(rankId))) || _cmdRights[cmd].Contains(Convert.ToString(rankId));
         }
 
         /// <summary>
@@ -121,10 +98,7 @@ namespace Azure.Game.Roles
         /// <param name="rankId">The rank identifier.</param>
         /// <param name="fuse">The fuse.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal bool RankHasRight(uint rankId, string fuse)
-        {
-            return ContainsRight(fuse) && rankId >= _rights[fuse];
-        }
+        internal bool RankHasRight(uint rankId, string fuse) => ContainsRight(fuse) && rankId >= _rights[fuse];
 
         /// <summary>
         ///     Determines whether the specified sub has vip.
@@ -132,10 +106,7 @@ namespace Azure.Game.Roles
         /// <param name="sub">The sub.</param>
         /// <param name="fuse">The fuse.</param>
         /// <returns><c>true</c> if the specified sub has vip; otherwise, <c>false</c>.</returns>
-        internal bool HasVip(int sub, string fuse)
-        {
-            return _subRights.ContainsKey(fuse) && _subRights[fuse] == sub;
-        }
+        internal bool HasVip(int sub, string fuse) => _subRights.ContainsKey(fuse) && _subRights[fuse] == sub;
 
         /// <summary>
         ///     Gets the rights for rank.
@@ -144,11 +115,11 @@ namespace Azure.Game.Roles
         /// <returns>List&lt;System.String&gt;.</returns>
         internal List<string> GetRightsForRank(uint rankId)
         {
-            var list = new List<string>();
-            foreach (var current in _rights.Where(current => rankId >= current.Value && !list.Contains(current.Key)))
-            {
+            List<string> list = new List<string>();
+
+            foreach (KeyValuePair<string, uint> current in _rights.Where(current => rankId >= current.Value && !list.Contains(current.Key)))
                 list.Add(current.Key);
-            }
+
             return list;
         }
 
@@ -157,10 +128,7 @@ namespace Azure.Game.Roles
         /// </summary>
         /// <param name="right">The right.</param>
         /// <returns><c>true</c> if the specified right contains right; otherwise, <c>false</c>.</returns>
-        internal bool ContainsRight(string right)
-        {
-            return _rights.ContainsKey(right);
-        }
+        internal bool ContainsRight(string right) => _rights.ContainsKey(right);
 
         /// <summary>
         ///     Clears the rights.

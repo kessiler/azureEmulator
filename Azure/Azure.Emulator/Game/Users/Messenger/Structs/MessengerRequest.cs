@@ -1,6 +1,6 @@
 using Azure.Messages;
 
-namespace Azure.Game.Users.Messenger
+namespace Azure.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Class MessengerRequest.

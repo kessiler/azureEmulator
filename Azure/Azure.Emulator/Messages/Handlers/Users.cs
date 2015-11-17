@@ -15,7 +15,9 @@ using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.User;
 using Azure.Game.Users;
 using Azure.Game.Users.Badges;
+using Azure.Game.Users.Badges.Models;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Messages.Parsers;
 

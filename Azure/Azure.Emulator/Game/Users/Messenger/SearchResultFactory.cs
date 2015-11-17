@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 
 namespace Azure.Game.Users.Messenger
 {
@@ -19,21 +20,16 @@ namespace Azure.Game.Users.Messenger
         {
             DataTable table;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery(
-                    "SELECT id,username,motto,look,last_online FROM users WHERE username LIKE @query LIMIT 50");
+                queryReactor.SetQuery("SELECT id,username,motto,look,last_online FROM users WHERE username LIKE @query LIMIT 50");
+
                 queryReactor.AddParameter("query", $"{query}%");
+
                 table = queryReactor.GetTable();
             }
 
-            return (from DataRow dataRow in table.Rows
-                let userId = Convert.ToUInt32(dataRow[0])
-                let userName = (string) dataRow[1]
-                let motto = (string) dataRow[2]
-                let look = (string) dataRow[3]
-                let lastOnline = dataRow[4].ToString()
-                select new SearchResult(userId, userName, motto, look, lastOnline)).ToList();
+            return (from DataRow dataRow in table.Rows let userId = Convert.ToUInt32(dataRow[0]) let userName = (string) dataRow[1] let motto = (string) dataRow[2] let look = (string) dataRow[3] let lastOnline = dataRow[4].ToString() select new SearchResult(userId, userName, motto, look, lastOnline)).ToList();
         }
     }
 }

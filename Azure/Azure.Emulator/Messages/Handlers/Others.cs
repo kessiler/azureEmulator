@@ -339,7 +339,7 @@ namespace Azure.Messages.Handlers
             GetResponse().AppendInteger(Session.GetHabbo().AchievementPoints);
             SendResponse();
             GetResponse().Init(LibraryParser.OutgoingRequest("FigureSetIdsMessageComposer"));
-            Session.GetHabbo().ClothingManager.Serialize(GetResponse());
+            Session.GetHabbo().ClothesManagerManager.Serialize(GetResponse());
             SendResponse();
             /*Response.Init(LibraryParser.OutgoingRequest("NewbieStatusMessageComposer"));
             Response.AppendInteger(0);// 2 = new - 1 = nothing - 0 = not new

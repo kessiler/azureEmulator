@@ -1,20 +1,16 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.Items.Interfaces;
 
 namespace Azure.Game.Items
 {
     /// <summary>
-    ///     Class ClothingManager.
+    ///     Class ClothesManagerManager.
     /// </summary>
     internal class ClothingManager
     {
-        /// <summary>
-        ///     The Table
-        /// </summary>
-        private DataTable _table;
-
         /// <summary>
         ///     The clothing items
         /// </summary>
@@ -27,11 +23,13 @@ namespace Azure.Game.Items
         internal void Initialize(IQueryAdapter dbClient)
         {
             dbClient.SetQuery("SELECT * FROM catalog_wearables");
-            ClothingItems = new Dictionary<string, ClothingItem>();
-            _table = dbClient.GetTable();
 
-            foreach (DataRow dataRow in _table.Rows)
-                ClothingItems.Add((string)dataRow["item_name"], new ClothingItem(dataRow));
+            ClothingItems = new Dictionary<string, ClothingItem>();
+
+            DataTable table = dbClient.GetTable();
+
+            foreach (DataRow dataRow in table.Rows)
+                ClothingItems.Add(dataRow["item_name"].ToString(), new ClothingItem(dataRow));
         }
 
         /// <summary>
@@ -39,12 +37,6 @@ namespace Azure.Game.Items
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns>ClothingItem.</returns>
-        internal ClothingItem GetClothesInFurni(string name)
-        {
-            ClothingItem clothe;
-            ClothingItems.TryGetValue(name, out clothe);
-
-            return clothe;
-        }
+        internal ClothingItem GetClothesInFurni(string name) => ClothingItems.FirstOrDefault(p => p.Key == name).Value;
     }
 }

@@ -1,14 +1,16 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Azure.Game.Items.Interfaces;
 using Azure.Messages;
 
 namespace Azure.Game.Users.Inventory
 {
     /// <summary>
-    ///     Class UserClothing.
+    ///     Class UserClothesManager.
     /// </summary>
-    internal class UserClothing
+    internal class UserClothesManager
     {
         /// <summary>
         ///     The _user identifier
@@ -21,24 +23,27 @@ namespace Azure.Game.Users.Inventory
         internal List<string> Clothing;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="UserClothing" /> class.
+        ///     Initializes a new instance of the <see cref="UserClothesManager" /> class.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
-        internal UserClothing(uint userId)
+        internal UserClothesManager(uint userId)
         {
             _userId = userId;
+
             Clothing = new List<string>();
+
             DataTable dTable;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT clothing FROM users_clothing WHERE userid = @userid");
+
                 queryReactor.AddParameter("userid", _userId);
                 dTable = queryReactor.GetTable();
             }
 
             foreach (DataRow dRow in dTable.Rows)
-                Clothing.Add((string) dRow["clothing"]);
+                Clothing.Add(dRow["clothing"].ToString());
         }
 
         /// <summary>
@@ -47,9 +52,10 @@ namespace Azure.Game.Users.Inventory
         /// <param name="clothing">The clothing.</param>
         internal void Add(string clothing)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("INSERT INTO users_clothing (userid,clothing) VALUES (@userid,@clothing)");
+
                 queryReactor.AddParameter("userid", _userId);
                 queryReactor.AddParameter("clothing", clothing);
                 queryReactor.RunQuery();
@@ -66,9 +72,9 @@ namespace Azure.Game.Users.Inventory
         {
             message.StartArray();
 
-            foreach (var item1 in Clothing.Select(clothing1 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
+            foreach (ClothingItem item1 in Clothing.Select(clothing1 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
             {
-                foreach (var clothe in item1.Clothes)
+                foreach (int clothe in item1.Clothes)
                     message.AppendInteger(clothe);
 
                 message.SaveArray();
@@ -77,9 +83,9 @@ namespace Azure.Game.Users.Inventory
             message.EndArray();
             message.StartArray();
 
-            foreach (var item2 in Clothing.Select(clothing2 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
+            foreach (ClothingItem item2 in Clothing.Select(clothing2 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
             {
-                foreach (var clothe in item2.Clothes)
+                foreach (int clothe in item2.Clothes)
                     message.AppendString(item2.ItemName);
 
                 message.SaveArray();

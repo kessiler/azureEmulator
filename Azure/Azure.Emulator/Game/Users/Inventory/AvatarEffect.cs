@@ -63,7 +63,7 @@ namespace Azure.Game.Users.Inventory
                 if (num >= TotalDuration)
                     return 0;
 
-                return ((int) (TotalDuration - num));
+                return (int) (TotalDuration - num);
             }
         }
 

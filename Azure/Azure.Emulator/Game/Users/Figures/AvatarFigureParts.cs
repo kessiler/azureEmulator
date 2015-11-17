@@ -28,10 +28,10 @@ namespace Azure.Game.Users.Figures
         /// <summary>
         ///     Initializes a new instance of the <see cref="AvatarFigureParts" /> struct.
         /// </summary>
+        /// <param name="part"></param>
         /// <param name="partId">The part.</param>
         /// <param name="gender">The part identifier.</param>
-        /// <param name="colorable">The gender.</param>
-        /// <param name="colorable">The colorable.</param>
+        /// <param name="colorable"></param>
         public AvatarFigureParts(string part, string partId, string gender, string colorable)
         {
             Part = part;

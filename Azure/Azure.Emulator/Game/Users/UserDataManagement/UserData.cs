@@ -5,8 +5,10 @@ using Azure.Game.Pets;
 using Azure.Game.RoomBots;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Users.Badges;
+using Azure.Game.Users.Badges.Models;
 using Azure.Game.Users.Inventory;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
 

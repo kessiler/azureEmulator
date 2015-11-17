@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
 
-namespace Azure.Game.Users.Messenger
+namespace Azure.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Class OfflineMessage.

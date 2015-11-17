@@ -8,6 +8,7 @@ using System.Text;
 using Azure.Data;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Users.Messenger;
+using Azure.Game.Users.Messenger.Structs;
 using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;

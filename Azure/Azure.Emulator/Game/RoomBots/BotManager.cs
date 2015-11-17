@@ -34,7 +34,9 @@ namespace Azure.Game.RoomBots
         internal BotManager()
         {
             Bots = new List<RoomBot>();
+
             LoadCatalogBots(Azure.GetDatabaseManager().GetQueryReactor());
+
             LoadBotsCommands(Azure.GetDatabaseManager().GetQueryReactor());
         }
 
@@ -57,12 +59,7 @@ namespace Azure.Game.RoomBots
 
             RoomBot bot = new RoomBot(id, Convert.ToUInt32(row["user_id"]), AiType.Generic, row["bot_type"].ToString());
 
-            bot.Update(Convert.ToUInt32(row["room_id"]), (string) row["walk_mode"], (string) row["name"],
-                (string) row["motto"],
-                (string) row["look"],
-                int.Parse(row["x"].ToString()), int.Parse(row["y"].ToString()), int.Parse(row["z"].ToString()), 4, 0, 0,
-                0, 0, speeches, null, (string) row["gender"], (int) row["dance"], (int) row["speaking_interval"],
-                Convert.ToInt32(row["automatic_chat"]) == 1, Convert.ToInt32(row["mix_phrases"]) == 1);
+            bot.Update(Convert.ToUInt32(row["room_id"]), (string) row["walk_mode"], (string) row["name"], (string) row["motto"], (string) row["look"], int.Parse(row["x"].ToString()), int.Parse(row["y"].ToString()), int.Parse(row["z"].ToString()), 4, 0, 0, 0, 0, speeches, null, (string) row["gender"], (int) row["dance"], (int) row["speaking_interval"], Convert.ToInt32(row["automatic_chat"]) == 1, Convert.ToInt32(row["mix_phrases"]) == 1);
 
             return bot;
         }
@@ -107,10 +104,10 @@ namespace Azure.Game.RoomBots
         /// <returns>RoomBot.</returns>
         internal static RoomBot CreateBotFromCatalog(string botType, uint userId)
         {
-            CatalogBot catalogBot = GetCatalogBot(botType);
-
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
+                CatalogBot catalogBot = GetCatalogBot(botType);
+
                 queryReactor.SetQuery($"INSERT INTO bots_data (user_id,name,motto,look,gender,walk_mode,ai_type,bot_type) VALUES ('{userId}', '{catalogBot.BotName}', '{catalogBot.BotMission}', '{catalogBot.BotLook}', '{catalogBot.BotGender}', 'freeroam', 'generic', '{catalogBot.BotType}')");
 
                 return new RoomBot(Convert.ToUInt32(queryReactor.InsertQuery()), userId, 0u, AiType.Generic, "freeroam", catalogBot.BotName, catalogBot.BotMission, catalogBot.BotLook, 0, 0, 0.0, 0, null, null, catalogBot.BotGender, 0, catalogBot.BotType);
@@ -129,35 +126,21 @@ namespace Azure.Game.RoomBots
         /// </summary>
         /// <param name="botId">The bot identifier.</param>
         /// <returns>RoomBot.</returns>
-        internal RoomBot GetBot(uint botId) => (Bots.Where(p => p.BotId == botId)).FirstOrDefault();
+        internal RoomBot GetBot(uint botId) => Bots.FirstOrDefault(p => p.BotId == botId);
 
         /// <summary>
         /// Gets the catalog bot.
         /// </summary>
         /// <param name="botType">Type of the bot.</param>
         /// <returns>Azure.Game.RoomBots.Interfaces.CatalogBot.</returns>
-        internal static CatalogBot GetCatalogBot(string botType)
-        {
-            CatalogBot catalogBot;
-
-            CatalogBots.TryGetValue(botType, out catalogBot);
-
-            return catalogBot;
-        }
+        internal static CatalogBot GetCatalogBot(string botType) => CatalogBots.FirstOrDefault(p => p.Key == botType).Value;
 
         /// <summary>
         /// Gets the bot command by identifier.
         /// </summary>
         /// <param name="commandId">The command identifier.</param>
         /// <returns>Azure.Game.RoomBots.Interfaces.BotCommand.</returns>
-        internal static BotCommand GetBotCommandById(uint commandId)
-        {
-            BotCommand botCommand;
-
-            BotCommands.TryGetValue(commandId, out botCommand);
-
-            return botCommand;
-        }
+        internal static BotCommand GetBotCommandById(uint commandId) => BotCommands.FirstOrDefault(p => p.Key == commandId).Value;
 
         /// <summary>
         /// Gets the bot command by input.
