@@ -320,210 +320,134 @@ namespace Azure.Game
         {
             dbClient.RunFastQuery("UPDATE users SET online = '0' WHERE online <> '0'");
             dbClient.RunFastQuery("UPDATE rooms_data SET users_now = 0 WHERE users_now <> 0");
-            dbClient.RunFastQuery(
-                "UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" +
-                Azure.GetUnixTimeStamp() + "' LIMIT 1;");
+            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
         }
-
-        /*internal ServerMutantManager GetAntiMutant()
-        {
-        //return this.ServerMutantManager;
-        }*/
 
         /// <summary>
         ///     Gets the client manager.
         /// </summary>
         /// <returns>GameClientManager.</returns>
-        internal GameClientManager GetClientManager()
-        {
-            return _clientManager;
-        }
+        internal GameClientManager GetClientManager() => _clientManager;
 
         /// <summary>
         ///     Gets the ban manager.
         /// </summary>
         /// <returns>ModerationBanManager.</returns>
-        internal ModerationBanManager GetBanManager()
-        {
-            return _banManager;
-        }
+        internal ModerationBanManager GetBanManager() => _banManager;
 
         /// <summary>
         ///     Gets the role manager.
         /// </summary>
         /// <returns>RoleManager.</returns>
-        internal RoleManager GetRoleManager()
-        {
-            return _roleManager;
-        }
+        internal RoleManager GetRoleManager() => _roleManager;
 
         /// <summary>
         ///     Gets the catalog.
         /// </summary>
         /// <returns>Catalog.</returns>
-        internal CatalogManager GetCatalog()
-        {
-            return _catalog;
-        }
+        internal CatalogManager GetCatalog() => _catalog;
 
         /// <summary>
         ///     Gets the room events.
         /// </summary>
         /// <returns>RoomEvents.</returns>
-        internal RoomEvents GetRoomEvents()
-        {
-            return _events;
-        }
+        internal RoomEvents GetRoomEvents() => _events;
 
         /// <summary>
         ///     Gets the guide manager.
         /// </summary>
         /// <returns>GuideManager.</returns>
-        internal GuideManager GetGuideManager()
-        {
-            return _guideManager;
-        }
+        internal GuideManager GetGuideManager() => _guideManager;
 
         /// <summary>
         ///     Gets the navigator.
         /// </summary>
         /// <returns>NavigatorManager.</returns>
-        internal HotelBrowserManager GetNavigator()
-        {
-            return _navigatorManager;
-        }
+        internal HotelBrowserManager GetNavigator() => _navigatorManager;
 
         /// <summary>
         ///     Gets the item manager.
         /// </summary>
         /// <returns>ItemManager.</returns>
-        internal ItemManager GetItemManager()
-        {
-            return _itemManager;
-        }
+        internal ItemManager GetItemManager() => _itemManager;
 
         /// <summary>
         ///     Gets the room manager.
         /// </summary>
         /// <returns>RoomManager.</returns>
-        internal RoomManager GetRoomManager()
-        {
-            return _roomManager;
-        }
+        internal RoomManager GetRoomManager() => _roomManager;
 
         /// <summary>
         ///     Gets the pixel manager.
         /// </summary>
         /// <returns>CoinsManager.</returns>
-        internal ExchangeManager GetPixelManager()
-        {
-            return _pixelManager;
-        }
+        internal ExchangeManager GetPixelManager() => _pixelManager;
 
         /// <summary>
         ///     Gets the hotel view.
         /// </summary>
         /// <returns>HotelView.</returns>
-        internal HotelLandingManager GetHotelView()
-        {
-            return _hotelView;
-        }
+        internal HotelLandingManager GetHotelView() => _hotelView;
 
-        internal HallOfFame GetHallOfFame()
-        {
-            return _hallOfFame;
-        }
+        internal HallOfFame GetHallOfFame() => _hallOfFame;
 
-        internal TargetedOfferManager GetTargetedOfferManager()
-        {
-            return _targetedOfferManager;
-        }
+        internal TargetedOfferManager GetTargetedOfferManager() => _targetedOfferManager;
 
         /// <summary>
         ///     Gets the achievement manager.
         /// </summary>
         /// <returns>AchievementManager.</returns>
-        internal AchievementManager GetAchievementManager()
-        {
-            return _achievementManager;
-        }
+        internal AchievementManager GetAchievementManager() => _achievementManager;
 
         /// <summary>
         ///     Gets the moderation tool.
         /// </summary>
         /// <returns>ModerationTool.</returns>
-        internal ModerationTool GetModerationTool()
-        {
-            return _moderationTool;
-        }
+        internal ModerationTool GetModerationTool() => _moderationTool;
 
         /// <summary>
         ///     Gets the bot manager.
         /// </summary>
         /// <returns>BotManager.</returns>
-        internal BotManager GetBotManager()
-        {
-            return _botManager;
-        }
+        internal BotManager GetBotManager() => _botManager;
 
         /// <summary>
         ///     Gets the quest manager.
         /// </summary>
         /// <returns>QuestManager.</returns>
-        internal QuestManager GetQuestManager()
-        {
-            return _questManager;
-        }
+        internal QuestManager GetQuestManager() => _questManager;
 
         /// <summary>
         ///     Gets the group manager.
         /// </summary>
         /// <returns>GroupManager.</returns>
-        internal GroupManager GetGroupManager()
-        {
-            return _groupManager;
-        }
+        internal GroupManager GetGroupManager() => _groupManager;
 
         /// <summary>
         ///     Gets the talent manager.
         /// </summary>
         /// <returns>TalentManager.</returns>
-        internal TalentManager GetTalentManager()
-        {
-            return _talentManager;
-        }
+        internal TalentManager GetTalentManager() => _talentManager;
 
         /// <summary>
         ///     Gets the pinata handler.
         /// </summary>
         /// <returns>PinataHandler.</returns>
-        internal PinataHandler GetPinataHandler()
-        {
-            return _pinataHandler;
-        }
+        internal PinataHandler GetPinataHandler() => _pinataHandler;
 
-        internal CrackableEggHandler GetCrackableEggHandler()
-        {
-            return _crackableEggHandler;
-        }
+        internal CrackableEggHandler GetCrackableEggHandler() => _crackableEggHandler;
 
         /// <summary>
         ///     Gets the poll manager.
         /// </summary>
         /// <returns>PollManager.</returns>
-        internal PollManager GetPollManager()
-        {
-            return _pollManager;
-        }
+        internal PollManager GetPollManager() => _pollManager;
 
         /// <summary>
         ///     Gets the clothing manager.
         /// </summary>
         /// <returns>ClothesManagerManager.</returns>
-        internal ClothingManager GetClothingManager()
-        {
-            return _clothingManager;
-        }
+        internal ClothingManager GetClothingManager() => _clothingManager;
 
         /// <summary>
         ///     Continues the loading.

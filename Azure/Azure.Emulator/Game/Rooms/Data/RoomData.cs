@@ -282,19 +282,17 @@ namespace Azure.Game.Rooms.Data
                 PassWord = (string) row["password"];
                 Description = (string) row["description"];
                 Type = (string) row["roomtype"];
-                Owner = (string) row["owner"];
-                OwnerId = 0;
+                Owner = string.Empty;
+                OwnerId = (int)row["owner"];
                 RoomChat = new ConcurrentStack<Chatlog>();
                 WordFilter = new List<string>();
 
                 using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 {
-                    queryReactor.SetQuery("SELECT id FROM users WHERE username = @name");
-                    queryReactor.AddParameter("name", Owner);
+                    queryReactor.SetQuery("SELECT username FROM users WHERE id = @userId");
+                    queryReactor.AddParameter("userId", OwnerId);
 
-                    var integer = Convert.ToUInt32(queryReactor.GetInteger());
-
-                    OwnerId = integer != uint.MinValue ? Convert.ToInt32(integer) : 0;
+                    Owner = queryReactor.GetString();
 
                     queryReactor.SetQuery($"SELECT user_id, message, timestamp FROM users_chatlogs WHERE room_id = '{Id}' ORDER BY timestamp ASC LIMIT 150");
                     var table = queryReactor.GetTable();

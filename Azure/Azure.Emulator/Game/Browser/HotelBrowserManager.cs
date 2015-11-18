@@ -953,7 +953,7 @@ namespace Azure.Game.Browser
                 {
                     if (containsOwner)
                     {
-                        dbClient.SetQuery("SELECT * FROM rooms_data WHERE owner = @query AND roomtype = 'private' LIMIT 50");
+                        dbClient.SetQuery("SELECT rooms_data.* FROM rooms_data LEFT OUTER JOIN users ON rooms_data.owner = users.id WHERE users.username = @query AND rooms_data.roomtype = 'private' LIMIT 50");
                         dbClient.AddParameter("query", searchQuery);
                         dTable = dbClient.GetTable();
                     }

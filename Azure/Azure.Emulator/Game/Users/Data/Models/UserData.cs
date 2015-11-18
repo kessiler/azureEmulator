@@ -4,15 +4,13 @@ using Azure.Game.Items.Interfaces;
 using Azure.Game.Pets;
 using Azure.Game.RoomBots;
 using Azure.Game.Rooms.Data;
-using Azure.Game.Users.Badges;
 using Azure.Game.Users.Badges.Models;
 using Azure.Game.Users.Inventory;
-using Azure.Game.Users.Messenger;
 using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
 
-namespace Azure.Game.Users.UserDataManagement
+namespace Azure.Game.Users.Data.Models
 {
     /// <summary>
     ///     Class UserData.

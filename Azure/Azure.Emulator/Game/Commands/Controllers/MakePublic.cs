@@ -21,9 +21,10 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             var room = session.GetHabbo().CurrentRoom;
+
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Format("UPDATE rooms_data SET roomtype = 'public' WHERE id = {0}",
-                    room.RoomId));
+                queryReactor.RunFastQuery($"UPDATE rooms_data SET roomtype = 'public' WHERE id = {room.RoomId}");
+
             var roomId = session.GetHabbo().CurrentRoom.RoomId;
             var users = new List<RoomUser>(session.GetHabbo().CurrentRoom.GetRoomUserManager().UserList.Values);
 

@@ -299,11 +299,10 @@ namespace Azure.Game.Rooms
             uint roomId;
             using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                dbClient.SetQuery(
-                    "INSERT INTO rooms_data (roomtype,caption,description,owner,model_name,category,users_max,trade_state) VALUES ('private',@caption,@desc,@Username,@model,@cat,@usmax,@tstate)");
+                dbClient.SetQuery("INSERT INTO rooms_data (roomtype,caption,description,owner,model_name,category,users_max,trade_state) VALUES ('private',@caption,@desc,@UserId,@model,@cat,@usmax,@tstate)");
                 dbClient.AddParameter("caption", name);
                 dbClient.AddParameter("desc", desc);
-                dbClient.AddParameter("Username", session.GetHabbo().UserName);
+                dbClient.AddParameter("UserId", session.GetHabbo().Id);
                 dbClient.AddParameter("model", model);
                 dbClient.AddParameter("cat", category);
                 dbClient.AddParameter("usmax", maxVisitors);

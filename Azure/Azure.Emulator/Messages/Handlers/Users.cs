@@ -802,10 +802,6 @@ namespace Azure.Messages.Handlers
                     if (!string.IsNullOrWhiteSpace(String) &&
                         !String.Equals(userName, text, StringComparison.CurrentCultureIgnoreCase))
                         return;
-                    queryReactor.SetQuery("UPDATE rooms_data SET owner = @newowner WHERE owner = @oldowner");
-                    queryReactor.AddParameter("newowner", text);
-                    queryReactor.AddParameter("oldowner", Session.GetHabbo().UserName);
-                    queryReactor.RunQuery();
 
                     queryReactor.SetQuery(
                         "UPDATE users SET Username = @newname, last_name_change = @timestamp WHERE id = @userid");

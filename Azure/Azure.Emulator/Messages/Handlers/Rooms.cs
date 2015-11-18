@@ -109,7 +109,7 @@ namespace Azure.Messages.Handlers
 
         internal void OnlineConfirmationEvent()
         {
-            Writer.WriteLine("User, " + Request.GetString() + " connected with ip, " + Session.GetConnection().GetIp(), "Azure.Users",
+            Writer.WriteLine(Request.GetString() + " connected in the game. with ip " + Session.GetConnection().GetIp(), "Azure.Users",
                 ConsoleColor.DarkGreen);
 
             if (!ServerConfigurationSettings.Data.ContainsKey("welcome.message.enabled") ||

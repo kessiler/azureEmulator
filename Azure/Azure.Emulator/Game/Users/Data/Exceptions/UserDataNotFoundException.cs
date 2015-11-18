@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Game.Users.UserDataManagement
+namespace Azure.Game.Users.Data.Exceptions
 {
     /// <summary>
     ///     Class UserDataNotFoundException.

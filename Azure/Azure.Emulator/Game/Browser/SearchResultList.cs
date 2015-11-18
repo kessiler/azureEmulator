@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.Browser.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms.Data;
@@ -23,7 +24,7 @@ namespace Azure.Game.Browser
         /// <param name="message">The message.</param>
         internal static void SerializeSearchResultListFlatcats(int flatCatId, bool direct, ServerMessage message)
         {
-            var flatCat = Azure.GetGame().GetNavigator().GetFlatCat(flatCatId);
+            PublicCategory flatCat = Azure.GetGame().GetNavigator().GetFlatCat(flatCatId);
 
             if (flatCat == null)
                 return;
@@ -36,7 +37,7 @@ namespace Azure.Game.Browser
 
             try
             {
-                var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+                KeyValuePair<RoomData, uint>[] rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
                 Azure.GetGame()
                     .GetNavigator()
                     .SerializeNavigatorPopularRoomsNews(ref message, rooms, flatCatId, direct);
@@ -55,7 +56,7 @@ namespace Azure.Game.Browser
         /// <param name="message">The message.</param>
         internal static void SerializePromotionsResultListFlatcats(int flatCatId, bool direct, ServerMessage message)
         {
-            var flatCat = Azure.GetGame().GetNavigator().GetFlatCat(flatCatId);
+            PublicCategory flatCat = Azure.GetGame().GetNavigator().GetFlatCat(flatCatId);
             message.AppendString("new_ads");
             message.AppendString(flatCat.Caption);
             message.AppendInteger(0);
@@ -63,7 +64,7 @@ namespace Azure.Game.Browser
             message.AppendInteger(-1);
             try
             {
-                var rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
+                KeyValuePair<RoomData, uint>[] rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
                 Azure.GetGame()
                     .GetNavigator()
                     .SerializeNavigatorPopularRoomsNews(ref message, rooms, flatCatId, direct);
@@ -139,9 +140,9 @@ namespace Azure.Game.Browser
                 }
                 case "my":
                 {
-                    var i = 0;
+                    int i = 0;
                     message.StartArray();
-                    foreach (var data in session.GetHabbo().UsersRooms.Where(data => data != null))
+                    foreach (RoomData data in session.GetHabbo().UsersRooms.Where(data => data != null))
                     {
                         data.Serialize(message);
                         message.SaveArray();
@@ -158,12 +159,12 @@ namespace Azure.Game.Browser
                         return;
                     }
 
-                    var i = 0;
+                    int i = 0;
                     message.AppendInteger(session.GetHabbo().FavoriteRooms.Count > (direct ? 40 : 8)
                         ? (direct ? 40 : 8)
                         : session.GetHabbo().FavoriteRooms.Count);
                     foreach (
-                        var data in
+                        RoomData data in
                             session.GetHabbo()
                                 .FavoriteRooms.Select(
                                     dataId => Azure.GetGame().GetRoomManager().GenerateRoomData(dataId))
@@ -177,14 +178,14 @@ namespace Azure.Game.Browser
                 }
                 case "friends_rooms":
                 {
-                    var i = 0;
+                    int i = 0;
                     if (session == null || session.GetHabbo() == null || session.GetHabbo().GetMessenger() == null ||
                         session.GetHabbo().GetMessenger().GetActiveFriendsRooms() == null)
                     {
                         message.AppendInteger(0);
                         return;
                     }
-                    var roomsFriends =
+                    List<RoomData> roomsFriends =
                         session.GetHabbo()
                             .GetMessenger()
                             .GetActiveFriendsRooms()
@@ -192,7 +193,7 @@ namespace Azure.Game.Browser
                             .Take((direct ? 40 : 8))
                             .ToList();
                     message.AppendInteger(roomsFriends.Count);
-                    foreach (var data in roomsFriends.Where(data => data != null))
+                    foreach (RoomData data in roomsFriends.Where(data => data != null))
                     {
                         data.Serialize(message);
 
@@ -216,7 +217,7 @@ namespace Azure.Game.Browser
                             break;
                         }
                         message.AppendInteger(rooms.Length);
-                        foreach (var room in rooms) room.Key.Serialize(message);
+                        foreach (KeyValuePair<RoomData, uint> room in rooms) room.Key.Serialize(message);
                     }
                     catch (Exception e)
                     {
@@ -231,7 +232,7 @@ namespace Azure.Game.Browser
                     {
                         rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
                         message.AppendInteger(rooms.Length);
-                        foreach (var room in rooms) room.Key.Serialize(message);
+                        foreach (KeyValuePair<RoomData, uint> room in rooms) room.Key.Serialize(message);
                     }
                     catch
                     {
@@ -241,9 +242,9 @@ namespace Azure.Game.Browser
                 }
                 case "my_groups":
                 {
-                    var i = 0;
+                    int i = 0;
                     message.StartArray();
-                    foreach (var data in from xGroupId in session.GetHabbo().MyGroups
+                    foreach (RoomData data in from xGroupId in session.GetHabbo().MyGroups
                         select Azure.GetGame().GetGroupManager().GetGroup(xGroupId)
                         into xGroup
                         where xGroup != null
@@ -261,9 +262,9 @@ namespace Azure.Game.Browser
                 }
                 case "history":
                 {
-                    var i = 0;
+                    int i = 0;
                     message.StartArray();
-                    foreach (var roomData in session.GetHabbo()
+                    foreach (RoomData roomData in session.GetHabbo()
                         .RecentlyVisitedRooms.Select(
                             roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId))
                         .Where(roomData => roomData != null))
@@ -305,8 +306,8 @@ namespace Azure.Game.Browser
             message.AppendInteger(2);
             message.AppendBool(false);
             message.AppendInteger(0);
-            var containsOwner = false;
-            var containsGroup = false;
+            bool containsOwner = false;
+            bool containsGroup = false;
             if (searchQuery.StartsWith("owner:"))
             {
                 searchQuery = searchQuery.Replace("owner:", string.Empty);
@@ -317,10 +318,10 @@ namespace Azure.Game.Browser
                 searchQuery = searchQuery.Replace("group:", string.Empty);
                 containsGroup = true;
             }
-            var rooms = new List<RoomData>();
+            List<RoomData> rooms = new List<RoomData>();
             if (!containsOwner)
             {
-                var initForeach = false;
+                bool initForeach = false;
                 try
                 {
                     if (Azure.GetGame().GetRoomManager().GetActiveRooms() != null &&
@@ -333,7 +334,7 @@ namespace Azure.Game.Browser
                 }
                 if (initForeach)
                 {
-                    foreach (var rms in Azure.GetGame().GetRoomManager().GetActiveRooms())
+                    foreach (KeyValuePair<RoomData, uint> rms in Azure.GetGame().GetRoomManager().GetActiveRooms())
                     {
                         if (rms.Key.Name.ToLower().Contains(searchQuery.ToLower()) && rooms.Count <= 50)
                             rooms.Add(rms.Key);
@@ -344,28 +345,24 @@ namespace Azure.Game.Browser
             if (rooms.Count < 50 || containsOwner || containsGroup)
             {
                 DataTable dTable;
-                using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+
+                using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     if (containsOwner)
                     {
-                        dbClient.SetQuery(
-                            "SELECT * FROM rooms_data WHERE owner LIKE @query AND roomtype = 'private' LIMIT 50");
+                        dbClient.SetQuery("SELECT rooms_data.* FROM rooms_data LEFT OUTER JOIN users ON rooms_data.owner = users.id WHERE users.username LIKE @query AND rooms_data.roomtype = 'private' LIMIT 50");
                         dbClient.AddParameter("query", searchQuery);
                         dTable = dbClient.GetTable();
                     }
                     else if (containsGroup)
                     {
-                        dbClient.SetQuery(
-                            "SELECT * FROM rooms_data JOIN groups_data ON rooms_data.id = groups_data.room_id WHERE groups_data.name LIKE @query AND roomtype = 'private' LIMIT 50");
-                        dbClient.AddParameter("query", string.Format("%{0}%", searchQuery));
+                        dbClient.SetQuery("SELECT * FROM rooms_data JOIN groups_data ON rooms_data.id = groups_data.room_id WHERE groups_data.name LIKE @query AND roomtype = 'private' LIMIT 50");
+                        dbClient.AddParameter("query", $"%{searchQuery}%");
                         dTable = dbClient.GetTable();
                     }
                     else
                     {
-                        dbClient.SetQuery(
-                            string.Format(
-                                "SELECT * FROM rooms_data WHERE caption LIKE @query AND roomtype = 'private' LIMIT {0}",
-                                50 - rooms.Count));
+                        dbClient.SetQuery($"SELECT * FROM rooms_data WHERE caption LIKE @query AND roomtype = 'private' LIMIT {50 - rooms.Count}");
                         dbClient.AddParameter("query", searchQuery);
                         dTable = dbClient.GetTable();
                     }
@@ -373,7 +370,7 @@ namespace Azure.Game.Browser
                 if (dTable != null)
                 {
                     foreach (
-                        var rData in
+                        RoomData rData in
                             dTable.Rows.Cast<DataRow>()
                                 .Select(
                                     row =>
@@ -383,7 +380,7 @@ namespace Azure.Game.Browser
                 }
             }
             message.AppendInteger(rooms.Count);
-            foreach (var data in rooms.Where(data => data != null)) data.Serialize(message);
+            foreach (RoomData data in rooms.Where(data => data != null)) data.Serialize(message);
         }
     }
 }

@@ -89,6 +89,7 @@ namespace Azure.Game.Users.Messenger
 
             Friends.Clear();
             Requests.Clear();
+
             Friends = null;
             Requests = null;
         }
@@ -434,9 +435,11 @@ namespace Azure.Game.Users.Messenger
             if (toId == 0) // Staff Chat
             {
                 ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ConsoleChatMessageComposer"));
+
                 serverMessage.AppendInteger(0); //userid
                 serverMessage.AppendString(GetClient().GetHabbo().UserName + " : " + message);
                 serverMessage.AppendInteger(0);
+
                 Azure.GetGame().GetClientManager().StaffAlert(serverMessage, GetClient().GetHabbo().Id);
             }
             else

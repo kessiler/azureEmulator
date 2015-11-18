@@ -11,6 +11,7 @@ using Azure.Game.Groups.Interfaces;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Users.Badges;
+using Azure.Game.Users.Data.Models;
 using Azure.Game.Users.Inventory;
 using Azure.Game.Users.Inventory.Components;
 using Azure.Game.Users.Messenger;
@@ -740,8 +741,8 @@ namespace Azure.Game.Users
             using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
             {
                 UsersRooms.Clear();
-                dbClient.SetQuery("SELECT * FROM rooms_data WHERE owner = @name ORDER BY id ASC LIMIT 50");
-                dbClient.AddParameter("name", UserName);
+                dbClient.SetQuery("SELECT * FROM rooms_data WHERE owner = @userId ORDER BY id ASC LIMIT 50");
+                dbClient.AddParameter("userId", Id);
 
                 var table = dbClient.GetTable();
 

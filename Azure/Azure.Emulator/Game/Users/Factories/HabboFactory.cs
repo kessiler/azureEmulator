@@ -5,7 +5,7 @@ using System.Linq;
 using Azure.Game.Browser.Interfaces;
 using Azure.Game.Groups.Interfaces;
 
-namespace Azure.Game.Users.Authenticator
+namespace Azure.Game.Users.Factories
 {
     /// <summary>
     ///     Class HabboFactory.
@@ -72,7 +72,7 @@ namespace Azure.Game.Users.Authenticator
             string navilogstring = (string)dRow["navigator_logs"];
 
             if (navilogstring.Length > 0)
-                foreach (UserSearchLog naviLogs in navilogstring.Split(';').Where(value => navilogstring.Contains(",")).Select(value => new UserSearchLog(int.Parse(value.Split(',')[0]), value.Split(',')[1], value.Split(',')[2])).Where(naviLogs => !navilogs.ContainsKey(naviLogs.Id)))
+                foreach (UserSearchLog naviLogs in navilogstring.Split(';').Where(value => navilogstring.Contains(',')).Select(value => new UserSearchLog(int.Parse(value.Split(',')[0]), value.Split(',')[1], value.Split(',')[2])).Where(naviLogs => !navilogs.ContainsKey(naviLogs.Id)))
                     navilogs.Add(naviLogs.Id, naviLogs);
 
             return new Habbo(id, userName, realName, ras, motto, look, gender, credits, activityPoints,

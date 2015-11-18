@@ -1,4 +1,5 @@
 using System;
+using Azure.Game.Users.Data.Models;
 using Azure.Game.Users.UserDataManagement;
 
 namespace Azure.Game.Users.Subscriptions

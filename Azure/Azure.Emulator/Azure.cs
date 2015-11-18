@@ -22,6 +22,8 @@ using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Groups.Interfaces;
 using Azure.Game.Pets;
 using Azure.Game.Users;
+using Azure.Game.Users.Data.Models;
+using Azure.Game.Users.Factories;
 using Azure.Game.Users.Messenger;
 using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.UserDataManagement;
@@ -357,23 +359,9 @@ namespace Azure
                     Writer.WriteLine("Started RSA crypto service", "Azure.Crypto");
                 }
                 else
-                    Writer.WriteLine("The encryption system is disabled. This affects badly to the safety.", "Azure.Crypto", ConsoleColor.DarkYellow);
-
-                //Console.WriteLine();
-
-                //Out.WriteLine(
-                //    "Asynchronous sockets server for game connections running on port " +
-                //    int.Parse(ConfigurationData.Data["game.tcp.port"]) + Environment.NewLine, "Server.AsyncSocketListener");
-
-
-                // Removed MusSocket from the Server
-                //string[] allowedIps = ConfigurationData.Data["mus.tcp.allowedaddr"].Split(';');
-                // ReSharper disable once ObjectCreationAsStatement
-                //new MusSocket(ConfigurationData.Data["mus.tcp.bindip"],
-                //    int.Parse(ConfigurationData.Data["mus.tcp.port"]), allowedIps, 0);
+                    Writer.WriteLine("The encryption system is disabled.", "Azure.Crypto", ConsoleColor.DarkYellow);
 
                 LibraryParser.Initialize();
-                //Console.WriteLine();
 
                 if (ConsoleTimerOn)
                 {

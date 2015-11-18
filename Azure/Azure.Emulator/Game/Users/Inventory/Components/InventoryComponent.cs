@@ -11,6 +11,7 @@ using Azure.Game.Items.Interfaces;
 using Azure.Game.Pets;
 using Azure.Game.Pets.Enums;
 using Azure.Game.RoomBots;
+using Azure.Game.Users.Data.Models;
 using Azure.Game.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Enums;
