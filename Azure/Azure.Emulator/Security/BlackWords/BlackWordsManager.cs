@@ -6,7 +6,6 @@ using System.Linq;
 using Azure.IO;
 using Azure.Security.BlackWords.Enums;
 using Azure.Security.BlackWords.Structs;
-using Azure.Util;
 
 namespace Azure.Security.BlackWords
 {

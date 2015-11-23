@@ -70,7 +70,7 @@ namespace Azure.Game.Users.Data.Models
         /// <summary>
         ///     The quests
         /// </summary>
-        internal Dictionary<uint, int> Quests;
+        internal Dictionary<int, int> Quests;
 
         /// <summary>
         ///     The relations
@@ -144,7 +144,7 @@ namespace Azure.Game.Users.Data.Models
             Dictionary<int, UserTalent> talents, List<uint> favouritedRooms, List<uint> ignores, List<string> tags,
             Subscription sub, List<Badge> badges, List<UserItem> inventory, List<AvatarEffect> effects,
             Dictionary<uint, MessengerBuddy> friends, Dictionary<uint, MessengerRequest> requests,
-            HashSet<RoomData> rooms, Dictionary<uint, Pet> pets, Dictionary<uint, int> quests, Habbo user,
+            HashSet<RoomData> rooms, Dictionary<uint, Pet> pets, Dictionary<int, int> quests, Habbo user,
             Dictionary<uint, RoomBot> bots, Dictionary<int, Relationship> relations, HashSet<uint> suggestedPolls,
             uint miniMailCount)
         {

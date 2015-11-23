@@ -245,7 +245,7 @@ namespace Azure.Game.Browser
                     int i = 0;
                     message.StartArray();
                     foreach (RoomData data in from xGroupId in session.GetHabbo().MyGroups
-                        select Azure.GetGame().GetGroupManager().GetGroup(xGroupId)
+                        select Azure.GetGame().GetGroupManager().GetGroup((int) xGroupId)
                         into xGroup
                         where xGroup != null
                         select Azure.GetGame().GetRoomManager().GenerateRoomData(xGroup.RoomId)

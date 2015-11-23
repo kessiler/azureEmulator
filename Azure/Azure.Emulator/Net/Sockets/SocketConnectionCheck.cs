@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Sockets;
 using Azure.IO;
-using Azure.Util;
 
 namespace Azure.Net.Sockets
 {

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Azure.IO;
 using Azure.Messages.Handlers;
-using Azure.Util;
 
 namespace Azure.Messages.Parsers
 {

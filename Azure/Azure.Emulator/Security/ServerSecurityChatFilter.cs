@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using Azure.Game.GameClients.Interfaces;
 using Azure.IO;
-using Azure.Util;
 
 namespace Azure.Security
 {

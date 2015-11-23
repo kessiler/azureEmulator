@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Data;
 using Azure.IO;
-using Azure.Util;
 
 namespace Azure.Settings
 {

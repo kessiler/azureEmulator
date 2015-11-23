@@ -99,18 +99,18 @@ namespace Azure.Game.Quests.Composers
                 message.AppendInteger((quest == null)
                     ? 0
                     : (quest.Category.Contains("xmas2012") ? 0 : amountOfQuestsInCategory));
-                message.AppendInteger((quest == null) ? 3 : quest.RewardType);
-                message.AppendInteger((quest == null) ? 0u : quest.Id);
+                message.AppendInteger(quest?.RewardType ?? 3);
+                message.AppendInteger(quest?.Id ?? 0);
                 message.AppendBool(quest != null && session.GetHabbo().CurrentQuestId == quest.Id);
                 message.AppendString((quest == null) ? string.Empty : quest.ActionName);
                 message.AppendString((quest == null) ? string.Empty : quest.DataBit);
-                message.AppendInteger((quest == null) ? 0 : quest.Reward);
+                message.AppendInteger(quest?.Reward ?? 0);
                 message.AppendString((quest == null) ? string.Empty : quest.Name);
                 message.AppendInteger(num2);
-                message.AppendInteger((quest == null) ? 0u : quest.GoalData);
-                message.AppendInteger((quest == null) ? 0 : quest.TimeUnlock);
-                message.AppendString("");
-                message.AppendString("");
+                message.AppendInteger(quest?.GoalData ?? 0u);
+                message.AppendInteger(quest?.TimeUnlock ?? 0);
+                message.AppendString(string.Empty);
+                message.AppendString(string.Empty);
                 message.AppendBool(true);
             }
         }

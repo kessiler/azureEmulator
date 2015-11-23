@@ -5,7 +5,6 @@ using Azure.Messages;
 using Azure.Messages.Factorys;
 using Azure.Messages.Parsers;
 using Azure.Net.Connection;
-using Azure.Util;
 
 namespace Azure.Net.Packets
 {

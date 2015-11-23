@@ -14,7 +14,6 @@ using Azure.Messages.Parsers;
 using Azure.Security.BlackWords;
 using Azure.Security.BlackWords.Enums;
 using Azure.Security.BlackWords.Structs;
-using Azure.Util;
 using Azure.Data;
 using Azure.Game.Catalogs;
 using Azure.Game.Catalogs.Composers;
@@ -486,12 +485,12 @@ namespace Azure.Messages.Handlers
             if (Session.GetHabbo().FavouriteGroup > 0u)
             {
                 if (CurrentLoadingRoom.RoomData.Group != null &&
-                    !CurrentLoadingRoom.LoadedGroups.ContainsKey(CurrentLoadingRoom.RoomData.Group.Id))
-                    CurrentLoadingRoom.LoadedGroups.Add(CurrentLoadingRoom.RoomData.Group.Id,
+                    !CurrentLoadingRoom.LoadedGroups.ContainsKey((uint) CurrentLoadingRoom.RoomData.Group.Id))
+                    CurrentLoadingRoom.LoadedGroups.Add((uint) CurrentLoadingRoom.RoomData.Group.Id,
                         CurrentLoadingRoom.RoomData.Group.Badge);
-                if (!CurrentLoadingRoom.LoadedGroups.ContainsKey(Session.GetHabbo().FavouriteGroup) &&
+                if (!CurrentLoadingRoom.LoadedGroups.ContainsKey((uint) Session.GetHabbo().FavouriteGroup) &&
                     Azure.GetGame().GetGroupManager().GetGroup(Session.GetHabbo().FavouriteGroup) != null)
-                    CurrentLoadingRoom.LoadedGroups.Add(Session.GetHabbo().FavouriteGroup,
+                    CurrentLoadingRoom.LoadedGroups.Add((uint) Session.GetHabbo().FavouriteGroup,
                         Azure.GetGame().GetGroupManager().GetGroup(Session.GetHabbo().FavouriteGroup).Badge);
             }
             Response.Init(LibraryParser.OutgoingRequest("RoomGroupMessageComposer"));

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Azure.Database.Manager.Database.Session_Details.Interfaces;
@@ -131,7 +130,7 @@ namespace Azure.Messages.Handlers
             Session.SendMessage(CatalogPageComposer.PurchaseOk(0u, "CREATE_GUILD", 10));
             Response.Init(LibraryParser.OutgoingRequest("GroupRoomMessageComposer"));
             Response.AppendInteger(roomid);
-            Response.AppendInteger(theGroup.Id);
+            Response.AppendInteger((uint) theGroup.Id);
             SendResponse();
             roomData.Group = theGroup;
             roomData.GroupId = theGroup.Id;
@@ -143,11 +142,11 @@ namespace Azure.Messages.Handlers
                 Session.GetHabbo().CurrentRoomId = roomData.Id;
             }
 
-            if (Session.GetHabbo().CurrentRoom != null && !Session.GetHabbo().CurrentRoom.LoadedGroups.ContainsKey(theGroup.Id))
-                Session.GetHabbo().CurrentRoom.LoadedGroups.Add(theGroup.Id, theGroup.Badge);
+            if (Session.GetHabbo().CurrentRoom != null && !Session.GetHabbo().CurrentRoom.LoadedGroups.ContainsKey((uint) theGroup.Id))
+                Session.GetHabbo().CurrentRoom.LoadedGroups.Add((uint) theGroup.Id, theGroup.Badge);
 
-            if (CurrentLoadingRoom != null && !CurrentLoadingRoom.LoadedGroups.ContainsKey(theGroup.Id))
-                CurrentLoadingRoom.LoadedGroups.Add(theGroup.Id, theGroup.Badge);
+            if (CurrentLoadingRoom != null && !CurrentLoadingRoom.LoadedGroups.ContainsKey((uint) theGroup.Id))
+                CurrentLoadingRoom.LoadedGroups.Add((uint) theGroup.Id, theGroup.Badge);
 
             if (CurrentLoadingRoom != null)
             {
@@ -170,7 +169,7 @@ namespace Azure.Messages.Handlers
             var serverMessage2 = new ServerMessage(LibraryParser.OutgoingRequest("ChangeFavouriteGroupMessageComposer"));
 
             serverMessage2.AppendInteger(CurrentLoadingRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id).VirtualId);
-            serverMessage2.AppendInteger(theGroup.Id);
+            serverMessage2.AppendInteger((uint) theGroup.Id);
             serverMessage2.AppendInteger(3);
             serverMessage2.AppendString(theGroup.Name);
 
@@ -185,7 +184,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             bool newWindow = Request.GetBool();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (group == null)
                 return;
@@ -203,7 +202,7 @@ namespace Azure.Messages.Handlers
             string searchVal = Request.GetString();
             uint reqType = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
 
@@ -217,7 +216,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void MakeGroupAdmin()
         {
-            uint num = Request.GetUInteger();
+            int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
             Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
@@ -258,7 +257,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void RemoveGroupAdmin()
         {
-            uint num = Request.GetUInteger();
+            int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
             Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
@@ -299,7 +298,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             uint userId = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(userId))
                 return;
@@ -340,7 +339,7 @@ namespace Azure.Messages.Handlers
             var groupId = Request.GetUInteger();
             var userId = Request.GetUInteger();
 
-            var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            var group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(userId))
                 return;
@@ -376,7 +375,7 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
             Habbo user = Session.GetHabbo();
 
             if (!group.Members.ContainsKey(user.Id))
@@ -415,7 +414,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void RemoveMember()
         {
-            uint num = Request.GetUInteger();
+            int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
             Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
@@ -435,7 +434,7 @@ namespace Azure.Messages.Handlers
 
                 if (Session.GetHabbo().FavouriteGroup == num)
                 {
-                    Session.GetHabbo().FavouriteGroup = 0u;
+                    Session.GetHabbo().FavouriteGroup = 0;
 
                     using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                         queryreactor2.RunFastQuery($"UPDATE users_stats SET favourite_group=0 WHERE id={num2} LIMIT 1");
@@ -492,7 +491,7 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null)
                 return;
@@ -512,9 +511,9 @@ namespace Azure.Messages.Handlers
 
             if (Session.GetHabbo().CurrentRoom != null)
             {
-                if (!Session.GetHabbo().CurrentRoom.LoadedGroups.ContainsKey(theGroup.Id))
+                if (!Session.GetHabbo().CurrentRoom.LoadedGroups.ContainsKey((uint) theGroup.Id))
                 {
-                    Session.GetHabbo().CurrentRoom.LoadedGroups.Add(theGroup.Id, theGroup.Badge);
+                    Session.GetHabbo().CurrentRoom.LoadedGroups.Add((uint) theGroup.Id, theGroup.Badge);
                     Response.Init(LibraryParser.OutgoingRequest("RoomGroupMessageComposer"));
                     Response.AppendInteger(Session.GetHabbo().CurrentRoom.LoadedGroups.Count);
 
@@ -530,7 +529,7 @@ namespace Azure.Messages.Handlers
 
             Response.Init(LibraryParser.OutgoingRequest("ChangeFavouriteGroupMessageComposer"));
             Response.AppendInteger(0);
-            Response.AppendInteger(theGroup.Id);
+            Response.AppendInteger((uint) theGroup.Id);
             Response.AppendInteger(3);
             Response.AppendString(theGroup.Name);
 
@@ -543,7 +542,7 @@ namespace Azure.Messages.Handlers
         internal void RemoveFav()
         {
             Request.GetUInteger();
-            Session.GetHabbo().FavouriteGroup = 0u;
+            Session.GetHabbo().FavouriteGroup = 0;
 
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE users_stats SET favourite_group=0 WHERE id={Session.GetHabbo().Id} LIMIT 1;");
@@ -573,7 +572,7 @@ namespace Azure.Messages.Handlers
             string subject = Request.GetString();
             string content = Request.GetString();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (group == null || !group.HasForum)
                 return;
@@ -675,7 +674,7 @@ namespace Azure.Messages.Handlers
                 dbClient.SetQuery($"SELECT * FROM groups_forums_posts WHERE group_id = '{groupId}' AND id = '{threadId}' LIMIT 1;");
                 DataRow row = dbClient.GetRow();
 
-                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                 if (row != null)
                 {
@@ -749,7 +748,7 @@ namespace Azure.Messages.Handlers
                 dbClient.SetQuery($"SELECT * FROM groups_forums_posts WHERE group_id = '{groupId}' AND id = '{threadId}' LIMIT 1;");
 
                 DataRow row = dbClient.GetRow();
-                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                 if (row != null)
                 {
@@ -806,7 +805,7 @@ namespace Azure.Messages.Handlers
 
             Request.GetInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null || !theGroup.HasForum)
                 return;
@@ -935,7 +934,7 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup != null && theGroup.HasForum)
                 Session.SendMessage(theGroup.ForumDataMessage(Session.GetHabbo().Id));
@@ -973,7 +972,7 @@ namespace Azure.Messages.Handlers
                         message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
                         message.AppendInteger(startIndex);
 
-                        groupList.AddRange(from DataRow rowGroupData in table.Rows select uint.Parse(rowGroupData["id"].ToString()) into groupId select Azure.GetGame().GetGroupManager().GetGroup(groupId));
+                        groupList.AddRange(from DataRow rowGroupData in table.Rows select uint.Parse(rowGroupData["id"].ToString()) into groupId select Azure.GetGame().GetGroupManager().GetGroup((int) groupId));
 
                         message.AppendInteger(table.Rows.Count);
 
@@ -1015,7 +1014,7 @@ namespace Azure.Messages.Handlers
         internal void ManageGroup()
         {
             var groupId = Request.GetUInteger();
-            var theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            var theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null)
                 return;
@@ -1026,7 +1025,7 @@ namespace Azure.Messages.Handlers
             Response.Init(LibraryParser.OutgoingRequest("GroupDataEditMessageComposer"));
             Response.AppendInteger(0);
             Response.AppendBool(true);
-            Response.AppendInteger(theGroup.Id);
+            Response.AppendInteger((uint) theGroup.Id);
             Response.AppendString(theGroup.Name);
             Response.AppendString(theGroup.Description);
             Response.AppendInteger(theGroup.RoomId);
@@ -1078,7 +1077,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void UpdateGroupName()
         {
-            uint num = Request.GetUInteger();
+            int num = Request.GetInteger();
             string text = Request.GetString();
             string text2 = Request.GetString();
 
@@ -1109,7 +1108,7 @@ namespace Azure.Messages.Handlers
         {
             uint guildId = Request.GetUInteger();
 
-            Guild guild = Azure.GetGame().GetGroupManager().GetGroup(guildId);
+            Guild guild = Azure.GetGame().GetGroupManager().GetGroup((int) guildId);
 
             if (guild != null)
             {
@@ -1183,7 +1182,7 @@ namespace Azure.Messages.Handlers
             int num = Request.GetInteger();
             int num2 = Request.GetInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup?.CreatorId != Session.GetHabbo().Id)
                 return;
@@ -1206,7 +1205,7 @@ namespace Azure.Messages.Handlers
             uint num = Request.GetUInteger();
             uint num2 = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup?.CreatorId != Session.GetHabbo().Id)
                 return;
@@ -1259,7 +1258,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             uint userId = Request.GetUInteger();
 
-            Guild guild = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            Guild guild = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (guild == null || guild.CreatorId == userId)
                 return;
@@ -1278,7 +1277,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void ConfirmLeaveGroup()
         {
-            uint guild = Request.GetUInteger();
+            int guild = Request.GetInteger();
             uint userId = Request.GetUInteger();
 
             Guild byeGuild = Azure.GetGame().GetGroupManager().GetGroup(guild);
@@ -1371,7 +1370,7 @@ namespace Azure.Messages.Handlers
 
         internal void UpdateForumSettings()
         {
-            uint guild = Request.GetUInteger();
+            int guild = Request.GetInteger();
             int whoCanRead = Request.GetInteger();
             int whoCanPost = Request.GetInteger();
             int whoCanThread = Request.GetInteger();
@@ -1404,7 +1403,7 @@ namespace Azure.Messages.Handlers
         internal void DeleteGroup()
         {
             uint groupId = Request.GetUInteger();
-            var group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+            var group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
             var room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
 
             if (room?.RoomData?.Group == null)
@@ -1427,7 +1426,7 @@ namespace Azure.Messages.Handlers
                 room.RoomData.Group = null;
                 room.RoomData.GroupId = 0;
 
-                Azure.GetGame().GetGroupManager().DeleteGroup(group.Id);
+                Azure.GetGame().GetGroupManager().DeleteGroup((uint) @group.Id);
 
                 var deleteGroup = new ServerMessage(LibraryParser.OutgoingRequest("GroupDeletedMessageComposer"));
 

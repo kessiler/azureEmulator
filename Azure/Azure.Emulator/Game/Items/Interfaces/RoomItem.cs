@@ -1531,7 +1531,7 @@ namespace Azure.Game.Items.Interfaces
                     case Interaction.GroupForumTerminal:
                     case Interaction.GuildForum:
                         {
-                            var group2 = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
+                            var group2 = Azure.GetGame().GetGroupManager().GetGroup((int) GroupId);
                             if (group2 == null)
                             {
                                 message.AppendInteger(1);

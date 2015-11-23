@@ -130,7 +130,7 @@ namespace Azure.Game.Groups
                 queryReactor.AddParameter("desc", desc);
                 queryReactor.AddParameter("badge", badge);
 
-                var id = (uint)queryReactor.InsertQuery();
+                int id = (int)queryReactor.InsertQuery();
 
                 queryReactor.RunFastQuery($"UPDATE rooms_data SET group_id='{id}' WHERE id='{roomId}' LIMIT 1");
 
@@ -164,7 +164,7 @@ namespace Azure.Game.Groups
         /// </summary>
         /// <param name="groupId">The theGroup identifier.</param>
         /// <returns>Guild.</returns>
-        internal Guild GetGroup(uint groupId)
+        internal Guild GetGroup(int groupId)
         {
             if (Groups == null)
                 return null;
@@ -221,7 +221,7 @@ namespace Azure.Game.Groups
                         requests.Add(userId, membGroup);
                 }
 
-                var group = new Guild((uint)row[0], row[1].ToString(), row[2].ToString(), (uint)row[6],
+                var group = new Guild((int) row[0], row[1].ToString(), row[2].ToString(), (uint)row[6],
                     row[3].ToString(), (int)row[5], (uint)row[4], (int)row[8], (int)row[9], members, requests,
                     admins, Convert.ToUInt16(row[7]), Convert.ToUInt16(row[10]), row["has_forum"].ToString() == "1",
                     row["forum_name"].ToString(), row["forum_description"].ToString(),
@@ -254,7 +254,7 @@ namespace Azure.Game.Groups
 
                 foreach (DataRow dataRow in table.Rows)
                     list.Add(new GroupMember(userId, dataRow["username"].ToString(), dataRow["look"].ToString(),
-                        (uint)dataRow["group_id"], Convert.ToInt16(dataRow["rank"]), (int)dataRow["date_join"]));
+                        (int)dataRow["group_id"], Convert.ToInt16(dataRow["rank"]), (int)dataRow["date_join"]));
             }
 
             return list;
@@ -287,7 +287,7 @@ namespace Azure.Game.Groups
             if (page < 1)
                 page = 0;
 
-            response.AppendInteger(theGroup.Id);
+            response.AppendInteger((uint) theGroup.Id);
             response.AppendString(theGroup.Name);
             response.AppendInteger(theGroup.RoomId);
             response.AppendString(theGroup.Badge);

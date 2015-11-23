@@ -22,7 +22,7 @@ namespace Azure.Game.Quests
         /// <summary>
         ///     The _quests
         /// </summary>
-        private Dictionary<uint, Quest> _quests;
+        private Dictionary<int, Quest> _quests;
 
         /// <summary>
         ///     Initializes the specified database client.
@@ -30,7 +30,7 @@ namespace Azure.Game.Quests
         /// <param name="dbClient">The database client.</param>
         public void Initialize(IQueryAdapter dbClient)
         {
-            _quests = new Dictionary<uint, Quest>();
+            _quests = new Dictionary<int, Quest>();
             _count = new Dictionary<string, int>();
             ReloadQuests(dbClient);
         }
@@ -46,7 +46,7 @@ namespace Azure.Game.Quests
             var table = dbClient.GetTable();
             foreach (DataRow dataRow in table.Rows)
             {
-                var id = Convert.ToUInt32(dataRow["id"]);
+                int id = Convert.ToInt32(dataRow["id"]);
                 var category = (string) dataRow["type"];
                 var number = (int) dataRow["level_num"];
                 var goalType = (int) dataRow["goal_type"];
@@ -78,7 +78,7 @@ namespace Azure.Game.Quests
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Quest.</returns>
-        internal Quest GetQuest(uint id)
+        internal Quest GetQuest(int id)
         {
             Quest result;
             _quests.TryGetValue(id, out result);
@@ -151,7 +151,7 @@ namespace Azure.Game.Quests
                 session.SendMessage(QuestStartedComposer.Compose(session, quest));
                 if (!flag)
                     return;
-                session.GetHabbo().CurrentQuestId = 0u;
+                session.GetHabbo().CurrentQuestId = 0;
                 session.GetHabbo().LastQuestCompleted = quest.Id;
                 session.SendMessage(QuestCompletedComposer.Compose(session, quest));
                 session.GetHabbo().ActivityPoints += quest.Reward;
@@ -202,7 +202,7 @@ namespace Azure.Game.Quests
         /// <param name="message">The message.</param>
         internal void ActivateQuest(GameClient session, ClientMessage message)
         {
-            var quest = GetQuest(message.GetUInteger());
+            var quest = GetQuest(message.GetInteger());
             if (quest == null)
                 return;
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
@@ -257,7 +257,7 @@ namespace Azure.Game.Quests
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM users_quests_data WHERE user_id = ",
                     session.GetHabbo().Id, " AND quest_id = ", quest.Id, ";UPDATE users_stats SET quest_id=0 WHERE id=",
                     session.GetHabbo().Id));
-            session.GetHabbo().CurrentQuestId = 0u;
+            session.GetHabbo().CurrentQuestId = 0;
             session.SendMessage(QuestAbortedComposer.Compose());
             GetList(session, null);
         }

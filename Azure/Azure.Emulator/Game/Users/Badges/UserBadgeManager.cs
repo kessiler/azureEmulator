@@ -5,7 +5,6 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Users.Badges.Models;
 using Azure.Game.Users.Data.Models;
-using Azure.Game.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 

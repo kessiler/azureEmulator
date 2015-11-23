@@ -25,7 +25,7 @@ namespace Azure.Game.Quests.Composers
             serverMessage.AppendInteger(i);
             serverMessage.AppendInteger(quest.Name.Contains("xmas2012") ? 1 : amountOfQuestsInCategory);
             serverMessage.AppendInteger((quest == null) ? 3 : quest.RewardType);
-            serverMessage.AppendInteger((quest == null) ? 0u : quest.Id);
+            serverMessage.AppendInteger((quest == null) ? 0 : quest.Id);
             serverMessage.AppendBool(quest != null && session.GetHabbo().CurrentQuestId == quest.Id);
             serverMessage.AppendString((quest == null) ? string.Empty : quest.ActionName);
             serverMessage.AppendString((quest == null) ? string.Empty : quest.DataBit);

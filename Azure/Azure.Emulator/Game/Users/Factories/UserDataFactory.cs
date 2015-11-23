@@ -77,7 +77,8 @@ namespace Azure.Game.Users.Factories
                 userLook = dataRow["look"].ToString();
 
                 // Disconnect if user Already Logged-in, Doesn't need check. If user isn't logged, nothing will happen.
-                Azure.GetGame().GetClientManager().GetClientByUserId(userId).Disconnect("User connected in other place");
+                if (Azure.GetGame().GetClientManager().GetClientByUserId(userId) != null)
+                    Azure.GetGame().GetClientManager().GetClientByUserId(userId)?.Disconnect("User connected in other place");
 
                 // Get User Achievements Data
                 queryReactor.SetQuery($"SELECT * FROM users_achievements WHERE userid = {userId}");
@@ -274,11 +275,11 @@ namespace Azure.Game.Users.Factories
                 }
             }
 
-            Dictionary<uint, int> quests = new Dictionary<uint, int>();
+            Dictionary<int, int> quests = new Dictionary<int, int>();
 
             foreach (DataRow row in questsTable.Rows)
             {
-                uint key = (uint) row["quest_id"];
+                int key = (int) row["quest_id"];
                 int value3 = (int) row["progress"];
 
                 if (quests.ContainsKey(key))
@@ -290,7 +291,7 @@ namespace Azure.Game.Users.Factories
             HashSet<GroupMember> groups = new HashSet<GroupMember>();
 
             foreach (DataRow row in groupsTable.Rows)
-                groups.Add(new GroupMember(userId, userName, userLook, (uint) row["group_id"], Convert.ToInt16(row["rank"]), (int) row["date_join"]));
+                groups.Add(new GroupMember(userId, userName, userLook, (int) row["group_id"], Convert.ToInt16(row["rank"]), (int) row["date_join"]));
 
             Dictionary<int, Relationship> relationShips = relationShipsTable.Rows.Cast<DataRow>().ToDictionary(row => (int) row[0], row => new Relationship((int) row[0], (int) row[2], Convert.ToInt32(row[3].ToString())));
 
@@ -334,7 +335,7 @@ namespace Azure.Game.Users.Factories
                 queryReactor.SetQuery($"SELECT * FROM groups_members WHERE user_id={userId}");
                 queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT * FROM users_stats WHERE id={userId} LIMIT 1");
+                queryReactor.SetQuery($"SELECT * FROM users_stats WHERE id = {userId}");
                 row = queryReactor.GetRow();
 
                 queryReactor.SetQuery($"SELECT * FROM users_relationships WHERE user_id={userId}");
@@ -353,7 +354,7 @@ namespace Azure.Game.Users.Factories
             Dictionary<uint, MessengerRequest> requests = new Dictionary<uint, MessengerRequest>();
             HashSet<RoomData> rooms = new HashSet<RoomData>();
             Dictionary<uint, Pet> pets = new Dictionary<uint, Pet>();
-            Dictionary<uint, int> quests = new Dictionary<uint, int>();
+            Dictionary<int, int> quests = new Dictionary<int, int>();
             Dictionary<uint, RoomBot> bots = new Dictionary<uint, RoomBot>();
             HashSet<GroupMember> group = new HashSet<GroupMember>();
             HashSet<uint> pollData = new HashSet<uint>();

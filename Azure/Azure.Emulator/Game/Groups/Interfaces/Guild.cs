@@ -94,7 +94,7 @@ namespace Azure.Game.Groups.Interfaces
         /// <summary>
         ///     The identifier
         /// </summary>
-        internal uint Id;
+        internal int Id;
 
         /// <summary>
         ///     The members
@@ -152,7 +152,7 @@ namespace Azure.Game.Groups.Interfaces
         /// <param name="whoCanPost"></param>
         /// <param name="whoCanThread"></param>
         /// <param name="whoCanMod"></param>
-        internal Guild(uint id, string name, string desc, uint roomId, string badge, int create, uint creator,
+        internal Guild(int id, string name, string desc, uint roomId, string badge, int create, uint creator,
             int colour1, int colour2, Dictionary<uint, GroupMember> members, Dictionary<uint, GroupMember> requests,
             Dictionary<uint, GroupMember> admins, uint state, uint adminOnlyDeco, bool hasForum, string forumName,
             string forumDescription, uint forumMessagesCount, double forumScore, uint forumLastPosterId,

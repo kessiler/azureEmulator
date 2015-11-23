@@ -3,7 +3,6 @@ using System.Linq;
 using Azure.Data;
 using Azure.Game.Users;
 using Azure.Game.Users.Factories;
-using Azure.Game.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Enums;
 using Azure.Messages.Handlers;

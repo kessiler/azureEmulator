@@ -144,7 +144,7 @@ namespace Azure.Game.Items.Interfaces
 
             if (BaseItem.IsGroupItem)
             {
-                var group = Azure.GetGame().GetGroupManager().GetGroup(GroupId);
+                var group = Azure.GetGame().GetGroupManager().GetGroup((int) GroupId);
 
                 if (group != null)
                 {

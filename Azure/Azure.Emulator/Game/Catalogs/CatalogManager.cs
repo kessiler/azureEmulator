@@ -972,11 +972,11 @@ namespace Azure.Game.Catalogs
                                 break;
 
                             case Interaction.GuildForum:
-                                uint groupId;
+                                int groupId;
 
-                                uint.TryParse(extraData, out groupId);
+                                int.TryParse(extraData, out groupId);
 
-                                Guild group = Azure.GetGame().GetGroupManager().GetGroup(groupId);
+                                Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                                 if (@group != null)
                                 {

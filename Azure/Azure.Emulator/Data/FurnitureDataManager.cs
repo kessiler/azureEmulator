@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Xml;
-using Azure.Util;
 using Azure.Data.Structs;
 using Azure.IO;
 using Azure.Settings;

@@ -13,7 +13,7 @@ namespace Azure.Game.Groups.Interfaces
         /// <summary>
         ///     The group identifier
         /// </summary>
-        internal uint GroupId;
+        internal int GroupId;
 
         /// <summary>
         ///     The identifier
@@ -44,7 +44,7 @@ namespace Azure.Game.Groups.Interfaces
         /// <param name="rank">The rank.</param>
         /// <param name="name"></param>
         /// <param name="dateJoin"></param>
-        internal GroupMember(uint id, string name, string look, uint groupId, int rank, int dateJoin)
+        internal GroupMember(uint id, string name, string look, int groupId, int rank, int dateJoin)
         {
             Id = id;
             Name = name;

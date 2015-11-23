@@ -7,16 +7,13 @@ using Azure.Database.Manager.Database.Session_Details.Interfaces;
 using Azure.Game.Achievements.Structs;
 using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Groups.Interfaces;
-using Azure.Game.Items.Interfaces;
 using Azure.Game.Quests;
 using Azure.Game.Quests.Composers;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.Data;
 using Azure.Game.Rooms.User;
 using Azure.Game.Users;
-using Azure.Game.Users.Badges;
 using Azure.Game.Users.Badges.Models;
-using Azure.Game.Users.Messenger;
 using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Messages.Parsers;
@@ -988,7 +985,7 @@ namespace Azure.Messages.Handlers
             RoomData roomData;
             using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                Quest quest = Azure.GetGame().GetQuestManager().GetQuest(Request.GetUInteger());
+                Quest quest = Azure.GetGame().GetQuestManager().GetQuest((int) Request.GetUInteger());
                 if (quest == null)
                     return;
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (", Session.GetHabbo().Id, ", ", quest.Id, ")"));

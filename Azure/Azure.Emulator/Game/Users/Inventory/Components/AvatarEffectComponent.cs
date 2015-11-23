@@ -5,7 +5,6 @@ using Azure.Game.GameClients.Interfaces;
 using Azure.Game.Rooms;
 using Azure.Game.Rooms.User;
 using Azure.Game.Users.Data.Models;
-using Azure.Game.Users.UserDataManagement;
 using Azure.Messages;
 using Azure.Messages.Parsers;
 

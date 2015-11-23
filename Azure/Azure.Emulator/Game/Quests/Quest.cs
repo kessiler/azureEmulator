@@ -33,7 +33,7 @@ namespace Azure.Game.Quests
         /// <summary>
         ///     The identifier
         /// </summary>
-        internal readonly uint Id;
+        internal readonly int Id;
 
         /// <summary>
         ///     The name
@@ -74,8 +74,7 @@ namespace Azure.Game.Quests
         /// <param name="rewardType">Type of the reward.</param>
         /// <param name="timeUnlock">The time unlock.</param>
         /// <param name="timeLock">The time lock.</param>
-        public Quest(uint id, string category, int number, QuestType goalType, uint goalData, string name, int reward,
-            string dataBit, int rewardType, int timeUnlock, int timeLock)
+        public Quest(int id, string category, int number, QuestType goalType, uint goalData, string name, int reward, string dataBit, int rewardType, int timeUnlock, int timeLock)
         {
             Id = id;
             Category = category;

@@ -18,7 +18,6 @@ using Azure.Game.Users.Messenger;
 using Azure.Game.Users.Messenger.Structs;
 using Azure.Game.Users.Relationships;
 using Azure.Game.Users.Subscriptions;
-using Azure.Game.Users.UserDataManagement;
 using Azure.IO;
 using Azure.Messages;
 using Azure.Messages.Parsers;
@@ -141,7 +140,7 @@ namespace Azure.Game.Users
         /// <summary>
         ///     The current quest identifier
         /// </summary>
-        internal uint CurrentQuestId;
+        internal int CurrentQuestId;
 
         /// <summary>
         ///     The current room identifier
@@ -160,7 +159,7 @@ namespace Azure.Game.Users
         /// </summary>
         internal bool Disconnected;
 
-        internal uint DutyLevel;
+        internal int DutyLevel;
 
         /// <summary>
         ///     The favorite rooms
@@ -170,7 +169,7 @@ namespace Azure.Game.Users
         /// <summary>
         ///     The favourite group
         /// </summary>
-        internal uint FavouriteGroup;
+        internal int FavouriteGroup;
 
         /// <summary>
         ///     The flood time
@@ -245,7 +244,7 @@ namespace Azure.Game.Users
         /// <summary>
         ///     The last quest completed
         /// </summary>
-        internal uint LastQuestCompleted;
+        internal int LastQuestCompleted;
 
         public uint LastSelectedUser = 0;
 
@@ -311,7 +310,7 @@ namespace Azure.Game.Users
         /// <summary>
         ///     The quests
         /// </summary>
-        internal Dictionary<uint, int> Quests;
+        internal Dictionary<int, int> Quests;
 
         /// <summary>
         ///     The rank
@@ -477,13 +476,13 @@ namespace Azure.Game.Users
         /// <param name="dutyLevel"></param>
         internal Habbo(uint id, string userName, string realName, uint rank, string motto, string look, string gender,
             int credits, int activityPoints, double lastActivityPointsUpdate, bool muted, uint homeRoom, int respect,
-            int dailyRespectPoints, int dailyPetRespectPoints, bool hasFriendRequestsDisabled, uint currentQuestId,
+            int dailyRespectPoints, int dailyPetRespectPoints, bool hasFriendRequestsDisabled, int currentQuestId,
             int currentQuestProgress, int achievementPoints, int regTimestamp, int lastOnline, bool appearOffline,
             bool hideInRoom, bool vip, double createDate, bool online, string citizenShip, int diamonds,
-            HashSet<GroupMember> groups, uint favId, int lastChange, bool tradeLocked, int tradeLockExpire,
+            HashSet<GroupMember> groups, int favId, int lastChange, bool tradeLocked, int tradeLockExpire,
             bool nuxPassed,
             int buildersExpire, int buildersItemsMax, int buildersItemsUsed, int releaseVersion, bool onDuty,
-            Dictionary<int, UserSearchLog> naviLogs, int dailyCompetitionVotes, uint dutyLevel)
+            Dictionary<int, UserSearchLog> naviLogs, int dailyCompetitionVotes, int dutyLevel)
         {
             Id = id;
             UserName = userName;
@@ -549,7 +548,7 @@ namespace Azure.Game.Users
             _currentQuestProgress = currentQuestProgress;
             IsHopping = false;
 
-            FavouriteGroup = Azure.GetGame().GetGroupManager().GetGroup(favId) != null ? favId : 0u;
+            FavouriteGroup = Azure.GetGame().GetGroupManager().GetGroup(favId) != null ? favId : 0;
 
             UserGroups = groups;
 
@@ -1193,7 +1192,7 @@ namespace Azure.Game.Users
         /// </summary>
         /// <param name="p">The p.</param>
         /// <returns>System.Int32.</returns>
-        internal int GetQuestProgress(uint p)
+        internal int GetQuestProgress(int p)
         {
             int result;
 

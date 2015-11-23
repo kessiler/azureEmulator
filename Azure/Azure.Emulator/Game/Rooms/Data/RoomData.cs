@@ -90,7 +90,7 @@ namespace Azure.Game.Rooms.Data
         /// <summary>
         ///     The group identifier
         /// </summary>
-        internal uint GroupId;
+        internal int GroupId;
 
         /// <summary>
         ///     The identifier
@@ -342,7 +342,7 @@ namespace Azure.Game.Rooms.Data
 
                 uint.TryParse(row["users_now"].ToString(), out UsersNow);
                 uint.TryParse(row["users_max"].ToString(), out UsersMax);
-                uint.TryParse(row["group_id"].ToString(), out GroupId);
+                int.TryParse(row["group_id"].ToString(), out GroupId);
                 uint.TryParse(row["chat_balloon"].ToString(), out ChatBalloon);
                 uint.TryParse(row["chat_speed"].ToString(), out ChatSpeed);
                 uint.TryParse(row["chat_max_distance"].ToString(), out ChatMaxDistance);
