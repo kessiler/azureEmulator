@@ -76,9 +76,22 @@ namespace Azure.Game.Users.Factories
                 userName = dataRow["username"].ToString();
                 userLook = dataRow["look"].ToString();
 
+                int regDate = (int) dataRow["account_created"];
+
+                if (regDate == 0)
+                    regDate = Azure.GetUnixTimeStamp();
+
+                // Check Register Date
+                queryReactor.RunFastQuery($"UPDATE users SET account_created = {regDate} WHERE id = {userId}");
+
                 // Disconnect if user Already Logged-in, Doesn't need check. If user isn't logged, nothing will happen.
                 if (Azure.GetGame().GetClientManager().GetClientByUserId(userId) != null)
                     Azure.GetGame().GetClientManager().GetClientByUserId(userId)?.Disconnect("User connected in other place");
+
+                // Update User statusses
+                queryReactor.RunFastQuery($"UPDATE users SET online = 1 WHERE id = {userId};" +
+                                          $"REPLACE INTO users_info(user_id, login_timestamp) VALUES('{userId}', '{Azure.GetUnixTimeStamp()}');" +
+                                          $"REPLACE INTO users_stats (id) VALUES ('{userId}');");
 
                 // Get User Achievements Data
                 queryReactor.SetQuery($"SELECT * FROM users_achievements WHERE userid = {userId}");
@@ -155,11 +168,6 @@ namespace Azure.Game.Users.Factories
                 // Get User Relationships Data
                 queryReactor.SetQuery($"SELECT * FROM users_relationships WHERE user_id = {userId}");
                 relationShipsTable = queryReactor.GetTable();
-
-                // Update User statusses
-                queryReactor.RunFastQuery($"UPDATE users SET online = 1 WHERE id = {userId};" +
-                                          $"REPLACE INTO users_info(user_id, login_timestamp) VALUES('{userId}', '{Azure.GetUnixTimeStamp()}');" +
-                                          $"REPLACE INTO users_stats (id) VALUES ('{userId}');");
             }
 
             Dictionary<string, UserAchievement> achievements = new Dictionary<string, UserAchievement>();

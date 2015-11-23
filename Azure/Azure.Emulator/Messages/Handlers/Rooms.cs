@@ -993,9 +993,10 @@ namespace Azure.Messages.Handlers
             var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
-            if (!room.CheckRights(Session) && room.RoomData.WhoCanKick != 2
-                && Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+
+            if (!room.CheckRights(Session) && room.RoomData.WhoCanKick != 2 && Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
+
             var pId = Request.GetUInteger();
             var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(pId);
             if (roomUserByHabbo == null || roomUserByHabbo.IsBot)

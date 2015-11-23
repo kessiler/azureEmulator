@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 50542
  Source Host           : localhost
- Source Database       : azurenew
+ Source Database       : cleanazure
 
  Target Server Type    : MySQL
  Target Server Version : 50542
  File Encoding         : utf-8
 
- Date: 11/16/2015 12:20:19 PM
+ Date: 11/23/2015 15:11:13 PM
 */
 
 SET NAMES utf8;
@@ -93,13 +93,6 @@ CREATE TABLE `bots_data` (
   KEY `room_id` (`room_id`) USING BTREE,
   KEY `user_id` (`user_id`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
-
--- ----------------------------
---  Records of `bots_data`
--- ----------------------------
-BEGIN;
-INSERT INTO `bots_data` VALUES ('5', '1', '1', 'pet', 'KOKO', 'Beep Beep', '', '0', '0', '0', '0', 'stand', '0', '0', '0', '0', '7', '0', null, null), ('4', '0', '1', 'generic', 'Mahw', 'Sacia a sede e você pode dançar!', 'hr-9534-39.hd-600-1.ch-819-92.lg-3058-64.sh-3064-110.wa-2005', '9', '7', '0', '0', 'freeroam', '0', 'f', '0', '1', '7', '1', 'HALLLOIU;DELICIA;', 'bot_bartender');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `catalog_bots`
@@ -430,13 +423,6 @@ CREATE TABLE `hotelview_badges` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
---  Records of `hotelview_badges`
--- ----------------------------
-BEGIN;
-INSERT INTO `hotelview_badges` VALUES ('battleshade', 'VIK01', '1'), ('steelscar', 'VIK02', '1');
-COMMIT;
-
--- ----------------------------
 --  Table structure for `hotelview_promos`
 -- ----------------------------
 DROP TABLE IF EXISTS `hotelview_promos`;
@@ -451,13 +437,6 @@ CREATE TABLE `hotelview_promos` (
   `enabled` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`index`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `hotelview_promos`
--- ----------------------------
-BEGIN;
-INSERT INTO `hotelview_promos` VALUES ('1', 'AzureEMU!', 'AzureEmulator. A stable custom emulator by the, \"Azure Team\". There are still bugs/glitches but they will be fixed, enjoy!', 'Yey!', '1', '', 'web_promo_small/meter_level_3_NY2013Resolution.png', '1');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `hotelview_rewards_promos`
@@ -563,14 +542,7 @@ CREATE TABLE `items_rooms` (
   UNIQUE KEY `id` (`id`) USING BTREE,
   KEY `userid` (`user_id`) USING BTREE,
   KEY `roomid` (`room_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `items_rooms`
--- ----------------------------
-BEGIN;
-INSERT INTO `items_rooms` VALUES ('4', '1', '1', 'fball_score_r', '', '5', '5', '0.000', '2', '', '0', '', '0', '0'), ('5', '0', '0', 'song_disk', 'Claudio\n2015\n11\n15\n512\nTapes from Goa', '0', '0', '0.000', '0', '', '0', 'lost_my_tapes_at_goa', '0', '0'), ('6', '1', '1', 'jukebox_big', '1', '8', '5', '0.000', '0', '', '0', '', '0', '0'), ('9', '1', '1', 'badge_display3', 'ACH_Login1|Claudio|15-11-2015', '9', '9', '0.000', '2', '', '0', '', '0', '0'), ('10', '1', '0', 'duck', '', '0', '0', '0.000', '0', '', '0', '', '0', '0'), ('11', '1', '0', 'duck', '', '0', '0', '0.000', '0', '', '0', '', '0', '0'), ('12', '1', '0', 'a0 pet1', '0', '0', '0', '0.000', '0', '', '0', '', '0', '0');
-COMMIT;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 --  Table structure for `items_songs`
@@ -582,13 +554,6 @@ CREATE TABLE `items_songs` (
   `songid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`itemid`,`roomid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `items_songs`
--- ----------------------------
-BEGIN;
-INSERT INTO `items_songs` VALUES ('5', '1', '5');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `items_songs_data`
@@ -910,13 +875,6 @@ CREATE TABLE `pets_data` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- ----------------------------
---  Records of `pets_data`
--- ----------------------------
-BEGIN;
-INSERT INTO `pets_data` VALUES ('5', '1', '0', 'C5EDDE', '80', '30', '140', '3', '1447683400', '0', '1', '-1', '0', '0', '1447813000', '1447856200');
-COMMIT;
-
--- ----------------------------
 --  Table structure for `pets_plants`
 -- ----------------------------
 DROP TABLE IF EXISTS `pets_plants`;
@@ -1036,7 +994,7 @@ CREATE TABLE `rooms_data` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `roomtype` enum('public','private') NOT NULL DEFAULT 'private',
   `caption` varchar(100) NOT NULL DEFAULT 'Room',
-  `owner` varchar(75) NOT NULL DEFAULT '',
+  `owner` int(11) NOT NULL,
   `description` varchar(255) NOT NULL DEFAULT '',
   `category` int(11) NOT NULL DEFAULT '0',
   `state` enum('open','locked','password') NOT NULL DEFAULT 'open',
@@ -1082,14 +1040,7 @@ CREATE TABLE `rooms_data` (
   KEY `tags` (`tags`) USING BTREE,
   KEY `category` (`category`) USING BTREE,
   KEY `password` (`password`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `rooms_data`
--- ----------------------------
-BEGIN;
-INSERT INTO `rooms_data` VALUES ('1', 'private', 'kkkkkkk', 'Claudio', '', '1', 'open', '0', '0', '10', 'model_c', '', '0', '', '1', '0', '', '', '0.0', '0.0', '0.0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '14', '0', '-1', '');
-COMMIT;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 --  Table structure for `rooms_events`
@@ -1112,13 +1063,6 @@ CREATE TABLE `rooms_faq` (
   `question` text NOT NULL,
   `answer` text NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `rooms_faq`
--- ----------------------------
-BEGIN;
-INSERT INTO `rooms_faq` VALUES ('Who is cool?', 'Jamal is cool <3');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `rooms_models`
@@ -1273,7 +1217,7 @@ CREATE TABLE `server_settings` (
 --  Records of `server_settings`
 -- ----------------------------
 BEGIN;
-INSERT INTO `server_settings` VALUES ('auth.useIPwithSSO', 'false', 'Check the IP as well as SSO when logging in a user'), ('bots.max', '5', 'Maximum bots per room'), ('catalogue_enabled', '1', 'Catalog'), ('client.maxrequests', '2000', 'Maximum friend requests'), ('exchange_enabled', '1', ''), ('game.credits.amount', '100', 'Amount of credits given every loop'), ('game.credits.enabled', 'true', 'If giving credits is enabled every loop'), ('game.credits.time', '900', 'Amount of time for the credit loop'), ('game.pixels.amount', '100', 'Amount of pixels given every loop'), ('game.pixels.enabled', 'true', 'If giving pixels is enabled every loop'), ('game.pixels.time', '900', 'Amount of time for the pixels loop'), ('gifts_enabled', '1', ''), ('group.enabled', '0', 'Enable in-client groups (NOT YET SUPPORTED)'), ('placing_enabled', '1', ''), ('SeparatedTasksInGameClientManager.enabled', 'false', 'Run gameclients on a seperate task'), ('SeparatedTasksInMainLoops.enabled', 'true', 'Run Main loops on a seperate task'), ('spambans.limit', '8', 'Limit of spammed messages before ban'), ('trading_enabled', '1', ''), ('AlertFilter.limit', '4', 'Automatic alert filter :)'), ('ambassador.minrank', '4', 'Min rank for being ambassador.'), ('noob.lobby.roomid', '3', 'roomId for predefined_noob_lobby'), ('recycler.box_name', '4378', 'Furniture Name for Recycler Box'), ('recycler.number_of_slots', '5', 'Number of slots in furnimatic (must be the same as in external_variables)');
+INSERT INTO `server_settings` VALUES ('auth.useIPwithSSO', 'false', 'Check the IP as well as SSO when logging in a user'), ('bots.max', '5', 'Maximum bots per room'), ('catalogue_enabled', '1', 'Catalog'), ('client.maxrequests', '2000', 'Maximum friend requests'), ('exchange_enabled', '1', ''), ('game.credits.amount', '100', 'Amount of credits given every loop'), ('game.credits.enabled', 'true', 'If giving credits is enabled every loop'), ('game.credits.time', '900', 'Amount of time for the credit loop'), ('game.pixels.amount', '100', 'Amount of pixels given every loop'), ('game.pixels.enabled', 'true', 'If giving pixels is enabled every loop'), ('game.pixels.time', '900', 'Amount of time for the pixels loop'), ('gifts_enabled', '1', ''), ('group.enabled', '0', 'Enable in-client groups (NOT YET SUPPORTED)'), ('placing_enabled', '1', ''), ('SeparatedTasksInGameClientManager.enabled', 'false', 'Run gameclients on a seperate task'), ('SeparatedTasksInMainLoops.enabled', 'true', 'Run Main loops on a seperate task'), ('spambans.limit', '8', 'Limit of spammed messages before ban'), ('trading_enabled', '1', ''), ('AlertFilter.limit', '4', 'Automatic alert filter :)'), ('ambassador.minrank', '2', 'Min rank for being ambassador.'), ('noob.lobby.roomid', '3', 'roomId for predefined_noob_lobby'), ('recycler.box_name', '4378', 'Furniture Name for Recycler Box'), ('recycler.number_of_slots', '5', 'Number of slots in furnimatic (must be the same as in external_variables)');
 COMMIT;
 
 -- ----------------------------
@@ -1290,7 +1234,7 @@ CREATE TABLE `server_stafflogs` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 --  Table structure for `server_status`
@@ -1313,7 +1257,7 @@ CREATE TABLE `server_status` (
 --  Records of `server_status`
 -- ----------------------------
 BEGIN;
-INSERT INTO `server_status` VALUES ('1', '1', '0', '0', 'Azure Emulator', '1447683446', '0', '2', '114670925920269957593299136150366957983142588366300079186349531:1589935137502239924254699078669119674538324391752663931735947');
+INSERT INTO `server_status` VALUES ('1', '1', '2', '0', 'Azure Emulator', '1448298564', '0', '3', '114670925920269957593299136150366957983142588366300079186349531:1589935137502239924254699078669119674538324391752663931735947');
 COMMIT;
 
 -- ----------------------------
@@ -1359,7 +1303,7 @@ CREATE TABLE `users` (
   `gender` enum('M','F') CHARACTER SET latin1 NOT NULL DEFAULT 'M',
   `motto` varchar(50) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `mail` varchar(255) NOT NULL DEFAULT 'undefined',
-  `account_created` double(50,0) NOT NULL DEFAULT '0',
+  `account_created` int(11) NOT NULL DEFAULT '0',
   `last_online` int(11) NOT NULL DEFAULT '0',
   `online` enum('0','1') CHARACTER SET latin1 NOT NULL DEFAULT '0',
   `ip_last` varchar(120) CHARACTER SET latin1 NOT NULL DEFAULT '',
@@ -1385,16 +1329,8 @@ CREATE TABLE `users` (
   `on_duty` varchar(255) NOT NULL DEFAULT 'false',
   `duty_level` int(11) NOT NULL DEFAULT '0',
   `navigator_logs` varchar(255) CHARACTER SET latin1 DEFAULT '1,official-root,;2,popular,;3,my,;4,favorites,',
-  `respect` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-
--- ----------------------------
---  Records of `users`
--- ----------------------------
-BEGIN;
-INSERT INTO `users` VALUES ('1', 'Claudio', '', '', 'chocolate', '10', '49962', '1330', '0', '83', 'ch-215-62.hd-190-19.lg-285-91.sh-290-62.hr-115-42', 'M', '', 'undefined', '0', '1447683446', '0', '172.16.9.115', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'citizenship', '0', '0', '3700', '100', '0', '2', 'false', '0', '1,official-root,;2,popular,;3,my,;4,favorites,', null);
-COMMIT;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 --  Table structure for `users_achievements`
@@ -1410,13 +1346,6 @@ CREATE TABLE `users_achievements` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
---  Records of `users_achievements`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_achievements` VALUES ('1', 'ACH_RegistrationDuration', '5', '0'), ('1', 'ACH_Login', '2', '2'), ('1', 'ACH_AllTimeHotelPresence', '1', '48'), ('1', 'ACH_VipHC', '1', '0'), ('1', 'ACH_BasicClub', '1', '0'), ('1', 'ACH_AvatarLooks', '1', '0'), ('1', 'ACH_SafetyQuizGraduate', '1', '0'), ('1', 'ACH_PetLover', '2', '0'), ('1', 'ACH_PetRespectGiver', '1', '3');
-COMMIT;
-
--- ----------------------------
 --  Table structure for `users_badges`
 -- ----------------------------
 DROP TABLE IF EXISTS `users_badges`;
@@ -1427,14 +1356,7 @@ CREATE TABLE `users_badges` (
   `badge_slot` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `users_badges`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_badges` VALUES ('11', '1', 'ACH_RegistrationDuration5', '0'), ('12', '1', 'ACH_Login2', '0'), ('3', '1', 'ACH_AllTimeHotelPresence1', '1'), ('6', '1', 'ACH_VipHC1', '0'), ('7', '1', 'ACH_BasicClub1', '0'), ('8', '1', 'ACH_AvatarLooks1', '0'), ('10', '1', 'ACH_SafetyQuizGraduate1', '0'), ('14', '1', 'ACH_PetLover2', '0'), ('15', '1', 'ACH_PetRespectGiver1', '0');
-COMMIT;
+) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 --  Table structure for `users_bans`
@@ -1561,13 +1483,6 @@ CREATE TABLE `users_info` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
---  Records of `users_info`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_info` VALUES ('1', '0', '0', '0', '1447683346', '0', '0');
-COMMIT;
-
--- ----------------------------
 --  Table structure for `users_polls`
 -- ----------------------------
 DROP TABLE IF EXISTS `users_polls`;
@@ -1599,13 +1514,6 @@ CREATE TABLE `users_preferences` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
---  Records of `users_preferences`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_preferences` VALUES ('1', '100,100,100', '0', '0', '0', '348', '42', '425', '600', '0');
-COMMIT;
-
--- ----------------------------
 --  Table structure for `users_quests`
 -- ----------------------------
 DROP TABLE IF EXISTS `users_quests`;
@@ -1623,13 +1531,6 @@ CREATE TABLE `users_quests` (
   `timestamp_lock` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=182 DEFAULT CHARSET=utf8;
-
--- ----------------------------
---  Records of `users_quests`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_quests` VALUES ('2', 'identity', '1', '14', '1', 'CHANGEFIGURE', '10', '_2', '0', '0', '0'), ('3', 'social', '2', '9', '1', 'CHATWITHSOMEONE', '10', '', '0', '0', '0'), ('6', 'social', '5', '12', '1', 'DANCE', '10', '', '0', '0', '0'), ('15', 'social', '1', '8', '1', 'ENTEROTHERSROOM', '10', '_2', '0', '0', '0'), ('17', 'identity', '2', '15', '1', 'CHANGEMOTTO', '10', '', '0', '0', '0'), ('101', 'room_builder', '1', '0', '3', 'MOVEITEM', '10', '_2', '0', '0', '0'), ('104', 'explore', '1', '17', '1936', 'FINDLIFEGUARDTOWER', '10', '_2', '0', '0', '0'), ('105', 'room_builder', '2', '1', '3', 'ROTATEITEM', '10', '', '0', '0', '0'), ('106', 'room_builder', '3', '2', '1', 'PLACEITEM', '10', '', '0', '0', '0'), ('107', 'room_builder', '4', '3', '1', 'PICKUPITEM', '10', '', '0', '0', '0'), ('108', 'room_builder', '5', '4', '2', 'SWITCHSTATE', '10', '', '0', '0', '0'), ('109', 'room_builder', '6', '5', '1', 'STACKITEM', '10', '', '0', '0', '0'), ('110', 'room_builder', '7', '6', '1', 'PLACEFLOOR', '10', '', '0', '0', '0'), ('111', 'room_builder', '8', '7', '1', 'PLACEWALLPAPER', '10', '_1', '0', '0', '0'), ('113', 'identity', '3', '16', '1', 'WEARBADGE', '10', '', '0', '0', '0'), ('115', 'social', '3', '10', '1', 'REQUESTFRIEND', '10', '', '0', '0', '0'), ('116', 'social', '4', '11', '1', 'GIVERESPECT', '10', '', '0', '0', '0'), ('118', 'social', '6', '13', '1', 'WAVE', '10', '', '0', '0', '0'), ('119', 'explore', '2', '17', '1948', 'SWIM', '10', '', '0', '0', '0'), ('120', 'explore', '3', '17', '1969', 'FINDSURFBOARD', '10', '', '0', '0', '0'), ('121', 'explore', '4', '17', '1956', 'FINDBEETLE', '10', '', '0', '0', '0'), ('122', 'explore', '5', '17', '1369', 'FINDNEONFLOOR', '10', '', '0', '0', '0'), ('123', 'explore', '6', '17', '1375', 'FINDDISCOBALL', '10', '', '0', '0', '0'), ('124', 'explore', '7', '17', '1019', 'FINDJUKEBOX', '10', '', '0', '0', '0'), ('125', 'explore', '8', '17', '2050', 'FINDBBGATE', '10', '', '0', '0', '0'), ('126', 'explore', '9', '17', '2040', 'FINDBBTILE', '10', '', '0', '0', '0'), ('127', 'explore', '10', '17', '2049', 'FINDBBTELEPORT', '10', '', '0', '0', '0'), ('128', 'explore', '11', '17', '2167', 'FINDFREEZEGATE', '10', '', '0', '0', '0'), ('129', 'explore', '12', '17', '2172', 'FINDFREEZESCOREBOARD', '10', '', '0', '0', '0'), ('130', 'explore', '13', '17', '2166', 'FINDFREEZEEXITTILE', '10', '', '0', '0', '0'), ('131', 'explore', '14', '17', '1413', 'ICESKATE', '10', '', '0', '0', '0'), ('132', 'explore', '15', '17', '2148', 'FINDTAGPOLE', '10', '', '0', '0', '0'), ('133', 'explore', '16', '17', '2199', 'ROLLERSKATE', '10', '', '0', '0', '0'), ('142', 'xmas2012_30', '0', '19', '4', 'add_25_friends', '0', '', '0', '0', '1354514400'), ('143', 'xmas2012_1', '1', '20', '10', 'wave_10_users', '0', '', '0', '1354514400', '1354600800'), ('144', 'xmas2012_2', '2', '21', '10', 'blow_kiss', '0', '', '0', '1354600800', '1354687200'), ('145', 'xmas2012_3', '3', '22', '1', 'wear_hat', '0', '', '0', '1354687200', '1354773600'), ('146', 'xmas2012_4', '4', '23', '1', 'dance_with_others', '0', '', '0', '1354773600', '1354860000'), ('147', 'xmas2012_5', '5', '24', '5', 'gift_others', '0', '', '0', '1354860000', '1354946400'), ('148', 'xmas2012_6', '6', '25', '1378', 'its_snowing', '0', '', '0', '1354946400', '1355032800'), ('149', 'xmas2012_7', '7', '27', '5', 'pass_coffee', '0', '', '0', '1355032800', '1355032800'), ('150', 'xmas2012_8', '8', '28', '5', 'wave_reindeer', '0', '', '0', '1355119200', '1355205600'), ('151', 'xmas2012_9', '9', '23', '1', 'place_tree', '0', '', '0', '1355205600', '1355292000'), ('152', 'xmas2012_10', '10', '23', '100', 'dance', '0', '', '0', '1355292000', '1356328800'), ('156', 'xmas2012_11', '11', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('157', 'xmas2012_12', '12', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('158', 'xmas2012_13', '13', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('159', 'xmas2012_14', '14', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('160', 'xmas2012_15', '15', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('161', 'xmas2012_16', '16', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('162', 'xmas2012_17', '17', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('163', 'xmas2012_18', '18', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('164', 'xmas2012_19', '19', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('165', 'xmas2012_20', '20', '0', '0', 'placeholder', '10', '', '0', '0', '0'), ('166', 'xmas2012_21', '0', '0', '0', '', '10', '', '0', '0', '0'), ('180', 'xmas2012_22', '22', '17', '45207', 'find_fire', '0', '', '0', '1356328800', '1356328800'), ('181', 'xmas2012_23', '23', '29', '300', 'party', '0', '', '0', '0', '0');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `users_quests_data`
@@ -1695,20 +1596,13 @@ CREATE TABLE `users_stats` (
   `daily_respect_points` int(1) NOT NULL DEFAULT '3',
   `daily_pet_respect_points` int(1) NOT NULL DEFAULT '3',
   `achievement_score` int(7) NOT NULL DEFAULT '0',
-  `quest_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `quest_id` int(10) NOT NULL DEFAULT '0',
   `quest_progress` int(10) NOT NULL DEFAULT '0',
   `favourite_group` int(11) NOT NULL DEFAULT '0',
   `tickets_answered` int(11) NOT NULL DEFAULT '0',
   `daily_competition_votes` int(11) NOT NULL DEFAULT '3',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `users_stats`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_stats` VALUES ('1', '14', '0', '0', '0', '0', '3', '0', '515', '0', '0', '0', '0', '3');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `users_subscriptions`
@@ -1723,13 +1617,6 @@ CREATE TABLE `users_subscriptions` (
   KEY `user_id` (`user_id`) USING BTREE,
   KEY `subscription_id` (`subscription_id`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `users_subscriptions`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_subscriptions` VALUES ('1', '2', '1447599025', '1450270226', '1447599025');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `users_tags`
@@ -1754,13 +1641,6 @@ CREATE TABLE `users_talents` (
   PRIMARY KEY (`userid`,`talent_id`),
   KEY `id` (`userid`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- ----------------------------
---  Records of `users_talents`
--- ----------------------------
-BEGIN;
-INSERT INTO `users_talents` VALUES ('1', '7', '1'), ('1', '6', '1'), ('1', '2', '1');
-COMMIT;
 
 -- ----------------------------
 --  Table structure for `users_videos_youtube`

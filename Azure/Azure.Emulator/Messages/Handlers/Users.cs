@@ -31,9 +31,7 @@ namespace Azure.Messages.Handlers
         public void SendBullyReport()
         {
             uint reportedId = Request.GetUInteger();
-            Azure.GetGame()
-                .GetModerationTool()
-                .SendNewTicket(Session, 104, 9, reportedId, "", new List<string>());
+            Azure.GetGame().GetModerationTool().SendNewTicket(Session, 104, 9, reportedId, string.Empty, new List<string>());
 
             Response.Init(LibraryParser.OutgoingRequest("BullyReportSentMessageComposer"));
             Response.AppendInteger(0);
@@ -217,9 +215,7 @@ namespace Azure.Messages.Handlers
         internal void EnableEffect()
         {
             Room currentRoom = Session.GetHabbo().CurrentRoom;
-            if (currentRoom == null)
-                return;
-            RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+            RoomUser roomUserByHabbo = currentRoom?.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
             if (roomUserByHabbo == null)
                 return;
             int num = Request.GetInteger();
@@ -244,11 +240,12 @@ namespace Azure.Messages.Handlers
             Request.GetUInteger();
             uint num2 = Request.GetUInteger();
             Room currentRoom = Session.GetHabbo().CurrentRoom;
-            if (currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) ||
-                (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session)) || Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+
+            if ((currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) || (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session))) && Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
-            RoomUser roomUserByHabbo = currentRoom.GetRoomUserManager()
-                .GetRoomUserByHabbo(Azure.GetHabboById(num).UserName);
+
+            RoomUser roomUserByHabbo = currentRoom?.GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(num).UserName);
+
             if (roomUserByHabbo == null)
                 return;
             if (roomUserByHabbo.GetClient().GetHabbo().Rank >= Session.GetHabbo().Rank)
@@ -263,8 +260,7 @@ namespace Azure.Messages.Handlers
                 uint.Parse(
                     ((Azure.GetUnixTimeStamp()) + unchecked(checked(num2 * 60u))).ToString()));
 
-            roomUserByHabbo.GetClient()
-                .SendNotif(string.Format(Azure.GetLanguage().GetVar("room_owner_has_mute_user"), num2));
+            roomUserByHabbo.GetClient().SendNotif(string.Format(Azure.GetLanguage().GetVar("room_owner_has_mute_user"), num2));
         }
 
         /// <summary>

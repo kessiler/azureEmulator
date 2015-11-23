@@ -200,11 +200,6 @@ namespace Azure.Messages.Handlers
         internal void CancelCallGuide()
         {
             //Response.Init(3485);
-            //SendResponse();
-
-            // Request.GetBool();
-
-            //var requester = Session.GetHabbo().GuideOtherUser;
 
             /* user - cancell session */
             var message = new ServerMessage(LibraryParser.OutgoingRequest("OnGuideSessionDetachedMessageComposer"));

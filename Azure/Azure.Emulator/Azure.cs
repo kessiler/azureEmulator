@@ -439,7 +439,7 @@ namespace Azure
         /// Get's the Actual Timestamp in Unix Format
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal static int GetUnixTimeStamp() => ((int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+        internal static int GetUnixTimeStamp() => (int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
 
         /// <summary>
         /// Convert's a Unix TimeStamp to DateTime
