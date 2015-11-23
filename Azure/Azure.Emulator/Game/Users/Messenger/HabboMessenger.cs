@@ -440,7 +440,10 @@ namespace Azure.Game.Users.Messenger
                 serverMessage.AppendString(GetClient().GetHabbo().UserName + " : " + message);
                 serverMessage.AppendInteger(0);
 
-                Azure.GetGame().GetClientManager().StaffAlert(serverMessage, GetClient().GetHabbo().Id);
+                if(GetClient().GetHabbo().Rank >= Azure.StaffAlertMinRank)
+                    Azure.GetGame().GetClientManager().StaffAlert(serverMessage, GetClient().GetHabbo().Id);
+                else if(GetClient().GetHabbo().Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+                    Azure.GetGame().GetClientManager().AmbassadorAlert(serverMessage, GetClient().GetHabbo().Id);
             }
             else
             {

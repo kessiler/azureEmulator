@@ -126,7 +126,7 @@ namespace Azure.Messages.Parsers
                         if (packetId == -1)
                             continue;
 
-                        Writer.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
+                        //Writer.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
                     }
                     else
                         Incoming.Add(packetId, new StaticRequestHandler(del));
@@ -161,9 +161,8 @@ namespace Azure.Messages.Parsers
 
                 if (packetId != -1)
                 {
-                    if (_registeredOutoings.Contains((uint)packetId))
-                        Writer.LogMessage("A Outgoing Packet With Same ID Was Encountred. Packet Id: " + packetId, false);
-                    else
+                    //Writer.LogMessage("A Outgoing Packet With Same ID Was Encountred. Packet Id: " + packetId, false);
+                    if (!_registeredOutoings.Contains((uint)packetId))
                         _registeredOutoings.Add((uint)packetId);
                 }
 

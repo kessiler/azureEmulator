@@ -76,13 +76,11 @@ namespace Azure.Game.Users.Factories
                 userName = dataRow["username"].ToString();
                 userLook = dataRow["look"].ToString();
 
-                int regDate = (int) dataRow["account_created"];
-
-                if (regDate == 0)
-                    regDate = Azure.GetUnixTimeStamp();
+                int regDate = (int) dataRow["account_created"] == 0 ? Azure.GetUnixTimeStamp() : (int) dataRow["account_created"];
 
                 // Check Register Date
-                queryReactor.RunFastQuery($"UPDATE users SET account_created = {regDate} WHERE id = {userId}");
+                if ((int) dataRow["account_created"] == 0)
+                    queryReactor.RunFastQuery($"UPDATE users SET account_created = {regDate} WHERE id = {userId}");
 
                 // Disconnect if user Already Logged-in, Doesn't need check. If user isn't logged, nothing will happen.
                 if (Azure.GetGame().GetClientManager().GetClientByUserId(userId) != null)
@@ -239,7 +237,7 @@ namespace Azure.Game.Users.Factories
                 bool pAppearOffline = Azure.EnumToBool(row["hide_online"].ToString());
                 bool pHideInroom = Azure.EnumToBool(row["hide_inroom"].ToString());
 
-                if (num4 != userId && !friends.ContainsKey(num4))
+                if (!Equals(num4, userId) && !friends.ContainsKey(num4))
                     friends.Add(num4, new MessengerBuddy(num4, pUsername, pLook, pMotto, pAppearOffline, pHideInroom));
             }
 
@@ -309,6 +307,8 @@ namespace Azure.Game.Users.Factories
 
             if (user.Rank >= Azure.StaffAlertMinRank)
                 friends.Add(0, new MessengerBuddy(0, "Staff Chat", "hr-831-45.fa-1206-91.sh-290-1331.ha-3129-100.hd-180-2.cc-3039-73.ch-3215-92.lg-270-73", string.Empty, false, true));
+            else if (user.Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+                friends.Add(0, new MessengerBuddy(0, "Ambassador Chat", "hr-831-45.fa-1206-91.sh-290-1331.ha-3129-100.hd-180-2.cc-3039-73.ch-3215-92.lg-270-73", string.Empty, false, true));
 
             return new UserData(userId, achievements, talents, favorites, ignoreUsers, tags, subscriptions, badges,
                 items, effects, friends, friendsRequests, myRooms, pets, quests, user, inventoryBots, relationShips,

@@ -231,6 +231,19 @@ namespace Azure.Game.GameClients
         }
 
         /// <summary>
+        ///     Ambassador the alert.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="exclude">The exclude.</param>
+        internal void AmbassadorAlert(ServerMessage message, uint exclude = 0u)
+        {
+            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]) && x.GetHabbo().Id != exclude);
+
+            foreach (var current in gameClients)
+                current.SendMessage(message);
+        }
+
+        /// <summary>
         ///     Mods the alert.
         /// </summary>
         /// <param name="message">The message.</param>
