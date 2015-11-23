@@ -130,15 +130,26 @@ namespace Azure.Net.Sockets
                     {
                         socket.NoDelay = _disableNagleAlgorithm;
                         AcceptedConnections++;
-                        var connectionInfo = new ConnectionData(socket, _parser.Clone() as IDataParser, AcceptedConnections);
-                        connectionInfo.Disconnected = OnChannelDisconnect;
+
+                        var connectionInfo = new ConnectionData(socket, _parser.Clone() as IDataParser,
+                            AcceptedConnections) {Disconnected = OnChannelDisconnect};
                         OnClientConnected(connectionInfo);
                     }
                 }
             }
-            catch (Exception) { }
+            catch
+            {
+                // ignored
+            }
 
-            _listener.BeginAcceptSocket(OnAcceptSocket, _listener);
+            try
+            {
+                _listener?.BeginAcceptSocket(OnAcceptSocket, _listener);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         /// <summary>
