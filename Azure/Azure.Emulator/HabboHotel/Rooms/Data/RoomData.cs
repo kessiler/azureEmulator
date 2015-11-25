@@ -296,13 +296,13 @@ namespace Azure.HabboHotel.Rooms.Data
 
                     OwnerId = integer != uint.MinValue ? Convert.ToInt32(integer) : 0;
 
-                    queryReactor.SetQuery($"SELECT user_id, message, timestamp FROM users_chatlogs WHERE room_id = '{Id}' ORDER BY timestamp ASC LIMIT 150");
+                    queryReactor.SetQuery($"SELECT user_id, message, timestamp FROM users_chatlogs WHERE room_id = {Id} ORDER BY timestamp ASC LIMIT 150");
                     var table = queryReactor.GetTable();
 
                     foreach (DataRow dataRow in table.Rows)
                         RoomChat.Push(new Chatlog((uint) dataRow[0], (string) dataRow[1], Azure.UnixToDateTime(int.Parse(dataRow[2].ToString())), false));
 
-                    queryReactor.SetQuery($"SELECT word FROM rooms_wordfilter WHERE room_id = '{Id}'");
+                    queryReactor.SetQuery($"SELECT word FROM rooms_wordfilter WHERE room_id = {Id}");
                     var tableFilter = queryReactor.GetTable();
 
                     foreach (DataRow dataRow in tableFilter.Rows)

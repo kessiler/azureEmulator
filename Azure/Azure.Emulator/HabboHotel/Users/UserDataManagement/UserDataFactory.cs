@@ -58,7 +58,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
 
             DataTable myRoomsTable;
 
-            uint userid;
+            uint userId;
             string userName;
             string look;
 
@@ -70,69 +70,69 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 if (dataRow == null)
                     return null;
 
-                userid = Convert.ToUInt32(dataRow["id"]);
+                userId = Convert.ToUInt32(dataRow["id"]);
                 userName = dataRow["username"].ToString();
                 look = dataRow["look"].ToString();
 
-                queryReactor.RunFastQuery($"UPDATE users SET online = '1' WHERE id = '{userid}'");
+                queryReactor.RunFastQuery($"UPDATE users SET online = '1' WHERE id = {userId}");
 
-                if (Azure.GetGame().GetClientManager().GetClientByUserId(userid) != null)
+                if (Azure.GetGame().GetClientManager().GetClientByUserId(userId) != null)
                     Azure.GetGame()
                         .GetClientManager()
-                        .GetClientByUserId(userid)
+                        .GetClientByUserId(userId)
                         .Disconnect("User connected in other place");
 
                 queryReactor.SetQuery(
-                    $"SELECT `group`, `level`, progress FROM users_achievements WHERE userid = {Convert.ToUInt32(userid)}");
+                    $"SELECT `group`, `level`, progress FROM users_achievements WHERE userId = {userId}");
                 achievementsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT talent_id, talent_state FROM users_talents WHERE userid = {Convert.ToUInt32(userid)}");
+                    $"SELECT talent_id, talent_state FROM users_talents WHERE userId = {userId}");
                 talentsTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT COUNT(*) FROM users_stats WHERE id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT COUNT(*) FROM users_stats WHERE id = {userId}");
 
                 if (int.Parse(queryReactor.GetString()) == 0)
-                    queryReactor.RunFastQuery($"INSERT INTO users_stats (id) VALUES ({Convert.ToUInt32(userid)})");
+                    queryReactor.RunFastQuery($"INSERT INTO users_stats (id) VALUES ({userId})");
 
-                queryReactor.SetQuery($"SELECT room_id FROM users_favorites WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT room_id FROM users_favorites WHERE user_id = {userId}");
                 favoritesTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT ignore_id FROM users_ignores WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT ignore_id FROM users_ignores WHERE user_id = {userId}");
                 ignoresTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT tag FROM users_tags WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT tag FROM users_tags WHERE user_id = {userId}");
                 tagsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT subscription_id, timestamp_activated, timestamp_expire, timestamp_lastgift FROM users_subscriptions WHERE user_id = {Convert.ToUInt32(userid)} AND timestamp_expire > UNIX_TIMESTAMP() ORDER BY subscription_id DESC LIMIT 1");
+                    $"SELECT subscription_id, timestamp_activated, timestamp_expire, timestamp_lastgift FROM users_subscriptions WHERE user_id = {userId} AND timestamp_expire > UNIX_TIMESTAMP() ORDER BY subscription_id DESC LIMIT 1");
                 subscriptionsRow = queryReactor.GetRow();
 
-                queryReactor.SetQuery($"SELECT * FROM users_badges WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT * FROM users_badges WHERE user_id = {userId}");
                 badgesTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT `items_rooms`.* , COALESCE(`items_groups`.`group_id`, 0) AS group_id FROM `items_rooms` LEFT OUTER JOIN `items_groups` ON `items_rooms`.`id` = `items_groups`.`id` WHERE room_id='0' AND user_id={Convert.ToUInt32(userid)} LIMIT 8000");
+                    $"SELECT `items_rooms`.* , COALESCE(`items_groups`.`group_id`, 0) AS group_id FROM `items_rooms` LEFT OUTER JOIN `items_groups` ON `items_rooms`.`id` = `items_groups`.`id` WHERE room_id='0' AND user_id={userId} LIMIT 8000");
                 itemsTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT * FROM users_effects WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT * FROM users_effects WHERE user_id = {userId}");
                 effectsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT poll_id FROM users_polls WHERE user_id = {Convert.ToUInt32(userid)} GROUP BY poll_id;");
+                    $"SELECT poll_id FROM users_polls WHERE user_id = {userId} GROUP BY poll_id;");
                 pollsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
                     string.Format(
                         "SELECT users.id,users.username,users.motto,users.look,users.last_online,users.hide_inroom,users.hide_online FROM users JOIN messenger_friendships ON users.id = messenger_friendships.user_one_id WHERE messenger_friendships.user_two_id = {0} UNION ALL SELECT users.id,users.username,users.motto,users.look,users.last_online,users.hide_inroom,users.hide_online FROM users JOIN messenger_friendships ON users.id = messenger_friendships.user_two_id WHERE messenger_friendships.user_one_id = {0}",
-                        Convert.ToUInt32(userid)));
+                        userId));
                 friendsTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery($"SELECT * FROM users_stats WHERE id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT * FROM users_stats WHERE id = {userId}");
                 statsTable = queryReactor.GetRow();
 
                 queryReactor.SetQuery(
-                    $"SELECT messenger_requests.from_id,messenger_requests.to_id,users.Username, users.Look FROM users JOIN messenger_requests ON users.id = messenger_requests.from_id WHERE messenger_requests.to_id = {Convert.ToUInt32(userid)}");
+                    $"SELECT messenger_requests.from_id,messenger_requests.to_id,users.Username, users.Look FROM users JOIN messenger_requests ON users.id = messenger_requests.from_id WHERE messenger_requests.to_id = {userId}");
                 friendsRequestsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery("SELECT * FROM rooms_data WHERE owner = @name LIMIT 150");
@@ -140,31 +140,31 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 myRoomsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT * FROM bots WHERE user_id = {Convert.ToUInt32(userid)} AND room_id = 0 AND ai_type='pet'");
+                    $"SELECT * FROM bots WHERE user_id = {userId} AND room_id = 0 AND ai_type='pet'");
                 petsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT quest_id, progress FROM users_quests_data WHERE user_id = {Convert.ToUInt32(userid)}");
+                    $"SELECT quest_id, progress FROM users_quests_data WHERE user_id = {userId}");
                 questsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT * FROM bots WHERE user_id = {Convert.ToUInt32(userid)} AND room_id=0 AND ai_type='generic'");
+                    $"SELECT * FROM bots WHERE user_id = {userId} AND room_id=0 AND ai_type='generic'");
                 botsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    $"SELECT group_id, rank, date_join FROM groups_members WHERE user_id = {Convert.ToUInt32(userid)}");
+                    $"SELECT group_id, rank, date_join FROM groups_members WHERE user_id = {userId}");
                 groupsTable = queryReactor.GetTable();
 
                 queryReactor.SetQuery(
-                    "REPLACE INTO users_info(user_id, login_timestamp) VALUES(@userid, @login_timestamp)");
-                queryReactor.AddParameter("userid", Convert.ToUInt32(userid));
+                    "REPLACE INTO users_info(user_id, login_timestamp) VALUES(@userId, @login_timestamp)");
+                queryReactor.AddParameter("userId", userId);
                 queryReactor.AddParameter("login_timestamp", Azure.GetUnixTimeStamp());
                 queryReactor.RunQuery();
 
-                queryReactor.SetQuery($"SELECT * FROM users_relationships WHERE user_id = {Convert.ToUInt32(userid)}");
+                queryReactor.SetQuery($"SELECT * FROM users_relationships WHERE user_id = {userId}");
                 relationShipsTable = queryReactor.GetTable();
 
-                queryReactor.RunFastQuery($"UPDATE users SET online='1' WHERE id = {Convert.ToUInt32(userid)} LIMIT 1");
+                queryReactor.RunFastQuery($"UPDATE users SET online='1' WHERE id = {userId} LIMIT 1");
             }
 
             var achievements = new Dictionary<string, UserAchievement>();
@@ -236,13 +236,13 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.RunFastQuery(string.Concat("DELETE FROM messenger_friendships WHERE user_one_id=",
-                        userid, " OR user_two_id=", userid, " LIMIT ", limit));
+                        userId, " OR user_two_id=", userId, " LIMIT ", limit));
                     queryreactor2.SetQuery(
                         string.Concat(
                             "SELECT users.id,users.username,users.motto,users.look,users.last_online,users.hide_inroom,users.hide_online FROM users JOIN messenger_friendships ON users.id = messenger_friendships.user_one_id WHERE messenger_friendships.user_two_id = ",
-                            userid,
+                            userId,
                             " UNION ALL SELECT users.id,users.username,users.motto,users.look,users.last_online,users.hide_inroom,users.hide_online FROM users JOIN messenger_friendships ON users.id = messenger_friendships.user_two_id WHERE messenger_friendships.user_one_id = ",
-                            userid));
+                            userId));
                     friendsTable = queryreactor2.GetTable();
                 }
             }
@@ -257,7 +257,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 var pAppearOffline = Azure.EnumToBool(row["hide_online"].ToString());
                 var pHideInroom = Azure.EnumToBool(row["hide_inroom"].ToString());
 
-                if (num4 != userid && !friends.ContainsKey(num4))
+                if (num4 != userId && !friends.ContainsKey(num4))
                     friends.Add(num4,
                         new MessengerBuddy(num4, pUsername, pLook, pMotto, pLastOnline, pAppearOffline, pHideInroom));
             }
@@ -271,12 +271,12 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 var pUsername2 = row["username"].ToString();
                 var pLook = row["look"].ToString();
 
-                if (num5 != userid)
+                if (num5 != userId)
                 {
                     if (!friendsRequests.ContainsKey(num5))
-                        friendsRequests.Add(num5, new MessengerRequest(userid, num5, pUsername2, pLook));
+                        friendsRequests.Add(num5, new MessengerRequest(userId, num5, pUsername2, pLook));
                     else if (!friendsRequests.ContainsKey(num6))
-                        friendsRequests.Add(num6, new MessengerRequest(userid, num6, pUsername2, pLook));
+                        friendsRequests.Add(num6, new MessengerRequest(userId, num6, pUsername2, pLook));
                 }
             }
 
@@ -318,7 +318,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
             var groups = new HashSet<GroupMember>();
 
             foreach (DataRow row in groupsTable.Rows)
-                groups.Add(new GroupMember(userid, userName, look, (uint) row["group_id"], Convert.ToInt16(row["rank"]),
+                groups.Add(new GroupMember(userId, userName, look, (uint) row["group_id"], Convert.ToInt16(row["rank"]),
                     (int) row["date_join"]));
 
             var relationShips = relationShipsTable.Rows.Cast<DataRow>()
@@ -334,7 +334,7 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                         "hr-831-45.fa-1206-91.sh-290-1331.ha-3129-100.hd-180-2.cc-3039-73.ch-3215-92.lg-270-73",
                         string.Empty, 0, false, true));
 
-            return new UserData(userid, achievements, talents, favorites, ignoreUsers, tags, subscriptions, badges,
+            return new UserData(userId, achievements, talents, favorites, ignoreUsers, tags, subscriptions, badges,
                 items, effects, friends, friendsRequests, myRooms, pets, quests, user, inventoryBots, relationShips,
                 pollSuggested, miniMailCount);
         }
@@ -356,12 +356,12 @@ namespace Azure.HabboHotel.Users.UserDataManagement
                 queryReactor.SetQuery($"SELECT * FROM users WHERE id = '{userId}'");
 
                 dataRow = queryReactor.GetRow();
-                Azure.GetGame().GetClientManager().LogClonesOut(Convert.ToUInt32(userId));
+                num = Convert.ToUInt32(dataRow["id"]);
+                Azure.GetGame().GetClientManager().LogClonesOut(num);
 
                 if (dataRow == null)
                     return null;
 
-                num = Convert.ToUInt32(dataRow["id"]);
 
                 if (Azure.GetGame().GetClientManager().GetClientByUserId(num) != null)
                     return null;

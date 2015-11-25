@@ -178,18 +178,18 @@ namespace Azure.HabboHotel.Groups
 
             using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
             {
-                queryReactor.SetQuery($"SELECT * FROM groups_data WHERE id='{groupId}' LIMIT 1");
+                queryReactor.SetQuery($"SELECT * FROM groups_data WHERE id={groupId} LIMIT 1");
 
                 var row = queryReactor.GetRow();
 
                 if (row == null)
                     return null;
 
-                queryReactor.SetQuery("SELECT g.user_id, u.username, u.look, g.rank, g.date_join FROM groups_members g " + $"INNER JOIN users u ON (g.user_id = u.id) WHERE g.group_id='{groupId}'");
+                queryReactor.SetQuery("SELECT g.user_id, u.username, u.look, g.rank, g.date_join FROM groups_members g " + $"INNER JOIN users u ON (g.user_id = u.id) WHERE g.group_id={groupId}");
 
                 var groupMembersTable = queryReactor.GetTable();
 
-                queryReactor.SetQuery("SELECT g.user_id, u.username, u.look FROM groups_requests g " + $"INNER JOIN users u ON (g.user_id = u.id) WHERE group_id='{groupId}'");
+                queryReactor.SetQuery("SELECT g.user_id, u.username, u.look FROM groups_requests g " + $"INNER JOIN users u ON (g.user_id = u.id) WHERE group_id={groupId}");
 
                 var groupRequestsTable = queryReactor.GetTable();
 

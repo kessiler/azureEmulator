@@ -146,6 +146,7 @@ namespace Azure.Database.Manager.Database.Session_Details
         {
             if (!DbEnabled)
                 return 0;
+
             var result = 0;
             try
             {
@@ -233,8 +234,7 @@ namespace Azure.Database.Manager.Database.Session_Details
                         throw exception;
                     }
                     break;
-            }
-
+            }            
             return row;
         }
 
@@ -242,6 +242,7 @@ namespace Azure.Database.Manager.Database.Session_Details
         {
             if (!DbEnabled)
                 return string.Empty;
+
             var str = string.Empty;
 
             switch (DatabaseManager.DatabaseConnectionType.ToLower())
@@ -303,7 +304,6 @@ namespace Azure.Database.Manager.Database.Session_Details
                     }
                     break;
             }
-
             return str;
         }
 
