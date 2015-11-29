@@ -1124,6 +1124,27 @@ namespace Azure.Messages.Handlers
             {
                 int.TryParse(array[2], out amount);
 
+                if (amount == 100)
+                {
+                    amount = 1;
+                }
+                else if (amount == 250)
+                {
+                    amount = 5;
+                }
+                else if (amount == 500)
+                {
+                    amount = 10;
+                }
+                else if (amount == 1000)
+                {
+                    amount = 20;
+                }
+                else if (amount == 2500)
+                {
+                    amount = 50;
+                }
+
                 Session.GetHabbo().Diamonds += amount;
                 Session.GetHabbo().UpdateSeasonalCurrencyBalance();
             }

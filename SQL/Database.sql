@@ -13410,3 +13410,13 @@ DELIMITER ;
 -- Drop unique on users_bans
 -- ----------------------------
 ALTER TABLE `users_bans` DROP INDEX value;
+
+-- ----------------------------
+-- Add index on users
+-- ----------------------------
+ALTER TABLE `users` ADD INDEX(username);
+
+-- ----------------------------
+-- Add index on users
+-- ----------------------------
+ALTER TABLE `users` ADD INDEX(auth_ticket);

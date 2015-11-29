@@ -78,11 +78,12 @@ namespace Azure.Configuration
             try
             {
                 string xmlFileContent;
-
-                if (File.Exists($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml"))
-                    xmlFileContent = File.ReadAllText($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml");
+                string cacheDirectory = $"{Environment.CurrentDirectory}\\Cache";
+                Directory.CreateDirectory(cacheDirectory);
+                if (File.Exists($"{cacheDirectory}\\FurniDataCache.xml"))
+                    xmlFileContent = File.ReadAllText($"{cacheDirectory}\\FurniDataCache.xml");
                 else
-                    File.WriteAllText($"{Environment.CurrentDirectory}\\Cache\\FurniDataCache.xml", xmlFileContent = wC.DownloadString(ExtraSettings.FurniDataUrl));
+                    File.WriteAllText($"{cacheDirectory}\\FurniDataCache.xml", xmlFileContent = wC.DownloadString(ExtraSettings.FurniDataUrl));
 
                 xmlParser.LoadXml(xmlFileContent);
 

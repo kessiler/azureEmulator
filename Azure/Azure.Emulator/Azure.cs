@@ -11,7 +11,6 @@ using System.Timers;
 using System.Windows.Forms;
 using Azure.Configuration;
 using Azure.Database;
-using Azure.Encryption;
 using Azure.Encryption.Encryption;
 using Azure.HabboHotel;
 using Azure.HabboHotel.GameClients.Interfaces;
