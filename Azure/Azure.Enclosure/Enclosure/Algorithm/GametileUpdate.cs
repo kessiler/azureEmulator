@@ -1,8 +1,8 @@
 namespace Azure.Enclosure.Algorithm
 {
-    public class GametileUpdate
+    public class GameTileUpdate
     {
-        public GametileUpdate(int x, int y, byte value)
+        public GameTileUpdate(int x, int y, byte value)
         {
             X = x;
             Y = y;

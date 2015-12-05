@@ -94,7 +94,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enclosure\Algorithm\GametileUpdate.cs" />
+    <Compile Include="Enclosure\Algorithm\GameTileUpdate.cs" />
     <Compile Include="Enclosure\GameField.cs" />
     <Compile Include="Enclosure\PointField.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

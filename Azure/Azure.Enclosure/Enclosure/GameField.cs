@@ -14,10 +14,10 @@ namespace Azure.Enclosure
     public class GameField : IPathNode
     {
         private readonly AStarSolver<GameField> _astarSolver;
-        private readonly Queue<GametileUpdate> _newEntries = new Queue<GametileUpdate>();
+        private readonly Queue<GameTileUpdate> _newEntries = new Queue<GameTileUpdate>();
         private readonly bool _diagonal;
         private byte[,] _currentField;
-        private GametileUpdate _currentlyChecking;
+        private GameTileUpdate _currentlyChecking;
 
         public GameField(byte[,] theArray, bool diagonalAllowed)
         {
@@ -37,7 +37,7 @@ namespace Azure.Enclosure
 
         public void UpdateLocation(int x, int y, byte value)
         {
-            _newEntries.Enqueue(new GametileUpdate(x, y, value));
+            _newEntries.Enqueue(new GameTileUpdate(x, y, value));
         }
 
         public List<PointField> DoUpdate(bool oneloop = false)
@@ -152,7 +152,7 @@ namespace Azure.Enclosure
 
         private IEnumerable<LinkedList<AStarSolver<GameField>.PathNode>> handleListOfConnectedPoints(
             List<Point> pointList,
-            GametileUpdate update)
+            GameTileUpdate update)
         {
             var list = new List<LinkedList<AStarSolver<GameField>.PathNode>>();
             var num = 0;
@@ -172,7 +172,7 @@ namespace Azure.Enclosure
             }
         }
 
-        private List<Point> GetConnectedItems(GametileUpdate update)
+        private List<Point> GetConnectedItems(GameTileUpdate update)
         {
             var list = new List<Point>();
             var x = update.X;
