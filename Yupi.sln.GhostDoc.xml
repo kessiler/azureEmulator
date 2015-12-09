@@ -9,13 +9,12 @@
     <IgnoreExtensions>
     </IgnoreExtensions>
     <IgnoreFiles>
-      <IgnoreFile>.\Azure\Azure.Emulator\Data\CacheManager.cs</IgnoreFile>
     </IgnoreFiles>
   </SpellChecker>
 <HelpConfigurations selected="HelpFile">
   <HelpConfiguration name="HelpFile">
     <OutputPath>.\Help</OutputPath>
-    <HelpFileName>Azure</HelpFileName>
+    <HelpFileName>Yupi</HelpFileName>
     <ImageFolderPath />
     <HtmlFormats>
       <HtmlHelp>true</HtmlHelp>
