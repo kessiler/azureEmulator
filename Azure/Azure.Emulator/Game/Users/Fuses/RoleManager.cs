@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Data.Base.Sessions.Interfaces;
 
-namespace Azure.Game.Users.Fuses
+namespace Yupi.Game.Users.Fuses
 {
     /// <summary>
     ///     Class RoleManager.
@@ -56,7 +56,7 @@ namespace Azure.Game.Users.Fuses
                 if (!_cmdRights.ContainsKey(dataRow["command"].ToString()))
                     _cmdRights.Add(dataRow["command"].ToString(), dataRow["rank"].ToString());
                 else
-                    Writer.WriteLine($"Duplicate Fuse Command \"{dataRow[0]}\" found", "Azure.Fuses");
+                    Writer.WriteLine($"Duplicate Fuse Command \"{dataRow[0]}\" found", "Yupi.Fuses");
 
             dbClient.SetQuery("SELECT * FROM server_fuserights");
 

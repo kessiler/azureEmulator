@@ -1,4 +1,4 @@
-namespace Azure.Game.Pets.Enums
+namespace Yupi.Game.Pets.Enums
 {
     /// <summary>
     ///     Enum MoplaState

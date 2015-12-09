@@ -1,9 +1,9 @@
 using System;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.RoomBots.Interfaces
+namespace Yupi.Game.RoomBots.Interfaces
 {
     /// <summary>
     ///     Class BotAI.

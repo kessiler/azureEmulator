@@ -1,8 +1,8 @@
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Quests.Composers
+namespace Yupi.Game.Quests.Composers
 {
     /// <summary>
     ///     Class QuestCompletedComposer.
@@ -17,7 +17,7 @@ namespace Azure.Game.Quests.Composers
         /// <returns>ServerMessage.</returns>
         internal static ServerMessage Compose(GameClient session, Quest quest)
         {
-            var amountOfQuestsInCategory = Azure.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(quest.Category);
+            var amountOfQuestsInCategory = Yupi.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(quest.Category);
             var i = (quest == null) ? amountOfQuestsInCategory : quest.Number;
             var i2 = (quest == null) ? 0 : session.GetHabbo().GetQuestProgress(quest.Id);
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("QuestCompletedMessageComposer"));

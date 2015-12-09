@@ -1,8 +1,8 @@
-﻿using Azure.Game.Catalogs.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Game.Catalogs.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Catalogs.Composers
+namespace Yupi.Game.Catalogs.Composers
 {
     internal class TargetedOfferComposer
     {
@@ -28,7 +28,7 @@ namespace Azure.Game.Catalogs.Composers
 
             message.AppendInteger(offer.PurchaseLimit);
 
-            var timeLeft = offer.ExpirationTime - Azure.GetUnixTimeStamp();
+            var timeLeft = offer.ExpirationTime - Yupi.GetUnixTimeStamp();
 
             message.AppendInteger(timeLeft);
             message.AppendString(offer.Title);

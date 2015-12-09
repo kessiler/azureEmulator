@@ -1,8 +1,8 @@
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.User;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Interactions.Interfaces
+namespace Yupi.Game.Items.Interactions.Interfaces
 {
     internal interface IFurniInteractor
     {

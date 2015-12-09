@@ -1,11 +1,11 @@
 using System.Linq;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Quests;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Quests;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorGenericSwitch : FurniInteractorModel
     {
@@ -16,7 +16,7 @@ namespace Azure.Game.Items.Interactions.Controllers
             if (session == null || !hasRights || num <= 0 || item.GetBaseItem().InteractionType == Interaction.Pinata)
                 return;
 
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(session, QuestType.FurniSwitch);
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(session, QuestType.FurniSwitch);
 
             int num2;
             int.TryParse(item.ExtraData, out num2);

@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class SetSpeed. This class cannot be inherited.
@@ -23,7 +23,7 @@ namespace Azure.Game.Commands.Controllers
         {
             uint speed;
             if (uint.TryParse(pms[0], out speed)) session.GetHabbo().CurrentRoom.GetRoomItemHandler().SetSpeed(speed);
-            else session.SendWhisper(Azure.GetLanguage().GetVar("command_setspeed_error_numbers"));
+            else session.SendWhisper(Yupi.GetLanguage().GetVar("command_setspeed_error_numbers"));
 
             return true;
         }

@@ -1,7 +1,7 @@
 using System;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Chat
+namespace Yupi.Game.Rooms.Chat
 {
     /// <summary>
     ///     Class UserSaysArgs.

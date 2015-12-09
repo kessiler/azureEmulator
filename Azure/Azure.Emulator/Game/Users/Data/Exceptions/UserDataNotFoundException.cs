@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Game.Users.Data.Exceptions
+namespace Yupi.Game.Users.Data.Exceptions
 {
     /// <summary>
     ///     Class UserDataNotFoundException.

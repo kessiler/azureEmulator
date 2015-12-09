@@ -1,9 +1,9 @@
 using System;
-using Azure.Data;
-using Azure.Net.Packets;
-using Azure.Net.Sockets;
+using Yupi.Data;
+using Yupi.Net.Packets;
+using Yupi.Net.Sockets;
 
-namespace Azure.Net.Connection
+namespace Yupi.Net.Connection
 {
     /// <summary>
     /// Class ConnectionHandler.
@@ -41,11 +41,11 @@ namespace Azure.Net.Connection
         {
             try
             {
-                Azure.GetGame().GetClientManager().CreateAndStartClient(connection.GetConnectionId(), connection);
+                Yupi.GetGame().GetClientManager().CreateAndStartClient(connection.GetConnectionId(), connection);
             }
             catch (Exception ex)
             {
-                ServerLogManager.HandleException(ex, "Azure.Configuration.ConnectionHandling");
+                ServerLogManager.HandleException(ex, "Yupi.Configuration.ConnectionHandling");
             }
         }
 
@@ -58,11 +58,11 @@ namespace Azure.Net.Connection
         {
             try
             {
-                Azure.GetGame().GetClientManager().DisposeConnection(connection.GetConnectionId());
+                Yupi.GetGame().GetClientManager().DisposeConnection(connection.GetConnectionId());
             }
             catch (Exception ex)
             {
-                ServerLogManager.HandleException(ex, "Azure.Configuration.ConnectionHandling");
+                ServerLogManager.HandleException(ex, "Yupi.Configuration.ConnectionHandling");
             }
         }
 

@@ -1,9 +1,9 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     internal sealed class WhisperHotel : Command
     {
@@ -19,7 +19,7 @@ namespace Azure.Game.Commands.Controllers
         {
             var message = string.Join(" ", pms);
             if (string.IsNullOrEmpty(message)) return true;
-            foreach (var client in Azure.GetGame().GetClientManager().Clients.Values)
+            foreach (var client in Yupi.GetGame().GetClientManager().Clients.Values)
             {
                 var serverMessage = new ServerMessage();
                 serverMessage.Init(LibraryParser.OutgoingRequest("WhisperMessageComposer"));

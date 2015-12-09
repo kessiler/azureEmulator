@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Game.Commands.Controllers;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Commands.Controllers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands
+namespace Yupi.Game.Commands
 {
     /// <summary>
     ///     Class CommandsManager.
@@ -155,7 +155,7 @@ namespace Azure.Game.Commands
         /// </summary>
         public static void UpdateInfo()
         {
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery("SELECT command, description, params, rank, alias FROM server_fuses");
                 var commandsTable = dbClient.GetTable();
@@ -178,14 +178,14 @@ namespace Azure.Game.Commands
                         {
                             if (AliasDictionary.ContainsKey(alias))
                             {
-                                Writer.WriteLine("Duplicate alias key: " + alias, "Azure.Commands",
+                                Writer.WriteLine("Duplicate alias key: " + alias, "Yupi.Commands",
                                     ConsoleColor.DarkRed);
                                 continue;
                             }
                             if (CommandsDictionary.ContainsKey(alias))
                             {
                                 Writer.WriteLine("An alias cannot have same name as a normal command",
-                                    "Azure.Commands", ConsoleColor.DarkRed);
+                                    "Yupi.Commands", ConsoleColor.DarkRed);
                                 continue;
                             }
                             AliasDictionary.Add(alias, key);
@@ -223,7 +223,7 @@ namespace Azure.Game.Commands
             {
                 return command.Execute(client, pms.Skip(1).ToArray());
             }
-            client.SendWhisper(Azure.GetLanguage().GetVar("use_the_command_as") + command.Usage);
+            client.SendWhisper(Yupi.GetLanguage().GetVar("use_the_command_as") + command.Usage);
             return true;
         }
 
@@ -255,7 +255,7 @@ namespace Azure.Game.Commands
                 return command.Execute(client, pms.Skip(1).ToArray());
             }
 
-            client.SendWhisper(Azure.GetLanguage().GetVar("use_the_command_as") + command.Usage);
+            client.SendWhisper(Yupi.GetLanguage().GetVar("use_the_command_as") + command.Usage);
 
             return true;
         }

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.RoomBots.Interfaces;
-using Azure.Game.RoomBots.Models;
-using Azure.Game.Rooms.User;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.RoomBots.Interfaces;
+using Yupi.Game.RoomBots.Models;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.RoomBots
+namespace Yupi.Game.RoomBots
 {
     /// <summary>
     ///     Class RoomBot.
@@ -277,7 +277,7 @@ namespace Azure.Game.RoomBots
                 return string.Empty;
 
             if (mixPhrases)
-                return RandomSpeech[Azure.GetRandomNumber(0, RandomSpeech.Count - 1)];
+                return RandomSpeech[Yupi.GetRandomNumber(0, RandomSpeech.Count - 1)];
 
             if (LastSpokenPhrase >= RandomSpeech.Count)
                 LastSpokenPhrase = 1;

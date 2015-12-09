@@ -4,21 +4,21 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using Azure.Data;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Handlers;
-using Azure.Game.Pathfinding;
-using Azure.Game.Rooms.Chat.Enums;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Util.Coordinates;
+using Yupi.Core.Io;
+using Yupi.Core.Util.Coordinates;
+using Yupi.Data;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Handlers;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Rooms.Chat.Enums;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.User.Path
+namespace Yupi.Game.Rooms.User.Path
 {
     /// <summary>
     ///     Class Gamemap.
@@ -69,7 +69,7 @@ namespace Azure.Game.Rooms.User.Path
         {
             _room = room;
             DiagonalEnabled = true;
-            StaticModel = Azure.GetGame().GetRoomManager().GetModel(room.RoomData.ModelName, room.RoomId);
+            StaticModel = Yupi.GetGame().GetRoomManager().GetModel(room.RoomData.ModelName, room.RoomId);
 
             if (StaticModel == null)
                 throw new ArgumentNullException($"No modeldata found for roomID {room.RoomId}");
@@ -567,7 +567,7 @@ namespace Azure.Game.Rooms.User.Path
             catch (Exception ex)
             {
                 ServerLogManager.LogException("Exception RoomData Loading on (GenerateMaps): " + ex);
-                ServerLogManager.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
+                ServerLogManager.HandleException(ex, "Yupi.HabboHotel.Rooms.Gamemap");
             }
         }
 
@@ -1004,7 +1004,7 @@ namespace Azure.Game.Rooms.User.Path
                 for (var x = 0; x < GameMap.GetUpperBound(0) - 1; x++)
                     if (StaticModel.DoorX != x && StaticModel.DoorY != y && GameMap[x, y] == 1)
                         walkableSquares.Add(new Point(x, y));
-            var randomNumber = Azure.GetRandomNumber(0, walkableSquares.Count);
+            var randomNumber = Yupi.GetRandomNumber(0, walkableSquares.Count);
             var i = 0;
             foreach (var coord in walkableSquares)
             {
@@ -1138,7 +1138,7 @@ namespace Azure.Game.Rooms.User.Path
             catch (Exception ex)
             {
                 ServerLogManager.LogException("Exception RoomData Loading on (SqAbsoluteHeight): " + ex);
-                ServerLogManager.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
+                ServerLogManager.HandleException(ex, "Yupi.HabboHotel.Rooms.Gamemap");
                 return 0.0;
             }
         }
@@ -1486,7 +1486,7 @@ namespace Azure.Game.Rooms.User.Path
             {
                 ServerLogManager.LogException(string.Concat("Error during map generation for room ", _room.RoomId,
                     ". Exception: ", ex.ToString()));
-                ServerLogManager.HandleException(ex, "Azure.HabboHotel.Rooms.Gamemap");
+                ServerLogManager.HandleException(ex, "Yupi.HabboHotel.Rooms.Gamemap");
             }
             return true;
         }
@@ -1645,7 +1645,7 @@ namespace Azure.Game.Rooms.User.Path
             if (moveToDown)
                 movements.Add(MovementState.Down);
 
-            return movements[Azure.GetRandomNumber(0, movements.Count)];
+            return movements[Yupi.GetRandomNumber(0, movements.Count)];
         }
 
         internal bool IsValidValueItem(int x, int y)

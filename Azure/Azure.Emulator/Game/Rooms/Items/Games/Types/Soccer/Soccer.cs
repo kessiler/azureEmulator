@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using Azure.Collections;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pathfinding;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Soccer.Enums;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Data.Collections;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Soccer.Enums;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Items.Games.Types.Soccer
+namespace Yupi.Game.Rooms.Items.Games.Types.Soccer
 {
     internal class Soccer
     {

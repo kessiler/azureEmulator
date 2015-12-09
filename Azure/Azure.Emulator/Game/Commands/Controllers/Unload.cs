@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms.User;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Unload. This class cannot be inherited.
@@ -36,11 +36,11 @@ namespace Azure.Game.Commands.Controllers
             var roomId = session.GetHabbo().CurrentRoom.RoomId;
             var users = new List<RoomUser>(session.GetHabbo().CurrentRoom.GetRoomUserManager().UserList.Values);
 
-            Azure.GetGame().GetRoomManager().UnloadRoom(session.GetHabbo().CurrentRoom, "Unload command");
+            Yupi.GetGame().GetRoomManager().UnloadRoom(session.GetHabbo().CurrentRoom, "Unload command");
 
             if (!_reEnter)
                 return true;
-            Azure.GetGame().GetRoomManager().LoadRoom(roomId);
+            Yupi.GetGame().GetRoomManager().LoadRoom(roomId);
 
             var roomFwd = new ServerMessage(LibraryParser.OutgoingRequest("RoomForwardMessageComposer"));
             roomFwd.AppendInteger(roomId);

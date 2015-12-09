@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Azure.Game.Users
+namespace Yupi.Game.Users
 {
     internal enum ChatEmotion
     {

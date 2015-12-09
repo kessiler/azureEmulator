@@ -1,4 +1,4 @@
-namespace Azure.Game.Quests
+namespace Yupi.Game.Quests
 {
     /// <summary>
     ///     Class Quest.
@@ -86,7 +86,7 @@ namespace Azure.Game.Quests
             DataBit = dataBit;
             RewardType = rewardType;
             TimeUnlock = timeUnlock;
-            HasEnded = (timeLock >= Azure.GetUnixTimeStamp() && timeLock > 0);
+            HasEnded = (timeLock >= Yupi.GetUnixTimeStamp() && timeLock > 0);
         }
 
         /// <summary>

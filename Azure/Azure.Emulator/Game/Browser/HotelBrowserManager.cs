@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Browser.Enums;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms.Data;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Browser.Enums;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms.Data;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Browser
+namespace Yupi.Game.Browser
 {
     /// <summary>
     ///     Class NavigatorManager.
@@ -97,7 +97,7 @@ namespace Azure.Game.Browser
                 PromoCategories.Clear();
 
                 foreach (DataRow dataRow in table4.Rows)
-                    PromoCategories.Add((int) dataRow["id"],  new PromoCategory((int) dataRow["id"], (string) dataRow["caption"], (int) dataRow["min_rank"], Azure.EnumToBool((string) dataRow["visible"])));
+                    PromoCategories.Add((int) dataRow["id"],  new PromoCategory((int) dataRow["id"], (string) dataRow["caption"], (int) dataRow["min_rank"], Yupi.EnumToBool((string) dataRow["visible"])));
             }
 
             if (table != null)
@@ -287,7 +287,7 @@ namespace Azure.Game.Browser
         /// <returns>ServerMessage.</returns>
         internal ServerMessage SerializeNewFlatCategories()
         {
-            var flatcat = Azure.GetGame().GetNavigator().PrivateCategories.OfType<PublicCategory>().ToList();
+            var flatcat = Yupi.GetGame().GetNavigator().PrivateCategories.OfType<PublicCategory>().ToList();
 
             var message = new ServerMessage(LibraryParser.OutgoingRequest("NavigatorNewFlatCategoriesMessageComposer"));
 
@@ -535,7 +535,7 @@ namespace Azure.Game.Browser
 
             var array = session.GetHabbo().FavoriteRooms.ToArray();
 
-            foreach (var roomData in array.Select(roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId)).Where(roomData => roomData != null))
+            foreach (var roomData in array.Select(roomId => Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId)).Where(roomData => roomData != null))
                 roomData.Serialize(serverMessage);
 
             serverMessage.AppendBool(false);
@@ -556,7 +556,7 @@ namespace Azure.Game.Browser
 
             serverMessage.StartArray();
 
-            foreach (var roomData in session.GetHabbo().RecentlyVisitedRooms.Select(current => Azure.GetGame().GetRoomManager().GenerateRoomData(current)))
+            foreach (var roomData in session.GetHabbo().RecentlyVisitedRooms.Select(current => Yupi.GetGame().GetRoomManager().GenerateRoomData(current)))
             {
                 roomData.Serialize(serverMessage);
                 serverMessage.SaveArray();
@@ -578,7 +578,7 @@ namespace Azure.Game.Browser
             serverMessage.AppendInteger(16);
             serverMessage.AppendString(string.Empty);
 
-            var eventRooms = Azure.GetGame().GetRoomManager().GetEventRooms();
+            var eventRooms = Yupi.GetGame().GetRoomManager().GetEventRooms();
 
             serverMessage.AppendInteger(eventRooms.Length);
 
@@ -611,7 +611,7 @@ namespace Azure.Game.Browser
             var dictionary = new Dictionary<string, int>();
             ServerMessage result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT tags, users_now FROM rooms_data WHERE roomtype = 'private' AND users_now > 0 ORDER BY users_now DESC LIMIT 50");
                 var table = queryReactor.GetTable();
@@ -679,7 +679,7 @@ namespace Azure.Game.Browser
                     reply.AppendInteger(14);
 
                     var activeGRooms = new List<RoomData>();
-                    var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+                    var rooms = Yupi.GetGame().GetRoomManager().GetActiveRooms();
 
                     if (rooms != null && rooms.Any())
                     {
@@ -719,7 +719,7 @@ namespace Azure.Game.Browser
 
                     try
                     {
-                        var rooms = Azure.GetGame().GetRoomManager().GetVotedRooms();
+                        var rooms = Yupi.GetGame().GetRoomManager().GetVotedRooms();
 
                         SerializeNavigatorRooms(ref reply, rooms);
 
@@ -742,7 +742,7 @@ namespace Azure.Game.Browser
 
                     try
                     {
-                        var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+                        var rooms = Yupi.GetGame().GetRoomManager().GetActiveRooms();
 
                         SerializeNavigatorPopularRooms(ref reply, rooms);
 
@@ -779,7 +779,7 @@ namespace Azure.Game.Browser
 
                 case "hotel_view":
                 case "roomads_view":
-                    return Azure.GetGame().GetNavigator().FlatCatsCount + 1;
+                    return Yupi.GetGame().GetNavigator().FlatCatsCount + 1;
             }
 
             return 1;
@@ -878,7 +878,7 @@ namespace Azure.Game.Browser
 
             try
             {
-                var rooms = Azure.GetGame().GetRoomManager().GetEventRooms();
+                var rooms = Yupi.GetGame().GetRoomManager().GetEventRooms();
 
                 SerializeNavigatorPopularRooms(ref reply, rooms);
 
@@ -922,7 +922,7 @@ namespace Azure.Game.Browser
             {
                 var initForeach = false;
 
-                var activeRooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+                var activeRooms = Yupi.GetGame().GetRoomManager().GetActiveRooms();
                 try
                 {
                     if (activeRooms != null && activeRooms.Any())
@@ -949,7 +949,7 @@ namespace Azure.Game.Browser
             {
                 DataTable dTable;
 
-                using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     if (containsOwner)
                     {
@@ -974,7 +974,7 @@ namespace Azure.Game.Browser
 
                 if (dTable != null)
                 {
-                    foreach (var rData in dTable.Rows.Cast<DataRow>().Select(row => Azure.GetGame()
+                    foreach (var rData in dTable.Rows.Cast<DataRow>().Select(row => Yupi.GetGame()
                         .GetRoomManager()
                         .FetchRoomData(Convert.ToUInt32(row["id"]), row)).Where(rData => !rooms.Contains(rData)))
                         rooms.Add(rData);

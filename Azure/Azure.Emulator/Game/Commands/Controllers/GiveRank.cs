@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class GiveCredits. This class cannot be inherited.
@@ -21,22 +21,22 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var user = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var user = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
 
             if (user == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (user.GetHabbo().Rank >= session.GetHabbo().Rank)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                 return true;
             }
 
             var userName = pms[0];
             var rank = pms[1];
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("UPDATE users SET rank=@rank WHERE username=@user LIMIT 1");
                 adapter.AddParameter("user", userName);
@@ -44,7 +44,7 @@ namespace Azure.Game.Commands.Controllers
                 adapter.RunQuery();
             }
 
-            session.SendWhisper(Azure.GetLanguage().GetVar("user_rank_update"));
+            session.SendWhisper(Yupi.GetLanguage().GetVar("user_rank_update"));
             return true;
         }
     }

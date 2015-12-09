@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class HandItem. This class cannot be inherited.
@@ -30,7 +30,7 @@ namespace Azure.Game.Commands.Controllers
 
             if (user.RidingHorse)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("horse_handitem_error"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("horse_handitem_error"));
                 return true;
             }
 

@@ -1,9 +1,9 @@
 using System;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
 
-namespace Azure.Game.Items.Handlers
+namespace Yupi.Game.Items.Handlers
 {
     /// <summary>
     ///     Class CrackableEggHandler.
@@ -44,7 +44,7 @@ namespace Azure.Game.Items.Handlers
             var cracks = 0;
             var cracksMax = MaxCracks(item.GetBaseItem().Name);
 
-            if (Azure.IsNum(item.ExtraData))
+            if (Yupi.IsNum(item.ExtraData))
                 cracks = Convert.ToInt16(item.ExtraData);
 
             var state = "0";

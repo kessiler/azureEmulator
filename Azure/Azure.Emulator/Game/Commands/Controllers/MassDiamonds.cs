@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class MassDiamonds. This class cannot be inherited.
@@ -24,17 +24,17 @@ namespace Azure.Game.Commands.Controllers
             int amount;
             if (!int.TryParse(pms[0], out amount))
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("enter_numbers"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("enter_numbers"));
                 return true;
             }
-            foreach (var client in Azure.GetGame().GetClientManager().Clients.Values)
+            foreach (var client in Yupi.GetGame().GetClientManager().Clients.Values)
             {
                 if (client == null || client.GetHabbo() == null) continue;
                 var habbo = client.GetHabbo();
                 habbo.Diamonds += amount;
                 client.GetHabbo().UpdateSeasonalCurrencyBalance();
-                client.SendNotif(Azure.GetLanguage().GetVar("command_diamonds_one_give") + amount +
-                                 (Azure.GetLanguage().GetVar("command_diamonds_two_give")));
+                client.SendNotif(Yupi.GetLanguage().GetVar("command_diamonds_one_give") + amount +
+                                 (Yupi.GetLanguage().GetVar("command_diamonds_two_give")));
             }
             return true;
         }

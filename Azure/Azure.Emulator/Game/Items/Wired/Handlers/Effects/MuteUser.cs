@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Wired.Handlers.Effects
+namespace Yupi.Game.Items.Wired.Handlers.Effects
 {
     public class MuteUser : IWiredItem
     {
@@ -62,7 +62,7 @@ namespace Azure.Game.Items.Wired.Handlers.Effects
             if (Room.MutedUsers.ContainsKey(userId))
                 Room.MutedUsers.Remove(userId);
 
-            Room.MutedUsers.Add(userId, Convert.ToUInt32((Azure.GetUnixTimeStamp() + (minutes * 60))));
+            Room.MutedUsers.Add(userId, Convert.ToUInt32((Yupi.GetUnixTimeStamp() + (minutes * 60))));
 
             if (!string.IsNullOrEmpty(OtherString))
                 roomUser.GetClient().SendWhisper(OtherString);

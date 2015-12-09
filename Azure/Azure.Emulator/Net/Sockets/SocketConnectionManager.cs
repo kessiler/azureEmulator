@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using Azure.Messages.Parsers;
-using Azure.Net.Connection;
-using Azure.Net.Sockets.Exceptions;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Connection;
+using Yupi.Net.Sockets.Exceptions;
 
-namespace Azure.Net.Sockets
+namespace Yupi.Net.Sockets
 {
     /// <summary>
     /// Class SocketManager.

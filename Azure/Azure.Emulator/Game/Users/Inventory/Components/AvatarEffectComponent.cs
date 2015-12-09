@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
-using Azure.Game.Users.Data.Models;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Users.Data.Models;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Users.Inventory.Components
+namespace Yupi.Game.Users.Inventory.Components
 {
     /// <summary>
     ///     Class AvatarEffectComponent.
@@ -55,7 +55,7 @@ namespace Azure.Game.Users.Inventory.Components
                 if (!current.HasExpired)
                     return;
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery("DELETE FROM users_effects WHERE user_id = " + userId + " AND effect_id = " + current.EffectId + "; ");
             }
         }
@@ -91,7 +91,7 @@ namespace Azure.Game.Users.Inventory.Components
         /// <param name="type">The type.</param>
         internal void AddNewEffect(int effectId, int duration, short type)
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("INSERT INTO users_effects (user_id,effect_id,total_duration,is_activated,activated_stamp) VALUES (", _userId, ",", effectId, ",", duration, ",'0',0)"));
 
             _effects.Add(new AvatarEffect(effectId, duration, false, 0.0, type));
@@ -135,8 +135,8 @@ namespace Azure.Game.Users.Inventory.Components
 
             avatarEffect.Activate();
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
-                queryReactor.RunFastQuery(string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ", Azure.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
+                queryReactor.RunFastQuery(string.Concat("UPDATE users_effects SET is_activated = '1', activated_stamp = ", Yupi.GetUnixTimeStamp(), " WHERE user_id = ", _userId, " AND effect_id = ", effectId));
 
             EnableInRoom(effectId);
         }
@@ -191,7 +191,7 @@ namespace Azure.Game.Users.Inventory.Components
             if (effect == null || !effect.HasExpired)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM users_effects WHERE user_id = ", _userId,
                     " AND effect_id = ", effectId, " AND is_activated = 1"));
 

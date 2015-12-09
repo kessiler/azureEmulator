@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class UserInfo. This class cannot be inherited.
@@ -24,10 +24,10 @@ namespace Azure.Game.Commands.Controllers
         {
             var userName = pms[0];
             if (string.IsNullOrEmpty(userName)) return true;
-            var clientByUserName = Azure.GetGame().GetClientManager().GetClientByUserName(userName);
+            var clientByUserName = Yupi.GetGame().GetClientManager().GetClientByUserName(userName);
             if (clientByUserName == null || clientByUserName.GetHabbo() == null)
             {
-                using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     adapter.SetQuery(
                         "SELECT username, rank, id, credits, activity_points, diamonds FROM users WHERE username=@user LIMIT 1");
@@ -36,10 +36,10 @@ namespace Azure.Game.Commands.Controllers
 
                     if (row == null)
                     {
-                        session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                        session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                         return true;
                     }
-                    session.SendNotif(string.Format((Azure.GetLanguage().GetVar("user_info_all")), userName, row[1],
+                    session.SendNotif(string.Format((Yupi.GetLanguage().GetVar("user_info_all")), userName, row[1],
                         row[3], row[4], row[5]));
                 }
                 return true;

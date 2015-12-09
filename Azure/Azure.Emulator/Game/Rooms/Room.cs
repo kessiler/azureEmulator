@@ -5,34 +5,34 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
-using Azure.Data;
-using Azure.Game.Catalogs;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Datas;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Wired;
-using Azure.Game.RoomBots;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.Rooms.Chat;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.Items.Games;
-using Azure.Game.Rooms.Items.Games.Handlers;
-using Azure.Game.Rooms.Items.Games.Teams;
-using Azure.Game.Rooms.Items.Games.Types.Banzai;
-using Azure.Game.Rooms.Items.Games.Types.Freeze;
-using Azure.Game.Rooms.Items.Games.Types.Soccer;
-using Azure.Game.Rooms.Items.Handlers;
-using Azure.Game.Rooms.RoomInvokedItems;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
-using Azure.Game.Rooms.User.Trade;
-using Azure.Game.SoundMachine;
-using Azure.Game.SoundMachine.Songs;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Game.Catalogs;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Datas;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Wired;
+using Yupi.Game.RoomBots;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.Rooms.Chat;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.Items.Games;
+using Yupi.Game.Rooms.Items.Games.Handlers;
+using Yupi.Game.Rooms.Items.Games.Teams;
+using Yupi.Game.Rooms.Items.Games.Types.Banzai;
+using Yupi.Game.Rooms.Items.Games.Types.Freeze;
+using Yupi.Game.Rooms.Items.Games.Types.Soccer;
+using Yupi.Game.Rooms.Items.Handlers;
+using Yupi.Game.Rooms.RoomInvokedItems;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
+using Yupi.Game.Rooms.User.Trade;
+using Yupi.Game.SoundMachine;
+using Yupi.Game.SoundMachine.Songs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms
+namespace Yupi.Game.Rooms
 {
     /// <summary>
     ///     Class Room.
@@ -390,7 +390,7 @@ namespace Azure.Game.Rooms
         /// </summary>
         internal void InitUserBots()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT * FROM bots_data WHERE room_id = {RoomId} AND ai_type = 'generic'");
                 var table = queryReactor.GetTable();
@@ -424,7 +424,7 @@ namespace Azure.Game.Rooms
         /// </summary>
         internal void InitBots()
         {
-            var botsForRoom = Azure.GetGame().GetBotManager().GetBotsForRoom(RoomId);
+            var botsForRoom = Yupi.GetGame().GetBotManager().GetBotsForRoom(RoomId);
             foreach (var current in botsForRoom.Where(current => !current.IsPet))
                 DeployBot(current);
         }
@@ -434,7 +434,7 @@ namespace Azure.Game.Rooms
         /// </summary>
         internal void InitPets()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT * FROM bots_data WHERE room_id = '{RoomId}' AND ai_type='pet'");
                 var table = queryReactor.GetTable();
@@ -574,7 +574,7 @@ namespace Azure.Game.Rooms
         {
             DataTable table;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT items_songs.songid,items_rooms.id,items_rooms.item_name FROM items_songs LEFT JOIN items_rooms ON items_rooms.id = items_songs.itemid WHERE items_songs.roomid = {RoomId}");
 
@@ -592,7 +592,7 @@ namespace Azure.Game.Rooms
                 var songCode = string.Empty;
                 var extraData = string.Empty;
 
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery($"SELECT extra_data,songcode FROM items_rooms WHERE id = {num}");
 
@@ -620,7 +620,7 @@ namespace Azure.Game.Rooms
             DataTable dataTable;
             if (RoomData.Group != null)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT rooms_rights.user_id FROM rooms_rights WHERE room_id = {RoomId}");
                 dataTable = queryReactor.GetTable();
@@ -638,7 +638,7 @@ namespace Azure.Game.Rooms
         {
             Bans = new Dictionary<long, double>();
             DataTable table;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT user_id, expire FROM rooms_bans WHERE room_id = {RoomId}");
                 table = queryReactor.GetTable();
@@ -763,7 +763,7 @@ namespace Azure.Game.Rooms
         {
             try
             {
-                if (_isCrashed || Disposed || Azure.ShutdownStarted)
+                if (_isCrashed || Disposed || Yupi.ShutdownStarted)
                     return;
                 try
                 {
@@ -780,7 +780,7 @@ namespace Azure.Game.Rooms
                     {
                         if ((_idleTime >= 25 && !JustLoaded) || (_idleTime >= 100 && JustLoaded))
                         {
-                            Azure.GetGame().GetRoomManager().UnloadRoom(this, "No users");
+                            Yupi.GetGame().GetRoomManager().UnloadRoom(this, "No users");
                             return;
                         }
                         var serverMessage = GetRoomUserManager().SerializeStatusUpdates(false);
@@ -1004,11 +1004,11 @@ namespace Azure.Game.Rooms
         internal void AddBan(int userId, long time)
         {
             if (!Bans.ContainsKey(Convert.ToInt32(userId)))
-                Bans.Add(userId, ((Azure.GetUnixTimeStamp()) + time));
+                Bans.Add(userId, ((Yupi.GetUnixTimeStamp()) + time));
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("REPLACE INTO rooms_bans VALUES (" + userId + ", " + RoomId + ", '" +
-                                          (Azure.GetUnixTimeStamp() + time) + "')");
+                                          (Yupi.GetUnixTimeStamp() + time) + "')");
         }
 
         /// <summary>
@@ -1018,7 +1018,7 @@ namespace Azure.Game.Rooms
         internal List<uint> BannedUsers()
         {
             var list = new List<uint>();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"SELECT user_id FROM rooms_bans WHERE expire > UNIX_TIMESTAMP() AND room_id={RoomId}");
@@ -1035,7 +1035,7 @@ namespace Azure.Game.Rooms
         /// <returns><c>true</c> if [has ban expired] [the specified p identifier]; otherwise, <c>false</c>.</returns>
         internal bool HasBanExpired(uint pId)
         {
-            return !UserIsBanned(pId) || Bans[pId] < Azure.GetUnixTimeStamp();
+            return !UserIsBanned(pId) || Bans[pId] < Yupi.GetUnixTimeStamp();
         }
 
         /// <summary>
@@ -1044,7 +1044,7 @@ namespace Azure.Game.Rooms
         /// <param name="userId">The user identifier.</param>
         internal void Unban(uint userId)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("DELETE FROM rooms_bans WHERE user_id=" + userId + " AND room_id=" + RoomId +
                                           " LIMIT 1");
             Bans.Remove(userId);
@@ -1115,7 +1115,7 @@ namespace Azure.Game.Rooms
         internal void SetMaxUsers(uint maxUsers)
         {
             RoomData.UsersMax = maxUsers;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("UPDATE rooms_data SET users_max = " + maxUsers + " WHERE id = " + RoomId);
         }
 
@@ -1180,7 +1180,7 @@ namespace Azure.Game.Rooms
         internal void FlushSettings()
         {
             _mCycleEnded = true;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 GetRoomItemHandler().SaveFurniture(queryReactor);
             RoomData.Tags.Clear();
             UsersWithRights.Clear();
@@ -1202,7 +1202,7 @@ namespace Azure.Game.Rooms
         /// </summary>
         internal void ReloadSettings()
         {
-            var data = Azure.GetGame().GetRoomManager().GenerateRoomData(RoomId);
+            var data = Yupi.GetGame().GetRoomManager().GenerateRoomData(RoomId);
             InitializeFromRoomData(data, false);
         }
 
@@ -1245,7 +1245,7 @@ namespace Azure.Game.Rooms
                 return true;
             if (!MutedUsers.ContainsKey(session.GetHabbo().Id))
                 return false;
-            if (MutedUsers[session.GetHabbo().Id] >= Azure.GetUnixTimeStamp())
+            if (MutedUsers[session.GetHabbo().Id] >= Yupi.GetUnixTimeStamp())
                 return true;
             MutedUsers.Remove(session.GetHabbo().Id);
             return false;
@@ -1335,7 +1335,7 @@ namespace Azure.Game.Rooms
                 _roomThread.Start();
             }
 
-            Azure.GetGame().GetRoomManager().QueueActiveRoomAdd(RoomData);
+            Yupi.GetGame().GetRoomManager().QueueActiveRoomAdd(RoomData);
         }
 
         /// <summary>
@@ -1359,7 +1359,7 @@ namespace Azure.Game.Rooms
                     {
                         if (roomKick.Alert.Length > 0)
                             current.GetClient()
-                                .SendNotif(string.Format(Azure.GetLanguage().GetVar("kick_mod_room_message"),
+                                .SendNotif(string.Format(Yupi.GetLanguage().GetVar("kick_mod_room_message"),
                                     roomKick.Alert));
                         list.Add(current);
                     }
@@ -1379,7 +1379,7 @@ namespace Azure.Game.Rooms
         private void OnRoomCrash(Exception e)
         {
             ServerLogManager.LogThreadException(e.ToString(), $"Room cycle task for room {RoomId}");
-            Azure.GetGame().GetRoomManager().UnloadRoom(this, "Room crashed");
+            Yupi.GetGame().GetRoomManager().UnloadRoom(this, "Room crashed");
             _isCrashed = true;
         }
 
@@ -1389,8 +1389,8 @@ namespace Azure.Game.Rooms
         private void Dispose()
         {
             _mCycleEnded = true;
-            Azure.GetGame().GetRoomManager().QueueActiveRoomRemove(RoomData);
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            Yupi.GetGame().GetRoomManager().QueueActiveRoomRemove(RoomData);
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 GetRoomItemHandler().SaveFurniture(queryReactor);
                 queryReactor.RunFastQuery($"UPDATE rooms_data SET users_now=0 WHERE id = {RoomId} LIMIT 1");
@@ -1416,7 +1416,7 @@ namespace Azure.Game.Rooms
             ActiveTrades.Clear();
 
             RoomData = null;
-            Azure.GetGame().GetRoomManager().RemoveRoomData(RoomId);
+            Yupi.GetGame().GetRoomManager().RemoveRoomData(RoomId);
         }
     }
 }

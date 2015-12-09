@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Game.SoundMachine.Songs;
+using Yupi.Game.SoundMachine.Songs;
 
-namespace Azure.Game.SoundMachine
+namespace Yupi.Game.SoundMachine
 {
     /// <summary>
     ///     Class SongManager.
@@ -59,7 +59,7 @@ namespace Azure.Game.SoundMachine
 
             Songs.Clear();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_songs_data ORDER BY id");
                 DataTable table = queryReactor.GetTable();
@@ -74,7 +74,7 @@ namespace Azure.Game.SoundMachine
         /// </summary>
         internal static void ProcessThread()
         {
-            double num = Azure.GetUnixTimeStamp();
+            double num = Yupi.GetUnixTimeStamp();
 
             var list = (from current in _cacheTimer where num - current.Value >= 180.0 select current.Key).ToList();
 

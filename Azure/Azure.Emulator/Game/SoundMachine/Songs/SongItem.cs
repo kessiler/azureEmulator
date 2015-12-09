@@ -1,6 +1,6 @@
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.SoundMachine.Songs
+namespace Yupi.Game.SoundMachine.Songs
 {
     /// <summary>
     ///     Class SongItem.
@@ -45,7 +45,7 @@ namespace Azure.Game.SoundMachine.Songs
             ItemId = itemId;
             SongId = songId;
 
-            BaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
+            BaseItem = Yupi.GetGame().GetItemManager().GetItemByName(baseName);
 
             ExtraData = extraData;
             SongCode = songCode;
@@ -70,7 +70,7 @@ namespace Azure.Game.SoundMachine.Songs
         /// <param name="roomId">The room identifier.</param>
         internal void SaveToDatabase(uint roomId)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"REPLACE INTO items_songs VALUES ('{ItemId}', '{roomId}', '{SongId}')");
         }
 
@@ -79,7 +79,7 @@ namespace Azure.Game.SoundMachine.Songs
         /// </summary>
         internal void RemoveFromDatabase()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"DELETE FROM items_songs WHERE itemid = '{ItemId}'");
         }
     }

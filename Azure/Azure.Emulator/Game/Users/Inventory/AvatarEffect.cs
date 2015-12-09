@@ -1,4 +1,4 @@
-namespace Azure.Game.Users.Inventory
+namespace Yupi.Game.Users.Inventory
 {
     /// <summary>
     ///     Class AvatarEffect.
@@ -58,7 +58,7 @@ namespace Azure.Game.Users.Inventory
                 if (!Activated || TotalDuration == -1)
                     return -1;
 
-                var num = Azure.GetUnixTimeStamp() - StampActivated;
+                var num = Yupi.GetUnixTimeStamp() - StampActivated;
 
                 if (num >= TotalDuration)
                     return 0;
@@ -79,7 +79,7 @@ namespace Azure.Game.Users.Inventory
         internal void Activate()
         {
             Activated = true;
-            StampActivated = Azure.GetUnixTimeStamp();
+            StampActivated = Yupi.GetUnixTimeStamp();
         }
     }
 }

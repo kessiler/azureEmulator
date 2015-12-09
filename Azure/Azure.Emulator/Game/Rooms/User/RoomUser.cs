@@ -5,27 +5,27 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Azure.Game.Commands;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Pathfinding;
-using Azure.Game.Pets;
-using Azure.Game.RoomBots;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.RoomBots.Interfaces;
-using Azure.Game.Rooms.Items.Enums;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Freeze.Enum;
-using Azure.Game.Users;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Security;
-using Azure.Security.BlackWords;
-using Azure.Security.BlackWords.Enums;
-using Azure.Security.BlackWords.Structs;
+using Yupi.Core.Io;
+using Yupi.Core.Security;
+using Yupi.Core.Security.BlackWords;
+using Yupi.Core.Security.BlackWords.Enums;
+using Yupi.Core.Security.BlackWords.Structs;
+using Yupi.Game.Commands;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Pets;
+using Yupi.Game.RoomBots;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.RoomBots.Interfaces;
+using Yupi.Game.Rooms.Items.Enums;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Freeze.Enum;
+using Yupi.Game.Users;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.User
+namespace Yupi.Game.Rooms.User
 {
     /// <summary>
     ///     Class RoomUser.
@@ -738,7 +738,7 @@ namespace Azure.Game.Rooms.User
                 }
             }
 
-            if (!IsBot && IsFlooded && FloodExpiryTime <= Azure.GetUnixTimeStamp())
+            if (!IsBot && IsFlooded && FloodExpiryTime <= Yupi.GetUnixTimeStamp())
                 IsFlooded = false;
             else if (!IsBot && IsFlooded)
                 return; // ciao flooders!
@@ -787,7 +787,7 @@ namespace Azure.Game.Rooms.User
                         var i = habbo.SpamProtectionTime - span.Seconds;
                         message.AppendInteger(i);
                         IsFlooded = true;
-                        FloodExpiryTime = Azure.GetUnixTimeStamp() + i;
+                        FloodExpiryTime = Yupi.GetUnixTimeStamp() + i;
                         GetClient().SendMessage(message);
                         return;
                     }
@@ -803,7 +803,7 @@ namespace Azure.Game.Rooms.User
                         var j = habbo.SpamProtectionTime - span.Seconds;
                         message.AppendInteger(j);
                         IsFlooded = true;
-                        FloodExpiryTime = Azure.GetUnixTimeStamp() + j;
+                        FloodExpiryTime = Yupi.GetUnixTimeStamp() + j;
                         GetClient().SendMessage(message);
                         return;
                     }
@@ -1105,7 +1105,7 @@ namespace Azure.Game.Rooms.User
             {
                 if (GetClient() == null || GetClient().GetHabbo() == null)
                     return;
-                var group = Azure.GetGame().GetGroupManager().GetGroup(GetClient().GetHabbo().FavouriteGroup);
+                var group = Yupi.GetGame().GetGroupManager().GetGroup(GetClient().GetHabbo().FavouriteGroup);
                 if (GetClient() == null || GetClient().GetHabbo() == null)
                     return;
                 var habbo = GetClient().GetHabbo();
@@ -1183,7 +1183,7 @@ namespace Azure.Game.Rooms.User
             }
             message.AppendString(BotData.Gender.ToLower());
             message.AppendInteger(BotData.OwnerId);
-            message.AppendString(Azure.GetGame().GetClientManager().GetNameById(BotData.OwnerId));
+            message.AppendString(Yupi.GetGame().GetClientManager().GetNameById(BotData.OwnerId));
             message.AppendInteger(5);
             message.AppendShort(1);
             message.AppendShort(2);
@@ -1260,7 +1260,7 @@ namespace Azure.Game.Rooms.User
             if (_mClient != null)
                 return _mClient;
 
-            return _mClient = Azure.GetGame().GetClientManager().GetClientByUserId(HabboId);
+            return _mClient = Yupi.GetGame().GetClientManager().GetClientByUserId(HabboId);
         }
 
         /// <summary>
@@ -1279,7 +1279,7 @@ namespace Azure.Game.Rooms.User
         /// <returns>Room.</returns>
         private Room GetRoom()
         {
-            return _mRoom ?? (_mRoom = Azure.GetGame().GetRoomManager().GetRoom(RoomId));
+            return _mRoom ?? (_mRoom = Yupi.GetGame().GetRoomManager().GetRoom(RoomId));
         }
 
         internal int LastSelectedX, CopyX;

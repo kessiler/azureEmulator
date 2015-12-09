@@ -1,6 +1,6 @@
-using Azure.Messages;
+using Yupi.Messages;
 
-namespace Azure.Game.Users.Messenger.Structs
+namespace Yupi.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Struct SearchResult
@@ -58,7 +58,7 @@ namespace Azure.Game.Users.Messenger.Structs
             reply.AppendInteger(UserId);
             reply.AppendString(UserName);
             reply.AppendString(Motto);
-            reply.AppendBool(Azure.GetGame().GetClientManager().GetClient(UserId) != null);
+            reply.AppendBool(Yupi.GetGame().GetClientManager().GetClient(UserId) != null);
             reply.AppendBool(false);
             reply.AppendString(string.Empty);
             reply.AppendInteger(0);

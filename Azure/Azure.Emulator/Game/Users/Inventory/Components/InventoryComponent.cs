@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
-using Azure.Data;
-using Azure.Game.Catalogs;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pets;
-using Azure.Game.Pets.Enums;
-using Azure.Game.RoomBots;
-using Azure.Game.Users.Data.Models;
-using Azure.Messages;
-using Azure.Messages.Enums;
-using Azure.Messages.Parsers;
+using Yupi.Data;
+using Yupi.Data.Base.Queries;
+using Yupi.Game.Catalogs;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pets;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.RoomBots;
+using Yupi.Game.Users.Data.Models;
+using Yupi.Messages;
+using Yupi.Messages.Enums;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Users.Inventory.Components
+namespace Yupi.Game.Users.Inventory.Components
 {
     /// <summary>
     ///     Class InventoryComponent.
@@ -137,7 +138,7 @@ namespace Azure.Game.Users.Inventory.Components
         {
             UpdateItems(true);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"DELETE FROM items_rooms WHERE room_id='0' AND user_id = {UserId}");
 
             _mAddedItems.Clear();
@@ -167,7 +168,7 @@ namespace Azure.Game.Users.Inventory.Components
                 return;
 
             DataTable table;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"SELECT id FROM items_rooms WHERE user_id={session.GetHabbo().Id} AND room_id='0'");
@@ -184,7 +185,7 @@ namespace Azure.Game.Users.Inventory.Components
                 var array = item.BaseItem.Name.Split('_');
                 var num = int.Parse(array[1]);
 
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryreactor2.RunFastQuery($"DELETE FROM items_rooms WHERE id={item.Id} LIMIT 1");
 
                 currentRoom.GetRoomItemHandler().RemoveItem(item.Id);
@@ -282,7 +283,7 @@ namespace Azure.Game.Users.Inventory.Components
 
             DataTable table;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_rooms WHERE user_id=@userid AND room_id='0' LIMIT 8000;");
                 queryReactor.AddParameter("userid", ((int) UserId));
@@ -295,7 +296,7 @@ namespace Azure.Game.Users.Inventory.Components
                 var id = Convert.ToUInt32(dataRow["id"]);
                 var itemName = dataRow["item_name"].ToString();
 
-                if (!Azure.GetGame().GetItemManager().ContainsItemByName(itemName))
+                if (!Yupi.GetGame().GetItemManager().ContainsItemByName(itemName))
                     continue;
 
                 string extraData;
@@ -332,7 +333,7 @@ namespace Azure.Game.Users.Inventory.Components
             _inventoryPets.Clear();
             _inventoryBots.Clear();
 
-            using (var queryReactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor2.SetQuery($"SELECT * FROM bots_data WHERE user_id = {UserId} AND room_id = 0");
                 var table2 = queryReactor2.GetTable();
@@ -489,12 +490,12 @@ namespace Azure.Game.Users.Inventory.Components
             {
                 if (fromRoom)
                 {
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery("UPDATE items_rooms SET user_id = '" + UserId + "', room_id= '0' WHERE (id='" + id + "')");
                 }
                 else
                 {
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery($"INSERT INTO items_rooms (item_name, user_id, group_id) VALUES ('{baseName}', '{UserId}', '{thGroup}');");
 
@@ -738,7 +739,7 @@ namespace Azure.Game.Users.Inventory.Components
                     {
                         foreach (UserItem userItem2 in _mRemovedItems.Values)
                         {
-                            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                                 GetClient().GetHabbo().CurrentRoom.GetRoomItemHandler().SaveFurniture(queryReactor);
 
                             if (SongDisks.Contains(userItem2.Id))
@@ -763,13 +764,13 @@ namespace Azure.Game.Users.Inventory.Components
 
                         queryChunk.AddQuery(string.Concat("UPDATE bots_data SET room_id = ", current.RoomId, ", name = @", current.PetId, "name, x = ", current.X, ", Y = ", current.Y, ", Z = ", current.Z, " WHERE id = ", current.PetId));
 
-                        queryChunk.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId, "race, color = @", current.PetId, "color, type = ", current.Type, ", experience = ", current.Experience, ", energy = ", current.Energy, ", nutrition = ", current.Nutrition, ", respect = ", current.Respect, ", createstamp = '", current.CreationStamp, "', lasthealth_stamp = ", Azure.DateTimeToUnix(current.LastHealth), ", untilgrown_stamp = ", Azure.DateTimeToUnix(current.UntilGrown), " WHERE id = ", current.PetId));
+                        queryChunk.AddQuery(string.Concat("UPDATE pets_data SET race = @", current.PetId, "race, color = @", current.PetId, "color, type = ", current.Type, ", experience = ", current.Experience, ", energy = ", current.Energy, ", nutrition = ", current.Nutrition, ", respect = ", current.Respect, ", createstamp = '", current.CreationStamp, "', lasthealth_stamp = ", Yupi.DateTimeToUnix(current.LastHealth), ", untilgrown_stamp = ", Yupi.DateTimeToUnix(current.UntilGrown), " WHERE id = ", current.PetId));
                     }
 
                     current.DbState = DatabaseUpdateState.Updated;
                 }
 
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryChunk.Execute(queryreactor2);
             }
             catch (Exception ex)
@@ -849,7 +850,7 @@ namespace Azure.Game.Users.Inventory.Components
         /// <returns>GameClient.</returns>
         private GameClient GetClient()
         {
-            return Azure.GetGame().GetClientManager().GetClientByUserId(UserId);
+            return Yupi.GetGame().GetClientManager().GetClientByUserId(UserId);
         }
     }
 }

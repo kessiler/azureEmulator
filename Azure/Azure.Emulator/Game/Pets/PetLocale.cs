@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
 
-namespace Azure.Game.Pets
+namespace Yupi.Game.Pets
 {
     /// <summary>
     ///     Class PetLocale.

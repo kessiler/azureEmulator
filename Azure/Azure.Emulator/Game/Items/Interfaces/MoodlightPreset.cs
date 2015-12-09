@@ -1,4 +1,4 @@
-namespace Azure.Game.Items.Interfaces
+namespace Yupi.Game.Items.Interfaces
 {
     /// <summary>
     ///     Class MoodlightPreset.

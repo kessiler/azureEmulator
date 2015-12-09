@@ -1,8 +1,8 @@
 using System;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Items.Games.Teams
+namespace Yupi.Game.Rooms.Items.Games.Teams
 {
     /// <summary>
     ///     Class TeamScoreChangedArgs.

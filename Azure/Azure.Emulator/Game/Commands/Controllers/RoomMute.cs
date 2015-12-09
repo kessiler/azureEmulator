@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RoomMute. This class cannot be inherited.
@@ -39,7 +39,7 @@ namespace Azure.Game.Commands.Controllers
             room.SendMessage(GameClient.GetBytesNotif(
                 $"Este quarto foi silenciado pelo motivo:\r{string.Join(" ", pms)}"));
 
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetModerationTool().LogStaffEntry(session.GetHabbo().UserName, string.Empty,
                     "Room Mute", "Room muted");
             return true;

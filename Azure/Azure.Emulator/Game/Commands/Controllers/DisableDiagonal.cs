@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class DisableDiagonal. This class cannot be inherited.
@@ -24,7 +24,7 @@ namespace Azure.Game.Commands.Controllers
             var room = session.GetHabbo().CurrentRoom;
 
             room.GetGameMap().DiagonalEnabled = !room.GetGameMap().DiagonalEnabled;
-            session.SendNotif(Azure.GetLanguage().GetVar("command_disable_diagonal"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_disable_diagonal"));
 
             return true;
         }

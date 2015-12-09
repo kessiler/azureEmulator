@@ -1,19 +1,19 @@
 using System;
 using System.Linq;
-using Azure.Data;
-using Azure.Game.Users;
-using Azure.Game.Users.Factories;
-using Azure.Messages;
-using Azure.Messages.Enums;
-using Azure.Messages.Handlers;
-using Azure.Messages.Parsers;
-using Azure.Net.Connection;
-using Azure.Net.Packets;
-using Azure.Security;
-using Azure.Security.BlackWords.Structs;
-using Azure.Settings;
+using Yupi.Core.Security;
+using Yupi.Core.Security.BlackWords.Structs;
+using Yupi.Core.Settings;
+using Yupi.Data;
+using Yupi.Game.Users;
+using Yupi.Game.Users.Factories;
+using Yupi.Messages;
+using Yupi.Messages.Enums;
+using Yupi.Messages.Handlers;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Connection;
+using Yupi.Net.Packets;
 
-namespace Azure.Game.GameClients.Interfaces
+namespace Yupi.Game.GameClients.Interfaces
 {
     /// <summary>
     ///     Class GameClient.
@@ -111,9 +111,9 @@ namespace Azure.Game.GameClients.Interfaces
                 serverMessage.AppendString("O usuário " + GetHabbo().UserName + " Foi banido por enviar repetidamente palavras repetidas. A última palavra foi: " +
                                            word + ", na frase: " + message);
 
-                Azure.GetGame().GetClientManager().StaffAlert(serverMessage);
+                Yupi.GetGame().GetClientManager().StaffAlert(serverMessage);
 
-                Azure.GetGame().GetBanManager().BanUser(this, GetHabbo().UserName, 3600, "Você está passando muitos spams de outros hotéis. Por esta razão, sancioná-lo por 1 hora, de modo que você aprender a controlar-se.", false, false);
+                Yupi.GetGame().GetBanManager().BanUser(this, GetHabbo().UserName, 3600, "Você está passando muitos spams de outros hotéis. Por esta razão, sancioná-lo por 1 hora, de modo que você aprender a controlar-se.", false, false);
                 return;
             }
 
@@ -136,7 +136,7 @@ namespace Azure.Game.GameClients.Interfaces
             serverMessage.AppendString(GetHabbo().UserName);
             serverMessage.AppendString("BadWord: " + word);
 
-            Azure.GetGame().GetClientManager().StaffAlert(serverMessage);
+            Yupi.GetGame().GetClientManager().StaffAlert(serverMessage);
 
             serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
             serverMessage.AppendString(settings.ImageAlert);
@@ -150,7 +150,7 @@ namespace Azure.Game.GameClients.Interfaces
             serverMessage.AppendString("linkTitle");
             serverMessage.AppendString("ok");
 
-            Azure.GetGame().GetClientManager().StaffAlert(serverMessage);
+            Yupi.GetGame().GetClientManager().StaffAlert(serverMessage);
         }
 
         /// <summary>
@@ -220,17 +220,17 @@ namespace Azure.Game.GameClients.Interfaces
                 if (errorCode == 1 || errorCode == 2)
                     return false;
 
-                Azure.GetGame().GetClientManager().RegisterClient(this, userData.UserId, userData.User.UserName);
+                Yupi.GetGame().GetClientManager().RegisterClient(this, userData.UserId, userData.User.UserName);
 
                 _habbo = userData.User;
                 userData.User.LoadData(userData);
 
-                var banReason = Azure.GetGame().GetBanManager().GetBanReason(userData.User.UserName, ip, MachineId);
+                var banReason = Yupi.GetGame().GetBanManager().GetBanReason(userData.User.UserName, ip, MachineId);
 
                 if (!string.IsNullOrEmpty(banReason) || userData.User.UserName == null)
                 {
                     SendNotifWithScroll(banReason);
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery($"SELECT ip_last FROM users WHERE id={GetHabbo().Id} LIMIT 1");
 
@@ -248,7 +248,7 @@ namespace Azure.Game.GameClients.Interfaces
                     return false;
                 }
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery($"UPDATE users SET ip_last='{ip}' WHERE id={GetHabbo().Id}");
 
                 userData.User.Init(this, userData);
@@ -315,9 +315,9 @@ namespace Azure.Game.GameClients.Interfaces
                 queuedServerMessage.AppendResponse(serverMessage);
 
                 if (userData.User.HasFuse("fuse_mod"))
-                    queuedServerMessage.AppendResponse(Azure.GetGame().GetModerationTool().SerializeTool(this));
+                    queuedServerMessage.AppendResponse(Yupi.GetGame().GetModerationTool().SerializeTool(this));
 
-                queuedServerMessage.AppendResponse(Azure.GetGame().GetAchievementManager().AchievementDataCached);
+                queuedServerMessage.AppendResponse(Yupi.GetGame().GetAchievementManager().AchievementDataCached);
 
                 if (!GetHabbo().NuxPassed && ServerExtraSettings.NewUsersGiftsEnabled)
                     queuedServerMessage.AppendResponse( new ServerMessage(LibraryParser.OutgoingRequest("NuxSuggestFreeGiftsMessageComposer")));
@@ -325,9 +325,9 @@ namespace Azure.Game.GameClients.Interfaces
                 queuedServerMessage.AppendResponse(GetHabbo().GetAvatarEffectsInventoryComponent().GetPacket());
                 queuedServerMessage.SendResponse();
 
-                Azure.GetGame().GetAchievementManager().TryProgressHabboClubAchievements(this);
-                Azure.GetGame().GetAchievementManager().TryProgressRegistrationAchievements(this);
-                Azure.GetGame().GetAchievementManager().TryProgressLoginAchievements(this);
+                Yupi.GetGame().GetAchievementManager().TryProgressHabboClubAchievements(this);
+                Yupi.GetGame().GetAchievementManager().TryProgressRegistrationAchievements(this);
+                Yupi.GetGame().GetAchievementManager().TryProgressLoginAchievements(this);
 
                 return true;
             }
@@ -467,7 +467,7 @@ namespace Azure.Game.GameClients.Interfaces
         {
             if (GetHabbo() != null)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery(GetHabbo().GetQueryString);
                 GetHabbo().OnDisconnect(reason);
             }

@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.Groups.Interfaces;
-using Azure.IO;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.Groups.Interfaces;
 
-namespace Azure.Game.Users.Factories
+namespace Yupi.Game.Users.Factories
 {
     /// <summary>
     ///     Class HabboFactory.
@@ -54,15 +52,15 @@ namespace Azure.Game.Users.Factories
             int dutyLevel = (int)dRow["duty_level"];
 
             // Booleans (Enumerators/ String Enumerators)
-            bool hasFriendRequestsDisabled = Azure.EnumToBool(dRow["block_newfriends"].ToString());
-            bool appearOffline = Azure.EnumToBool(dRow["hide_online"].ToString());
-            bool hideInRoom = Azure.EnumToBool(dRow["hide_inroom"].ToString());
-            bool muted = Azure.EnumToBool(dRow["is_muted"].ToString());
-            bool vip = Azure.EnumToBool(dRow["vip"].ToString());
-            bool online = Azure.EnumToBool(dRow["online"].ToString());
-            bool tradeLocked = Azure.EnumToBool(dRow["trade_lock"].ToString());
-            bool nuxPassed = Azure.EnumToBool(dRow["nux_passed"].ToString());
-            bool onDuty = Azure.EnumToBool(dRow["on_duty"].ToString());
+            bool hasFriendRequestsDisabled = Yupi.EnumToBool(dRow["block_newfriends"].ToString());
+            bool appearOffline = Yupi.EnumToBool(dRow["hide_online"].ToString());
+            bool hideInRoom = Yupi.EnumToBool(dRow["hide_inroom"].ToString());
+            bool muted = Yupi.EnumToBool(dRow["is_muted"].ToString());
+            bool vip = Yupi.EnumToBool(dRow["vip"].ToString());
+            bool online = Yupi.EnumToBool(dRow["online"].ToString());
+            bool tradeLocked = Yupi.EnumToBool(dRow["trade_lock"].ToString());
+            bool nuxPassed = Yupi.EnumToBool(dRow["nux_passed"].ToString());
+            bool onDuty = Yupi.EnumToBool(dRow["on_duty"].ToString());
 
             // Double Integers
             double lastActivityPointsUpdate = (double)dRow["activity_points_lastupdate"];

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace Azure.Game.Users
+namespace Yupi.Game.Users
 {
     /// <summary>
     ///     Class HallOfFame.
@@ -19,7 +19,7 @@ namespace Azure.Game.Users
         public void RefreshHallOfFame()
         {
             Rankings.Clear();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM users_rankings ORDER BY score DESC");
                 var table = queryReactor.GetTable();

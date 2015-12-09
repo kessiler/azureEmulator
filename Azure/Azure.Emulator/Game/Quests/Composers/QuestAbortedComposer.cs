@@ -1,7 +1,7 @@
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Quests.Composers
+namespace Yupi.Game.Quests.Composers
 {
     /// <summary>
     ///     Class QuestAbortedComposer.

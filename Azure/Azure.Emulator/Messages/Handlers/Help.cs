@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Support;
-using Azure.Messages.Parsers;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Support;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -19,14 +19,14 @@ namespace Azure.Messages.Handlers
         {
             Response.Init(LibraryParser.OutgoingRequest("OpenHelpToolMessageComposer"));
 
-            if (!Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
+            if (!Yupi.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
             {
                 Response.AppendInteger(0); // It's okay, the user may send an new issue
                 SendResponse();
                 return;
             }
 
-            SupportTicket ticket = Azure.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
+            SupportTicket ticket = Yupi.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
 
             if (ticket == null) // null check to be sure
                 return;
@@ -63,9 +63,9 @@ namespace Azure.Messages.Handlers
 
             Response.Init(LibraryParser.OutgoingRequest("TicketUserAlert"));
 
-            if (Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
+            if (Yupi.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
             {
-                SupportTicket ticket = Azure.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
+                SupportTicket ticket = Yupi.GetGame().GetModerationTool().GetPendingTicketForUser(Session.GetHabbo().Id);
                 Response.AppendInteger(1);
                 Response.AppendString(ticket.TicketId.ToString());
                 Response.AppendString(ticket.Timestamp.ToString(CultureInfo.InvariantCulture));
@@ -75,7 +75,7 @@ namespace Azure.Messages.Handlers
                 return;
             }
 
-            if (Azure.GetGame().GetModerationTool().UsersHasAbusiveCooldown(Session.GetHabbo().Id)) // the previous issue of the user was abusive
+            if (Yupi.GetGame().GetModerationTool().UsersHasAbusiveCooldown(Session.GetHabbo().Id)) // the previous issue of the user was abusive
             {
                 Response.AppendInteger(2);
                 SendResponse();
@@ -84,7 +84,7 @@ namespace Azure.Messages.Handlers
             }
 
             Response.AppendInteger(0); // It's okay, the user may send an new issue
-            Azure.GetGame().GetModerationTool().SendNewTicket(Session, category, 7, reportedUser, message, chats);
+            Yupi.GetGame().GetModerationTool().SendNewTicket(Session, category, 7, reportedUser, message, chats);
 
             SendResponse();
         }
@@ -94,10 +94,10 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void DeletePendingCfh()
         {
-            if (!Azure.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
+            if (!Yupi.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
                 return;
 
-            Azure.GetGame().GetModerationTool().DeletePendingTicketForUser(Session.GetHabbo().Id);
+            Yupi.GetGame().GetModerationTool().DeletePendingTicketForUser(Session.GetHabbo().Id);
 
             Response.Init(LibraryParser.OutgoingRequest("OpenHelpToolMessageComposer"));
             Response.AppendInteger(0);
@@ -113,10 +113,10 @@ namespace Azure.Messages.Handlers
             {
                 var num = Request.GetUInteger();
 
-                if (Azure.GetGame().GetClientManager().GetNameById(num) != "Unknown User")
+                if (Yupi.GetGame().GetClientManager().GetNameById(num) != "Unknown User")
                     Session.SendMessage(ModerationTool.SerializeUserInfo(num));
                 else
-                    Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("help_information_error"));
             }
         }
 
@@ -138,14 +138,14 @@ namespace Azure.Messages.Handlers
         {
             if (!Session.GetHabbo().HasFuse("fuse_chatlogs"))
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("help_information_error_rank_low"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("help_information_error_rank_low"));
                 return;
             }
 
             Request.GetInteger();
             var roomId = Request.GetUInteger();
 
-            if (Azure.GetGame().GetRoomManager().GetRoom(roomId) != null)
+            if (Yupi.GetGame().GetRoomManager().GetRoom(roomId) != null)
                 Session.SendMessage(ModerationTool.SerializeRoomChatlog(roomId));
         }
 
@@ -158,7 +158,7 @@ namespace Azure.Messages.Handlers
                 return;
 
             var roomId = Request.GetUInteger();
-            var data = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(roomId);
+            var data = Yupi.GetGame().GetRoomManager().GenerateNullableRoomData(roomId);
 
             Session.SendMessage(ModerationTool.SerializeRoomTool(data));
         }
@@ -174,7 +174,7 @@ namespace Azure.Messages.Handlers
             Request.GetInteger();
             var ticketId = Request.GetUInteger();
 
-            Azure.GetGame().GetModerationTool().PickTicket(Session, ticketId);
+            Yupi.GetGame().GetModerationTool().PickTicket(Session, ticketId);
         }
 
         ///<summary>
@@ -188,7 +188,7 @@ namespace Azure.Messages.Handlers
             int ticketCount = Request.GetInteger();
 
             for (int i = 0; i < ticketCount; i++)
-                Azure.GetGame().GetModerationTool().ReleaseTicket(Session, Request.GetUInteger());
+                Yupi.GetGame().GetModerationTool().ReleaseTicket(Session, Request.GetUInteger());
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Azure.Messages.Handlers
             if (ticketId <= 0)
                 return;
 
-            Azure.GetGame().GetModerationTool().CloseTicket(Session, ticketId, result);
+            Yupi.GetGame().GetModerationTool().CloseTicket(Session, ticketId, result);
         }
 
         /// <summary>
@@ -219,12 +219,12 @@ namespace Azure.Messages.Handlers
             if (!Session.GetHabbo().HasFuse("fuse_mod"))
                 return;
 
-            SupportTicket ticket = Azure.GetGame().GetModerationTool().GetTicket(Request.GetUInteger());
+            SupportTicket ticket = Yupi.GetGame().GetModerationTool().GetTicket(Request.GetUInteger());
 
             if (ticket == null)
                 return;
 
-            RoomData roomData = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(ticket.RoomId);
+            RoomData roomData = Yupi.GetGame().GetRoomManager().GenerateNullableRoomData(ticket.RoomId);
 
             if (roomData == null)
                 return;
@@ -327,7 +327,7 @@ namespace Azure.Messages.Handlers
 
             var userId = Request.GetUInteger();
             var message = Request.GetString();
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             clientByUserId.GetHabbo().Mute();
             clientByUserId.SendNotif(message);

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
 
-namespace Azure.Game.Polls
+namespace Yupi.Game.Polls
 {
     /// <summary>
     ///     Class PollManager.

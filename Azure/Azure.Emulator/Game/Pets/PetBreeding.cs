@@ -1,7 +1,7 @@
-﻿using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Pets
+namespace Yupi.Game.Pets
 {
     /// <summary>
     ///     Class PetBreeding.

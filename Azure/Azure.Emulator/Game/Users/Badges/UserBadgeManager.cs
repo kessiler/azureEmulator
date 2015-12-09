@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Users.Badges.Models;
-using Azure.Game.Users.Data.Models;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Users.Badges.Models;
+using Yupi.Game.Users.Data.Models;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Users.Badges
+namespace Yupi.Game.Users.Badges
 {
     /// <summary>
     ///     Class BadgeComponent.
@@ -78,7 +78,7 @@ namespace Azure.Game.Users.Badges
 
             if (inDatabase)
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery(string.Concat("INSERT INTO users_badges (user_id,badge_id,badge_slot) VALUES (", _userId, ",@badge,", 0, ")"));
 
@@ -143,7 +143,7 @@ namespace Azure.Game.Users.Badges
             if (!HasBadge(badge))
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("DELETE FROM users_badges WHERE badge_id = @badge AND user_id = " + _userId);
 

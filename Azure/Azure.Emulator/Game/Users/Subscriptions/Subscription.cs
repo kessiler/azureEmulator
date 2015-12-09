@@ -1,4 +1,4 @@
-namespace Azure.Game.Users.Subscriptions
+namespace Yupi.Game.Users.Subscriptions
 {
     /// <summary>
     ///     Class Subscription.
@@ -48,6 +48,6 @@ namespace Azure.Game.Users.Subscriptions
         ///     Gets a value indicating whether this instance is valid.
         /// </summary>
         /// <value><c>true</c> if this instance is valid; otherwise, <c>false</c>.</value>
-        internal bool IsValid => ExpireTime > Azure.GetUnixTimeStamp();
+        internal bool IsValid => ExpireTime > Yupi.GetUnixTimeStamp();
     }
 }

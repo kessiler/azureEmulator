@@ -1,4 +1,4 @@
-namespace Azure.Net.Sockets
+namespace Yupi.Net.Sockets
 {
     /// <summary>
     /// Class SocketConnectionSettings.

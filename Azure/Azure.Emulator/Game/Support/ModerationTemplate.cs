@@ -1,4 +1,4 @@
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Class ModerationTemplate.

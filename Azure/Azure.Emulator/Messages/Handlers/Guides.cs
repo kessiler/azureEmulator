@@ -1,8 +1,8 @@
 ﻿using System;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -19,7 +19,7 @@ namespace Azure.Messages.Handlers
             var userId = Request.GetIntegerFromString();
             var message = Request.GetString();
 
-            var guideManager = Azure.GetGame().GetGuideManager();
+            var guideManager = Yupi.GetGame().GetGuideManager();
 
             if (guideManager.GuidesCount <= 0)
             {
@@ -84,7 +84,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void OpenGuideTool()
         {
-            var guideManager = Azure.GetGame().GetGuideManager();
+            var guideManager = Yupi.GetGame().GetGuideManager();
             var onDuty = Request.GetBool();
 
             Request.GetBool();
@@ -218,7 +218,7 @@ namespace Azure.Messages.Handlers
 
             Session.SendMessage(message);
 
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_GuideFeedbackGiver", 1);
         }
 
         /// <summary>
@@ -226,12 +226,12 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AmbassadorAlert()
         {
-            if (Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+            if (Session.GetHabbo().Rank < Convert.ToUInt32(Yupi.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
 
             uint userId = Request.GetUInteger();
 
-            GameClient user = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            GameClient user = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             user?.SendNotif("${notification.ambassador.alert.warning.message}", "${notification.ambassador.alert.warning.title}");
         }

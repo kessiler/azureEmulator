@@ -1,4 +1,4 @@
-﻿namespace Azure.Game.Polls.Enums
+﻿namespace Yupi.Game.Polls.Enums
 {
     /// <summary>
     ///     Enum PollAnswerType

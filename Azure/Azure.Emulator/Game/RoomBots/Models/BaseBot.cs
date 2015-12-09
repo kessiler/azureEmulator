@@ -1,8 +1,8 @@
-﻿using Azure.Game.GameClients.Interfaces;
-using Azure.Game.RoomBots.Interfaces;
-using Azure.Game.Rooms.User;
+﻿using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.RoomBots.Interfaces;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.RoomBots.Models
+namespace Yupi.Game.RoomBots.Models
 {
     internal class BaseBot : BotAi
     {

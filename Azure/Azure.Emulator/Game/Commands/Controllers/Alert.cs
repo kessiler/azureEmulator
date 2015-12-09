@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Alert. This class cannot be inherited.
@@ -25,10 +25,10 @@ namespace Azure.Game.Commands.Controllers
             var userName = pms[0];
             var msg = string.Join(" ", pms.Skip(1));
 
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(userName);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(userName);
             if (client == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             client.SendNotif(string.Format("{0} \r\r-{1}", msg, session.GetHabbo().UserName));

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Catalogs.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Catalogs.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Catalogs.Composers
+namespace Yupi.Game.Catalogs.Composers
 {
     /// <summary>
     ///     Class CatalogPacket.
@@ -24,7 +24,7 @@ namespace Azure.Game.Catalogs.Composers
         internal static ServerMessage ComposeIndex(uint rank, string type)
         {
             IEnumerable<CatalogPage> pages =
-                Azure.GetGame().GetCatalog().Categories.Values.OfType<CatalogPage>().ToList();
+                Yupi.GetGame().GetCatalog().Categories.Values.OfType<CatalogPage>().ToList();
 
             var sortedPages = pages.Where(x => x.ParentId == -2 && x.MinRank <= rank).OrderBy(x => x.OrderNum);
 
@@ -465,7 +465,7 @@ namespace Azure.Game.Catalogs.Composers
         internal static ServerMessage ComposeClubPurchasePage(GameClient session, int windowId)
         {
             var message = new ServerMessage(LibraryParser.OutgoingRequest("CatalogueClubPageMessageComposer"));
-            var habboClubItems = Azure.GetGame().GetCatalog().HabboClubItems;
+            var habboClubItems = Yupi.GetGame().GetCatalog().HabboClubItems;
 
             message.AppendInteger(habboClubItems.Count);
 
@@ -508,7 +508,7 @@ namespace Azure.Game.Catalogs.Composers
 
                 if (session.GetHabbo().GetSubscriptionManager().HasSubscription)
                     newExpiryDate =
-                        Azure.UnixToDateTime(session.GetHabbo().GetSubscriptionManager().GetSubscription().ExpireTime)
+                        Yupi.UnixToDateTime(session.GetHabbo().GetSubscriptionManager().GetSubscription().ExpireTime)
                             .AddDays(dayTime);
 
                 message.AppendInteger((int)dayTime / 31);

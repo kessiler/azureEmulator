@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class MuteBots. This class cannot be inherited.
@@ -23,7 +23,7 @@ namespace Azure.Game.Commands.Controllers
         {
             var room = session.GetHabbo().CurrentRoom;
             room.MutedPets = !room.MutedPets;
-            session.SendNotif(Azure.GetLanguage().GetVar("user_room_mute_pets"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("user_room_mute_pets"));
 
             return true;
         }

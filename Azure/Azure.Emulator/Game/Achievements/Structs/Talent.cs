@@ -1,4 +1,4 @@
-namespace Azure.Game.Achievements.Structs
+namespace Yupi.Game.Achievements.Structs
 {
     /// <summary>
     ///     Class Talent.
@@ -72,6 +72,6 @@ namespace Azure.Game.Achievements.Structs
         ///     Gets the achievement.
         /// </summary>
         /// <returns>Achievement.</returns>
-        internal Achievement GetAchievement() => string.IsNullOrEmpty(AchievementGroup) || ParentCategory == -1 ? null : Azure.GetGame().GetAchievementManager().GetAchievement(AchievementGroup);
+        internal Achievement GetAchievement() => string.IsNullOrEmpty(AchievementGroup) || ParentCategory == -1 ? null : Yupi.GetGame().GetAchievementManager().GetAchievement(AchievementGroup);
     }
 }

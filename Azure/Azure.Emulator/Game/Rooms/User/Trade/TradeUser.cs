@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Rooms.User.Trade
+namespace Yupi.Game.Rooms.User.Trade
 {
     /// <summary>
     ///     Class TradeUser.
@@ -49,7 +49,7 @@ namespace Azure.Game.Rooms.User.Trade
         /// <returns>RoomUser.</returns>
         internal RoomUser GetRoomUser()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(_roomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(_roomId);
             return room?.GetRoomUserManager().GetRoomUserByHabbo(UserId);
         }
 
@@ -59,7 +59,7 @@ namespace Azure.Game.Rooms.User.Trade
         /// <returns>GameClient.</returns>
         internal GameClient GetClient()
         {
-            return Azure.GetGame().GetClientManager().GetClientByUserId(UserId);
+            return Yupi.GetGame().GetClientManager().GetClientByUserId(UserId);
         }
     }
 }

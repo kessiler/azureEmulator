@@ -1,8 +1,8 @@
 using System;
 using System.Data;
-using Azure.Game.Pets.Enums;
+using Yupi.Game.Pets.Enums;
 
-namespace Azure.Game.Pets
+namespace Yupi.Game.Pets
 {
     /// <summary>
     ///     Class MoplaBreed.
@@ -105,7 +105,7 @@ namespace Azure.Game.Pets
             var tuple = GeneratePlantData(pet.Rarity);
             var breed = new MoplaBreed(pet, pet.PetId, pet.Rarity, tuple.Item1, tuple.Item2, 0, 1);
 
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("INSERT INTO pets_plants (pet_id, rarity, plant_name, plant_data) VALUES (@petid , @rarity , @plantname , @plantdata)");
                 adapter.AddParameter("petid", pet.PetId);
@@ -649,7 +649,7 @@ namespace Azure.Game.Pets
 
         internal void UpdateInDb()
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery(
                     "REPLACE INTO pets_plants (pet_id, rarity, plant_name, plant_data, plant_state, growing_status) VALUES (@petid , @rarity , @plantname , @plantdata , @plantstate , @growing)");

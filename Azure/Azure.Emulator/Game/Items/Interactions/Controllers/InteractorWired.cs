@@ -1,12 +1,12 @@
 using System.Linq;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorWired : FurniInteractorModel
     {
@@ -859,7 +859,7 @@ namespace Azure.Game.Items.Interactions.Controllers
                         serverMessage15.AppendInteger(item.Id);
                         serverMessage15.AppendString(extraInfo + (char)9 + extraString);
                         serverMessage15.AppendInteger(1);
-                        serverMessage15.AppendInteger(Azure.BoolToInteger(flag));
+                        serverMessage15.AppendInteger(Yupi.BoolToInteger(flag));
                         serverMessage15.AppendInteger(0);
                         serverMessage15.AppendInteger(23);
                         serverMessage15.AppendInteger(0);
@@ -877,7 +877,7 @@ namespace Azure.Game.Items.Interactions.Controllers
                         serverMessage15.AppendInteger(item.Id);
                         serverMessage15.AppendString(extraInfo + (char)9 + extraString);
                         serverMessage15.AppendInteger(1);
-                        serverMessage15.AppendInteger(Azure.BoolToInteger(flag));
+                        serverMessage15.AppendInteger(Yupi.BoolToInteger(flag));
                         serverMessage15.AppendInteger(0);
                         serverMessage15.AppendInteger(27);
                         serverMessage15.AppendInteger(0);

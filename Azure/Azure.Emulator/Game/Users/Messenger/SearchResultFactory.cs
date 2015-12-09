@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Users.Messenger.Structs;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Users.Messenger.Structs;
 
-namespace Azure.Game.Users.Messenger
+namespace Yupi.Game.Users.Messenger
 {
     /// <summary>
     ///     Class SearchResultFactory.
@@ -21,7 +21,7 @@ namespace Azure.Game.Users.Messenger
         {
             DataTable table;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT id,username,motto,look,last_online FROM users WHERE username LIKE @query LIMIT 50");
 

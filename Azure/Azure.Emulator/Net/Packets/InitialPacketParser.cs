@@ -1,6 +1,6 @@
-using Azure.Messages.Parsers;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Net.Packets
+namespace Yupi.Net.Packets
 {
     /// <summary>
     /// Class InitialPacketParser.
@@ -36,7 +36,7 @@ namespace Azure.Net.Packets
         /// <param name="amountOfBytes">The amount of bytes.</param>
         public void HandlePacketData(byte[] packet, int amountOfBytes)
         {
-            if (Azure.ShutdownStarted)
+            if (Yupi.ShutdownStarted)
                 return;
 
             if (packet[0] == 60 && PolicyRequest != null)

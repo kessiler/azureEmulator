@@ -3,15 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Freeze.Enum;
-using Azure.Game.Rooms.User;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Freeze.Enum;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Items.Games.Types.Freeze
+namespace Yupi.Game.Rooms.Items.Games.Types.Freeze
 {
     internal class Freeze
     {

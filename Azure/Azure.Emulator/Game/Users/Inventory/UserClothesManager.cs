@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
 
-namespace Azure.Game.Users.Inventory
+namespace Yupi.Game.Users.Inventory
 {
     /// <summary>
     ///     Class UserClothesManager.
@@ -34,7 +34,7 @@ namespace Azure.Game.Users.Inventory
 
             DataTable dTable;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT clothing FROM users_clothing WHERE userid = @userid");
 
@@ -52,7 +52,7 @@ namespace Azure.Game.Users.Inventory
         /// <param name="clothing">The clothing.</param>
         internal void Add(string clothing)
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("INSERT INTO users_clothing (userid,clothing) VALUES (@userid,@clothing)");
 
@@ -72,7 +72,7 @@ namespace Azure.Game.Users.Inventory
         {
             message.StartArray();
 
-            foreach (ClothingItem item1 in Clothing.Select(clothing1 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
+            foreach (ClothingItem item1 in Clothing.Select(clothing1 => Yupi.GetGame().GetClothingManager().GetClothesInFurni(clothing1)))
             {
                 foreach (int clothe in item1.Clothes)
                     message.AppendInteger(clothe);
@@ -83,7 +83,7 @@ namespace Azure.Game.Users.Inventory
             message.EndArray();
             message.StartArray();
 
-            foreach (ClothingItem item2 in Clothing.Select(clothing2 => Azure.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
+            foreach (ClothingItem item2 in Clothing.Select(clothing2 => Yupi.GetGame().GetClothingManager().GetClothesInFurni(clothing2)))
             {
                 foreach (int clothe in item2.Clothes)
                     message.AppendString(item2.ItemName);

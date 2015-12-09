@@ -1,4 +1,4 @@
-﻿namespace Azure.Messages.Handlers
+﻿namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.

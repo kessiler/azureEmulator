@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using Azure.Game.Achievements.Structs;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pets;
-using Azure.Game.RoomBots;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Users.Badges.Models;
-using Azure.Game.Users.Inventory;
-using Azure.Game.Users.Messenger.Structs;
-using Azure.Game.Users.Relationships;
-using Azure.Game.Users.Subscriptions;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pets;
+using Yupi.Game.RoomBots;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Users.Badges.Models;
+using Yupi.Game.Users.Inventory;
+using Yupi.Game.Users.Messenger.Structs;
+using Yupi.Game.Users.Relationships;
+using Yupi.Game.Users.Subscriptions;
 
-namespace Azure.Game.Users.Data.Models
+namespace Yupi.Game.Users.Data.Models
 {
     /// <summary>
     ///     Class UserData.

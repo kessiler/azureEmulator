@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Messages
+namespace Yupi.Messages
 {
     /// <summary>
     /// Class HabboEncoding.

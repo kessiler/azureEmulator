@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
-using Azure.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.Events;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms.Data;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.Events;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms.Data;
 
-namespace Azure.Game.Rooms
+namespace Yupi.Game.Rooms
 {
     /// <summary>
     ///     Class RoomManager.
@@ -187,7 +187,7 @@ namespace Azure.Game.Rooms
                 return GetRoom(roomId).RoomData;
 
             var roomData = new RoomData();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT * FROM rooms_data WHERE id = {roomId} LIMIT 1");
 
@@ -232,7 +232,7 @@ namespace Azure.Game.Rooms
 
             room.Start(roomData, forceLoad);
 
-            Writer.WriteLine($"Room #{id} was loaded", "Azure.Rooms", ConsoleColor.DarkCyan);
+            Writer.WriteLine($"Room #{id} was loaded", "Yupi.Rooms", ConsoleColor.DarkCyan);
 
             room.InitBots();
             room.InitPets();
@@ -291,13 +291,13 @@ namespace Azure.Game.Rooms
         {
             if (!_roomModels.Contains(model))
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_room_model_error"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_room_model_error"));
 
                 return null;
             }
 
             uint roomId;
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery("INSERT INTO rooms_data (roomtype,caption,description,owner,model_name,category,users_max,trade_state) VALUES ('private',@caption,@desc,@UserId,@model,@cat,@usmax,@tstate)");
                 dbClient.AddParameter("caption", name);
@@ -360,7 +360,7 @@ namespace Azure.Game.Rooms
                 _roomModels.Add(key,
                     new RoomModel((int) dataRow["door_x"], (int) dataRow["door_y"], (double) dataRow["door_z"],
                         (int) dataRow["door_dir"], (string) dataRow["heightmap"], staticFurniMap,
-                        Azure.EnumToBool(dataRow["club_only"].ToString()), (string) dataRow["poolmap"]));
+                        Yupi.EnumToBool(dataRow["club_only"].ToString()), (string) dataRow["poolmap"]));
             }
             dbClient.SetQuery("SELECT * FROM rooms_models_customs");
             var dataCustom = dbClient.GetTable();
@@ -409,7 +409,7 @@ namespace Azure.Game.Rooms
                 var flag5 = WorkVotedRoomsRemoveQueue();
                 if (flag4 || flag5) SortVotedRooms();
 
-                Azure.GetGame().RoomManagerCycleEnded = true;
+                Yupi.GetGame().RoomManagerCycleEnded = true;
             }
             catch (Exception ex)
             {
@@ -483,9 +483,9 @@ namespace Azure.Game.Rooms
         internal void RemoveAllRooms()
         {
             foreach (var current in LoadedRooms.Values)
-                Azure.GetGame().GetRoomManager().UnloadRoom(current, "RemoveAllRooms void called");
+                Yupi.GetGame().GetRoomManager().UnloadRoom(current, "RemoveAllRooms void called");
 
-            Writer.WriteLine("RoomManager Destroyed", "Azure.Rooms", ConsoleColor.DarkYellow);
+            Writer.WriteLine("RoomManager Destroyed", "Yupi.Rooms", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
@@ -500,9 +500,9 @@ namespace Azure.Game.Rooms
 
             room.Disposed = true;
 
-            if (Azure.GetGame().GetNavigator().PrivateCategories.Contains(room.RoomData.Category))
+            if (Yupi.GetGame().GetNavigator().PrivateCategories.Contains(room.RoomData.Category))
             {
-                ((PublicCategory) Azure.GetGame().GetNavigator().PrivateCategories[room.RoomData.Category]).UsersNow -=
+                ((PublicCategory) Yupi.GetGame().GetNavigator().PrivateCategories[room.RoomData.Category]).UsersNow -=
                     room.UserCount;
             }
 
@@ -518,17 +518,17 @@ namespace Azure.Game.Rooms
 
             try
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery(
                         "UPDATE rooms_data SET caption = @caption, description = @description, password = @password, category = " +
                         room.RoomData.Category + ", state = '" + state +
                         "', tags = @tags, users_now = '0', users_max = " +
-                        room.RoomData.UsersMax + ", allow_pets = '" + Azure.BoolToEnum(room.RoomData.AllowPets) +
+                        room.RoomData.UsersMax + ", allow_pets = '" + Yupi.BoolToEnum(room.RoomData.AllowPets) +
                         "', allow_pets_eat = '" +
-                        Azure.BoolToEnum(room.RoomData.AllowPetsEating) + "', allow_walkthrough = '" +
-                        Azure.BoolToEnum(room.RoomData.AllowWalkThrough) +
-                        "', hidewall = '" + Azure.BoolToEnum(room.RoomData.HideWall) + "', floorthick = " +
+                        Yupi.BoolToEnum(room.RoomData.AllowPetsEating) + "', allow_walkthrough = '" +
+                        Yupi.BoolToEnum(room.RoomData.AllowWalkThrough) +
+                        "', hidewall = '" + Yupi.BoolToEnum(room.RoomData.HideWall) + "', floorthick = " +
                         room.RoomData.FloorThickness +
                         ", wallthick = " + room.RoomData.WallThickness + ", mute_settings='" + room.RoomData.WhoCanMute +
                         "', kick_settings='" + room.RoomData.WhoCanKick + "',ban_settings='" + room.RoomData.WhoCanBan +
@@ -554,7 +554,7 @@ namespace Azure.Game.Rooms
 
             if (room.GetRoomUserManager() != null && room.GetRoomUserManager().UserList != null)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     foreach (var current in room.GetRoomUserManager().UserList.Values.Where(current => current != null))
                     {
@@ -610,7 +610,7 @@ namespace Azure.Game.Rooms
             junkRoom = null;
 
             Writer.WriteLine(string.Format("Room #{0} was unloaded, reason: " + reason, room.RoomId),
-                "Azure.Rooms", ConsoleColor.DarkGray);
+                "Yupi.Rooms", ConsoleColor.DarkGray);
 
             room.Destroy();
             room = null;

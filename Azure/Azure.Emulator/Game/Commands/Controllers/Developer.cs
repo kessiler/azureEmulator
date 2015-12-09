@@ -2,13 +2,13 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.User;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Alert. This class cannot be inherited.
@@ -76,7 +76,7 @@ namespace Azure.Game.Commands.Controllers
             var user = room.GetRoomUserManager()
                 .GetRoomUserByHabbo(session.GetHabbo().UserName);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 foreach (
                     var item in
@@ -105,7 +105,7 @@ namespace Azure.Game.Commands.Controllers
                 session.SendWhisper("First usage :developer copy");
                 return true;
             }
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 foreach (
                     var item in
@@ -125,7 +125,7 @@ namespace Azure.Game.Commands.Controllers
                     var roomItem = new RoomItem(insertId, user.RoomId, item.GetBaseItem().Name, item.ExtraData,
                         user.LastSelectedX, user.LastSelectedY, item.Z, item.Rot, session.GetHabbo().CurrentRoom,
                         user.UserId, item.GroupId,
-                        Azure.GetGame().GetItemManager().GetItem(item.GetBaseItem().ItemId).FlatId, item.SongCode,
+                        Yupi.GetGame().GetItemManager().GetItem(item.GetBaseItem().ItemId).FlatId, item.SongCode,
                         item.IsBuilder);
                     room.GetRoomItemHandler().DeveloperSetFloorItem(session, roomItem);
                 }
@@ -215,7 +215,7 @@ namespace Azure.Game.Commands.Controllers
                             break;
                         }
 
-                        var item = Azure.GetGame().GetItemManager().GetItem(id);
+                        var item = Yupi.GetGame().GetItemManager().GetItem(id);
                         if (item == null)
                         {
                             session.SendWhisper("Item no encontrado");
@@ -289,12 +289,12 @@ namespace Azure.Game.Commands.Controllers
                 case "cache":
                     {
                         text.AppendLine("Displaying info of all cached data avaible");
-                        text.Append("Users: " + Azure.UsersCached.Count + '\r');
-                        text.Append("Rooms: " + Azure.GetGame().GetRoomManager().LoadedRooms.Count + '\r');
-                        text.Append("Rooms Data: " + Azure.GetGame().GetRoomManager().LoadedRoomData.Count + '\r');
-                        text.Append("Groups: " + Azure.GetGame().GetGroupManager().Groups.Count + '\r');
-                        text.Append("Items: " + Azure.GetGame().GetItemManager().CountItems() + '\r');
-                        text.Append("Catalog Items: " + Azure.GetGame().GetCatalog().Offers.Count + '\r');
+                        text.Append("Users: " + Yupi.UsersCached.Count + '\r');
+                        text.Append("Rooms: " + Yupi.GetGame().GetRoomManager().LoadedRooms.Count + '\r');
+                        text.Append("Rooms Data: " + Yupi.GetGame().GetRoomManager().LoadedRoomData.Count + '\r');
+                        text.Append("Groups: " + Yupi.GetGame().GetGroupManager().Groups.Count + '\r');
+                        text.Append("Items: " + Yupi.GetGame().GetItemManager().CountItems() + '\r');
+                        text.Append("Catalog Items: " + Yupi.GetGame().GetCatalog().Offers.Count + '\r');
 
                         session.SendNotifWithScroll(text.ToString());
                         break;

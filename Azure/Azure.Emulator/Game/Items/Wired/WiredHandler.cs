@@ -2,17 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Items.Interactions;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Handlers.Conditions;
-using Azure.Game.Items.Wired.Handlers.Effects;
-using Azure.Game.Items.Wired.Handlers.Triggers;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Items.Interactions;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Handlers.Conditions;
+using Yupi.Game.Items.Wired.Handlers.Effects;
+using Yupi.Game.Items.Wired.Handlers.Triggers;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
 
-namespace Azure.Game.Items.Wired
+namespace Yupi.Game.Items.Wired
 {
     public class WiredHandler
     {
@@ -47,7 +47,7 @@ namespace Azure.Game.Items.Wired
                 return null;
             }
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_wireds WHERE id=@id LIMIT 1");
                 queryReactor.AddParameter("id", fItem.Item.Id);
@@ -94,7 +94,7 @@ namespace Azure.Game.Items.Wired
             if (fItem == null)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 var text = string.Empty;
                 var num = 0;
@@ -118,7 +118,7 @@ namespace Azure.Game.Items.Wired
                 queryReactor.AddParameter("items", text);
                 queryReactor.AddParameter("delay", fItem.Delay);
                 queryReactor.AddParameter("string", fItem.OtherString);
-                queryReactor.AddParameter("bool", Azure.BoolToEnum(fItem.OtherBool));
+                queryReactor.AddParameter("bool", Yupi.BoolToEnum(fItem.OtherBool));
                 queryReactor.AddParameter("extrastring", fItem.OtherExtraString);
                 queryReactor.AddParameter("extrastring2", fItem.OtherExtraString2);
 

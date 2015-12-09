@@ -1,8 +1,8 @@
 ﻿using System;
-using Azure.Settings;
-using Azure.Messages.Parsers;
+using Yupi.Core.Settings;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -144,7 +144,7 @@ namespace Azure.Messages.Handlers
 
             ServerMessage loadGame = new ServerMessage(LibraryParser.OutgoingRequest("GameCenterLoadGameUrlMessageComposer"));
             loadGame.AppendInteger(18);
-            loadGame.AppendString(Convert.ToString(Azure.GetUnixTimeStamp()));
+            loadGame.AppendString(Convert.ToString(Yupi.GetUnixTimeStamp()));
             loadGame.AppendString(ServerExtraSettings.GameCenterStoriesUrl);
             Session.SendMessage(loadGame);
         }

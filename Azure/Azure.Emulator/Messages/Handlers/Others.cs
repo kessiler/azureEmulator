@@ -2,17 +2,17 @@
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using Azure.Settings;
-using Azure.Encryption.Encryption;
-using Azure.Encryption.Encryption.Hurlant.Crypto.Prng;
-using Azure.Encryption.Encryption.Utils;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Quests.Composers;
-using Azure.Game.Rooms;
-using Azure.Messages.Parsers;
-using Azure.Net.Web;
+using Yupi.Core.Encryption;
+using Yupi.Core.Encryption.Hurlant.Crypto.Prng;
+using Yupi.Core.Encryption.Utils;
+using Yupi.Core.Settings;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Quests.Composers;
+using Yupi.Game.Rooms;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Web;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -99,7 +99,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void AddStaffPick()
         {
-            Session.SendNotif(Azure.GetLanguage().GetVar("addstaffpick_error_1"));
+            Session.SendNotif(Yupi.GetLanguage().GetVar("addstaffpick_error_1"));
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Azure.Messages.Handlers
             if (Session == null)
                 return;
 
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AllTimeHotelPresence", 1, true);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AllTimeHotelPresence", 1, true);
 
             Session.TimePingedReceived = DateTime.Now;
             Response.Init(LibraryParser.OutgoingRequest("LatencyTestResponseMessageComposer"));
@@ -169,7 +169,7 @@ namespace Azure.Messages.Handlers
             if (LibraryParser.Config["Crypto.Enabled"] == "false")
             {
                 Response.Init(LibraryParser.OutgoingRequest("InitCryptoMessageComposer"));
-                Response.AppendString("Azure");
+                Response.AppendString("Yupi");
                 Response.AppendString("Disabled Crypto");
                 SendResponse();
                 return;
@@ -210,9 +210,9 @@ namespace Azure.Messages.Handlers
 
                 Array.Reverse(data, 0, data.Length);
 
-                Session.GetConnection().Arc4ServerSide = new ARC4(data);
+                Session.GetConnection().Arc4ServerSide = new Arc4(data);
                 if (ServerExtraSettings.EncryptionClientSide)
-                    Session.GetConnection().Arc4ClientSide = new ARC4(data);
+                    Session.GetConnection().Arc4ClientSide = new Arc4(data);
             }
             else
                 Session.Disconnect("crypto error");
@@ -344,15 +344,15 @@ namespace Azure.Messages.Handlers
             /*Response.Init(LibraryParser.OutgoingRequest("NewbieStatusMessageComposer"));
             Response.AppendInteger(0);// 2 = new - 1 = nothing - 0 = not new
             SendResponse();*/
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializePromotionCategories());
-            if (Azure.GetGame().GetTargetedOfferManager().CurrentOffer != null)
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializePromotionCategories());
+            if (Yupi.GetGame().GetTargetedOfferManager().CurrentOffer != null)
             {
-                Azure.GetGame().GetTargetedOfferManager().GenerateMessage(GetResponse());
+                Yupi.GetGame().GetTargetedOfferManager().GenerateMessage(GetResponse());
                 SendResponse();
             }
             if (Session.GetHabbo().CurrentQuestId != 0)
             {
-                var quest = Azure.GetGame().GetQuestManager().GetQuest(Session.GetHabbo().CurrentQuestId);
+                var quest = Yupi.GetGame().GetQuestManager().GetQuest(Session.GetHabbo().CurrentQuestId);
                 Session.SendMessage(QuestStartedComposer.Compose(Session, quest));
             }
         }
@@ -364,7 +364,7 @@ namespace Azure.Messages.Handlers
         {
             //string one = this.Request.GetString();
             /*var two = */
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("SELECT * FROM cms_stories_photos_preview WHERE user_id = {0} AND type = 'PHOTO' ORDER BY id DESC LIMIT 1", Session.GetHabbo().Id));
                 DataTable table = queryReactor.GetTable();
@@ -375,7 +375,7 @@ namespace Azure.Messages.Handlers
                     var photo = dataRow["id"];
                     var image = dataRow["image_url"];
 
-                    using (var queryReactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor2.SetQuery("INSERT INTO cms_stories_photos (user_id,user_name,room_id,image_preview_url,image_url,type,date,tags) VALUES (@user_id,@user_name,@room_id,@image_url,@image_url,@type,@date,@tags)");
                         queryReactor2.AddParameter("user_id", Session.GetHabbo().Id);
@@ -418,7 +418,7 @@ namespace Azure.Messages.Handlers
         private static int GetFriendsCount(uint userId)
         {
             int result;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT COUNT(*) FROM messenger_friendships WHERE user_one_id = @id OR user_two_id = @id;");
                 queryReactor.AddParameter("id", userId);
@@ -434,16 +434,16 @@ namespace Azure.Messages.Handlers
         {
             int offerId = Request.GetInteger();
             int quantity = Request.GetInteger();
-            var offer = Azure.GetGame().GetTargetedOfferManager().CurrentOffer;
+            var offer = Yupi.GetGame().GetTargetedOfferManager().CurrentOffer;
             if (offer == null) return;
             if (Session.GetHabbo().Credits < offer.CostCredits * quantity) return;
             if (Session.GetHabbo().ActivityPoints < offer.CostDuckets * quantity) return;
             if (Session.GetHabbo().Diamonds < offer.CostDiamonds * quantity) return;
             foreach (string product in offer.Products)
             {
-                var item = Azure.GetGame().GetItemManager().GetItemByName(product);
+                var item = Yupi.GetGame().GetItemManager().GetItemByName(product);
                 if (item == null) continue;
-                Azure.GetGame().GetCatalog().DeliverItems(Session, item, quantity, string.Empty, 0, 0, string.Empty);
+                Yupi.GetGame().GetCatalog().DeliverItems(Session, item, quantity, string.Empty, 0, 0, string.Empty);
             }
             Session.GetHabbo().Credits -= offer.CostCredits * quantity;
             Session.GetHabbo().ActivityPoints -= offer.CostDuckets * quantity;
@@ -464,11 +464,11 @@ namespace Azure.Messages.Handlers
             switch (name)
             {
                 case "predefined_noob_lobby":
-                    roomId = Convert.ToUInt32(Azure.GetDbConfig().DbData["noob.lobby.roomid"]);
+                    roomId = Convert.ToUInt32(Yupi.GetDbConfig().DbData["noob.lobby.roomid"]);
                     break;
 
                 case "random_friending_room":
-                    var rooms = Azure.GetGame().GetRoomManager().GetActiveRooms().Select(room => room.Key).Where(room => room != null && room.UsersNow > 0).ToList();
+                    var rooms = Yupi.GetGame().GetRoomManager().GetActiveRooms().Select(room => room.Key).Where(room => room != null && room.UsersNow > 0).ToList();
                     if (!rooms.Any())
                         return;
                     if (rooms.Count() == 1)
@@ -476,7 +476,7 @@ namespace Azure.Messages.Handlers
                         roomId = rooms.First().Id;
                         break;
                     }
-                    roomId = rooms[Azure.GetRandomNumber(0, rooms.Count())].Id;
+                    roomId = rooms[Yupi.GetRandomNumber(0, rooms.Count())].Id;
                     break;
             }
 

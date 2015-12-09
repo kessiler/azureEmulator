@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Wired
+namespace Yupi.Game.Items.Wired
 {
     public static class WiredSaver
     {
@@ -324,7 +324,7 @@ namespace Azure.Game.Items.Wired
                         if (startDate == 0)
                         {
                             wired12.OtherString = string.Empty;
-                            session.SendNotif(Azure.GetLanguage().GetVar("user_wired_con_date_range"));
+                            session.SendNotif(Yupi.GetLanguage().GetVar("user_wired_con_date_range"));
                         }
 
                         wiredHandler.ReloadWired(wired12);

@@ -1,9 +1,9 @@
 ﻿using System;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RedeemCredits.
@@ -23,12 +23,12 @@ namespace Azure.Game.Commands.Controllers
             try
             {
                 session.GetHabbo().GetInventoryComponent().Redeemcredits(session);
-                session.SendNotif(Azure.GetLanguage().GetVar("command_redeem_credits"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("command_redeem_credits"));
             }
             catch (Exception e)
             {
                 Writer.LogException(e.ToString());
-                session.SendNotif(Azure.GetLanguage().GetVar("command_redeem_credits"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("command_redeem_credits"));
             }
             return true;
         }

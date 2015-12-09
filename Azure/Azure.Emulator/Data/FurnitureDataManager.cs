@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Xml;
-using Azure.Data.Structs;
-using Azure.IO;
-using Azure.Settings;
+using Yupi.Core.Io;
+using Yupi.Core.Settings;
+using Yupi.Data.Structs;
 
-namespace Azure.Data
+namespace Yupi.Data
 {
     /// <summary>
     /// Class FurnitureDataManager.
@@ -75,14 +75,14 @@ namespace Azure.Data
             }
             catch (WebException e)
             {
-                Writer.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
+                Writer.WriteLine($"Error downloading furnidata.xml: {Environment.NewLine + e}", "Yupi.XML", ConsoleColor.Red);
                 Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);
             }
             catch (XmlException e)
             {
-                Writer.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Azure.XML",
+                Writer.WriteLine($"Error parsing furnidata.xml: {Environment.NewLine + e}", "Yupi.XML",
                     ConsoleColor.Red);
                 Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
@@ -90,7 +90,7 @@ namespace Azure.Data
             }
             catch (NullReferenceException e)
             {
-                Writer.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Azure.XML", ConsoleColor.Red);
+                Writer.WriteLine($"Error parsing value null of furnidata.xml: {Environment.NewLine + e}", "Yupi.XML", ConsoleColor.Red);
                 Writer.WriteLine("Type a key to close");
                 Console.ReadKey();
                 Environment.Exit(e.HResult);

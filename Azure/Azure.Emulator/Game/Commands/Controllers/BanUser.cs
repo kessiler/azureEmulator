@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Support;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Support;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class BanUser. This class cannot be inherited.
@@ -24,16 +24,16 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             {
-                var user = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+                var user = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
 
                 if (user == null)
                 {
-                    session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                    session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                     return true;
                 }
                 if (user.GetHabbo().Rank >= session.GetHabbo().Rank)
                 {
-                    session.SendWhisper(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                    session.SendWhisper(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                     return true;
                 }
                 try
@@ -42,10 +42,10 @@ namespace Azure.Game.Commands.Controllers
 
                     var message = pms.Length < 3 ? string.Empty : string.Join(" ", pms.Skip(2));
                     if (string.IsNullOrWhiteSpace(message))
-                        message = Azure.GetLanguage().GetVar("command_ban_user_no_reason");
+                        message = Yupi.GetLanguage().GetVar("command_ban_user_no_reason");
 
                     ModerationTool.BanUser(session, user.GetHabbo().Id, length, message);
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetModerationTool()
                         .LogStaffEntry(session.GetHabbo().UserName, user.GetHabbo().UserName, "Ban",
                             string.Format("USER:{0} TIME:{1} REASON:{2}", pms[0], pms[1], pms[2]));

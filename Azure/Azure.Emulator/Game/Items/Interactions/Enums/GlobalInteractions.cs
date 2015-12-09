@@ -1,4 +1,4 @@
-﻿namespace Azure.Game.Items.Interactions.Enums
+﻿namespace Yupi.Game.Items.Interactions.Enums
 {
     /// <summary>
     ///     Enum InteractionGlobalType

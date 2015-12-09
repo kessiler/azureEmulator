@@ -1,4 +1,4 @@
-﻿namespace Azure.Game.Browser.Interfaces
+﻿namespace Yupi.Game.Browser.Interfaces
 {
     /// <summary>
     ///     Class PromoCat.

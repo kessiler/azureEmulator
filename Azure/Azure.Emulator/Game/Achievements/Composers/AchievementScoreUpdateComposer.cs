@@ -1,7 +1,7 @@
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Achievements.Composers
+namespace Yupi.Game.Achievements.Composers
 {
     /// <summary>
     ///     Class AchievementScoreUpdateComposer.

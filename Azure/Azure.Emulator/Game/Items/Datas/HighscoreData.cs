@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
 
-namespace Azure.Game.Items.Datas
+namespace Yupi.Game.Items.Datas
 {
     /// <summary>
     ///     Class HighscoreData.
@@ -29,7 +29,7 @@ namespace Azure.Game.Items.Datas
             Lines = new Dictionary<int, HighScoreLine>();
             var itemId = roomItem.Id;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_highscores WHERE item_id=" + itemId + " ORDER BY score DESC");
 
@@ -85,7 +85,7 @@ namespace Azure.Game.Items.Datas
         /// <param name="score">The score.</param>
         internal void AddUserScore(RoomItem item, string username, int score)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 if (item.GetBaseItem().Name.StartsWith("highscore_classic"))
                 {

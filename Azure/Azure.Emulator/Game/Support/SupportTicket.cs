@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Azure.Messages;
+using Yupi.Messages;
 
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Class SupportTicket.
@@ -113,9 +113,9 @@ namespace Azure.Game.Support
             RoomId = roomId;
             RoomName = roomName;
             Timestamp = timestamp;
-            _senderName = Azure.GetGame().GetClientManager().GetNameById(senderId);
-            _reportedName = Azure.GetGame().GetClientManager().GetNameById(reportedId);
-            _modName = Azure.GetGame().GetClientManager().GetNameById(ModeratorId);
+            _senderName = Yupi.GetGame().GetClientManager().GetNameById(senderId);
+            _reportedName = Yupi.GetGame().GetClientManager().GetNameById(reportedId);
+            _modName = Yupi.GetGame().GetClientManager().GetNameById(ModeratorId);
             ReportedChats = reportedChats;
         }
 
@@ -155,15 +155,15 @@ namespace Azure.Game.Support
         {
             Status = TicketStatus.Picked;
             ModeratorId = pModeratorId;
-            _modName = Azure.GetHabboById(pModeratorId).UserName;
+            _modName = Yupi.GetHabboById(pModeratorId).UserName;
 
             if (!updateInDb)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(
                     string.Concat("UPDATE moderation_tickets SET status = 'picked', moderator_id = ", pModeratorId,
-                        ", timestamp = '", Azure.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
+                        ", timestamp = '", Yupi.GetUnixTimeStamp(), "' WHERE id = ", TicketId));
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace Azure.Game.Support
                     throw new ArgumentOutOfRangeException(nameof(newStatus), newStatus, null);
             }
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = '{statusCode}' WHERE id = {TicketId}");
         }
 
@@ -222,7 +222,7 @@ namespace Azure.Game.Support
             if (!updateInDb)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'open' WHERE id = {TicketId}");
         }
 
@@ -237,7 +237,7 @@ namespace Azure.Game.Support
             if (!updateInDb)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE moderation_tickets SET status = 'deleted' WHERE id = {TicketId}");
         }
 
@@ -252,7 +252,7 @@ namespace Azure.Game.Support
             message.AppendInteger(TabId);
             message.AppendInteger(Type); // type (3 or 4 for new style)
             message.AppendInteger(Category);
-            message.AppendInteger((Azure.GetUnixTimeStamp() - (int) Timestamp)*1000);
+            message.AppendInteger((Yupi.GetUnixTimeStamp() - (int) Timestamp)*1000);
             message.AppendInteger(Score);
             message.AppendInteger(1);
             message.AppendInteger(SenderId);

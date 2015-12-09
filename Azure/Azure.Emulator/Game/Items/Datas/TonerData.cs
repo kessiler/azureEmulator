@@ -1,7 +1,7 @@
 using System.Data;
-using Azure.Messages;
+using Yupi.Messages;
 
-namespace Azure.Game.Items.Datas
+namespace Yupi.Game.Items.Datas
 {
     /// <summary>
     ///     Class TonerData.
@@ -32,7 +32,7 @@ namespace Azure.Game.Items.Datas
             ItemId = item;
             DataRow row;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT enabled,data1,data2,data3 FROM items_toners WHERE id={ItemId} LIMIT 1");
                 row = queryReactor.GetRow();

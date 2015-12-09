@@ -1,4 +1,4 @@
-namespace Azure.Game.Pathfinding
+namespace Yupi.Game.Pathfinding
 {
     /// <summary>
     ///     Class Rotation.

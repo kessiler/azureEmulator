@@ -1,6 +1,6 @@
-﻿using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Interfaces
+namespace Yupi.Game.Commands.Interfaces
 {
     /// <summary>
     ///     Class Command.

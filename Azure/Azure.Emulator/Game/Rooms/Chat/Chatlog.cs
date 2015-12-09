@@ -1,8 +1,8 @@
 using System;
-using Azure.Data;
-using Azure.Messages;
+using Yupi.Data.Base.Queries;
+using Yupi.Messages;
 
-namespace Azure.Game.Rooms.Chat
+namespace Yupi.Game.Rooms.Chat
 {
     /// <summary>
     ///     Class Chatlog.
@@ -61,14 +61,14 @@ namespace Azure.Game.Rooms.Chat
 
             databaseQueryChunk.AddQuery("INSERT INTO users_chatlogs (user_id, room_id, timestamp, message) VALUES (@user" + id + ", @room, @time" + id + ", @message" + id + ")");
             databaseQueryChunk.AddParameter("user" + id, UserId);
-            databaseQueryChunk.AddParameter("time" + id, Azure.DateTimeToUnix(TimeStamp));
+            databaseQueryChunk.AddParameter("time" + id, Yupi.DateTimeToUnix(TimeStamp));
             databaseQueryChunk.AddParameter("message" + id, Message);
         }
 
         internal void Serialize(ref ServerMessage message)
         {
-            var habbo = Azure.GetHabboById(UserId);
-            message.AppendInteger(Azure.DifferenceInMilliSeconds(TimeStamp, DateTime.Now));
+            var habbo = Yupi.GetHabboById(UserId);
+            message.AppendInteger(Yupi.DifferenceInMilliSeconds(TimeStamp, DateTime.Now));
             message.AppendInteger(UserId);
             message.AppendString(habbo == null ? "*User not found*" : habbo.UserName);
             message.AppendString(Message);

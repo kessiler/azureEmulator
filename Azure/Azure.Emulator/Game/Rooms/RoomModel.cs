@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
-using Azure.Game.Rooms.Chat.Enums;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Rooms.Chat.Enums;
 
-namespace Azure.Game.Rooms
+namespace Yupi.Game.Rooms
 {
     /// <summary>
     ///     Class RoomModel.

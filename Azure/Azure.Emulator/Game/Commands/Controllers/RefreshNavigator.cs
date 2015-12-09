@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshNavigator. This class cannot be inherited.
@@ -21,12 +21,12 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
-                Azure.GetGame().GetNavigator().Initialize(adapter);
-                Azure.GetGame().GetRoomManager().LoadModels(adapter);
+                Yupi.GetGame().GetNavigator().Initialize(adapter);
+                Yupi.GetGame().GetRoomManager().LoadModels(adapter);
             }
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_navigator"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_navigator"));
             return true;
         }
     }

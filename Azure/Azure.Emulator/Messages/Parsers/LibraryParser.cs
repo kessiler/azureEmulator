@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Azure.IO;
-using Azure.Messages.Handlers;
+using Yupi.Core.Io;
+using Yupi.Messages.Handlers;
 
-namespace Azure.Messages.Parsers
+namespace Yupi.Messages.Parsers
 {
     internal static class LibraryParser
     {
@@ -31,15 +31,15 @@ namespace Azure.Messages.Parsers
             if (Outgoing.TryGetValue(packetName, out packetId))
                 return packetId;
 
-            Writer.WriteLine("Outgoing " + packetName + " doesn't exist.", "Azure.Communication");
+            Writer.WriteLine("Outgoing " + packetName + " doesn't exist.", "Yupi.Communication");
 
             return -1;
         }
 
         public static void Initialize()
         {
-            Writer.WriteLine($"Loaded {CountReleases} Habbo Releases", "Azure.Communication");
-            Writer.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Azure.Communication");
+            Writer.WriteLine($"Loaded {CountReleases} Habbo Releases", "Yupi.Communication");
+            Writer.WriteLine($"Loaded {Incoming.Count} Event Controllers", "Yupi.Communication");
         }
 
         public static void HandlePacket(GameClientMessageHandler handler, ClientMessage message)
@@ -48,7 +48,7 @@ namespace Azure.Messages.Parsers
 
             if (Incoming.ContainsKey(message.Id))
             {
-                if (Azure.DebugMode)
+                if (Yupi.DebugMode)
                 {
                     Console.WriteLine();
                     Console.Write("INCOMING ");
@@ -66,7 +66,7 @@ namespace Azure.Messages.Parsers
                 StaticRequestHandler staticRequestHandler = Incoming[message.Id];
                 staticRequestHandler(handler);
             }
-            else if (Azure.DebugMode)
+            else if (Yupi.DebugMode)
             {
                 Console.WriteLine();
                 Console.Write("INCOMING ");
@@ -126,7 +126,7 @@ namespace Azure.Messages.Parsers
                         if (packetId == -1)
                             continue;
 
-                        //Writer.WriteLine("A Incoming Packet with same id was found: " + packetId, "Azure.Communication");
+                        //Writer.WriteLine("A Incoming Packet with same id was found: " + packetId, "Yupi.Communication");
                     }
                     else
                         Incoming.Add(packetId, new StaticRequestHandler(del));

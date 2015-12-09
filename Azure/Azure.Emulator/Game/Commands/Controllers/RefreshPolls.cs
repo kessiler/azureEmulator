@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshPolls. This class cannot be inherited.
@@ -21,9 +21,9 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
-                Azure.GetGame().GetPollManager().Init(adapter);
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_polls"));
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
+                Yupi.GetGame().GetPollManager().Init(adapter);
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_polls"));
             return true;
         }
     }

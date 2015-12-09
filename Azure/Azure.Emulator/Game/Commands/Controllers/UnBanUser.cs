@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class UnBanUser. This class cannot be inherited.
@@ -21,24 +21,24 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var user = Azure.GetHabboForName(pms[0]);
+            var user = Yupi.GetHabboForName(pms[0]);
 
             if (user == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (user.Rank >= session.GetHabbo().Rank)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                 return true;
             }
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("DELETE FROM users_bans WHERE value = @name");
                 adapter.AddParameter("name", user.UserName);
                 adapter.RunQuery();
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetModerationTool()
                     .LogStaffEntry(session.GetHabbo().UserName, user.UserName, "Unban",
                         $"User has been Unbanned [{pms[0]}]");

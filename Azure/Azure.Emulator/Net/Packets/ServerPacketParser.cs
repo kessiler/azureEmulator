@@ -1,12 +1,12 @@
 using System;
-using Azure.Data;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Factorys;
-using Azure.Messages.Parsers;
-using Azure.Net.Connection;
+using Yupi.Data;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Factorys;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Connection;
 
-namespace Azure.Net.Packets
+namespace Yupi.Net.Packets
 {
     /// <summary>
     /// Class ServerPacketParser.

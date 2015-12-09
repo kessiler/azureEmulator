@@ -1,8 +1,8 @@
 using System;
 using System.Text;
-using Azure.IO;
+using Yupi.Core.Io;
 
-namespace Azure.Data
+namespace Yupi.Data
 {
     /// <summary>
     /// Class Logging.

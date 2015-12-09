@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Quests.Composers;
-using Azure.Messages;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Quests.Composers;
+using Yupi.Messages;
 
-namespace Azure.Game.Quests
+namespace Yupi.Game.Quests
 {
     /// <summary>
     ///     Class QuestManager.
@@ -139,7 +139,7 @@ namespace Azure.Game.Quests
                 num = (int) quest.GoalData;
                 flag = true;
                 IL_DC:
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.RunFastQuery(string.Concat("UPDATE users_quests_data SET progress = ", num,
                         " WHERE user_id = ", session.GetHabbo().Id, " AND quest_id =  ", quest.Id));
@@ -181,7 +181,7 @@ namespace Azure.Game.Quests
         {
             return
                 _quests.Values.Where(
-                    current => current.Category.Contains(season) && (current.TimeUnlock - Azure.GetUnixTimeStamp()) < 0)
+                    current => current.Category.Contains(season) && (current.TimeUnlock - Yupi.GetUnixTimeStamp()) < 0)
                     .ToList();
         }
 
@@ -205,7 +205,7 @@ namespace Azure.Game.Quests
             var quest = GetQuest(message.GetInteger());
             if (quest == null)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (",
                     session.GetHabbo().Id, ", ", quest.Id, ")"));
@@ -231,7 +231,7 @@ namespace Azure.Game.Quests
 
             if (nextQuestInSeries == null)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (",
                     session.GetHabbo().Id, ", ", nextQuestInSeries.Id, ")"));
@@ -253,7 +253,7 @@ namespace Azure.Game.Quests
             var quest = GetQuest(session.GetHabbo().CurrentQuestId);
             if (quest == null)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM users_quests_data WHERE user_id = ",
                     session.GetHabbo().Id, " AND quest_id = ", quest.Id, ";UPDATE users_stats SET quest_id=0 WHERE id=",
                     session.GetHabbo().Id));

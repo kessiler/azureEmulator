@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
-using Azure.Data;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.User.Trade
+namespace Yupi.Game.Rooms.User.Trade
 {
     /// <summary>
     ///     Class Trade.
@@ -422,7 +422,7 @@ namespace Azure.Game.Rooms.User.Trade
         /// <returns>Room.</returns>
         private Room GetRoom()
         {
-            return Azure.GetGame().GetRoomManager().GetRoom(_roomId);
+            return Yupi.GetGame().GetRoomManager().GetRoom(_roomId);
         }
     }
 }

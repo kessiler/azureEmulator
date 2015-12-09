@@ -5,15 +5,15 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using Azure.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Catalogs.Wrappers;
-using Azure.Game.Items.Interactions;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Catalogs.Wrappers;
+using Yupi.Game.Items.Interactions;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Items
+namespace Yupi.Game.Items
 {
     /// <summary>
     ///     Class ItemManager.
@@ -76,7 +76,7 @@ namespace Azure.Game.Items
                     uint modes;
                     uint.TryParse(dataRow["interaction_modes_count"].ToString(), out modes);
                     var vendingIds = (string)dataRow["vending_ids"];
-                    var sub = Azure.EnumToBool(dataRow["subscriber"].ToString());
+                    var sub = Yupi.EnumToBool(dataRow["subscriber"].ToString());
                     var effect = (int)dataRow["effectid"];
                     var stackable = Convert.ToInt32(dataRow["can_stack"]) == 1;
                     var allowRecycle = Convert.ToInt32(dataRow["allow_recycle"]) == 1;
@@ -154,7 +154,7 @@ namespace Azure.Game.Items
                 {
                     Console.WriteLine(ex.ToString());
                     Console.ReadKey();
-                    Writer.WriteLine($"Could not load item #{Convert.ToUInt32(dataRow[0])}, please verify the data is okay.", "Azure.Items", ConsoleColor.DarkRed);
+                    Writer.WriteLine($"Could not load item #{Convert.ToUInt32(dataRow[0])}, please verify the data is okay.", "Yupi.Items", ConsoleColor.DarkRed);
                 }
             }
         }

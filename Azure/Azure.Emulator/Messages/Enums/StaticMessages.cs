@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Azure.Messages.Parsers;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Enums
+namespace Yupi.Messages.Enums
 {
     /// <summary>
     /// Enum StaticMessage

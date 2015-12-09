@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms.Data;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms.Data;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Class ModerationTool.
@@ -76,7 +76,7 @@ namespace Azure.Game.Support
             var message = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolIssueMessageComposer"));
             message = ticket.Serialize(message);
 
-            Azure.GetGame().GetClientManager().StaffAlert(message);
+            Yupi.GetGame().GetClientManager().StaffAlert(message);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Azure.Game.Support
         internal static void PerformRoomAction(GameClient modSession, uint roomId, bool kickUsers, bool lockRoom,
             bool inappropriateRoom, ServerMessage message)
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(roomId);
 
             if (room == null)
                 return;
@@ -100,7 +100,7 @@ namespace Azure.Game.Support
             {
                 room.RoomData.State = 1;
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery($"UPDATE rooms_data SET state = 'locked' WHERE id = {room.RoomId}");
             }
 
@@ -123,7 +123,7 @@ namespace Azure.Game.Support
         /// <param name="result">if set to <c>true</c> [result].</param>
         internal static void ModActionResult(uint userId, bool result)
         {
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
             clientByUserId.GetMessageHandler()
                 .GetResponse()
                 .Init(LibraryParser.OutgoingRequest("ModerationActionResultMessageComposer"));
@@ -139,7 +139,7 @@ namespace Azure.Game.Support
         /// <returns>ServerMessage.</returns>
         internal static ServerMessage SerializeRoomTool(RoomData data)
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(data.Id);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(data.Id);
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationRoomToolMessageComposer"));
             serverMessage.AppendInteger(data.Id);
@@ -174,7 +174,7 @@ namespace Azure.Game.Support
         /// <param name="soft">if set to <c>true</c> [soft].</param>
         internal static void KickUser(GameClient modSession, uint userId, string message, bool soft)
         {
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId == null || clientByUserId.GetHabbo().CurrentRoomId < 1 ||
                 clientByUserId.GetHabbo().Id == modSession.GetHabbo().Id)
@@ -189,7 +189,7 @@ namespace Azure.Game.Support
                 return;
             }
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(clientByUserId.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(clientByUserId.GetHabbo().CurrentRoomId);
 
             if (room == null)
                 return;
@@ -202,7 +202,7 @@ namespace Azure.Game.Support
             if (soft)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE users_info SET cautions = cautions + 1 WHERE user_id = {userId}");
         }
 
@@ -215,7 +215,7 @@ namespace Azure.Game.Support
         /// <param name="caution">if set to <c>true</c> [caution].</param>
         internal static void AlertUser(GameClient modSession, uint userId, string message, bool caution)
         {
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             clientByUserId?.SendModeratorMessage(message);
         }
@@ -229,19 +229,19 @@ namespace Azure.Game.Support
         /// <param name="length">The length.</param>
         internal static void LockTrade(GameClient modSession, uint userId, string message, int length)
         {
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId == null)
                 return;
 
             if (!clientByUserId.GetHabbo().CheckTrading())
-                length += Azure.GetUnixTimeStamp() - clientByUserId.GetHabbo().TradeLockExpire;
+                length += Yupi.GetUnixTimeStamp() - clientByUserId.GetHabbo().TradeLockExpire;
 
             clientByUserId.GetHabbo().TradeLocked = true;
-            clientByUserId.GetHabbo().TradeLockExpire = Azure.GetUnixTimeStamp() + length;
+            clientByUserId.GetHabbo().TradeLockExpire = Yupi.GetUnixTimeStamp() + length;
             clientByUserId.SendNotif(message);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(
                     $"UPDATE users SET trade_lock = '1', trade_lock_expire = '{clientByUserId.GetHabbo().TradeLockExpire}' WHERE id = '{clientByUserId.GetHabbo().Id}'");
         }
@@ -255,7 +255,7 @@ namespace Azure.Game.Support
         /// <param name="message">The message.</param>
         internal static void BanUser(GameClient modSession, uint userId, int length, string message)
         {
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId == null || clientByUserId.GetHabbo().Id == modSession.GetHabbo().Id)
             {
@@ -269,7 +269,7 @@ namespace Azure.Game.Support
                 return;
             }
 
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetBanManager()
                 .BanUser(clientByUserId, modSession.GetHabbo().UserName, length, message, false, false);
         }
@@ -283,7 +283,7 @@ namespace Azure.Game.Support
         internal static ServerMessage SerializeUserInfo(uint userId)
         {
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserToolMessageComposer"));
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 if (queryReactor != null)
                 {
@@ -302,7 +302,7 @@ namespace Azure.Game.Support
                     serverMessage.AppendString(row["look"].ToString());
                     var regTimestamp = (double) row["reg_timestamp"];
                     var loginTimestamp = (double) row["login_timestamp"];
-                    var unixTimestamp = Azure.GetUnixTimeStamp();
+                    var unixTimestamp = Yupi.GetUnixTimeStamp();
                     serverMessage.AppendInteger(
                         (int) (regTimestamp > 0 ? Math.Ceiling((unixTimestamp - regTimestamp)/60.0) : regTimestamp));
                     serverMessage.AppendInteger(
@@ -317,7 +317,7 @@ namespace Azure.Game.Support
                     serverMessage.AppendInteger(0);
                     var rank = (uint) row["rank"];
                     serverMessage.AppendString(row["trade_lock"].ToString() == "1"
-                        ? Azure.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString()
+                        ? Yupi.UnixToDateTime(int.Parse(row["trade_lock_expire"].ToString())).ToLongDateString()
                         : "Not trade-locked");
                     serverMessage.AppendString(rank < 6 ? row["ip_last"].ToString() : "127.0.0.1");
                     serverMessage.AppendInteger(id);
@@ -341,7 +341,7 @@ namespace Azure.Game.Support
                 new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolRoomVisitsMessageComposer"));
             serverMessage.AppendInteger(userId);
 
-            var user = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var user = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (user?.GetHabbo() == null)
             {
@@ -356,7 +356,7 @@ namespace Azure.Game.Support
             foreach (
                 var roomData in
                     user.GetHabbo()
-                        .RecentlyVisitedRooms.Select(roomId => Azure.GetGame().GetRoomManager().GenerateRoomData(roomId))
+                        .RecentlyVisitedRooms.Select(roomId => Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId))
                         .Where(roomData => roomData != null))
             {
                 serverMessage.AppendInteger(roomData.Id);
@@ -381,7 +381,7 @@ namespace Azure.Game.Support
         {
             ServerMessage result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"SELECT DISTINCT room_id FROM users_chatlogs WHERE user_id = '{userId}' ORDER BY timestamp DESC LIMIT 4");
@@ -389,7 +389,7 @@ namespace Azure.Game.Support
                 var serverMessage =
                     new ServerMessage(LibraryParser.OutgoingRequest("ModerationToolUserChatlogMessageComposer"));
                 serverMessage.AppendInteger(userId);
-                serverMessage.AppendString(Azure.GetGame().GetClientManager().GetNameById(userId));
+                serverMessage.AppendString(Yupi.GetGame().GetClientManager().GetNameById(userId));
 
                 if (table != null)
                 {
@@ -406,7 +406,7 @@ namespace Azure.Game.Support
                                 $"SELECT user_id,timestamp,message FROM users_chatlogs WHERE room_id = {dataRow["room_id"]} AND user_id = {userId} ORDER BY timestamp DESC LIMIT 30");
 
                             var table2 = queryReactor.GetTable();
-                            var roomData = Azure.GetGame().GetRoomManager().GenerateRoomData((uint) dataRow["room_id"]);
+                            var roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData((uint) dataRow["room_id"]);
 
                             if (table2 != null)
                             {
@@ -426,14 +426,14 @@ namespace Azure.Game.Support
                                     {
                                         var dataRow2 = (DataRow) enumerator2.Current;
 
-                                        var habboForId = Azure.GetHabboById((uint) dataRow2["user_id"]);
-                                        Azure.UnixToDateTime((double) dataRow2["timestamp"]);
+                                        var habboForId = Yupi.GetHabboById((uint) dataRow2["user_id"]);
+                                        Yupi.UnixToDateTime((double) dataRow2["timestamp"]);
 
                                         if (habboForId == null)
                                             return null;
 
                                         serverMessage.AppendInteger(
-                                            ((int) (Azure.GetUnixTimeStamp() - (double) dataRow2["timestamp"])));
+                                            ((int) (Yupi.GetUnixTimeStamp() - (double) dataRow2["timestamp"])));
 
                                         serverMessage.AppendInteger(habboForId.Id);
                                         serverMessage.AppendString(habboForId.UserName);
@@ -484,7 +484,7 @@ namespace Azure.Game.Support
         {
             var message = new ServerMessage();
 
-            var room = Azure.GetGame().GetRoomManager().GenerateRoomData(ticket.RoomId);
+            var room = Yupi.GetGame().GetRoomManager().GenerateRoomData(ticket.RoomId);
 
             if (room != null)
             {
@@ -527,7 +527,7 @@ namespace Azure.Game.Support
         {
             var message = new ServerMessage();
 
-            var room = Azure.GetGame().GetRoomManager().LoadRoom(roomId);
+            var room = Yupi.GetGame().GetRoomManager().LoadRoom(roomId);
 
             if (room?.RoomData != null)
             {
@@ -600,9 +600,9 @@ namespace Azure.Game.Support
                         serverMessage.AppendString(current3.Caption);
                         serverMessage.AppendString(current3.BanMessage);
                         serverMessage.AppendInteger(current3.BanHours);
-                        serverMessage.AppendInteger(Azure.BoolToInteger(current3.AvatarBan));
-                        serverMessage.AppendInteger(Azure.BoolToInteger(current3.Mute));
-                        serverMessage.AppendInteger(Azure.BoolToInteger(current3.TradeLock));
+                        serverMessage.AppendInteger(Yupi.BoolToInteger(current3.AvatarBan));
+                        serverMessage.AppendInteger(Yupi.BoolToInteger(current3.Mute));
+                        serverMessage.AppendInteger(Yupi.BoolToInteger(current3.TradeLock));
                         serverMessage.AppendString(current3.WarningMessage);
                         serverMessage.AppendBool(true);
                     }
@@ -712,13 +712,13 @@ namespace Azure.Game.Support
 
             if (session.GetHabbo().CurrentRoomId <= 0)
             {
-                using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     dbClient.SetQuery(
                         string.Concat(
                             "INSERT INTO moderation_tickets (score,type,status,sender_id,reported_id,moderator_id,message,room_id,room_name,timestamp) VALUES (1,'",
                             category, "','open','", session.GetHabbo().Id, "','", reportedUser,
-                            "','0',@message,'0','','", Azure.GetUnixTimeStamp(), "')"));
+                            "','0',@message,'0','','", Yupi.GetUnixTimeStamp(), "')"));
                     dbClient.AddParameter("message", message);
                     id = (uint) dbClient.InsertQuery();
                     dbClient.RunFastQuery(
@@ -726,22 +726,22 @@ namespace Azure.Game.Support
                 }
 
                 var ticket = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message, 0u,
-                    "", Azure.GetUnixTimeStamp(), messages);
+                    "", Yupi.GetUnixTimeStamp(), messages);
 
                 Tickets.Add(ticket);
                 SendTicketToModerators(ticket);
             }
             else
             {
-                var data = Azure.GetGame().GetRoomManager().GenerateNullableRoomData(session.GetHabbo().CurrentRoomId);
+                var data = Yupi.GetGame().GetRoomManager().GenerateNullableRoomData(session.GetHabbo().CurrentRoomId);
 
-                using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     dbClient.SetQuery(
                         string.Concat(
                             "INSERT INTO moderation_tickets (score,type,status,sender_id,reported_id,moderator_id,message,room_id,room_name,timestamp) VALUES (1,'",
                             category, "','open','", session.GetHabbo().Id, "','", reportedUser, "','0',@message,'",
-                            data.Id, "',@name,'", Azure.GetUnixTimeStamp(), "')"));
+                            data.Id, "',@name,'", Yupi.GetUnixTimeStamp(), "')"));
                     dbClient.AddParameter("message", message);
                     dbClient.AddParameter("name", data.Name);
                     id = (uint) dbClient.InsertQuery();
@@ -750,7 +750,7 @@ namespace Azure.Game.Support
                 }
 
                 var ticket2 = new SupportTicket(id, 1, category, type, session.GetHabbo().Id, reportedUser, message,
-                    data.Id, data.Name, Azure.GetUnixTimeStamp(), messages);
+                    data.Id, data.Name, Yupi.GetUnixTimeStamp(), messages);
 
                 Tickets.Add(ticket2);
                 SendTicketToModerators(ticket2);
@@ -834,7 +834,7 @@ namespace Azure.Game.Support
             if (ticket == null || ticket.Status != TicketStatus.Picked || ticket.ModeratorId != session.GetHabbo().Id)
                 return;
 
-            var senderUser = Azure.GetHabboById(ticket.SenderId);
+            var senderUser = Yupi.GetHabboById(ticket.SenderId);
 
             if (senderUser == null)
                 return;
@@ -863,15 +863,15 @@ namespace Azure.Game.Support
 
             if (statusCode == 2)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
-                    AbusiveCooldown.Add(ticket.SenderId, Azure.GetUnixTimeStamp() + 600);
+                    AbusiveCooldown.Add(ticket.SenderId, Yupi.GetUnixTimeStamp() + 600);
                     queryReactor.RunFastQuery(
                         $"UPDATE users_info SET cfhs_abusive = cfhs_abusive + 1 WHERE user_id = {ticket.SenderId}");
                 }
             }
 
-            var senderClient = Azure.GetGame().GetClientManager().GetClientByUserId(senderUser.Id);
+            var senderClient = Yupi.GetGame().GetClientManager().GetClientByUserId(senderUser.Id);
 
             if (senderClient != null)
             {
@@ -894,8 +894,8 @@ namespace Azure.Game.Support
                 senderClient.GetMessageHandler().GetResponse().AppendInteger(ticket.ModeratorId);
                 senderClient.GetMessageHandler()
                     .GetResponse()
-                    .AppendString((Azure.GetHabboById(ticket.ModeratorId) != null)
-                        ? Azure.GetHabboById(ticket.ModeratorId).UserName
+                    .AppendString((Yupi.GetHabboById(ticket.ModeratorId) != null)
+                        ? Yupi.GetHabboById(ticket.ModeratorId).UserName
                         : "Undefined");
                 senderClient.GetMessageHandler().GetResponse().AppendBool(false);
                 senderClient.GetMessageHandler().GetResponse().AppendInteger(0);
@@ -919,7 +919,7 @@ namespace Azure.Game.Support
                 }
             }
 
-            using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryreactor2.RunFastQuery(
                     $"UPDATE users_stats SET tickets_answered = tickets_answered+1 WHERE id={session.GetHabbo().Id} LIMIT 1");
         }
@@ -943,7 +943,7 @@ namespace Azure.Game.Support
         {
             foreach (var item in AbusiveCooldown)
             {
-                if (AbusiveCooldown.ContainsKey(id) && item.Value - Azure.GetUnixTimeStamp() > 0)
+                if (AbusiveCooldown.ContainsKey(id) && item.Value - Yupi.GetUnixTimeStamp() > 0)
                     return true;
 
                 AbusiveCooldown.Remove(id);
@@ -985,7 +985,7 @@ namespace Azure.Game.Support
         /// <param name="description">The description.</param>
         internal void LogStaffEntry(string modName, string target, string type, string description)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     "INSERT INTO server_stafflogs (staffuser,target,action_type,description) VALUES (@Username,@target,@type,@desc)");

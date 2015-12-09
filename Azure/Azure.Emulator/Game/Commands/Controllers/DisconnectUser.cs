@@ -1,7 +1,7 @@
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class DisconnectUser. This class cannot be inherited.
@@ -21,21 +21,21 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var user = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var user = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (user == null || user.GetHabbo() == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (user.GetHabbo().Rank >= session.GetHabbo().Rank)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                 return true;
             }
             try
             {
                 user.GetConnection().Dispose();
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetModerationTool()
                     .LogStaffEntry(session.GetHabbo().UserName, user.GetHabbo().UserName, "dc",
                         string.Format("Disconnect User[{0}]", pms[1]));

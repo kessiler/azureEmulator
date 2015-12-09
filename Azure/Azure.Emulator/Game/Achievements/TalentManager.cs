@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements.Structs;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Achievements
+namespace Yupi.Game.Achievements
 {
     /// <summary>
     ///     Class TalentManager.
@@ -75,11 +75,11 @@ namespace Azure.Game.Achievements
                 return;
 
             if (!string.IsNullOrEmpty(talent.Prize) && talent.PrizeBaseItem > 0u)
-                Azure.GetGame().GetCatalog().DeliverItems(session, Azure.GetGame().GetItemManager().GetItem(talent.PrizeBaseItem), 1, string.Empty, 0, 0, string.Empty);
+                Yupi.GetGame().GetCatalog().DeliverItems(session, Yupi.GetGame().GetItemManager().GetItem(talent.PrizeBaseItem), 1, string.Empty, 0, 0, string.Empty);
 
             session.GetHabbo().Talents.Add(talent.Id, new UserTalent(talent.Id, 1));
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"REPLACE INTO users_talents VALUES ('{session.GetHabbo().Id}', '{talent.Id}', '1');");
 
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("TalentLevelUpMessageComposer"));
@@ -106,12 +106,12 @@ namespace Azure.Game.Achievements
             session.SendMessage(serverMessage);
 
             if (talent.Type == "citizenship" && talent.Level == 3)
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_Citizenship", 1);
+                Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_Citizenship", 1);
             else if (talent.Type == "citizenship" && talent.Level == 4)
             {
                 session.GetHabbo().GetSubscriptionManager().AddSubscription(7);
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery($"UPDATE users SET talent_status = 'helper' WHERE id = '{session.GetHabbo().Id}'");
             }
         }

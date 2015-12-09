@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 
-namespace Azure.Net.Web
+namespace Yupi.Net.Web
 {
     internal static class WebManager
     {

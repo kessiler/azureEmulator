@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interactions.Enums;
 
-namespace Azure.Game.Items.Interfaces
+namespace Yupi.Game.Items.Interfaces
 {
     /// <summary>
     ///     Class Item.
@@ -201,7 +201,7 @@ namespace Azure.Game.Items.Interfaces
 
         public static void Save(uint id, bool stackable, bool allowTrade, double[] height, uint modes)
         {
-            using (var queryReacter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReacter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReacter.SetQuery(
                     "UPDATE LOW_PRIORITY catalog_furnitures SET stack_height = @height, can_stack = @stack, allow_trade = @trade, interaction_modes_count = @modes WHERE id = " +

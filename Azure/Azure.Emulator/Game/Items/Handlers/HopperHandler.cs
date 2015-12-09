@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Game.Items.Handlers
+namespace Yupi.Game.Items.Handlers
 {
     /// <summary>
     ///     Class HopperHandler.
@@ -16,7 +16,7 @@ namespace Azure.Game.Items.Handlers
         {
             uint result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"SELECT room_id FROM items_hopper WHERE room_id <> '{curRoom}' ORDER BY RAND() LIMIT 1");
@@ -37,7 +37,7 @@ namespace Azure.Game.Items.Handlers
         {
             uint result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT hopper_id FROM items_hopper WHERE room_id = @room LIMIT 1");
                 queryReactor.AddParameter("room", nextRoom);

@@ -1,6 +1,6 @@
-using Azure.Messages.Handlers;
+using Yupi.Messages.Handlers;
 
-namespace Azure.Messages.Parsers
+namespace Yupi.Messages.Parsers
 {
     /// <summary>
     /// Class PacketLibrary.

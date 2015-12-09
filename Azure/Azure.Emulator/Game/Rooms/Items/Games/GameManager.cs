@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Azure.Collections;
-using Azure.Game.Items.Interactions;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.Items.Games.Teams;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.User;
+using Yupi.Data.Collections;
+using Yupi.Game.Items.Interactions;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.Items.Games.Teams;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Items.Games
+namespace Yupi.Game.Rooms.Items.Games
 {
     internal class GameManager
     {

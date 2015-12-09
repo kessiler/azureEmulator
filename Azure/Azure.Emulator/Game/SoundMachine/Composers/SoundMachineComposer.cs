@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.SoundMachine.Songs;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.SoundMachine.Songs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.SoundMachine.Composers
+namespace Yupi.Game.SoundMachine.Composers
 {
     /// <summary>
     /// Class JukeboxComposer.

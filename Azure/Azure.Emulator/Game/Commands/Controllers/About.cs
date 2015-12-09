@@ -1,10 +1,10 @@
 ﻿using System.Text;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class About. This class cannot be inherited.
@@ -27,23 +27,19 @@ namespace Azure.Game.Commands.Controllers
             var message =
                 new ServerMessage(LibraryParser.OutgoingRequest("SuperNotificationMessageComposer"));
 
-            message.AppendString("Azure");
+            message.AppendString("Yupi");
             message.AppendInteger(4);
             message.AppendString("title");
-            message.AppendString("ManiaEVO 1.2");
+            message.AppendString("Yupi");
             message.AppendString("message");
             var info = new StringBuilder();
-            info.Append("<h5><b>ManiaEVO 1.2 - Base: Azure</b><h5></br></br>");
+            info.Append("<h5><b>Yupi Alpha - Based on Azure Emulator</b><h5></br></br>");
             info.Append("<br />");
             info.AppendFormat(
-                "<b><br />Desenvolvedores:</b> <br />iPlezier <br />Claudi0<br />Kessiler <br /><br /> ");
+                "<b><br />Developed by:</b> <br />Claudio Santoro (sant0ro/bi0s) <br />Kessiler Rodrigues (Kessiler)<br />Rafael Oliveira (iPlezier) <br /><br /> ");
             info.AppendFormat(
-                "<b>Créditos:</b> <br />Jamal, Claudio, Boris, Lucca, Antoine, IhToN<br /> <br /> ");
+                "<b>Thanks to:</b> <br />Jamal, and the old Azure Team, Lucca Fierri (Droppy), Bruna Freitas, and to all people that uses Yupi.<br /> <br /> ");
             info.AppendFormat("<b>Estatisticas:</b> <br />");
-            var userCount = Azure.GetGame().GetClientManager().Clients.Count;
-            var roomsCount = Azure.GetGame().GetRoomManager().LoadedRooms.Count;
-            info.AppendFormat("<b>Usuários:</b> {0} em {1}{2}.<br /><br /><br />", userCount, roomsCount,
-                (roomsCount == 1) ? " Quarto" : " Quartos");
             message.AppendString(info.ToString());
             message.AppendString("linkUrl");
             message.AppendString("event:");

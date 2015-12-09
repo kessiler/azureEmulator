@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Items.Datas
+namespace Yupi.Game.Items.Datas
 {
     /// <summary>
     ///     Class MoodlightData.
@@ -39,7 +39,7 @@ namespace Azure.Game.Items.Datas
         {
             ItemId = itemId;
             DataRow row;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     string.Format(
@@ -49,7 +49,7 @@ namespace Azure.Game.Items.Datas
             }
             if (row != null)
             {
-                Enabled = Azure.EnumToBool(row["enabled"].ToString());
+                Enabled = Yupi.EnumToBool(row["enabled"].ToString());
                 CurrentPreset = (int)row["current_preset"];
                 Presets = new List<MoodlightPreset>
                 {
@@ -73,7 +73,7 @@ namespace Azure.Game.Items.Datas
                 array[0] = "#000000";
             }
 
-            return new MoodlightPreset(array[0], int.Parse(array[1]), Azure.EnumToBool(array[2]));
+            return new MoodlightPreset(array[0], int.Parse(array[1]), Yupi.EnumToBool(array[2]));
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Azure.Game.Items.Datas
         internal void Enable()
         {
             Enabled = true;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE items_moodlight SET enabled = '1' WHERE item_id = {0}",
                     ItemId));
         }
@@ -124,7 +124,7 @@ namespace Azure.Game.Items.Datas
         internal void Disable()
         {
             Enabled = false;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE items_moodlight SET enabled = '0' WHERE item_id = {0}",
                     ItemId));
         }
@@ -158,11 +158,11 @@ namespace Azure.Game.Items.Datas
                     break;
             }
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     string.Format("UPDATE items_moodlight SET preset_{0}='{1},{2},{3}' WHERE item_id='{4}'", text, color,
-                        intensity, Azure.BoolToEnum(bgOnly), ItemId));
+                        intensity, Yupi.BoolToEnum(bgOnly), ItemId));
                 queryReactor.RunQuery();
             }
 

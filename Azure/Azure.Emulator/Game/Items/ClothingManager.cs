@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Items.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Items
+namespace Yupi.Game.Items
 {
     /// <summary>
     ///     Class ClothesManagerManager.

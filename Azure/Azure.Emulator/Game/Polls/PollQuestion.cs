@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Polls.Enums;
-using Azure.Messages;
+using Yupi.Game.Polls.Enums;
+using Yupi.Messages;
 
-namespace Azure.Game.Polls
+namespace Yupi.Game.Polls
 {
     /// <summary>
     ///     Class PollQuestion.

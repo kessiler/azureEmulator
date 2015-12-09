@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Timers;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements.Structs;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Groups.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Users.Badges;
-using Azure.Game.Users.Data.Models;
-using Azure.Game.Users.Inventory;
-using Azure.Game.Users.Inventory.Components;
-using Azure.Game.Users.Messenger;
-using Azure.Game.Users.Messenger.Structs;
-using Azure.Game.Users.Relationships;
-using Azure.Game.Users.Subscriptions;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Settings;
+using Yupi.Core.Io;
+using Yupi.Core.Settings;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Users.Badges;
+using Yupi.Game.Users.Data.Models;
+using Yupi.Game.Users.Inventory;
+using Yupi.Game.Users.Inventory.Components;
+using Yupi.Game.Users.Messenger;
+using Yupi.Game.Users.Messenger.Structs;
+using Yupi.Game.Users.Relationships;
+using Yupi.Game.Users.Subscriptions;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Users
+namespace Yupi.Game.Users
 {
     /// <summary>
     ///     Class Habbo.
@@ -541,14 +541,14 @@ namespace Azure.Game.Users
             TeleporterId = 0u;
             UsersRooms = new HashSet<RoomData>();
             HasFriendRequestsDisabled = hasFriendRequestsDisabled;
-            LastOnline = Azure.GetUnixTimeStamp();
+            LastOnline = Yupi.GetUnixTimeStamp();
             PreviousOnline = lastOnline;
             RecentlyVisitedRooms = new LinkedList<uint>();
             CurrentQuestId = currentQuestId;
             _currentQuestProgress = currentQuestProgress;
             IsHopping = false;
 
-            FavouriteGroup = Azure.GetGame().GetGroupManager().GetGroup(favId) != null ? favId : 0;
+            FavouriteGroup = Yupi.GetGame().GetGroupManager().GetGroup(favId) != null ? favId : 0;
 
             UserGroups = groups;
 
@@ -570,7 +570,7 @@ namespace Azure.Game.Users
         {
             get
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery($"SELECT diamonds FROM users WHERE id = {Id}");
                     var diamonds = queryReactor.GetInteger();
@@ -579,7 +579,7 @@ namespace Azure.Game.Users
             }
             set
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery(string.Format("UPDATE users SET diamonds = {1} WHERE id = {0}", Id, value));
             }
         }
@@ -591,7 +591,7 @@ namespace Azure.Game.Users
         public bool CanChangeName => (ServerExtraSettings.ChangeNameStaff && HasFuse("fuse_can_change_name")) ||
                                      (ServerExtraSettings.ChangeNameVip && Vip) ||
                                      (ServerExtraSettings.ChangeNameEveryone &&
-                                      Azure.GetUnixTimeStamp() > (LastChange + 604800));
+                                      Yupi.GetUnixTimeStamp() > (LastChange + 604800));
 
         /// <summary>
         ///     Gets the head part.
@@ -631,7 +631,7 @@ namespace Azure.Game.Users
         /// </summary>
         /// <value>The current room.</value>
         internal Room CurrentRoom
-            => CurrentRoomId <= 0u ? null : Azure.GetGame().GetRoomManager().GetRoom(CurrentRoomId);
+            => CurrentRoomId <= 0u ? null : Yupi.GetGame().GetRoomManager().GetRoom(CurrentRoomId);
 
         /// <summary>
         ///     Gets a value indicating whether this instance is helper.
@@ -654,7 +654,7 @@ namespace Azure.Game.Users
             get
             {
                 _habboinfoSaved = true;
-                return string.Concat("UPDATE users SET online='0', last_online = '", Azure.GetUnixTimeStamp(),
+                return string.Concat("UPDATE users SET online='0', last_online = '", Yupi.GetUnixTimeStamp(),
                     "', activity_points = '", ActivityPoints, "', diamonds = '", Diamonds, "', credits = '", Credits,
                     "' WHERE id = '", Id, "'; UPDATE users_stats SET achievement_score = ", AchievementPoints,
                     " WHERE id=", Id, " LIMIT 1; ");
@@ -737,7 +737,7 @@ namespace Azure.Game.Users
         /// </summary>
         internal void UpdateRooms()
         {
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 UsersRooms.Clear();
                 dbClient.SetQuery("SELECT * FROM rooms_data WHERE owner = @userId ORDER BY id ASC LIMIT 50");
@@ -746,7 +746,7 @@ namespace Azure.Game.Users
                 var table = dbClient.GetTable();
 
                 foreach (DataRow dataRow in table.Rows)
-                    UsersRooms.Add(Azure.GetGame()
+                    UsersRooms.Add(Yupi.GetGame()
                         .GetRoomManager()
                         .FetchRoomData(Convert.ToUInt32(dataRow["id"]), dataRow));
             }
@@ -771,7 +771,7 @@ namespace Azure.Game.Users
         /// <param name="response">The response.</param>
         internal void SerializeQuests(ref QueuedServerMessage response)
         {
-            Azure.GetGame().GetQuestManager().GetList(_mClient, null);
+            Yupi.GetGame().GetQuestManager().GetList(_mClient, null);
         }
 
         /// <summary>
@@ -781,7 +781,7 @@ namespace Azure.Game.Users
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool GotCommand(string cmd)
         {
-            return Azure.GetGame().GetRoleManager().RankGotCommand(Rank, cmd);
+            return Yupi.GetGame().GetRoleManager().RankGotCommand(Rank, cmd);
         }
 
         /// <summary>
@@ -791,9 +791,9 @@ namespace Azure.Game.Users
         /// <returns><c>true</c> if the specified fuse has fuse; otherwise, <c>false</c>.</returns>
         internal bool HasFuse(string fuse)
         {
-            return Azure.GetGame().GetRoleManager().RankHasRight(Rank, fuse) ||
+            return Yupi.GetGame().GetRoleManager().RankHasRight(Rank, fuse) ||
                    (GetSubscriptionManager().HasSubscription &&
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetRoleManager()
                         .HasVip(GetSubscriptionManager().GetSubscription().SubscriptionId, fuse));
         }
@@ -837,11 +837,11 @@ namespace Azure.Game.Users
             if (client.GetHabbo().GetSubscriptionManager().HasSubscription)
             {
                 double num = client.GetHabbo().GetSubscriptionManager().GetSubscription().ExpireTime;
-                var num2 = num - Azure.GetUnixTimeStamp();
+                var num2 = num - Yupi.GetUnixTimeStamp();
                 var num3 = (int) Math.Ceiling(num2/86400.0);
                 var i =
                     (int)
-                        Math.Ceiling((Azure.GetUnixTimeStamp() -
+                        Math.Ceiling((Yupi.GetUnixTimeStamp() -
                                       (double) client.GetHabbo().GetSubscriptionManager().GetSubscription().ActivateTime)/
                                      86400.0);
                 var num4 = num3/31;
@@ -878,7 +878,7 @@ namespace Azure.Game.Users
 
             serverMessage2.AppendInteger(GetSubscriptionManager().HasSubscription ? 2 : 0);
             serverMessage2.AppendInteger(Rank);
-            serverMessage2.AppendBool(Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]));
+            serverMessage2.AppendBool(Rank >= Convert.ToUInt32(Yupi.GetDbConfig().DbData["ambassador.minrank"]));
 
             client.SendMessage(serverMessage2);
         }
@@ -926,9 +926,9 @@ namespace Azure.Game.Users
                 navilogs = navilogs.Remove(navilogs.Length - 1);
             }
 
-            Azure.GetGame().GetClientManager().UnregisterClient(Id, UserName);
+            Yupi.GetGame().GetClientManager().UnregisterClient(Id, UserName);
 
-            Writer.WriteLine(UserName + " disconnected from game. Reason: " + reason, "Azure.Users", ConsoleColor.DarkYellow);
+            Writer.WriteLine(UserName + " disconnected from game. Reason: " + reason, "Yupi.Users", ConsoleColor.DarkYellow);
 
             var getOnlineSeconds = DateTime.Now - TimeLoggedOn;
             var secondsToGive = getOnlineSeconds.Seconds;
@@ -936,11 +936,11 @@ namespace Azure.Game.Users
             if (!_habboinfoSaved)
             {
                 _habboinfoSaved = true;
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("UPDATE users SET activity_points = " + ActivityPoints + ", credits = " +
                                           Credits + ", diamonds = " + Diamonds + ", online='0', last_online = '" +
-                                          Azure.GetUnixTimeStamp() + "', builders_items_used = " + BuildersItemsUsed +
+                                          Yupi.GetUnixTimeStamp() + "', builders_items_used = " + BuildersItemsUsed +
                                           ", navigator_logs = @navilogs  WHERE id = " + Id +
                                           " LIMIT 1;UPDATE users_stats SET achievement_score=" + AchievementPoints +
                                           " WHERE id=" + Id + " LIMIT 1;");
@@ -989,17 +989,17 @@ namespace Azure.Game.Users
             client.SendMessage(_messenger.SerializeFriends());
             client.SendMessage(_messenger.SerializeRequests());
 
-            if (Azure.OfflineMessages.ContainsKey(Id))
+            if (Yupi.OfflineMessages.ContainsKey(Id))
             {
-                var list = Azure.OfflineMessages[Id];
+                var list = Yupi.OfflineMessages[Id];
                 foreach (var current in list)
                     client.SendMessage(_messenger.SerializeOfflineMessages(current));
-                Azure.OfflineMessages.Remove(Id);
-                OfflineMessage.RemoveAllMessages(Azure.GetDatabaseManager().GetQueryReactor(), Id);
+                Yupi.OfflineMessages.Remove(Id);
+                OfflineMessage.RemoveAllMessages(Yupi.GetDatabaseManager().GetQueryReactor(), Id);
             }
 
-            if (_messenger.Requests.Count > Azure.FriendRequestLimit)
-                client.SendNotif(Azure.GetLanguage().GetVar("user_friend_request_max"));
+            if (_messenger.Requests.Count > Yupi.FriendRequestLimit)
+                client.SendNotif(Yupi.GetLanguage().GetVar("user_friend_request_max"));
 
             _messenger.OnStatusChanged(false);
         }
@@ -1184,7 +1184,7 @@ namespace Azure.Game.Users
         /// <param name="dbClient">The database client.</param>
         internal void RunDbUpdate(IQueryAdapter dbClient)
         {
-            dbClient.RunFastQuery(string.Concat("UPDATE users SET last_online = '", Azure.GetUnixTimeStamp(), "', activity_points = '", ActivityPoints, "', credits = '", Credits, "', diamonds = '", Diamonds, "' WHERE id = '", Id, "' LIMIT 1; "));
+            dbClient.RunFastQuery(string.Concat("UPDATE users SET last_online = '", Yupi.GetUnixTimeStamp(), "', activity_points = '", ActivityPoints, "', credits = '", Credits, "', diamonds = '", Diamonds, "' WHERE id = '", Id, "' LIMIT 1; "));
         }
 
         /// <summary>
@@ -1233,14 +1233,14 @@ namespace Azure.Game.Users
         ///     Gets the current talent level.
         /// </summary>
         /// <returns>System.Int32.</returns>
-        internal int GetCurrentTalentLevel() => Talents.Values.Select(current => Azure.GetGame().GetTalentManager().GetTalent(current.TalentId).Level).Concat(new[] {1}).Max();
+        internal int GetCurrentTalentLevel() => Talents.Values.Select(current => Yupi.GetGame().GetTalentManager().GetTalent(current.TalentId).Level).Concat(new[] {1}).Max();
 
         /// <summary>
         ///     _s the load my groups.
         /// </summary>
         internal void _LoadMyGroups()
         {
-            using (IQueryAdapter queryAdapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryAdapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryAdapter.SetQuery($"SELECT id FROM groups_data WHERE owner_id = {Id}");
 
@@ -1267,10 +1267,10 @@ namespace Azure.Game.Users
             if (!TradeLocked)
                 return true;
 
-            if (TradeLockExpire - Azure.GetUnixTimeStamp() > 0)
+            if (TradeLockExpire - Yupi.GetUnixTimeStamp() > 0)
                 return false;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE users SET trade_lock = '0' WHERE id = {Id}");
 
             TradeLocked = false;
@@ -1281,6 +1281,6 @@ namespace Azure.Game.Users
         ///     Gets the client.
         /// </summary>
         /// <returns>GameClient.</returns>
-        private GameClient GetClient() => Azure.GetGame().GetClientManager().GetClientByUserId(Id);
+        private GameClient GetClient() => Yupi.GetGame().GetClientManager().GetClientByUserId(Id);
     }
 }

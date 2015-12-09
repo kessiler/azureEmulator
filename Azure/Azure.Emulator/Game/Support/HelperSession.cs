@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Class HelperSession.

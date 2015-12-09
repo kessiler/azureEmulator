@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class HotelAlert. This class cannot be inherited.
@@ -21,9 +21,9 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            Azure.GetGame().GetHallOfFame().RefreshHallOfFame();
-            Azure.GetGame().GetRoomManager().GetCompetitionManager().RefreshCompetitions();
-            Azure.GetGame().GetTargetedOfferManager().LoadOffer();
+            Yupi.GetGame().GetHallOfFame().RefreshHallOfFame();
+            Yupi.GetGame().GetRoomManager().GetCompetitionManager().RefreshCompetitions();
+            Yupi.GetGame().GetTargetedOfferManager().LoadOffer();
             return true;
         }
     }

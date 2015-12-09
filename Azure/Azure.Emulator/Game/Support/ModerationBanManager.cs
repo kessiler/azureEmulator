@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Class ModerationBanManager.
@@ -48,7 +48,7 @@ namespace Azure.Game.Support
             _bannedMachines.Clear();
             dbClient.SetQuery("SELECT bantype,value,reason,expire FROM users_bans");
             var table = dbClient.GetTable();
-            double num = Azure.GetUnixTimeStamp();
+            double num = Yupi.GetUnixTimeStamp();
 
             foreach (DataRow dataRow in table.Rows)
             {
@@ -160,13 +160,13 @@ namespace Azure.Game.Support
             var type = ModerationBanType.UserName;
             var text = client.GetHabbo().UserName;
             var typeStr = "user";
-            var num = Azure.GetUnixTimeStamp() + lengthSeconds;
+            var num = Yupi.GetUnixTimeStamp() + lengthSeconds;
 
             if (ipBan)
             {
                 type = ModerationBanType.Ip;
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT ip_last FROM users WHERE username = @name LIMIT 1");
                     queryReactor.AddParameter("name", text);
@@ -202,7 +202,7 @@ namespace Azure.Game.Support
                     break;
             }
 
-            using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryreactor2.SetQuery(
                     "INSERT INTO users_bans (bantype,value,reason,expire,added_by,added_date) VALUES (@rawvar,@var,@reason,@num,@mod,@time)");
@@ -219,7 +219,7 @@ namespace Azure.Game.Support
             {
                 DataTable dataTable;
 
-                using (var queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor3 = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor3.SetQuery("SELECT id FROM users WHERE ip_last = @var");
                     queryreactor3.AddParameter("var", text);
@@ -228,7 +228,7 @@ namespace Azure.Game.Support
 
                 if (dataTable != null)
                 {
-                    using (var queryreactor4 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryreactor4 = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         foreach (DataRow dataRow in dataTable.Rows)
                             queryreactor4.RunFastQuery(
@@ -240,7 +240,7 @@ namespace Azure.Game.Support
                 return;
             }
 
-            using (var queryreactor5 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryreactor5 = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryreactor5.RunFastQuery(
                     $"UPDATE users_info SET bans = bans + 1 WHERE user_id = {client.GetHabbo().Id}");
 
@@ -256,7 +256,7 @@ namespace Azure.Game.Support
             _bannedUsernames.Remove(userNameOrIp);
             _bannedIPs.Remove(userNameOrIp);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("DELETE FROM users_bans WHERE value = @userorip");
                 queryReactor.AddParameter("userorip", userNameOrIp);

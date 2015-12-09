@@ -1,8 +1,8 @@
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorHopper : FurniInteractorModel
     {
@@ -10,7 +10,7 @@ namespace Azure.Game.Items.Interactions.Controllers
         {
             item.GetRoom().GetRoomItemHandler().HopperCount++;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("INSERT INTO items_hopper (hopper_id, room_id) VALUES (@hopperid, @roomid);");
                 queryReactor.AddParameter("hopperid", item.Id);
@@ -37,7 +37,7 @@ namespace Azure.Game.Items.Interactions.Controllers
         {
             item.GetRoom().GetRoomItemHandler().HopperCount--;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"DELETE FROM items_hopper WHERE item_id=@hid OR room_id={item.GetRoom().RoomId} LIMIT 1");

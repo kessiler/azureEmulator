@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Wired.Handlers.Triggers
+namespace Yupi.Game.Items.Wired.Handlers.Triggers
 {
     internal class Repeater : IWiredItem, IWiredCycler
     {
@@ -21,8 +21,8 @@ namespace Azure.Game.Items.Wired.Handlers.Triggers
             Delay = 5000;
             Room.GetWiredHandler().EnqueueCycle(this);
 
-            if (_mNext == 0L || _mNext < Azure.Now())
-                _mNext = (Azure.Now() + (Delay));
+            if (_mNext == 0L || _mNext < Yupi.Now())
+                _mNext = (Yupi.Now() + (Delay));
         }
 
         public Queue ToWork
@@ -35,7 +35,7 @@ namespace Azure.Game.Items.Wired.Handlers.Triggers
 
         public bool OnCycle()
         {
-            var num = Azure.Now();
+            var num = Yupi.Now();
 
             if (_mNext >= num)
                 return false;
@@ -63,7 +63,7 @@ namespace Azure.Game.Items.Wired.Handlers.Triggers
                 }
             }
 
-            _mNext = (Azure.Now() + (Delay));
+            _mNext = (Yupi.Now() + (Delay));
             return false;
         }
 
@@ -107,8 +107,8 @@ namespace Azure.Game.Items.Wired.Handlers.Triggers
 
         public bool Execute(params object[] stuff)
         {
-            if (_mNext == 0L || _mNext < Azure.Now())
-                _mNext = (Azure.Now() + (Delay));
+            if (_mNext == 0L || _mNext < Yupi.Now())
+                _mNext = (Yupi.Now() + (Delay));
 
             if (!Room.GetWiredHandler().IsCycleQueued(this))
                 Room.GetWiredHandler().EnqueueCycle(this);

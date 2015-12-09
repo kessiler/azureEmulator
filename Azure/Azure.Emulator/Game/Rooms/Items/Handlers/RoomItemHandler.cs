@@ -6,23 +6,24 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using Azure.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items;
-using Azure.Game.Items.Datas;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pathfinding;
-using Azure.Game.Pets;
-using Azure.Game.Rooms.Chat.Enums;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Data.Base.Queries;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items;
+using Yupi.Game.Items.Datas;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Pets;
+using Yupi.Game.Rooms.Chat.Enums;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Items.Handlers
+namespace Yupi.Game.Rooms.Items.Handlers
 {
     /// <summary>
     ///     Class RoomItemHandler.
@@ -339,7 +340,7 @@ namespace Azure.Game.Rooms.Items.Handlers
                 _room.SendMessage(serverMessage);
                 if (item.IsBuilder)
                 {
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery($"DELETE FROM items_rooms WHERE id='{item.Id}'");
                     }
@@ -357,7 +358,7 @@ namespace Azure.Game.Rooms.Items.Handlers
                 _room.SendMessage(serverMessage);
                 if (item.IsBuilder)
                 {
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery($"DELETE FROM items_rooms WHERE id='{item.Id}'");
                     }
@@ -372,7 +373,7 @@ namespace Azure.Game.Rooms.Items.Handlers
             FloorItems.Clear();
             Rollers.Clear();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery($"UPDATE items_rooms SET room_id='0' WHERE room_id='{_room.RoomId}'");
             }
@@ -397,7 +398,7 @@ namespace Azure.Game.Rooms.Items.Handlers
                 if (item.UserId == 0)
                     item.UserId = session.GetHabbo().Id;
 
-                var client = Azure.GetGame().GetClientManager().GetClientByUserId(item.UserId);
+                var client = Yupi.GetGame().GetClientManager().GetClientByUserId(item.UserId);
 
                 if ((item.GetBaseItem().InteractionType != Interaction.PostIt))
                 {
@@ -405,7 +406,7 @@ namespace Azure.Game.Rooms.Items.Handlers
                         toUpdate.Add(client);
 
                     if (client == null)
-                        using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                        using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
                             dbClient.RunFastQuery("UPDATE items_rooms SET room_id = '0' WHERE id = " + item.Id);
                     else
                         client.GetHabbo().GetInventoryComponent().AddItem(item);
@@ -436,7 +437,7 @@ namespace Azure.Game.Rooms.Items.Handlers
             if (WallItems == null) WallItems = new ConcurrentDictionary<uint, RoomItem>();
             else WallItems.Clear();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery("SELECT items_rooms.* , COALESCE(items_groups.group_id, 0) AS group_id FROM items_rooms LEFT OUTER JOIN items_groups ON items_rooms.id = items_groups.id WHERE items_rooms.room_id = " + _room.RoomId + " LIMIT 5000");
 
@@ -444,7 +445,7 @@ namespace Azure.Game.Rooms.Items.Handlers
 
                 if (table.Rows.Count >= 5000)
                 {
-                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId((uint) _room.RoomData.OwnerId);
+                    var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId((uint) _room.RoomData.OwnerId);
 
                     clientByUserId?.SendNotif("Your room has more than 5000 items in it. The current limit of items per room is 5000.\nTo view the rest, pick some of these items up!");
                 }
@@ -461,7 +462,7 @@ namespace Azure.Game.Rooms.Items.Handlers
                         var ownerId = Convert.ToUInt32(dataRow["user_id"]);
                         var baseItemName = dataRow["item_name"].ToString();
 
-                        var item = Azure.GetGame().GetItemManager().GetItemByName(baseItemName);
+                        var item = Yupi.GetGame().GetItemManager().GetItemByName(baseItemName);
 
                         if (item == null)
                             continue;
@@ -481,17 +482,17 @@ namespace Azure.Game.Rooms.Items.Handlers
                         {
                             var wallCoord = new WallCoordinate(':' + locationData.Split(':')[1]);
 
-                            var value = new RoomItem(id, _room.RoomId, baseItemName, extraData, wallCoord, _room, ownerId, groupId, item.FlatId, Azure.EnumToBool((string)dataRow["builders"]));
+                            var value = new RoomItem(id, _room.RoomId, baseItemName, extraData, wallCoord, _room, ownerId, groupId, item.FlatId, Yupi.EnumToBool((string)dataRow["builders"]));
 
                             WallItems.TryAdd(id, value);
                         }
                         else
                         {
-                            var roomItem = new RoomItem(id, _room.RoomId, baseItemName, extraData, x, y, z, rot, _room, ownerId, groupId, item.FlatId, songCode, Azure.EnumToBool((string)dataRow["builders"]));
+                            var roomItem = new RoomItem(id, _room.RoomId, baseItemName, extraData, x, y, z, rot, _room, ownerId, groupId, item.FlatId, songCode, Yupi.EnumToBool((string)dataRow["builders"]));
 
                             if (!_room.GetGameMap().ValidTile(x, y))
                             {
-                                var clientByUserId2 = Azure.GetGame().GetClientManager().GetClientByUserId(ownerId);
+                                var clientByUserId2 = Yupi.GetGame().GetClientManager().GetClientByUserId(ownerId);
 
                                 if (clientByUserId2 != null)
                                 {

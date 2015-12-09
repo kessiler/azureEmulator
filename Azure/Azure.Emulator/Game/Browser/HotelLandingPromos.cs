@@ -1,6 +1,6 @@
-using Azure.Messages;
+using Yupi.Messages;
 
-namespace Azure.Game.Browser
+namespace Yupi.Game.Browser
 {
     /// <summary>
     ///     Class SmallPromo.

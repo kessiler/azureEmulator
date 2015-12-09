@@ -1,12 +1,12 @@
 ﻿using System.Threading;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Polls;
-using Azure.Game.Polls.Enums;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Polls;
+using Yupi.Game.Polls.Enums;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class StartQuestion. This class cannot be inherited.
@@ -27,7 +27,7 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient client, string[] pms)
         {
             var id = uint.Parse(pms[0]);
-            var poll = Azure.GetGame().GetPollManager().TryGetPollById(id);
+            var poll = Yupi.GetGame().GetPollManager().TryGetPollById(id);
             if (poll == null || poll.Type != PollType.Matching)
             {
                 client.SendWhisper("Poll doesn't exists or isn't a matching poll.");
@@ -70,7 +70,7 @@ namespace Azure.Game.Commands.Controllers
                 Thread.Sleep(1000);
                 foreach (var roomUser in users)
                 {
-                    var user = Azure.GetHabboById(roomUser.UserId);
+                    var user = Yupi.GetHabboById(roomUser.UserId);
                     if (user.AnsweredPool)
                     {
                         var result =
@@ -87,7 +87,7 @@ namespace Azure.Game.Commands.Controllers
             }
 
             foreach (var roomUser in users)
-                Azure.GetHabboById(roomUser.UserId).AnsweredPool = false;
+                Yupi.GetHabboById(roomUser.UserId).AnsweredPool = false;
         }
     }
 }

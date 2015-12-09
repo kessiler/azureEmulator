@@ -1,7 +1,7 @@
 using System;
-using Azure.Game.Users.Data.Models;
+using Yupi.Game.Users.Data.Models;
 
-namespace Azure.Game.Users.Subscriptions
+namespace Yupi.Game.Users.Subscriptions
 {
     /// <summary>
     ///     Class SubscriptionManager.
@@ -52,33 +52,33 @@ namespace Azure.Game.Users.Subscriptions
         {
             var num = ((int) Math.Round(dayLength));
 
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(_userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(_userId);
             DateTime target;
             int num2;
             int num3;
 
             if (_subscription != null)
             {
-                target = Azure.UnixToDateTime(_subscription.ExpireTime).AddDays(num);
+                target = Yupi.UnixToDateTime(_subscription.ExpireTime).AddDays(num);
                 num2 = _subscription.ActivateTime;
                 num3 = _subscription.LastGiftTime;
             }
             else
             {
                 target = DateTime.Now.AddDays(num);
-                num2 = Azure.GetUnixTimeStamp();
-                num3 = Azure.GetUnixTimeStamp();
+                num2 = Yupi.GetUnixTimeStamp();
+                num3 = Yupi.GetUnixTimeStamp();
             }
 
-            var num4 = Azure.DateTimeToUnix(target);
+            var num4 = Yupi.DateTimeToUnix(target);
             _subscription = new Subscription(2, num2, num4, num3);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_subscriptions VALUES (", _userId, ", 2, ",
                     num2, ", ", num4, ", ", num3, ");"));
 
             clientByUserId.GetHabbo().SerializeClub();
-            Azure.GetGame().GetAchievementManager().TryProgressHabboClubAchievements(clientByUserId);
+            Yupi.GetGame().GetAchievementManager().TryProgressHabboClubAchievements(clientByUserId);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Azure.Game.Users.Subscriptions
         /// </summary>
         internal void ReloadSubscription()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     "SELECT * FROM users_subscriptions WHERE user_id=@id AND timestamp_expire > UNIX_TIMESTAMP() ORDER BY subscription_id DESC LIMIT 1");

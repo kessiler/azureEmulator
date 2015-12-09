@@ -1,6 +1,6 @@
-using Azure.Game.Rooms.Items;
+using Yupi.Game.Rooms.Items;
 
-namespace Azure.Game.Items
+namespace Yupi.Game.Items
 {
     /// <summary>
     ///     Delegate OnItemTrigger

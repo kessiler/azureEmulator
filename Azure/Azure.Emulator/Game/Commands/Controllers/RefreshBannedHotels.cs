@@ -1,9 +1,9 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Security;
-using Azure.Security.BlackWords;
+﻿using Yupi.Core.Security;
+using Yupi.Core.Security.BlackWords;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshBannedHotels. This class cannot be inherited.
@@ -26,7 +26,7 @@ namespace Azure.Game.Commands.Controllers
             UserChatInputFilter.Reload();
             BlackWordsManager.Reload();
 
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_banned_hotels"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_banned_hotels"));
             return true;
         }
     }

@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshQuests. This class cannot be inherited.
@@ -21,8 +21,8 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            Azure.GetGame().GetQuestManager().Initialize(Azure.GetDatabaseManager().GetQueryReactor());
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_quests"));
+            Yupi.GetGame().GetQuestManager().Initialize(Yupi.GetDatabaseManager().GetQueryReactor());
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_quests"));
             return true;
         }
     }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Game.Rooms.User.Path
+namespace Yupi.Game.Rooms.User.Path
 {
     /// <summary>
     ///     Class UserWalksOnArgs.

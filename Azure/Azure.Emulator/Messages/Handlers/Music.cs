@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.SoundMachine;
-using Azure.Game.SoundMachine.Composers;
-using Azure.Game.SoundMachine.Songs;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.SoundMachine;
+using Yupi.Game.SoundMachine.Composers;
+using Yupi.Game.SoundMachine.Songs;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -92,7 +92,7 @@ namespace Azure.Messages.Handlers
 
             Session.GetHabbo().GetInventoryComponent().RemoveItem(num, true);
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE items_rooms SET user_id='0' WHERE id={num} LIMIT 1");
 
             Session.SendMessage(SoundMachineComposer.Compose(roomMusicController.PlaylistCapacity, roomMusicController.Playlist.Values.ToList()));
@@ -123,7 +123,7 @@ namespace Azure.Messages.Handlers
             Session.GetHabbo().GetInventoryComponent().AddNewItem(songItem.ItemId, songItem.BaseItem.Name, songItem.ExtraData, 0u, false, true, 0, 0, songItem.SongCode);
             Session.GetHabbo().GetInventoryComponent().UpdateItems(false);
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE items_rooms SET user_id='{Session.GetHabbo().Id}' WHERE id='{songItem.ItemId}' LIMIT 1;");
 
             Session.SendMessage(SoundMachineComposer.SerializeSongInventory(Session.GetHabbo().GetInventoryComponent().SongDisks));

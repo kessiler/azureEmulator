@@ -1,33 +1,33 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements;
-using Azure.Game.Browser;
-using Azure.Game.Catalogs;
-using Azure.Game.Commands;
-using Azure.Game.GameClients;
-using Azure.Game.Groups;
-using Azure.Game.Items;
-using Azure.Game.Items.Handlers;
-using Azure.Game.Pets;
-using Azure.Game.Polls;
-using Azure.Game.Quests;
-using Azure.Game.RoomBots;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Data;
-using Azure.Game.SoundMachine;
-using Azure.Game.Support;
-using Azure.Game.Users;
-using Azure.Game.Users.Fuses;
-using Azure.Game.Users.Guides;
-using Azure.IO;
-using Azure.Messages.Enums;
-using Azure.Security;
-using Azure.Security.BlackWords;
+using Yupi.Core.Io;
+using Yupi.Core.Security;
+using Yupi.Core.Security.BlackWords;
+using Yupi.Data;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements;
+using Yupi.Game.Browser;
+using Yupi.Game.Catalogs;
+using Yupi.Game.Commands;
+using Yupi.Game.GameClients;
+using Yupi.Game.Groups;
+using Yupi.Game.Items;
+using Yupi.Game.Items.Handlers;
+using Yupi.Game.Pets;
+using Yupi.Game.Polls;
+using Yupi.Game.Quests;
+using Yupi.Game.RoomBots;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.SoundMachine;
+using Yupi.Game.Support;
+using Yupi.Game.Users;
+using Yupi.Game.Users.Fuses;
+using Yupi.Game.Users.Guides;
+using Yupi.Messages.Enums;
 
-namespace Azure.Game
+namespace Yupi.Game
 {
     /// <summary>
     ///     Class Game.
@@ -165,11 +165,11 @@ namespace Azure.Game
         internal Game(int conns)
         {
             //Console.WriteLine();
-            Writer.WriteLine(@"Starting up Azure Emulator for " + Environment.MachineName + "...", @"Azure.Boot");
+            Writer.WriteLine(@"Starting up Yupi Emulator for " + Environment.MachineName + "...", @"Yupi.Boot");
             //Console.WriteLine();
 
             _clientManager = new GameClientManager();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 AbstractBar bar = new AnimatedBar();
                 const int wait = 15, end = 5;
@@ -320,7 +320,7 @@ namespace Azure.Game
         {
             dbClient.RunFastQuery("UPDATE users SET online = '0' WHERE online <> '0'");
             dbClient.RunFastQuery("UPDATE rooms_data SET users_now = 0 WHERE users_now <> 0");
-            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Azure Emulator', stamp = '" + Azure.GetUnixTimeStamp() + "' LIMIT 1;");
+            dbClient.RunFastQuery("UPDATE `server_status` SET status = '1', users_online = '0', rooms_loaded = '0', server_ver = 'Yupi Emulator', stamp = '" + Yupi.GetUnixTimeStamp() + "' LIMIT 1;");
         }
 
         /// <summary>
@@ -454,7 +454,7 @@ namespace Azure.Game
         /// </summary>
         internal void ContinueLoading()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 uint catalogPageLoaded;
                 PetRace.Init(queryReactor);
@@ -496,10 +496,10 @@ namespace Azure.Game
         /// </summary>
         internal void Destroy()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 DatabaseCleanup(queryReactor);
             GetClientManager();
-            Writer.WriteLine("Client Manager destroyed", "Azure.Game", ConsoleColor.DarkYellow);
+            Writer.WriteLine("Client Manager destroyed", "Yupi.Game", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace Azure.Game
         /// </summary>
         internal void ReloadItems()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 _itemManager.LoadItems(queryReactor);
             }

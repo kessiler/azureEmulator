@@ -1,8 +1,8 @@
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Quests.Composers
+namespace Yupi.Game.Quests.Composers
 {
     /// <summary>
     ///     Class QuestStartedComposer.

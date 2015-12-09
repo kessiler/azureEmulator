@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Timers;
-using Azure.IO;
-using Azure.Settings;
+using Yupi.Core.Io;
+using Yupi.Core.Settings;
 
-namespace Azure.Game.Users
+namespace Yupi.Game.Users
 {
     /// <summary>
     ///     Class CoinsManager.
@@ -37,7 +37,7 @@ namespace Azure.Game.Users
         {
             try
             {
-                var clients = Azure.GetGame().GetClientManager().Clients.Values;
+                var clients = Yupi.GetGame().GetClientManager().Clients.Values;
                 foreach (
                     var client in clients.Where(client => client != null && client.GetHabbo() != null))
                 {

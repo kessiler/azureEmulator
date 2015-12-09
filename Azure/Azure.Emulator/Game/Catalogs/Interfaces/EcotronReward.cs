@@ -1,6 +1,6 @@
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Catalogs.Interfaces
+namespace Yupi.Game.Catalogs.Interfaces
 {
     /// <summary>
     ///     Class EcotronReward.
@@ -41,7 +41,7 @@ namespace Azure.Game.Catalogs.Interfaces
         /// <returns>Item.</returns>
         internal Item GetBaseItem()
         {
-            return Azure.GetGame().GetItemManager().GetItem(BaseId);
+            return Yupi.GetGame().GetItemManager().GetItem(BaseId);
         }
     }
 }

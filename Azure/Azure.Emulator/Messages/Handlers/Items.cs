@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using Azure.Game.Catalogs;
-using Azure.Game.Items;
-using Azure.Game.Items.Datas;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired;
-using Azure.Game.Pets;
-using Azure.Game.Pets.Enums;
-using Azure.Game.Quests;
-using Azure.Game.RoomBots;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.Rooms.User;
-using Azure.IO;
-using Azure.Messages.Enums;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Game.Catalogs;
+using Yupi.Game.Items;
+using Yupi.Game.Items.Datas;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired;
+using Yupi.Game.Pets;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.Quests;
+using Yupi.Game.RoomBots;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages.Enums;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     partial class GameClientMessageHandler
     {
@@ -28,7 +28,7 @@ namespace Azure.Messages.Handlers
             if (Session?.GetHabbo() == null)
                 return;
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null || !room.CheckRights(Session, true))
                 return;
@@ -64,7 +64,7 @@ namespace Azure.Messages.Handlers
             if (Session?.GetHabbo() == null)
                 return;
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null || !room.CheckRights(Session, true))
                 return;
@@ -165,13 +165,13 @@ namespace Azure.Messages.Handlers
                 case Interaction.BreedingTerrier:
                     if (room.GetRoomItemHandler().BreedingTerrier.ContainsKey(item.Id))
                         room.GetRoomItemHandler().BreedingTerrier.Remove(item.Id);
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_TerrierBreeder", 1);
+                    Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_TerrierBreeder", 1);
                     break;
 
                 case Interaction.BreedingBear:
                     if (room.GetRoomItemHandler().BreedingBear.ContainsKey(item.Id))
                         room.GetRoomItemHandler().BreedingBear.Remove(item.Id);
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_BearBreeder", 1);
+                    Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_BearBreeder", 1);
                     break;
             }
 
@@ -246,7 +246,7 @@ namespace Azure.Messages.Handlers
 
         internal void PlacePostIt()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session))
                 return;
             var id = Request.GetUInteger();
@@ -274,9 +274,9 @@ namespace Azure.Messages.Handlers
 
             try
             {
-                var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
-                if (room == null || Azure.GetDbConfig().DbData["placing_enabled"] != "1")
+                if (room == null || Yupi.GetDbConfig().DbData["placing_enabled"] != "1")
                     return;
 
                 if (!room.CheckRights(Session, false, true))
@@ -306,7 +306,7 @@ namespace Azure.Messages.Handlers
                                 case Interaction.Dimmer:
                                     {
                                         if (room.MoodlightData != null && room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId) != null)
-                                            Session.SendNotif(Azure.GetLanguage().GetVar("room_moodlight_one_allowed"));
+                                            Session.SendNotif(Yupi.GetLanguage().GetVar("room_moodlight_one_allowed"));
 
                                         goto PlaceWall;
                                     }
@@ -381,7 +381,7 @@ namespace Azure.Messages.Handlers
                                         var tonerData = room.TonerData;
                                         if (tonerData != null && room.GetRoomItemHandler().GetItem(tonerData.ItemId) != null)
                                         {
-                                            Session.SendNotif(Azure.GetLanguage().GetVar("room_toner_one_allowed"));
+                                            Session.SendNotif(Yupi.GetLanguage().GetVar("room_toner_one_allowed"));
                                             return;
                                         }
                                         goto PlaceFloor;
@@ -403,7 +403,7 @@ namespace Azure.Messages.Handlers
                 return;
                 PlaceFloor:
                 if (room.CheckRights(Session))
-                    Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace);
+                    Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace);
 
                 var roomItem = new RoomItem(item.Id, room.RoomId, item.BaseItem.Name, item.ExtraData, x, y, z, rot,
                     room, Session.GetHabbo().Id, item.GroupId, item.BaseItem.FlatId, item.SongCode, false);
@@ -420,7 +420,7 @@ namespace Azure.Messages.Handlers
                 }
 
                 //Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniPlace, 0u);
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoFurniCount", 1, true);
+                Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RoomDecoFurniCount", 1, true);
                 return;
 
                 CannotSetItem:
@@ -484,7 +484,7 @@ namespace Azure.Messages.Handlers
                     break;
             }
             if (item.IsBuilder)
-                using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
                     Session.GetHabbo().BuildersItemsUsed--;
@@ -505,7 +505,7 @@ namespace Azure.Messages.Handlers
         internal void MoveItem()
         {
             var id = Convert.ToUInt32(Math.Abs(Request.GetInteger()));
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
 
@@ -524,9 +524,9 @@ namespace Azure.Messages.Handlers
             var flag = item.GetBaseItem().InteractionType == Interaction.Teleport ||
                        item.GetBaseItem().InteractionType == Interaction.Hopper || item.GetBaseItem().InteractionType == Interaction.QuickTeleport;
             if (x != item.X || y != item.Y)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniMove);
+                Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniMove);
             if (rot != item.Rot)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniRotate);
+                Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniRotate);
             var oldCoords = item.GetCoords;
 
             if (!room.GetRoomItemHandler().SetFloorItem(Session, item, x, y, rot, false, false, true, true, false))
@@ -556,21 +556,21 @@ namespace Azure.Messages.Handlers
             }
 
             if (item.Z >= 0.1)
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniStack);
+                Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.FurniStack);
 
             var newcoords = item.GetCoords;
             room.GetRoomItemHandler().OnHeightMapUpdate(oldCoords, newcoords);
 
             if (!flag)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 room.GetRoomItemHandler().SaveFurniture(queryReactor);
         }
 
         internal void MoveWallItem()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session))
                 return;
             var id = Request.GetUInteger();
@@ -595,7 +595,7 @@ namespace Azure.Messages.Handlers
 
         internal void TriggerItem()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var num = Request.GetInteger();
@@ -619,7 +619,7 @@ namespace Azure.Messages.Handlers
                         item.Serialize(message);
                         room.SendMessage(message);
                         item.UpdateState();
-                        using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                             queryReactor.RunFastQuery(string.Format("UPDATE items_toners SET enabled = '{0}' LIMIT 1",
                                 room.TonerData.Enabled));
                         return;
@@ -657,7 +657,7 @@ namespace Azure.Messages.Handlers
         internal void TriggerItemDiceSpecial()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
@@ -670,7 +670,7 @@ namespace Azure.Messages.Handlers
 
         internal void OpenPostit()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
@@ -684,7 +684,7 @@ namespace Azure.Messages.Handlers
 
         internal void SavePostit()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
@@ -703,7 +703,7 @@ namespace Azure.Messages.Handlers
 
         internal void DeletePostit()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true))
                 return;
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
@@ -716,25 +716,25 @@ namespace Azure.Messages.Handlers
         {
             if ((DateTime.Now - Session.GetHabbo().LastGiftOpenTime).TotalSeconds <= 15.0)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("gift_one"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("gift_one"));
                 return;
             }
             var currentRoom = Session.GetHabbo().CurrentRoom;
             if (currentRoom == null)
             {
-                Session.SendWhisper(Azure.GetLanguage().GetVar("gift_two"));
+                Session.SendWhisper(Yupi.GetLanguage().GetVar("gift_two"));
                 return;
             }
             if (!currentRoom.CheckRights(Session, true))
             {
-                Session.SendWhisper(Azure.GetLanguage().GetVar("gift_three"));
+                Session.SendWhisper(Yupi.GetLanguage().GetVar("gift_three"));
                 return;
             }
             var pId = Request.GetUInteger();
             var item = currentRoom.GetRoomItemHandler().GetItem(pId);
             if (item == null)
             {
-                Session.SendWhisper(Azure.GetLanguage().GetVar("gift_four"));
+                Session.SendWhisper(Yupi.GetLanguage().GetVar("gift_four"));
                 return;
             }
             item.MagicRemove = true;
@@ -744,7 +744,7 @@ namespace Azure.Messages.Handlers
             currentRoom.SendMessage(message);
 
             Session.GetHabbo().LastGiftOpenTime = DateTime.Now;
-            var queryReactor = Azure.GetDatabaseManager().GetQueryReactor();
+            var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor();
 
             queryReactor.SetQuery("SELECT * FROM users_gifts WHERE gift_id = " + item.Id);
             var row = queryReactor.GetRow();
@@ -754,7 +754,7 @@ namespace Azure.Messages.Handlers
                 currentRoom.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
                 return;
             }
-            var item2 = Azure.GetGame().GetItemManager().GetItem(Convert.ToUInt32(row["item_id"]));
+            var item2 = Yupi.GetGame().GetItemManager().GetItem(Convert.ToUInt32(row["item_id"]));
 
             if (item2 == null)
             {
@@ -783,7 +783,7 @@ namespace Azure.Messages.Handlers
 
                 if (!currentRoom.GetRoomItemHandler().SetFloorItem(item, item.X, item.Y, item.Z, item.Rot, true))
                 {
-                    Session.SendNotif(Azure.GetLanguage().GetVar("error_creating_gift"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("error_creating_gift"));
                 }
                 else
                 {
@@ -821,7 +821,7 @@ namespace Azure.Messages.Handlers
                     i = item2.InteractionType == Interaction.Pet ? 3 : 1;
 
                 Response.AppendInteger(i);
-                var list = Azure.GetGame().GetCatalog().DeliverItems(Session, item2, 1, (string)row["extradata"], 0, 0, string.Empty);
+                var list = Yupi.GetGame().GetCatalog().DeliverItems(Session, item2, 1, (string)row["extradata"], 0, 0, string.Empty);
 
                 Response.AppendInteger(list.Count);
 
@@ -838,7 +838,7 @@ namespace Azure.Messages.Handlers
 
         internal void GetMoodlight()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null || !room.CheckRights(Session, true))
                 return;
@@ -866,7 +866,7 @@ namespace Azure.Messages.Handlers
                     num++;
                     Response.AppendInteger(num);
                     Response.AppendInteger(
-                        int.Parse(Azure.BoolToEnum(current2.BackgroundOnly)) + 1);
+                        int.Parse(Yupi.BoolToEnum(current2.BackgroundOnly)) + 1);
                     Response.AppendString(current2.ColorCode);
                     Response.AppendInteger(current2.ColorIntensity);
                 }
@@ -877,7 +877,7 @@ namespace Azure.Messages.Handlers
         internal void UpdateMoodlight()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true) || room.MoodlightData == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId);
@@ -899,7 +899,7 @@ namespace Azure.Messages.Handlers
         internal void SwitchMoodlightStatus()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true) || room.MoodlightData == null)
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.MoodlightData.ItemId);
@@ -915,7 +915,7 @@ namespace Azure.Messages.Handlers
 
         internal void SaveRoomBg()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true))
                 return;
             var item = room.GetRoomItemHandler().GetItem(room.TonerData.ItemId);
@@ -927,7 +927,7 @@ namespace Azure.Messages.Handlers
             var num3 = Request.GetInteger();
             if (num > 255 || num2 > 255 || num3 > 255)
                 return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE items_toners SET enabled = '1', data1=", num, " ,data2=", num2, ",data3=", num3, " WHERE id=", item.Id, " LIMIT 1"));
             room.TonerData.Data1 = num;
             room.TonerData.Data2 = num2;
@@ -944,26 +944,26 @@ namespace Azure.Messages.Handlers
         internal void InitTrade()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             if (room.RoomData.TradeState == 0)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("room_trade_disabled"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("room_trade_disabled"));
                 return;
             }
             if (room.RoomData.TradeState == 1 && !room.CheckRights(Session))
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("room_trade_disabled_no_rights"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("room_trade_disabled_no_rights"));
                 return;
             }
-            if (Azure.GetDbConfig().DbData["trading_enabled"] != "1")
+            if (Yupi.GetDbConfig().DbData["trading_enabled"] != "1")
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("room_trade_disabled_hotel"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("room_trade_disabled_hotel"));
                 return;
             }
             if (!Session.GetHabbo().CheckTrading())
-                Session.SendNotif(Azure.GetLanguage().GetVar("room_trade_disabled_mod"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("room_trade_disabled_mod"));
             var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
             var roomUserByVirtualId = room.GetRoomUserManager().GetRoomUserByVirtualId(Request.GetInteger());
             if (roomUserByVirtualId == null || roomUserByVirtualId.GetClient() == null ||
@@ -975,7 +975,7 @@ namespace Azure.Messages.Handlers
         internal void TileStackMagicSetHeight()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null) return;
             var itemId = Request.GetUInteger();
             var item = room.GetRoomItemHandler().GetItem(itemId);
@@ -1012,7 +1012,7 @@ namespace Azure.Messages.Handlers
         internal void OfferTradeItem()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             var userTrade = room.GetUserTrade(Session.GetHabbo().Id);
@@ -1025,7 +1025,7 @@ namespace Azure.Messages.Handlers
         internal void TakeBackTradeItem()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             var userTrade = room.GetUserTrade(Session.GetHabbo().Id);
@@ -1038,7 +1038,7 @@ namespace Azure.Messages.Handlers
         internal void StopTrade()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             room.TryStopTrade(Session.GetHabbo().Id);
@@ -1047,7 +1047,7 @@ namespace Azure.Messages.Handlers
         internal void AcceptTrade()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             var userTrade = room.GetUserTrade(Session.GetHabbo().Id);
@@ -1059,7 +1059,7 @@ namespace Azure.Messages.Handlers
         internal void UnacceptTrade()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             var userTrade = room.GetUserTrade(Session.GetHabbo().Id);
@@ -1071,7 +1071,7 @@ namespace Azure.Messages.Handlers
         internal void CompleteTrade()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CanTradeInRoom)
                 return;
             var userTrade = room.GetUserTrade(Session.GetHabbo().Id);
@@ -1085,7 +1085,7 @@ namespace Azure.Messages.Handlers
             if (!Session.GetHabbo().InRoom)
                 return;
             var num = Request.GetInteger();
-            if (num != Convert.ToUInt32(Azure.GetDbConfig().DbData["recycler.number_of_slots"]))
+            if (num != Convert.ToUInt32(Yupi.GetDbConfig().DbData["recycler.number_of_slots"]))
                 return;
             var i = 0;
 
@@ -1098,21 +1098,21 @@ namespace Azure.Messages.Handlers
                     Session.GetHabbo().GetInventoryComponent().RemoveItem(item.Id, false);
                     using (
                         var queryReactor =
-                            Azure.GetDatabaseManager().GetQueryReactor())
+                            Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1",
                             item.Id));
                     i++;
                 }
                 var randomEcotronReward =
-                    Azure.GetGame().GetCatalog().GetRandomEcotronReward();
+                    Yupi.GetGame().GetCatalog().GetRandomEcotronReward();
                 uint insertId;
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery("INSERT INTO items_rooms (user_id,item_name,extra_data) VALUES ( @userid , @baseName, @timestamp)");
 
                     queryreactor2.AddParameter("userid", (int)Session.GetHabbo().Id);
                     queryreactor2.AddParameter("timestamp", DateTime.Now.ToLongDateString());
-                    queryreactor2.AddParameter("baseName", Azure.GetDbConfig().DbData["recycler.box_name"]);
+                    queryreactor2.AddParameter("baseName", Yupi.GetDbConfig().DbData["recycler.box_name"]);
 
                     insertId = (uint)queryreactor2.InsertQuery();
 
@@ -1131,11 +1131,11 @@ namespace Azure.Messages.Handlers
             if (Session == null || Session.GetHabbo() == null) return;
 
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true)) return;
-            if (Azure.GetDbConfig().DbData["exchange_enabled"] != "1")
+            if (Yupi.GetDbConfig().DbData["exchange_enabled"] != "1")
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("bliep_wisselkoers_uitgeschakeld"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("bliep_wisselkoers_uitgeschakeld"));
                 return;
             }
             var item = room.GetRoomItemHandler().GetItem(Request.GetUInteger());
@@ -1159,7 +1159,7 @@ namespace Azure.Messages.Handlers
                 Session.GetHabbo().UpdateCreditsBalance();
             }
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor()) queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1;", item.Id));
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor()) queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1;", item.Id));
             room.GetRoomItemHandler().RemoveFurniture(null, item.Id, false);
             Session.GetHabbo().GetInventoryComponent().RemoveItem(item.Id, false);
             Response.Init(LibraryParser.OutgoingRequest("UpdateInventoryMessageComposer"));
@@ -1207,7 +1207,7 @@ namespace Azure.Messages.Handlers
 
                 if (roomUserOne.GetClient() == null || roomUserTwo.GetClient() == null)
                 {
-                    Session.SendNotif(Azure.GetLanguage().GetVar("lovelock_error_2"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("lovelock_error_2"));
                     return;
                 }
 
@@ -1226,7 +1226,7 @@ namespace Azure.Messages.Handlers
             }
             catch
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("lovelock_error_3"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("lovelock_error_3"));
             }
         }
 
@@ -1244,35 +1244,35 @@ namespace Azure.Messages.Handlers
         internal void CompostMonsterplant()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true))
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_1"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_1"));
                 return;
             }
             var moplaId = Request.GetUInteger();
             var pet = room.GetRoomUserManager().GetPet(moplaId);
             if (pet == null || !pet.IsPet || pet.PetData.Type != 16 || pet.PetData.MoplaBreed == null)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_2"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_2"));
                 return;
             }
             if (pet.PetData.MoplaBreed.LiveState != MoplaState.Dead)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_3"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_3"));
                 return;
             }
-            var compostItem = Azure.GetGame().GetItemManager().GetItemByName("mnstr_compost");
+            var compostItem = Yupi.GetGame().GetItemManager().GetItemByName("mnstr_compost");
             if (compostItem == null)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_4"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_4"));
                 return;
             }
             var x = pet.X;
             var y = pet.Y;
             var z = pet.Z;
             room.GetRoomUserManager().RemoveBot(pet.VirtualId, false);
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery("INSERT INTO items_rooms (user_id, room_id, item_name, extra_data, x, y, z) VALUES (@uid, @rid, @bit, '0', @ex, @wai, @zed)");
                 dbClient.AddParameter("uid", Session.GetHabbo().Id);
@@ -1290,7 +1290,7 @@ namespace Azure.Messages.Handlers
                 if (!room.GetRoomItemHandler().SetFloorItem(Session, roomItem, x, y, 0, true, false, true))
                 {
                     Session.GetHabbo().GetInventoryComponent().AddItem(roomItem);
-                    Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_5"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_5"));
                 }
 
                 dbClient.RunFastQuery($"DELETE FROM bots_data WHERE id = {moplaId};");
@@ -1301,11 +1301,11 @@ namespace Azure.Messages.Handlers
 
         internal void MovePet()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if ((room == null) || (!room.CheckRights(Session)))
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_6"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_6"));
                 return;
             }
 
@@ -1314,7 +1314,7 @@ namespace Azure.Messages.Handlers
 
             if (pet == null || !pet.IsPet || pet.PetData.Type != 16)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_7"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_7"));
                 return;
             }
 
@@ -1328,7 +1328,7 @@ namespace Azure.Messages.Handlers
             {
                 if (!room.GetGameMap().CanWalk(x, y, false))
                 {
-                    Session.SendNotif(Azure.GetLanguage().GetVar("monsterplant_error_8"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("monsterplant_error_8"));
                     return;
                 }
             }
@@ -1357,7 +1357,7 @@ namespace Azure.Messages.Handlers
         internal void PickUpPet()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (Session == null || Session.GetHabbo() == null ||
                 Session.GetHabbo().GetInventoryComponent() == null)
                 return;
@@ -1382,7 +1382,7 @@ namespace Azure.Messages.Handlers
                 pet.PetData.DbState = DatabaseUpdateState.NeedsUpdate;
             pet.PetData.RoomId = 0u;
             Session.GetHabbo().GetInventoryComponent().AddPet(pet.PetData);
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 room.GetRoomUserManager().SavePets(queryReactor);
             room.GetRoomUserManager().RemoveBot(pet.VirtualId, false);
             Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializePetInventory());
@@ -1391,7 +1391,7 @@ namespace Azure.Messages.Handlers
         internal void RespectPet()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var petId = Request.GetUInteger();
@@ -1402,11 +1402,11 @@ namespace Azure.Messages.Handlers
 
             {
                 if (pet.PetData.Type == 16)
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_MonsterPlantTreater", 1);
+                    Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_MonsterPlantTreater", 1);
                 else
                 {
                     Session.GetHabbo().DailyPetRespectPoints--;
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetAchievementManager()
                         .ProgressUserAchievement(Session, "ACH_PetRespectGiver", 1);
                     var value = PetLocale.GetValue("pet.respected");
@@ -1414,7 +1414,7 @@ namespace Azure.Messages.Handlers
 
                     pet.Chat(null, message, false, 0);
                     using (
-                        var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery(
                             string.Format(
                                 "UPDATE users_stats SET daily_pet_respect_points = daily_pet_respect_points - 1 WHERE id = {0} LIMIT 1",
@@ -1426,19 +1426,19 @@ namespace Azure.Messages.Handlers
         internal void AllowAllRide()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             var num = Request.GetUInteger();
             var pet = room.GetRoomUserManager().GetPet(num);
             if (pet.PetData.AnyoneCanRide == 1)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery(string.Format("UPDATE pets_data SET anyone_ride=0 WHERE id={0} LIMIT 1",
                         num));
                 pet.PetData.AnyoneCanRide = 0;
             }
             else
             {
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryreactor2.RunFastQuery(string.Format("UPDATE pets_data SET anyone_ride=1 WHERE id={0} LIMIT 1",
                         num));
                 pet.PetData.AnyoneCanRide = 1;
@@ -1461,7 +1461,7 @@ namespace Azure.Messages.Handlers
             serverMessage.AppendInteger(1);
             serverMessage.AppendBool(pet.PetData.HaveSaddle);
             serverMessage.AppendBool(
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(pet.PetData.RoomId)
                     .GetRoomUserManager()
@@ -1487,7 +1487,7 @@ namespace Azure.Messages.Handlers
         internal void AddSaddle()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
             var pId = Request.GetUInteger();
@@ -1507,7 +1507,7 @@ namespace Azure.Messages.Handlers
                     num += int.Parse(s);
                     pet.PetData.HairDye = num;
                     using (
-                        var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery(string.Concat("UPDATE pets_data SET hairdye = '", pet.PetData.HairDye, "' WHERE id = ", pet.PetData.PetId));
                         goto IL_40C;
@@ -1538,7 +1538,7 @@ namespace Azure.Messages.Handlers
                     }
                     pet.PetData.Race = num3.ToString();
                     using (
-                        var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery("UPDATE pets_data SET race = '" + pet.PetData.Race + "' WHERE id = " + pet.PetData.PetId);
                         queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1", item.Id));
@@ -1552,7 +1552,7 @@ namespace Azure.Messages.Handlers
                     num4 += int.Parse(s3);
                     pet.PetData.PetHair = num4;
                     using (
-                        var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery("UPDATE pets_data SET pethair = '" + pet.PetData.PetHair + "' WHERE id = " + pet.PetData.PetId);
                         queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1", item.Id));
@@ -1563,7 +1563,7 @@ namespace Azure.Messages.Handlers
                 {
                     pet.PetData.HaveSaddle = true;
                     using (
-                        var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery(string.Format("UPDATE pets_data SET have_saddle = 1 WHERE id = {0}",
                             pet.PetData.PetId));
@@ -1578,7 +1578,7 @@ namespace Azure.Messages.Handlers
                     pet.PetData.MoplaBreed.GrowingStatus = 7;
                     pet.PetData.MoplaBreed.LiveState = MoplaState.Grown;
                     pet.PetData.MoplaBreed.UpdateInDb();
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.RunFastQuery(string.Format("DELETE FROM items_rooms WHERE id={0} LIMIT 1", item.Id));
                     }
@@ -1631,7 +1631,7 @@ namespace Azure.Messages.Handlers
 
         internal void RemoveSaddle()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null || (!room.RoomData.AllowPets && !room.CheckRights(Session, true)))
                 return;
@@ -1645,7 +1645,7 @@ namespace Azure.Messages.Handlers
 
             pet.PetData.HaveSaddle = false;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery($"UPDATE pets_data SET have_saddle = 0 WHERE id = {pet.PetData.PetId}");
 
@@ -1681,7 +1681,7 @@ namespace Azure.Messages.Handlers
         internal void CancelMountOnPet()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
@@ -1705,7 +1705,7 @@ namespace Azure.Messages.Handlers
         internal void GiveHanditem()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
@@ -1722,7 +1722,7 @@ namespace Azure.Messages.Handlers
                 roomUserByHabbo.CarryTimer <= 0)
                 return;
             if (roomUserByHabbo.CarryItemId == 8)
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetQuestManager()
                     .ProgressUserQuest(Session, QuestType.GiveCoffee);
             roomUserByHabbo2.CarryItem(roomUserByHabbo.CarryItemId);
@@ -1737,7 +1737,7 @@ namespace Azure.Messages.Handlers
             var productDescription = string.Empty;
             var isValid = false;
             DataRow row;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM items_vouchers WHERE voucher = @vo LIMIT 1");
                 queryReactor.AddParameter("vo", query);
@@ -1749,7 +1749,7 @@ namespace Azure.Messages.Handlers
                 {
                     isValid = true;
                     using (
-                        var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                        var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryreactor2.SetQuery("DELETE FROM items_vouchers WHERE voucher = @vou LIMIT 1");
                         queryreactor2.AddParameter("vou", query);
@@ -1766,7 +1766,7 @@ namespace Azure.Messages.Handlers
         internal void RemoveHanditem()
         {
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             var roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
@@ -1778,7 +1778,7 @@ namespace Azure.Messages.Handlers
 
         internal void MountOnPet()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null)
                 return;
@@ -1796,7 +1796,7 @@ namespace Azure.Messages.Handlers
 
             if (pet.PetData.AnyoneCanRide == 0 && pet.PetData.OwnerId != roomUserByHabbo.UserId)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("horse_error_1"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("horse_error_1"));
                 return;
             }
 
@@ -1854,16 +1854,16 @@ namespace Azure.Messages.Handlers
             }
             else
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("horse_error_2"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("horse_error_2"));
                 return;
             }
 
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(Session.GetHabbo().Id);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(Session.GetHabbo().Id);
             if (Session.GetHabbo().Id != pet.PetData.OwnerId)
             {
                 if (clientByUserId != null)
                 {
-                    Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_HorseRent", 1);
+                    Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_HorseRent", 1);
                 }
             }
 
@@ -1893,7 +1893,7 @@ namespace Azure.Messages.Handlers
         {
             var pId = Request.GetUInteger();
             var item =
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(Session.GetHabbo().CurrentRoomId)
                     .GetRoomItemHandler()
@@ -1905,7 +1905,7 @@ namespace Azure.Messages.Handlers
         {
             var pId = Request.GetUInteger();
             var item =
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(Session.GetHabbo().CurrentRoomId)
                     .GetRoomItemHandler()
@@ -1970,7 +1970,7 @@ namespace Azure.Messages.Handlers
 
         internal void PlaceBot()
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || !room.CheckRights(Session, true))
                 return;
             var num = Request.GetUInteger();
@@ -1983,10 +1983,10 @@ namespace Azure.Messages.Handlers
 
             if (!room.GetGameMap().CanWalk(x, y, false) || !room.GetGameMap().ValidTile(x, y))
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("bot_error_1"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("bot_error_1"));
                 return;
             }
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE bots_data SET room_id = '", room.RoomId, "', x = '", x, "', y = '", y, "' WHERE id = '", num, "'"));
             bot.RoomId = room.RoomId;
 
@@ -2003,7 +2003,7 @@ namespace Azure.Messages.Handlers
         {
             var id = Request.GetUInteger();
             var room =
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             var bot = room.GetRoomUserManager().GetBot(id);
 
             if (Session == null || Session.GetHabbo() == null ||
@@ -2011,7 +2011,7 @@ namespace Azure.Messages.Handlers
                 !room.CheckRights(Session, true))
                 return;
             Session.GetHabbo().GetInventoryComponent().AddBot(bot.BotData);
-            using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryreactor2.RunFastQuery("UPDATE bots_data SET room_id = '0' WHERE id = " + id);
             room.GetRoomUserManager().RemoveBot(bot.VirtualId, false);
             bot.BotData.WasPicked = true;
@@ -2032,7 +2032,7 @@ namespace Azure.Messages.Handlers
                 item.InteractingUser2 = 0u;
             roomUserByHabbo.GateId = 0u;
             var text = item.ExtraData.Split(Convert.ToChar(5))[0];
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", text + Convert.ToChar(5) + "2");
@@ -2052,7 +2052,7 @@ namespace Azure.Messages.Handlers
             var y = Request.GetInteger();
             var dir = Request.GetInteger();
             var actualRoom = Session.GetHabbo().CurrentRoom;
-            var item = Azure.GetGame().GetCatalog().GetItem(itemId);
+            var item = Yupi.GetGame().GetCatalog().GetItem(itemId);
 
             if (actualRoom == null || item == null)
                 return;
@@ -2061,7 +2061,7 @@ namespace Azure.Messages.Handlers
             BuildersClubUpdateFurniCount();
 
             var z = actualRoom.GetGameMap().SqAbsoluteHeight(x, y);
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("INSERT INTO items_rooms (user_id,room_id,item_name,x,y,z,rot,builders) VALUES (@userId,@roomId,@itemName,@x,@y,@z,@rot,'1')");
                 adapter.AddParameter("userId", Session.GetHabbo().Id);
@@ -2096,13 +2096,13 @@ namespace Azure.Messages.Handlers
             var extradata = Request.GetString();
             var wallcoords = Request.GetString();
             var actualRoom = Session.GetHabbo().CurrentRoom;
-            var item = Azure.GetGame().GetCatalog().GetItem(itemId);
+            var item = Yupi.GetGame().GetCatalog().GetItem(itemId);
             if (actualRoom == null || item == null) return;
 
             Session.GetHabbo().BuildersItemsUsed++;
             BuildersClubUpdateFurniCount();
 
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery("INSERT INTO items_rooms (user_id,room_id,item_name,wall_pos,builders) VALUES (@userId,@roomId,@baseName,@wallpos,'1')");
                 adapter.AddParameter("userId", Session.GetHabbo().Id);
@@ -2217,7 +2217,7 @@ namespace Azure.Messages.Handlers
 
             item.UpdateState(true, false);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", item.ExtraData);
@@ -2275,7 +2275,7 @@ namespace Azure.Messages.Handlers
                     break;
             }
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", item.ExtraData);
@@ -2310,7 +2310,7 @@ namespace Azure.Messages.Handlers
             item.Serialize(Response);
             item.UpdateState(true, true);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", item.ExtraData);
@@ -2349,7 +2349,7 @@ namespace Azure.Messages.Handlers
             item.UpdateNeeded = true;
             item.UpdateState(true, true);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE items_rooms SET extra_data = @extraData WHERE id = " + item.Id);
                 queryReactor.AddParameter("extraData", item.ExtraData);
@@ -2361,7 +2361,7 @@ namespace Azure.Messages.Handlers
         {
             Request.GetInteger();
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (room == null || !room.CheckRights(Session))
                 return;
@@ -2372,7 +2372,7 @@ namespace Azure.Messages.Handlers
             if (item == null)
                 return;
 
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(item.UserId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(item.UserId);
 
             if (item.GetBaseItem().InteractionType == Interaction.PostIt)
                 return;
@@ -2389,7 +2389,7 @@ namespace Azure.Messages.Handlers
 
             room.GetRoomItemHandler().RemoveFurniture(Session, item.Id);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE items_rooms SET room_id='0' WHERE id='{item.Id}' LIMIT 1");
         }
 
@@ -2397,12 +2397,12 @@ namespace Azure.Messages.Handlers
         {
             uint furniId = Request.GetUInteger();
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             var item = room?.GetRoomItemHandler().GetItem(furniId);
 
             if (item?.GetBaseItem().InteractionType != Interaction.Clothing)
                 return;
-            var clothes = Azure.GetGame().GetClothingManager().GetClothesInFurni(item.GetBaseItem().Name);
+            var clothes = Yupi.GetGame().GetClothingManager().GetClothesInFurni(item.GetBaseItem().Name);
 
             if (clothes == null)
                 return;
@@ -2420,7 +2420,7 @@ namespace Azure.Messages.Handlers
             room.GetRoomItemHandler().RemoveFurniture(Session, item.Id, false);
             Session.SendMessage(StaticMessage.FiguresetRedeemed);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("DELETE FROM items_rooms WHERE id = " + item.Id);
         }
 

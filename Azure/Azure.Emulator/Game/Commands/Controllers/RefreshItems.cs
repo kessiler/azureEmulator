@@ -1,8 +1,8 @@
-﻿using Azure.Data;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Data;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshItems. This class cannot be inherited.
@@ -23,9 +23,9 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             FurnitureDataManager.SetCache();
-            Azure.GetGame().ReloadItems();
+            Yupi.GetGame().ReloadItems();
             FurnitureDataManager.Clear();
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_items"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_items"));
             return true;
         }
     }

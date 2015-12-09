@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Text;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class FastWalk. This class cannot be inherited.
@@ -25,7 +25,7 @@ namespace Azure.Game.Commands.Controllers
         {
             var targetRoom = session.GetHabbo().CurrentRoom;
             DataTable data;
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery("SELECT question, answer FROM rooms_faq");
                 data = dbClient.GetTable();

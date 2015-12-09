@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Quests;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Users.Messenger.Structs;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Security.BlackWords;
-using Azure.Security.BlackWords.Enums;
-using Azure.Security.BlackWords.Structs;
+using Yupi.Core.Security.BlackWords;
+using Yupi.Core.Security.BlackWords.Enums;
+using Yupi.Core.Security.BlackWords.Structs;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Quests;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Users.Messenger.Structs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Users.Messenger
+namespace Yupi.Game.Users.Messenger
 {
     /// <summary>
     ///     Class HabboMessenger.
@@ -82,7 +82,7 @@ namespace Azure.Game.Users.Messenger
         /// </summary>
         internal void Destroy()
         {
-            IEnumerable<GameClient> clientsById = Azure.GetGame().GetClientManager().GetClientsById(Friends.Keys);
+            IEnumerable<GameClient> clientsById = Yupi.GetGame().GetClientManager().GetClientsById(Friends.Keys);
 
             foreach (GameClient current in clientsById.Where(current => current.GetHabbo() != null && current.GetHabbo().GetMessenger() != null))
                 current.GetHabbo().GetMessenger().UpdateFriend(_userId, null, true);
@@ -103,7 +103,7 @@ namespace Azure.Game.Users.Messenger
             if (Friends == null)
                 return;
 
-            IEnumerable<GameClient> clientsById = Azure.GetGame().GetClientManager().GetClientsById(Friends.Keys);
+            IEnumerable<GameClient> clientsById = Yupi.GetGame().GetClientManager().GetClientsById(Friends.Keys);
 
             if (clientsById == null)
                 return;
@@ -171,7 +171,7 @@ namespace Azure.Game.Users.Messenger
         /// </summary>
         internal void HandleAllRequests()
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("DELETE FROM messenger_requests WHERE from_id = " + _userId + " OR to_id = " + _userId);
 
             ClearRequests();
@@ -183,7 +183,7 @@ namespace Azure.Game.Users.Messenger
         /// <param name="sender">The sender.</param>
         internal void HandleRequest(uint sender)
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM messenger_requests WHERE (from_id = ", _userId, " AND to_id = ", sender, ") OR (to_id = ", _userId, " AND from_id = ", sender, ")"));
 
             Requests.Remove(sender);
@@ -195,14 +195,14 @@ namespace Azure.Game.Users.Messenger
         /// <param name="friendId">The friend identifier.</param>
         internal void CreateFriendship(uint friendId)
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO messenger_friendships (user_one_id,user_two_id) VALUES (", _userId, ",", friendId, ")"));
 
             OnNewFriendship(friendId);
 
-            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
+            GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(friendId);
 
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_FriendListSize", 1, true);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_FriendListSize", 1, true);
 
             if (clientByUserId?.GetHabbo().GetMessenger() != null)
                 clientByUserId.GetHabbo().GetMessenger().OnNewFriendship(_userId);
@@ -216,7 +216,7 @@ namespace Azure.Game.Users.Messenger
         {
             Habbo habbo = GetClient().GetHabbo();
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.RunFastQuery(string.Concat("DELETE FROM messenger_friendships WHERE (user_one_id = ", _userId, " AND user_two_id = ", friendId, ") OR (user_two_id = ", _userId, " AND user_one_id = ", friendId, ")"));
 
@@ -233,7 +233,7 @@ namespace Azure.Game.Users.Messenger
 
             OnDestroyFriendship(friendId);
 
-            GameClient clientRelationship = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
+            GameClient clientRelationship = Yupi.GetGame().GetClientManager().GetClientByUserId(friendId);
 
             if (clientRelationship?.GetHabbo().GetMessenger() != null)
             {
@@ -250,19 +250,19 @@ namespace Azure.Game.Users.Messenger
         /// <param name="friendId">The friend identifier.</param>
         internal void OnNewFriendship(uint friendId)
         {
-            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(friendId);
+            GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(friendId);
 
             MessengerBuddy messengerBuddy;
 
             if (clientByUserId?.GetHabbo() == null)
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery($"SELECT id,username,motto,look,last_online,hide_inroom,hide_online FROM users WHERE id = {friendId}");
 
                     DataRow row = queryReactor.GetRow();
 
-                    messengerBuddy = new MessengerBuddy(friendId, (string)row["username"], (string)row["look"], (string)row["motto"], Azure.EnumToBool(row["hide_online"].ToString()), Azure.EnumToBool(row["hide_inroom"].ToString()));
+                    messengerBuddy = new MessengerBuddy(friendId, (string)row["username"], (string)row["look"], (string)row["motto"], Yupi.EnumToBool(row["hide_online"].ToString()), Yupi.EnumToBool(row["hide_inroom"].ToString()));
                 }     
             }
             else
@@ -318,7 +318,7 @@ namespace Azure.Game.Users.Messenger
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal bool RequestBuddy(string userQuery)
         {
-            GameClient clientByUsername = Azure.GetGame().GetClientManager().GetClientByUserName(userQuery);
+            GameClient clientByUsername = Yupi.GetGame().GetClientManager().GetClientByUserName(userQuery);
 
             uint userId;
             bool blockForNewFriends;
@@ -327,7 +327,7 @@ namespace Azure.Game.Users.Messenger
             {
                 DataRow dataRow;
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT id, block_newfriends FROM users WHERE username = @query");
 
@@ -340,7 +340,7 @@ namespace Azure.Game.Users.Messenger
 
                 userId = Convert.ToUInt32(dataRow["id"]);
 
-                blockForNewFriends = Azure.EnumToBool(dataRow["block_newfriends"].ToString());
+                blockForNewFriends = Yupi.EnumToBool(dataRow["block_newfriends"].ToString());
             }
             else
             {
@@ -371,10 +371,10 @@ namespace Azure.Game.Users.Messenger
                 return true;
             }
 
-            using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryreactor2.RunFastQuery(string.Concat("REPLACE INTO messenger_requests (from_id,to_id) VALUES (", _userId, ",", userId, ")"));
 
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(client, QuestType.AddFriends);
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(client, QuestType.AddFriends);
 
             Habbo fromUser = client.GetHabbo();
 
@@ -440,23 +440,23 @@ namespace Azure.Game.Users.Messenger
                 serverMessage.AppendString(GetClient().GetHabbo().UserName + " : " + message);
                 serverMessage.AppendInteger(0);
 
-                if(GetClient().GetHabbo().Rank >= Azure.StaffAlertMinRank)
-                    Azure.GetGame().GetClientManager().StaffAlert(serverMessage, GetClient().GetHabbo().Id);
-                else if(GetClient().GetHabbo().Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
-                    Azure.GetGame().GetClientManager().AmbassadorAlert(serverMessage, GetClient().GetHabbo().Id);
+                if(GetClient().GetHabbo().Rank >= Yupi.StaffAlertMinRank)
+                    Yupi.GetGame().GetClientManager().StaffAlert(serverMessage, GetClient().GetHabbo().Id);
+                else if(GetClient().GetHabbo().Rank >= Convert.ToUInt32(Yupi.GetDbConfig().DbData["ambassador.minrank"]))
+                    Yupi.GetGame().GetClientManager().AmbassadorAlert(serverMessage, GetClient().GetHabbo().Id);
             }
             else
             {
-                GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(toId);
+                GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(toId);
 
                 if (clientByUserId?.GetHabbo().GetMessenger() == null)
                 {
-                    if (!Azure.OfflineMessages.ContainsKey(toId))
-                        Azure.OfflineMessages.Add(toId, new List<OfflineMessage>());
+                    if (!Yupi.OfflineMessages.ContainsKey(toId))
+                        Yupi.OfflineMessages.Add(toId, new List<OfflineMessage>());
 
-                    Azure.OfflineMessages[toId].Add(new OfflineMessage(GetClient().GetHabbo().Id, message, Azure.GetUnixTimeStamp()));
+                    Yupi.OfflineMessages[toId].Add(new OfflineMessage(GetClient().GetHabbo().Id, message, Yupi.GetUnixTimeStamp()));
 
-                    OfflineMessage.SaveMessage(Azure.GetDatabaseManager().GetQueryReactor(), toId, GetClient().GetHabbo().Id, message);
+                    OfflineMessage.SaveMessage(Yupi.GetDatabaseManager().GetQueryReactor(), toId, GetClient().GetHabbo().Id, message);
 
                     return;
                 }
@@ -561,7 +561,7 @@ namespace Azure.Game.Users.Messenger
 
             serverMessage.AppendInteger(message.FromId);
             serverMessage.AppendString(message.Message);
-            serverMessage.AppendInteger((int) (Azure.GetUnixTimeStamp() - message.Timestamp));
+            serverMessage.AppendInteger((int) (Yupi.GetUnixTimeStamp() - message.Timestamp));
 
             return serverMessage;
         }
@@ -591,10 +591,10 @@ namespace Azure.Game.Users.Messenger
         internal ServerMessage SerializeRequests()
         {
             ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("FriendRequestsMessageComposer"));
-            serverMessage.AppendInteger(Requests.Count > Azure.FriendRequestLimit ? (int) Azure.FriendRequestLimit : Requests.Count);
-            serverMessage.AppendInteger(Requests.Count > Azure.FriendRequestLimit ? (int) Azure.FriendRequestLimit : Requests.Count);
+            serverMessage.AppendInteger(Requests.Count > Yupi.FriendRequestLimit ? (int) Yupi.FriendRequestLimit : Requests.Count);
+            serverMessage.AppendInteger(Requests.Count > Yupi.FriendRequestLimit ? (int) Yupi.FriendRequestLimit : Requests.Count);
 
-            IEnumerable<MessengerRequest> requests = Requests.Values.Take((int) Azure.FriendRequestLimit);
+            IEnumerable<MessengerRequest> requests = Requests.Values.Take((int) Yupi.FriendRequestLimit);
 
             foreach (MessengerRequest current in requests)
                 current.Serialize(serverMessage);
@@ -655,6 +655,6 @@ namespace Azure.Game.Users.Messenger
         ///     Gets the client.
         /// </summary>
         /// <returns>GameClient.</returns>
-        private GameClient GetClient() => Azure.GetGame().GetClientManager().GetClientByUserId(_userId);
+        private GameClient GetClient() => Yupi.GetGame().GetClientManager().GetClientByUserId(_userId);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Game.Rooms.Data
+namespace Yupi.Game.Rooms.Data
 {
     /// <summary>
     ///     Delegate RoomEventDelegate

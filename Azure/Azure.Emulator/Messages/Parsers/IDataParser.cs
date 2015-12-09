@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Messages.Parsers
+namespace Yupi.Messages.Parsers
 {
     /// <summary>
     /// Interface IDataParser

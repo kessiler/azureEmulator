@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Messages;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Messages;
 
-namespace Azure.Game.Users.Messenger.Structs
+namespace Yupi.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Class MessengerBuddy.
@@ -90,7 +90,7 @@ namespace Azure.Game.Users.Messenger.Structs
         /// </summary>
         internal void UpdateUser()
         {
-            Client = Azure.GetGame().GetClientManager().GetClientByUserId(Id);
+            Client = Yupi.GetGame().GetClientManager().GetClientByUserId(Id);
 
             if (Client?.GetHabbo() == null)
                 return;

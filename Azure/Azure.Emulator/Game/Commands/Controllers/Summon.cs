@@ -1,8 +1,8 @@
 ﻿using System;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Summon. This class cannot be inherited.
@@ -26,13 +26,13 @@ namespace Azure.Game.Commands.Controllers
             if (string.Equals(userName, session.GetHabbo().UserName,
                 StringComparison.CurrentCultureIgnoreCase))
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("summon_yourself"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("summon_yourself"));
                 return true;
             }
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(userName);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(userName);
             if (client == null)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (session.GetHabbo().CurrentRoom != null &&

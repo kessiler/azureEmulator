@@ -1,9 +1,9 @@
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorBanzaiScoreCounter : FurniInteractorModel
     {

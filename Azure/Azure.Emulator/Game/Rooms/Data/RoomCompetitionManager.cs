@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Game.Users;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Users;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Data
+namespace Yupi.Game.Rooms.Data
 {
     /// <summary>
     ///     Class RoomCompetition.
@@ -24,7 +24,7 @@ namespace Azure.Game.Rooms.Data
             RequiredFurnis = requiredFurnis.Split(';');
             Entries = new Dictionary<uint, RoomData>();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM rooms_competitions_entries WHERE competition_id = " + Id);
                 var table = queryReactor.GetTable();
@@ -32,7 +32,7 @@ namespace Azure.Game.Rooms.Data
                 foreach (DataRow row in table.Rows)
                 {
                     var roomId = (uint) row["room_id"];
-                    var roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomId);
+                    var roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId);
                     if (roomData == null) return;
                     roomData.CompetitionStatus = (int) row["status"];
                     roomData.CompetitionVotes = (int) row["votes"];
@@ -126,7 +126,7 @@ namespace Azure.Game.Rooms.Data
         public void RefreshCompetitions()
         {
             Competition = null;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM rooms_competitions WHERE enabled = '1' LIMIT 1");
                 var row = queryReactor.GetRow();

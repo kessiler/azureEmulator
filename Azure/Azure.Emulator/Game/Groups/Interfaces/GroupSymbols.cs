@@ -1,4 +1,4 @@
-namespace Azure.Game.Groups.Interfaces
+namespace Yupi.Game.Groups.Interfaces
 {
     internal struct GroupSymbols
     {

@@ -1,9 +1,9 @@
 using System.Timers;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorVikingCotie : FurniInteractorModel
     {
@@ -30,12 +30,12 @@ namespace Azure.Game.Items.Interactions.Controllers
                 item.VikingCotieBurning = true;
 
                 var clientByUsername =
-                    Azure.GetGame().GetClientManager().GetClientByUserName(item.GetRoom().RoomData.Owner);
+                    Yupi.GetGame().GetClientManager().GetClientByUserName(item.GetRoom().RoomData.Owner);
 
                 if (clientByUsername != null)
                 {
                     if (clientByUsername.GetHabbo().UserName != item.GetRoom().RoomData.Owner)
-                        clientByUsername.SendNotif(string.Format(Azure.GetLanguage().GetVar("viking_burn_started"),
+                        clientByUsername.SendNotif(string.Format(Yupi.GetLanguage().GetVar("viking_burn_started"),
                             user.GetUserName()));
                 }
 
@@ -46,7 +46,7 @@ namespace Azure.Game.Items.Interactions.Controllers
                 timer.Enabled = true;
             }
             else
-                session.SendNotif(Azure.GetLanguage().GetVar("user_viking_error"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_viking_error"));
         }
 
         private void OnElapse(object sender, ElapsedEventArgs e)

@@ -1,10 +1,10 @@
 using System;
 using System.Text;
-using Azure.Game.Rooms.Chat.Enums;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Rooms.Chat.Enums;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Data
+namespace Yupi.Game.Rooms.Data
 {
     /// <summary>
     ///     Class DynamicRoomModel.

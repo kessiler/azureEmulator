@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Settings;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements.Structs;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Groups.Interfaces;
-using Azure.Game.Quests;
-using Azure.Game.Quests.Composers;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.User;
-using Azure.Game.Users;
-using Azure.Game.Users.Badges.Models;
-using Azure.Game.Users.Messenger.Structs;
-using Azure.Game.Users.Relationships;
-using Azure.Messages.Parsers;
+using Yupi.Core.Settings;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Game.Quests;
+using Yupi.Game.Quests.Composers;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Users;
+using Yupi.Game.Users.Badges.Models;
+using Yupi.Game.Users.Messenger.Structs;
+using Yupi.Game.Users.Relationships;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -31,7 +31,7 @@ namespace Azure.Messages.Handlers
         public void SendBullyReport()
         {
             uint reportedId = Request.GetUInteger();
-            Azure.GetGame().GetModerationTool().SendNewTicket(Session, 104, 9, reportedId, string.Empty, new List<string>());
+            Yupi.GetGame().GetModerationTool().SendNewTicket(Session, 104, 9, reportedId, string.Empty, new List<string>());
 
             Response.Init(LibraryParser.OutgoingRequest("BullyReportSentMessageComposer"));
             Response.AppendInteger(0);
@@ -53,7 +53,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void OpenQuests()
         {
-            Azure.GetGame().GetQuestManager().GetList(Session, Request);
+            Yupi.GetGame().GetQuestManager().GetList(Session, Request);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetUserTags()
         {
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null)
                 return;
             RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
@@ -115,7 +115,7 @@ namespace Azure.Messages.Handlers
             if (Session != roomUserByHabbo.GetClient())
                 return;
             if (Session.GetHabbo().Tags.Count >= 5)
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetAchievementManager()
                     .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_UserTags", 5);
         }
@@ -125,7 +125,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetUserBadges()
         {
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room != null)
             {
                 RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
@@ -161,23 +161,23 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GiveRespect()
         {
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
             if (room == null || Session.GetHabbo().DailyRespectPoints <= 0)
                 return;
             RoomUser roomUserByHabbo = room.GetRoomUserManager().GetRoomUserByHabbo(Request.GetUInteger());
             if (roomUserByHabbo == null || roomUserByHabbo.GetClient().GetHabbo().Id == Session.GetHabbo().Id ||
                 roomUserByHabbo.IsBot)
                 return;
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialRespect);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RespectGiven", 1, true);
-            Azure.GetGame()
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialRespect);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_RespectGiven", 1, true);
+            Yupi.GetGame()
                 .GetAchievementManager()
                 .ProgressUserAchievement(roomUserByHabbo.GetClient(), "ACH_RespectEarned", 1, true);
 
             {
                 Session.GetHabbo().DailyRespectPoints--;
                 roomUserByHabbo.GetClient().GetHabbo().Respect++;
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery("UPDATE users_stats SET respect = respect + 1 WHERE id = " + roomUserByHabbo.GetClient().GetHabbo().Id + " LIMIT 1;UPDATE users_stats SET daily_respect_points = daily_respect_points - 1 WHERE id= " + Session.GetHabbo().Id + " LIMIT 1");
                 ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("GiveRespectsMessageComposer"));
                 serverMessage.AppendInteger(roomUserByHabbo.GetClient().GetHabbo().Id);
@@ -200,7 +200,7 @@ namespace Azure.Messages.Handlers
         {
             int effectId = Request.GetInteger();
             RoomUser roomUserByHabbo =
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(Session.GetHabbo().CurrentRoomId)
                     .GetRoomUserManager()
@@ -241,10 +241,10 @@ namespace Azure.Messages.Handlers
             uint num2 = Request.GetUInteger();
             Room currentRoom = Session.GetHabbo().CurrentRoom;
 
-            if ((currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) || (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session))) && Session.GetHabbo().Rank < Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]))
+            if ((currentRoom == null || (currentRoom.RoomData.WhoCanBan == 0 && !currentRoom.CheckRights(Session, true)) || (currentRoom.RoomData.WhoCanBan == 1 && !currentRoom.CheckRights(Session))) && Session.GetHabbo().Rank < Convert.ToUInt32(Yupi.GetDbConfig().DbData["ambassador.minrank"]))
                 return;
 
-            RoomUser roomUserByHabbo = currentRoom?.GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(num).UserName);
+            RoomUser roomUserByHabbo = currentRoom?.GetRoomUserManager().GetRoomUserByHabbo(Yupi.GetHabboById(num).UserName);
 
             if (roomUserByHabbo == null)
                 return;
@@ -252,15 +252,15 @@ namespace Azure.Messages.Handlers
                 return;
             if (currentRoom.MutedUsers.ContainsKey(num))
             {
-                if (currentRoom.MutedUsers[num] >= (ulong)Azure.GetUnixTimeStamp())
+                if (currentRoom.MutedUsers[num] >= (ulong)Yupi.GetUnixTimeStamp())
                     return;
                 currentRoom.MutedUsers.Remove(num);
             }
             currentRoom.MutedUsers.Add(num,
                 uint.Parse(
-                    ((Azure.GetUnixTimeStamp()) + unchecked(checked(num2 * 60u))).ToString()));
+                    ((Yupi.GetUnixTimeStamp()) + unchecked(checked(num2 * 60u))).ToString()));
 
-            roomUserByHabbo.GetClient().SendNotif(string.Format(Azure.GetLanguage().GetVar("room_owner_has_mute_user"), num2));
+            roomUserByHabbo.GetClient().SendNotif(string.Format(Yupi.GetLanguage().GetVar("room_owner_has_mute_user"), num2));
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace Azure.Messages.Handlers
         internal void UpdateBadges()
         {
             Session.GetHabbo().GetBadgeComponent().ResetSlots();
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Format("UPDATE users_badges SET badge_slot = 0 WHERE user_id = {0}",
                     Session.GetHabbo().Id));
             for (int i = 0; i < 5; i++)
@@ -377,7 +377,7 @@ namespace Azure.Messages.Handlers
                 if (code.Length == 0) continue;
                 if (!Session.GetHabbo().GetBadgeComponent().HasBadge(code) || slot < 1 || slot > 5) return;
                 Session.GetHabbo().GetBadgeComponent().GetBadge(code).Slot = slot;
-                using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery("UPDATE users_badges SET badge_slot = " + slot +
                                            " WHERE badge_id = @badge AND user_id = " + Session.GetHabbo().Id);
@@ -385,7 +385,7 @@ namespace Azure.Messages.Handlers
                     queryreactor2.RunQuery();
                 }
             }
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileBadge);
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileBadge);
             ServerMessage serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("UserBadgesMessageComposer"));
             serverMessage.AppendInteger(Session.GetHabbo().Id);
 
@@ -405,9 +405,9 @@ namespace Azure.Messages.Handlers
 
             serverMessage.EndArray();
             if (Session.GetHabbo().InRoom &&
-                Azure.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId) != null)
+                Yupi.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId) != null)
             {
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(Session.GetHabbo().CurrentRoomId)
                     .SendMessage(serverMessage);
@@ -421,7 +421,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void GetAchievements()
         {
-            Azure.GetGame().GetAchievementManager().GetList(Session, Request);
+            Yupi.GetGame().GetAchievementManager().GetList(Session, Request);
         }
 
         /// <summary>
@@ -444,10 +444,10 @@ namespace Azure.Messages.Handlers
             uint userId = Request.GetUInteger();
             Request.GetBool();
 
-            Habbo habbo = Azure.GetHabboById(userId);
+            Habbo habbo = Yupi.GetHabboById(userId);
             if (habbo == null)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("user_not_found"));
                 return;
             }
             DateTime createTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(habbo.CreateDate);
@@ -465,18 +465,18 @@ namespace Azure.Messages.Handlers
             Response.AppendBool(habbo.Id != Session.GetHabbo().Id &&
                                 !Session.GetHabbo().GetMessenger().FriendshipExists(habbo.Id) &&
                                 Session.GetHabbo().GetMessenger().RequestExists(habbo.Id));
-            Response.AppendBool(Azure.GetGame().GetClientManager().GetClientByUserId(habbo.Id) != null);
-            HashSet<GroupMember> groups = Azure.GetGame().GetGroupManager().GetUserGroups(habbo.Id);
+            Response.AppendBool(Yupi.GetGame().GetClientManager().GetClientByUserId(habbo.Id) != null);
+            HashSet<GroupMember> groups = Yupi.GetGame().GetGroupManager().GetUserGroups(habbo.Id);
             Response.AppendInteger(groups.Count);
-            foreach (Guild @group in groups.Select(groupUs => Azure.GetGame().GetGroupManager().GetGroup(groupUs.GroupId))
+            foreach (Guild @group in groups.Select(groupUs => Yupi.GetGame().GetGroupManager().GetGroup(groupUs.GroupId))
                 )
                 if (@group != null)
                 {
                     Response.AppendInteger(@group.Id);
                     Response.AppendString(@group.Name);
                     Response.AppendString(@group.Badge);
-                    Response.AppendString(Azure.GetGame().GetGroupManager().GetGroupColour(@group.Colour1, true));
-                    Response.AppendString(Azure.GetGame().GetGroupManager().GetGroupColour(@group.Colour2, false));
+                    Response.AppendString(Yupi.GetGame().GetGroupManager().GetGroupColour(@group.Colour1, true));
+                    Response.AppendString(Yupi.GetGame().GetGroupManager().GetGroupColour(@group.Colour2, false));
                     Response.AppendBool(@group.Id == habbo.FavouriteGroup);
                     Response.AppendInteger(-1);
                     Response.AppendBool(@group.HasForum);
@@ -494,10 +494,10 @@ namespace Azure.Messages.Handlers
                 }
             if (habbo.PreviousOnline == 0)
                 Response.AppendInteger(-1);
-            else if (Azure.GetGame().GetClientManager().GetClientByUserId(habbo.Id) == null)
-                Response.AppendInteger((Azure.GetUnixTimeStamp() - habbo.PreviousOnline));
+            else if (Yupi.GetGame().GetClientManager().GetClientByUserId(habbo.Id) == null)
+                Response.AppendInteger((Yupi.GetUnixTimeStamp() - habbo.PreviousOnline));
             else
-                Response.AppendInteger((Azure.GetUnixTimeStamp() - habbo.LastOnline));
+                Response.AppendInteger((Yupi.GetUnixTimeStamp() - habbo.LastOnline));
 
             Response.AppendBool(true);
             SendResponse();
@@ -525,12 +525,12 @@ namespace Azure.Messages.Handlers
         {
             string text = Request.GetString().ToUpper();
             string text2 = Request.GetString();
-            text2 = Azure.FilterFigure(text2);
+            text2 = Yupi.FilterFigure(text2);
 
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook);
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeLook);
             Session.GetHabbo().Look = text2;
             Session.GetHabbo().Gender = text.ToLower() == "f" ? "f" : "m";
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("UPDATE users SET look = @look, gender = @gender WHERE id = {0}",
                     Session.GetHabbo().Id));
@@ -538,9 +538,9 @@ namespace Azure.Messages.Handlers
                 queryReactor.AddParameter("gender", text);
                 queryReactor.RunQuery();
             }
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AvatarLooks", 1);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_AvatarLooks", 1);
             if (Session.GetHabbo().Look.Contains("ha-1006"))
-                Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.WearHat);
+                Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.WearHat);
             Session.GetMessageHandler()
                 .GetResponse()
                 .Init(LibraryParser.OutgoingRequest("UpdateAvatarAspectMessageComposer"));
@@ -585,14 +585,14 @@ namespace Azure.Messages.Handlers
             if (text == Session.GetHabbo().Motto)
                 return;
             Session.GetHabbo().Motto = text;
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("UPDATE users SET motto = @motto WHERE id = '{0}'",
                     Session.GetHabbo().Id));
                 queryReactor.AddParameter("motto", text);
                 queryReactor.RunQuery();
             }
-            Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeMotto);
+            Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.ProfileChangeMotto);
             if (Session.GetHabbo().InRoom)
             {
                 Room currentRoom = Session.GetHabbo().CurrentRoom;
@@ -610,7 +610,7 @@ namespace Azure.Messages.Handlers
                 serverMessage.AppendInteger(Session.GetHabbo().AchievementPoints);
                 currentRoom.SendMessage(serverMessage);
             }
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Motto", 1);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Motto", 1);
         }
 
         /// <summary>
@@ -620,7 +620,7 @@ namespace Azure.Messages.Handlers
         {
             GetResponse().Init(LibraryParser.OutgoingRequest("LoadWardrobeMessageComposer"));
             GetResponse().AppendInteger(0);
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     string.Format("SELECT slot_id, look, gender FROM users_wardrobe WHERE user_id = {0}",
@@ -651,9 +651,9 @@ namespace Azure.Messages.Handlers
             string text = Request.GetString();
             string text2 = Request.GetString().ToUpper() == "F" ? "F" : "M";
 
-            text = Azure.FilterFigure(text);
+            text = Yupi.FilterFigure(text);
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Concat("SELECT null FROM users_wardrobe WHERE user_id = ", Session.GetHabbo().Id, " AND slot_id = ", num));
                 queryReactor.AddParameter("look", text);
@@ -673,7 +673,7 @@ namespace Azure.Messages.Handlers
                     queryReactor.RunQuery();
                 }
             }
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetQuestManager()
                 .ProgressUserQuest(Session, QuestType.ProfileChangeLook);
         }
@@ -712,7 +712,7 @@ namespace Azure.Messages.Handlers
                 SendResponse();
                 return;
             }
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT username FROM users WHERE Username=@name LIMIT 1");
                 queryReactor.AddParameter("name", text);
@@ -786,7 +786,7 @@ namespace Azure.Messages.Handlers
             string userName = Session.GetHabbo().UserName;
 
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery("SELECT username FROM users WHERE Username=@name LIMIT 1");
                     queryReactor.AddParameter("name", text);
@@ -799,11 +799,11 @@ namespace Azure.Messages.Handlers
                     queryReactor.SetQuery(
                         "UPDATE users SET Username = @newname, last_name_change = @timestamp WHERE id = @userid");
                     queryReactor.AddParameter("newname", text);
-                    queryReactor.AddParameter("timestamp", Azure.GetUnixTimeStamp() + 43200);
+                    queryReactor.AddParameter("timestamp", Yupi.GetUnixTimeStamp() + 43200);
                     queryReactor.AddParameter("userid", Session.GetHabbo().UserName);
                     queryReactor.RunQuery();
 
-                    Session.GetHabbo().LastChange = Azure.GetUnixTimeStamp() + 43200;
+                    Session.GetHabbo().LastChange = Yupi.GetUnixTimeStamp() + 43200;
                     Session.GetHabbo().UserName = text;
                     Response.Init(LibraryParser.OutgoingRequest("UpdateUsernameMessageComposer"));
                     Response.AppendInteger(0);
@@ -829,7 +829,7 @@ namespace Azure.Messages.Handlers
                     {
                         current.Owner = text;
                         current.SerializeRoomData(Response, Session, false, true);
-                        Room room = Azure.GetGame().GetRoomManager().GetRoom(current.Id);
+                        Room room = Yupi.GetGame().GetRoomManager().GetRoom(current.Id);
                         if (room != null)
                             room.RoomData.Owner = text;
                     }
@@ -854,7 +854,7 @@ namespace Azure.Messages.Handlers
         internal void GetRelationships()
         {
             uint userId = Request.GetUInteger();
-            Habbo habboForId = Azure.GetHabboById(userId);
+            Habbo habboForId = Yupi.GetHabboById(userId);
             if (habboForId == null)
                 return;
             Random rand = new Random();
@@ -871,7 +871,7 @@ namespace Azure.Messages.Handlers
             Response.AppendInteger(habboForId.Relationships.Count);
             foreach (Relationship current in habboForId.Relationships.Values)
             {
-                Habbo habboForId2 = Azure.GetHabboById(Convert.ToUInt32(current.UserId));
+                Habbo habboForId2 = Yupi.GetHabboById(Convert.ToUInt32(current.UserId));
                 if (habboForId2 == null)
                 {
                     Response.AppendInteger(0);
@@ -901,7 +901,7 @@ namespace Azure.Messages.Handlers
             int num2 = Request.GetInteger();
 
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     if (num2 == 0)
                     {
@@ -943,7 +943,7 @@ namespace Azure.Messages.Handlers
                         int num3 = (int)queryReactor.InsertQuery();
                         Session.GetHabbo().Relationships.Add(num3, new Relationship(num3, (int)num, num2));
                     }
-                    GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(num);
+                    GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(num);
                     Session.GetHabbo().GetMessenger().UpdateFriend(num, clientByUserId, true);
                 }
             }
@@ -954,7 +954,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void StartQuest()
         {
-            Azure.GetGame().GetQuestManager().ActivateQuest(Session, Request);
+            Yupi.GetGame().GetQuestManager().ActivateQuest(Session, Request);
         }
 
         /// <summary>
@@ -962,7 +962,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void StopQuest()
         {
-            Azure.GetGame().GetQuestManager().CancelQuest(Session, Request);
+            Yupi.GetGame().GetQuestManager().CancelQuest(Session, Request);
         }
 
         /// <summary>
@@ -970,7 +970,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         public void GetCurrentQuest()
         {
-            Azure.GetGame().GetQuestManager().GetCurrentQuest(Session, Request);
+            Yupi.GetGame().GetQuestManager().GetCurrentQuest(Session, Request);
         }
 
         /// <summary>
@@ -979,19 +979,19 @@ namespace Azure.Messages.Handlers
         public void StartSeasonalQuest()
         {
             RoomData roomData;
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
-                Quest quest = Azure.GetGame().GetQuestManager().GetQuest((int) Request.GetUInteger());
+                Quest quest = Yupi.GetGame().GetQuestManager().GetQuest((int) Request.GetUInteger());
                 if (quest == null)
                     return;
                 queryReactor.RunFastQuery(string.Concat("REPLACE INTO users_quests_data(user_id,quest_id) VALUES (", Session.GetHabbo().Id, ", ", quest.Id, ")"));
                 queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET quest_id = ", quest.Id, " WHERE id = ", Session.GetHabbo().Id));
                 Session.GetHabbo().CurrentQuestId = quest.Id;
                 Session.SendMessage(QuestStartedComposer.Compose(Session, quest));
-                Azure.GetGame().GetQuestManager().ActivateQuest(Session, Request);
+                Yupi.GetGame().GetQuestManager().ActivateQuest(Session, Request);
                 queryReactor.SetQuery("SELECT id FROM rooms_data WHERE state='open' ORDER BY users_now DESC LIMIT 1");
                 string @string = queryReactor.GetString();
-                roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(uint.Parse(@string));
+                roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(uint.Parse(@string));
             }
             if (roomData != null)
             {
@@ -999,7 +999,7 @@ namespace Azure.Messages.Handlers
                 Session.GetMessageHandler().PrepareRoomForUser(roomData.Id, "");
                 return;
             }
-            Session.SendNotif(Azure.GetLanguage().GetVar("start_quest_need_room"));
+            Session.SendNotif(Yupi.GetLanguage().GetVar("start_quest_need_room"));
         }
 
         /// <summary>
@@ -1009,12 +1009,12 @@ namespace Azure.Messages.Handlers
         {
             if (!ServerExtraSettings.NewUsersGiftsEnabled)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_1"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_1"));
                 return;
             }
             if (Session.GetHabbo().NuxPassed)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_2"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("nieuwe_gebruiker_kado_error_2"));
                 return;
             }
 
@@ -1093,7 +1093,7 @@ namespace Azure.Messages.Handlers
         {
             string trackType = Request.GetString();
 
-            List<Talent> talents = Azure.GetGame().GetTalentManager().GetTalents(trackType, -1);
+            List<Talent> talents = Yupi.GetGame().GetTalentManager().GetTalents(trackType, -1);
 
             int failLevel = -1;
 
@@ -1112,7 +1112,7 @@ namespace Azure.Messages.Handlers
                 int nm = (failLevel == -1) ? 1 : 0;
                 Response.AppendInteger(nm);
 
-                List<Talent> talents2 = Azure.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
+                List<Talent> talents2 = Yupi.GetGame().GetTalentManager().GetTalents(trackType, current.Id);
 
                 Response.AppendInteger(talents2.Count);
 
@@ -1160,7 +1160,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void CompleteSafetyQuiz()
         {
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_SafetyQuizGraduate", 1);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_SafetyQuizGraduate", 1);
         }
 
         /// <summary>
@@ -1188,7 +1188,7 @@ namespace Azure.Messages.Handlers
 
         internal void FindMoreFriends()
         {
-            KeyValuePair<RoomData, uint>[] allRooms = Azure.GetGame().GetRoomManager().GetActiveRooms();
+            KeyValuePair<RoomData, uint>[] allRooms = Yupi.GetGame().GetRoomManager().GetActiveRooms();
             if (allRooms != null)
             {
                 Random rnd = new Random();
@@ -1211,7 +1211,7 @@ namespace Azure.Messages.Handlers
         internal void HotelViewRequestBadge()
         {
             string name = Request.GetString();
-            Dictionary<string, string> hotelViewBadges = Azure.GetGame().GetHotelView().HotelViewBadges;
+            Dictionary<string, string> hotelViewBadges = Yupi.GetGame().GetHotelView().HotelViewBadges;
             if (!hotelViewBadges.ContainsKey(name))
                 return;
             string badge = hotelViewBadges[name];
@@ -1231,12 +1231,12 @@ namespace Azure.Messages.Handlers
             string code = Request.GetString();
             GetResponse().Init(LibraryParser.OutgoingRequest("HotelViewHallOfFameMessageComposer"));
             GetResponse().AppendString(code);
-            IEnumerable<HallOfFameElement> rankings = Azure.GetGame().GetHallOfFame().Rankings.Where(e => e.Competition == code);
+            IEnumerable<HallOfFameElement> rankings = Yupi.GetGame().GetHallOfFame().Rankings.Where(e => e.Competition == code);
             GetResponse().StartArray();
             int rank = 1;
             foreach (HallOfFameElement element in rankings)
             {
-                Habbo user = Azure.GetHabboById(element.UserId);
+                Habbo user = Yupi.GetHabboById(element.UserId);
                 if (user == null) continue;
 
                 GetResponse().AppendInteger(user.Id);

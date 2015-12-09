@@ -1,10 +1,10 @@
 ﻿using System;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class FloodUser. This class cannot be inherited.
@@ -24,25 +24,25 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (client.GetHabbo().Rank >= session.GetHabbo().Rank)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                 return true;
             }
             int time;
             if (!int.TryParse(pms[1], out time))
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("enter_numbers"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("enter_numbers"));
                 return true;
             }
 
-            client.GetHabbo().FloodTime = Azure.GetUnixTimeStamp() + Convert.ToInt32(pms[1]);
+            client.GetHabbo().FloodTime = Yupi.GetUnixTimeStamp() + Convert.ToInt32(pms[1]);
             var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("FloodFilterMessageComposer"));
             serverMessage.AppendInteger(Convert.ToInt32(pms[1]));
             client.SendMessage(serverMessage);

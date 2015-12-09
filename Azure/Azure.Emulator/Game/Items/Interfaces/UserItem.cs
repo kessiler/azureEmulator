@@ -1,8 +1,8 @@
 using System.Globalization;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Messages;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Messages;
 
-namespace Azure.Game.Items.Interfaces
+namespace Yupi.Game.Items.Interfaces
 {
     /// <summary>
     ///     Class UserItem.
@@ -58,12 +58,12 @@ namespace Azure.Game.Items.Interfaces
             ExtraData = extraData;
             GroupId = group;
 
-            BaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
+            BaseItem = Yupi.GetGame().GetItemManager().GetItemByName(baseName);
 
             if (BaseItem == null)
                 return;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT * FROM items_limited WHERE item_id={id} LIMIT 1");
                 var row = queryReactor.GetRow();
@@ -144,7 +144,7 @@ namespace Azure.Game.Items.Interfaces
 
             if (BaseItem.IsGroupItem)
             {
-                var group = Azure.GetGame().GetGroupManager().GetGroup((int) GroupId);
+                var group = Yupi.GetGame().GetGroupManager().GetGroup((int) GroupId);
 
                 if (group != null)
                 {
@@ -153,8 +153,8 @@ namespace Azure.Game.Items.Interfaces
                     message.AppendString(ExtraData);
                     message.AppendString(group.Id.ToString(CultureInfo.InvariantCulture));
                     message.AppendString(group.Badge);
-                    message.AppendString(Azure.GetGame().GetGroupManager().GetGroupColour(group.Colour1, true));
-                    message.AppendString(Azure.GetGame().GetGroupManager().GetGroupColour(group.Colour2, false));
+                    message.AppendString(Yupi.GetGame().GetGroupManager().GetGroupColour(group.Colour1, true));
+                    message.AppendString(Yupi.GetGame().GetGroupManager().GetGroupColour(group.Colour2, false));
                 }
                 else
                 {

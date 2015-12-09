@@ -1,4 +1,4 @@
-namespace Azure.Game.Quests.Composers
+namespace Yupi.Game.Quests.Composers
 {
     /// <summary>
     ///     Enum QuestRewardType

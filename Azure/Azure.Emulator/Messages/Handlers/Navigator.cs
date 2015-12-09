@@ -1,10 +1,10 @@
-﻿using Azure.Game.Browser;
-using Azure.Game.Browser.Enums;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.Rooms.Data;
-using Azure.Messages.Parsers;
+﻿using Yupi.Game.Browser;
+using Yupi.Game.Browser.Enums;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.Rooms.Data;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -18,7 +18,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeFlatCategories(Session));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeFlatCategories(Session));
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Azure.Messages.Handlers
         internal void GetPub()
         {
             uint roomId = Request.GetUInteger();
-            RoomData roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomId);
+            RoomData roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId);
             if (roomData == null)
                 return;
             GetResponse().Init(LibraryParser.OutgoingRequest("453"));
@@ -52,7 +52,7 @@ namespace Azure.Messages.Handlers
             Request.GetInteger();
             uint roomId = Request.GetUInteger();
             Request.GetInteger();
-            RoomData roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomId);
+            RoomData roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId);
             if (roomData == null)
                 return;
             PrepareRoomForUser(roomData.Id, "");
@@ -65,7 +65,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session == null)
                 return;
-            Azure.GetGame().GetNavigator().EnableNewNavigator(Session);
+            Yupi.GetGame().GetNavigator().EnableNewNavigator(Session);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Azure.Messages.Handlers
                 return;
             string name = Request.GetString();
             string junk = Request.GetString();
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNewNavigator(name, junk, Session));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNewNavigator(name, junk, Session));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo().NavigatorLogs.Count > 50)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("navigator_max"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("navigator_max"));
                 return;
             }
             string value1 = Request.GetString();
@@ -187,7 +187,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializePublicRooms());
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializePublicRooms());
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Azure.Messages.Handlers
             uint roomId = Request.GetUInteger();
             Request.GetBool();
             Request.GetBool();
-            RoomData roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomId);
+            RoomData roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId);
             if (roomData == null)
                 return;
             GetResponse().Init(LibraryParser.OutgoingRequest("1491"));
@@ -216,7 +216,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, int.Parse(Request.GetString())));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, int.Parse(Request.GetString())));
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -1));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -1));
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -2));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -2));
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -2));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -2));
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -4));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -4));
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -5));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -5));
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace Azure.Messages.Handlers
                 Session.GetHabbo().OwnRoomsSerialized = true;
             }
 
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNavigator(Session, -3));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNavigator(Session, -3));
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeNewFlatCategories());
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeNewFlatCategories());
         }
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeFavoriteRooms(Session));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeFavoriteRooms(Session));
         }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializeRecentRooms(Session));
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializeRecentRooms(Session));
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace Azure.Messages.Handlers
         {
             if (Session.GetHabbo() == null)
                 return;
-            Session.SendMessage(Azure.GetGame().GetNavigator().SerializePopularRoomTags());
+            Session.SendMessage(Yupi.GetGame().GetNavigator().SerializePopularRoomTags());
         }
 
         /// <summary>
@@ -386,12 +386,12 @@ namespace Azure.Messages.Handlers
         {
             var roomId = Request.GetUInteger();
             var current = Request.GetBool();
-            var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
-            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Spr", 1, true);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(roomId);
+            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(Session, "ACH_Spr", 1, true);
             if (room == null) return;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
-                var pubItem = Azure.GetGame().GetNavigator().GetPublicItem(roomId);
+                var pubItem = Yupi.GetGame().GetNavigator().GetPublicItem(roomId);
                 if (pubItem == null) // not picked
                 {
                     queryReactor.SetQuery("INSERT INTO navigator_publics (bannertype, room_id, category_parent_id) VALUES ('0', @roomId, '-2')");
@@ -400,17 +400,17 @@ namespace Azure.Messages.Handlers
                     queryReactor.RunFastQuery("SELECT last_insert_id()");
                     var publicItemId = (uint)queryReactor.GetInteger();
                     var publicItem = new PublicItem(publicItemId, 0, string.Empty, string.Empty, string.Empty, PublicImageType.Internal, room.RoomId, 0, -2, false, 1, string.Empty);
-                    Azure.GetGame().GetNavigator().AddPublicItem(publicItem);
+                    Yupi.GetGame().GetNavigator().AddPublicItem(publicItem);
                 }
                 else // picked
                 {
                     queryReactor.SetQuery("DELETE FROM navigator_publics WHERE id = @pubId");
                     queryReactor.AddParameter("pubId", pubItem.Id);
                     queryReactor.RunQuery();
-                    Azure.GetGame().GetNavigator().RemovePublicItem(pubItem.Id);
+                    Yupi.GetGame().GetNavigator().RemovePublicItem(pubItem.Id);
                 }
                 room.RoomData.SerializeRoomData(Response, Session, false, true);
-                Azure.GetGame().GetNavigator().LoadNewPublicRooms();
+                Yupi.GetGame().GetNavigator().LoadNewPublicRooms();
             }
         }
     }

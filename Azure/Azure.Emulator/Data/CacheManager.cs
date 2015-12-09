@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Users;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Users;
 
-namespace Azure.Data
+namespace Yupi.Data
 {
     /// <summary>
     /// Class CacheManager.
@@ -64,7 +64,7 @@ namespace Azure.Data
         {
             var toRemove = new List<uint>();
 
-            foreach (var user in Azure.UsersCached)
+            foreach (var user in Yupi.UsersCached)
             {
                 if (user.Value == null)
                 {
@@ -72,7 +72,7 @@ namespace Azure.Data
                     return;
                 }
 
-                if (Azure.GetGame().GetClientManager().Clients.ContainsKey(user.Key))
+                if (Yupi.GetGame().GetClientManager().Clients.ContainsKey(user.Key))
                     continue;
 
                 if ((DateTime.Now - user.Value.LastUsed).TotalMilliseconds < 1800000)
@@ -85,7 +85,7 @@ namespace Azure.Data
             {
                 Habbo nullHabbo;
 
-                if (Azure.UsersCached.TryRemove(userId, out nullHabbo))
+                if (Yupi.UsersCached.TryRemove(userId, out nullHabbo))
                     nullHabbo = null;
             }
         }
@@ -95,16 +95,16 @@ namespace Azure.Data
         /// </summary>
         private static void ClearRoomsCache()
         {
-            if (Azure.GetGame() == null || Azure.GetGame().GetRoomManager() == null || Azure.GetGame().GetRoomManager().LoadedRoomData == null)
+            if (Yupi.GetGame() == null || Yupi.GetGame().GetRoomManager() == null || Yupi.GetGame().GetRoomManager().LoadedRoomData == null)
                 return;
 
-            var toRemove = (from roomData in Azure.GetGame().GetRoomManager().LoadedRoomData where roomData.Value != null && roomData.Value.UsersNow <= 0 where !((DateTime.Now - roomData.Value.LastUsed).TotalMilliseconds < 1800000) select roomData.Key).ToList();
+            var toRemove = (from roomData in Yupi.GetGame().GetRoomManager().LoadedRoomData where roomData.Value != null && roomData.Value.UsersNow <= 0 where !((DateTime.Now - roomData.Value.LastUsed).TotalMilliseconds < 1800000) select roomData.Key).ToList();
 
             foreach (var roomId in toRemove)
             {
                 RoomData nullRoom;
 
-                if (Azure.GetGame().GetRoomManager().LoadedRoomData.TryRemove(roomId, out nullRoom))
+                if (Yupi.GetGame().GetRoomManager().LoadedRoomData.TryRemove(roomId, out nullRoom))
                     nullRoom = null;
             }
         }

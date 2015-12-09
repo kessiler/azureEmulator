@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Wired.Handlers.Effects
+namespace Yupi.Game.Items.Wired.Handlers.Effects
 {
     public class JoinTeam : IWiredItem
     {

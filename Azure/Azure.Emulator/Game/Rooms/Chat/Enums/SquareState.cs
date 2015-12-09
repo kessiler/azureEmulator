@@ -1,4 +1,4 @@
-namespace Azure.Game.Rooms.Chat.Enums
+namespace Yupi.Game.Rooms.Chat.Enums
 {
     /// <summary>
     ///     Enum SquareState

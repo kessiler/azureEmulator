@@ -1,6 +1,6 @@
-﻿using Azure.IO;
+﻿using Yupi.Core.Io;
 
-namespace Azure.Game.Items
+namespace Yupi.Game.Items
 {
     /// <summary>
     ///     Class WallCoordinate.

@@ -4,14 +4,14 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Text;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Groups.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Users;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Users;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Groups
+namespace Yupi.Game.Groups
 {
     /// <summary>
     ///     Class GroupManager.
@@ -62,7 +62,7 @@ namespace Azure.Game.Groups
 
             ClearInfo();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM groups_badges_parts ORDER BY id");
 
@@ -123,7 +123,7 @@ namespace Azure.Game.Groups
             Habbo user = session.GetHabbo();
             Dictionary<uint, GroupMember> emptyDictionary = new Dictionary<uint, GroupMember>();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"INSERT INTO groups_data (`name`, `desc`,`badge`,`owner_id`,`created`,`room_id`,`colour1`,`colour2`) VALUES(@name,@desc,@badge,'{session.GetHabbo().Id}',UNIX_TIMESTAMP(),'{roomId}','{colour1}','{colour2}')");
                 queryReactor.AddParameter("name", name);
@@ -134,16 +134,16 @@ namespace Azure.Game.Groups
 
                 queryReactor.RunFastQuery($"UPDATE rooms_data SET group_id='{id}' WHERE id='{roomId}' LIMIT 1");
 
-                GroupMember memberGroup = new GroupMember(user.Id, user.UserName, user.Look, id, 2, Azure.GetUnixTimeStamp());
+                GroupMember memberGroup = new GroupMember(user.Id, user.UserName, user.Look, id, 2, Yupi.GetUnixTimeStamp());
                 Dictionary<uint, GroupMember> dictionary = new Dictionary<uint, GroupMember> {{ session.GetHabbo().Id, memberGroup }};
 
-                group = new Guild(id, name, desc, roomId, badge, Azure.GetUnixTimeStamp(), user.Id, colour1, colour2, dictionary, emptyDictionary, emptyDictionary, 0, 1, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0, 1, 1, 2);
+                group = new Guild(id, name, desc, roomId, badge, Yupi.GetUnixTimeStamp(), user.Id, colour1, colour2, dictionary, emptyDictionary, emptyDictionary, 0, 1, false, name, desc, 0, 0.0, 0, string.Empty, 0, 0, 1, 1, 2);
 
                 Groups.Add(id, group);
 
-                queryReactor.RunFastQuery($"INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{id}','{session.GetHabbo().Id}','2','{Azure.GetUnixTimeStamp()}')");
+                queryReactor.RunFastQuery($"INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{id}','{session.GetHabbo().Id}','2','{Yupi.GetUnixTimeStamp()}')");
 
-                var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
+                var room = Yupi.GetGame().GetRoomManager().GetRoom(roomId);
 
                 if (room != null)
                 {
@@ -176,7 +176,7 @@ namespace Azure.Game.Groups
             var admins = new Dictionary<uint, GroupMember>();
             var requests = new Dictionary<uint, GroupMember>();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT * FROM groups_data WHERE id='{groupId}' LIMIT 1");
 
@@ -215,7 +215,7 @@ namespace Azure.Game.Groups
                     userId = (uint)dataRow["user_id"];
 
                     var membGroup = new GroupMember(userId, dataRow["username"].ToString(), dataRow["look"].ToString(),
-                        groupId, 0, Azure.GetUnixTimeStamp());
+                        groupId, 0, Yupi.GetUnixTimeStamp());
 
                     if (!requests.ContainsKey(userId))
                         requests.Add(userId, membGroup);
@@ -246,7 +246,7 @@ namespace Azure.Game.Groups
         {
             var list = new HashSet<GroupMember>();
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT u.username, u.look, g.group_id, g.rank, g.date_join FROM groups_members g INNER JOIN users u ON (g.user_id = u.id) WHERE g.user_id={userId}");
 
@@ -266,7 +266,7 @@ namespace Azure.Game.Groups
             response.AppendInteger(member.Id);
             response.AppendString(member.Name);
             response.AppendString(member.Look);
-            response.AppendString(Azure.GetGroupDateJoinString(member.DateJoin));
+            response.AppendString(Yupi.GetGroupDateJoinString(member.DateJoin));
         }
 
         /// <summary>
@@ -446,14 +446,14 @@ namespace Azure.Game.Groups
             response.AppendString(group.Description);
             response.AppendString(group.Badge);
             response.AppendInteger(group.RoomId);
-            response.AppendString((Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Azure.GetGame().GetRoomManager().GenerateRoomData(@group.RoomId).Name);
+            response.AppendString((Yupi.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Yupi.GetGame().GetRoomManager().GenerateRoomData(@group.RoomId).Name);
             response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.ContainsKey(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
             response.AppendInteger(group.Members.Count);
             response.AppendBool(session.GetHabbo().FavouriteGroup == group.Id);
             response.AppendString($"{dateTime2.Day.ToString("00")}-{dateTime2.Month.ToString("00")}-{dateTime2.Year}");
             response.AppendBool(group.CreatorId == session.GetHabbo().Id);
             response.AppendBool(group.Admins.ContainsKey(session.GetHabbo().Id));
-            response.AppendString((Azure.GetHabboById(group.CreatorId) == null) ? string.Empty : Azure.GetHabboById(group.CreatorId).UserName);
+            response.AppendString((Yupi.GetHabboById(group.CreatorId) == null) ? string.Empty : Yupi.GetHabboById(group.CreatorId).UserName);
             response.AppendBool(newWindow);
             response.AppendBool(group.AdminOnlyDeco == 0u);
             response.AppendInteger(group.Requests.Count);
@@ -486,14 +486,14 @@ namespace Azure.Game.Groups
             response.AppendString(group.Description);
             response.AppendString(group.Badge);
             response.AppendInteger(group.RoomId);
-            response.AppendString((Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Azure.GetGame().GetRoomManager().GenerateRoomData(group.RoomId).Name);
+            response.AppendString((Yupi.GetGame().GetRoomManager().GenerateRoomData(group.RoomId) == null) ? "No room found.." : Yupi.GetGame().GetRoomManager().GenerateRoomData(group.RoomId).Name);
             response.AppendInteger((group.CreatorId == session.GetHabbo().Id) ? 3 : (group.Requests.ContainsKey(session.GetHabbo().Id) ? 2 : (group.Members.ContainsKey(session.GetHabbo().Id) ? 1 : 0)));
             response.AppendInteger(group.Members.Count);
             response.AppendBool(session.GetHabbo().FavouriteGroup == group.Id);
             response.AppendString($"{dateTime2.Day.ToString("00")}-{dateTime2.Month.ToString("00")}-{dateTime2.Year}");
             response.AppendBool(group.CreatorId == session.GetHabbo().Id);
             response.AppendBool(group.Admins.ContainsKey(session.GetHabbo().Id));
-            response.AppendString((Azure.GetHabboById(group.CreatorId) == null) ? string.Empty : Azure.GetHabboById(group.CreatorId).UserName);
+            response.AppendString((Yupi.GetHabboById(group.CreatorId) == null) ? string.Empty : Yupi.GetHabboById(group.CreatorId).UserName);
             response.AppendBool(newWindow);
             response.AppendBool(group.AdminOnlyDeco == 0u);
             response.AppendInteger(group.Requests.Count);
@@ -549,7 +549,7 @@ namespace Azure.Game.Groups
         /// <param name="id">The identifier.</param>
         internal void DeleteGroup(uint id)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("DELETE FROM groups_members WHERE group_id = {0};" +
                                                     "DELETE FROM groups_requests WHERE group_id = {0};" +
@@ -569,7 +569,7 @@ namespace Azure.Game.Groups
         /// <returns>System.Int32.</returns>
         internal int GetMessageCountForThread(uint id)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT COUNT(*) FROM groups_forums_posts WHERE parent_id='{id}'");
                 return int.Parse(queryReactor.GetString());

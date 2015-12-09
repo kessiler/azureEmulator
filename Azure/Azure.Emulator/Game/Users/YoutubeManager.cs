@@ -4,11 +4,11 @@ using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
 
-namespace Azure.Game.Users
+namespace Yupi.Game.Users
 {
     /// <summary>
     ///     Class YoutubeManager.
@@ -31,7 +31,7 @@ namespace Azure.Game.Users
         {
             Videos.Clear();
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM users_videos_youtube WHERE user_id = @user_id");
                 queryReactor.AddParameter("user_id", UserId);
@@ -103,7 +103,7 @@ namespace Azure.Game.Users
 
                 UserId = client.GetHabbo().Id;
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery(
                         "INSERT INTO users_videos_youtube (user_id, video_id, name, description) VALUES (@user_id, @video_id, @name, @name)");

@@ -1,8 +1,8 @@
 using System;
 using System.Text;
-using Azure.Messages.Factorys;
+using Yupi.Messages.Factorys;
 
-namespace Azure.Messages
+namespace Yupi.Messages
 {
     /// <summary>
     /// Class ClientMessage.

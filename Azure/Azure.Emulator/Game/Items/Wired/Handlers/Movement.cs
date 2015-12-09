@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Azure.Game.Items.Wired.Handlers
+namespace Yupi.Game.Items.Wired.Handlers
 {
     internal enum MovementState
     {
@@ -154,7 +154,7 @@ namespace Azure.Game.Items.Wired.Handlers
 
                 case MovementState.LeftRight:
                     {
-                        if (Azure.GetRandomNumber(0, 2) == 1)
+                        if (Yupi.GetRandomNumber(0, 2) == 1)
                             HandleMovement(ref newPoint, MovementState.Left);
                         else
                             HandleMovement(ref newPoint, MovementState.Right);
@@ -163,7 +163,7 @@ namespace Azure.Game.Items.Wired.Handlers
 
                 case MovementState.UpDown:
                     {
-                        if (Azure.GetRandomNumber(0, 2) == 1)
+                        if (Yupi.GetRandomNumber(0, 2) == 1)
                             HandleMovement(ref newPoint, MovementState.Up);
                         else
                             HandleMovement(ref newPoint, MovementState.Down);
@@ -172,7 +172,7 @@ namespace Azure.Game.Items.Wired.Handlers
 
                 case MovementState.Random:
                     {
-                        switch (Azure.GetRandomNumber(1, 5))
+                        switch (Yupi.GetRandomNumber(1, 5))
                         {
                             case 1:
                                 {
@@ -224,7 +224,7 @@ namespace Azure.Game.Items.Wired.Handlers
 
                 case MovementDirection.Random:
                     {
-                        switch (Azure.GetRandomNumber(1, 5))
+                        switch (Yupi.GetRandomNumber(1, 5))
                         {
                             case 1:
                                 {
@@ -274,7 +274,7 @@ namespace Azure.Game.Items.Wired.Handlers
 
                 case RotationState.Random:
                     {
-                        if (Azure.GetRandomNumber(0, 3) == 1)
+                        if (Yupi.GetRandomNumber(0, 3) == 1)
                             HandleClockwiseRotation(ref rotation);
                         else
                             HandleCounterClockwiseRotation(ref rotation);

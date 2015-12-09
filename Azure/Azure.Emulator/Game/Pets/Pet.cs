@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Azure.Game.Pets.Enums;
-using Azure.Game.Rooms;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.Rooms;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Pets
+namespace Yupi.Game.Pets
 {
     /// <summary>
     ///     Class Pet.
@@ -264,7 +264,7 @@ namespace Azure.Game.Pets
         ///     Gets the room.
         /// </summary>
         /// <value>The room.</value>
-        internal Room Room => !IsInRoom ? null : Azure.GetGame().GetRoomManager().GetRoom(RoomId);
+        internal Room Room => !IsInRoom ? null : Yupi.GetGame().GetRoomManager().GetRoom(RoomId);
 
         /// <summary>
         ///     Gets a value indicating whether this instance is in room.
@@ -303,7 +303,7 @@ namespace Azure.Game.Pets
         {
             get
             {
-                var creation = Azure.UnixToDateTime(CreationStamp);
+                var creation = Yupi.UnixToDateTime(CreationStamp);
                 return (int) (DateTime.Now - creation).TotalDays;
             }
         }
@@ -318,7 +318,7 @@ namespace Azure.Game.Pets
         ///     Gets the name of the owner.
         /// </summary>
         /// <value>The name of the owner.</value>
-        internal string OwnerName => Azure.GetGame().GetClientManager().GetNameById(OwnerId);
+        internal string OwnerName => Yupi.GetGame().GetClientManager().GetNameById(OwnerId);
 
         /// <summary>
         ///     Determines whether the specified command has command.
@@ -337,9 +337,9 @@ namespace Azure.Game.Pets
         {
             {
                 Respect++;
-                var ownerSession = Azure.GetGame().GetClientManager().GetClientByUserId(OwnerId);
+                var ownerSession = Yupi.GetGame().GetClientManager().GetClientByUserId(OwnerId);
                 if (ownerSession != null)
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetAchievementManager()
                         .ProgressUserAchievement(ownerSession, "ACH_PetRespectReceiver", 1);
                 var serverMessage = new ServerMessage(LibraryParser.OutgoingRequest("RespectPetMessageComposer"));
@@ -385,7 +385,7 @@ namespace Azure.Game.Pets
                 Room.SendMessage(serverMessage);
                 if (Experience < oldExperienceGoal)
                     return;
-                var ownerSession = Azure.GetGame().GetClientManager().GetClientByUserId(OwnerId);
+                var ownerSession = Yupi.GetGame().GetClientManager().GetClientByUserId(OwnerId);
 
                 // Reset pet commands
                 PetCommands.Clear();
@@ -444,7 +444,7 @@ namespace Azure.Game.Pets
                     num = 15;
                 if (num <= 4)
                     num = 15;
-                var randomNumber = Azure.GetRandomNumber(4, num);
+                var randomNumber = Yupi.GetRandomNumber(4, num);
                 if (!add)
                 {
                     Energy -= randomNumber;

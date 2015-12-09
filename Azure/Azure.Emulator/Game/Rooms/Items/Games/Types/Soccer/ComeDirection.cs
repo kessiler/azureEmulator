@@ -1,8 +1,8 @@
 using System.Drawing;
-using Azure.Game.Rooms.Chat.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Soccer.Enums;
+using Yupi.Game.Rooms.Chat.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Soccer.Enums;
 
-namespace Azure.Game.Rooms.Items.Games.Types.Soccer
+namespace Yupi.Game.Rooms.Items.Games.Types.Soccer
 {
     public class ComeDirection
     {

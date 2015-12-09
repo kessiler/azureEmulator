@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Azure.Messages
+namespace Yupi.Messages
 {
     /// <summary>
     /// Class ServerMessage.
@@ -232,7 +232,7 @@ namespace Azure.Messages
         /// <param name="isUtf8">If string is UTF8</param>
         public void AppendString(string s, bool isUtf8 = false)
         {
-            var toAdd = isUtf8 ? Azure.GetDefaultEncoding().GetBytes(s) : Encoding.UTF8.GetBytes(s);
+            var toAdd = isUtf8 ? Yupi.GetDefaultEncoding().GetBytes(s) : Encoding.UTF8.GetBytes(s);
 
             AppendShort(toAdd.Length);
             AppendBytes(toAdd, false);
@@ -280,7 +280,7 @@ namespace Azure.Messages
             final.Reverse();
             final.AddRange(_message);
 
-            if (Azure.DebugMode)
+            if (Yupi.DebugMode)
             {
                 Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.WriteLine();
@@ -288,7 +288,7 @@ namespace Azure.Messages
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.Write("PREPARED ");
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.Write(Id + Environment.NewLine + HabboEncoding.GetCharFilter(Azure.GetDefaultEncoding().GetString(final.ToArray())));
+                Console.Write(Id + Environment.NewLine + HabboEncoding.GetCharFilter(Yupi.GetDefaultEncoding().GetString(final.ToArray())));
                 Console.WriteLine();
             }
 
@@ -299,7 +299,7 @@ namespace Azure.Messages
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString() => HabboEncoding.GetCharFilter(Azure.GetDefaultEncoding().GetString(GetReversedBytes()));
+        public override string ToString() => HabboEncoding.GetCharFilter(Yupi.GetDefaultEncoding().GetString(GetReversedBytes()));
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

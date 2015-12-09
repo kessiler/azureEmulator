@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Shutdown. This class cannot be inherited.
@@ -22,11 +22,11 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetModerationTool()
                 .LogStaffEntry(session.GetHabbo().UserName, string.Empty, "Shutdown",
                     "Issued shutdown command!");
-            new Task(Azure.PerformShutDown).Start();
+            new Task(Yupi.PerformShutDown).Start();
             return true;
         }
     }

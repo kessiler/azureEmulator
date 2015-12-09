@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.Messages;
+using Yupi.Messages;
 
-namespace Azure.Game.Browser
+namespace Yupi.Game.Browser
 {
     /// <summary>
     ///     Class HotelView.
@@ -47,7 +47,7 @@ namespace Azure.Game.Browser
         /// <returns>SmallPromo.</returns>
         public static HotelLandingPromos Load(int index)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     "SELECT hotelview_promos.`index`,hotelview_promos.header,hotelview_promos.body,hotelview_promos.button,hotelview_promos.in_game_promo,hotelview_promos.special_action,hotelview_promos.image,hotelview_promos.enabled FROM hotelview_promos WHERE hotelview_promos.`index` = @x LIMIT 1");
@@ -90,7 +90,7 @@ namespace Azure.Game.Browser
         /// </summary>
         private void LoadReward()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     "SELECT hotelview_rewards_promos.furni_id, hotelview_rewards_promos.furni_name FROM hotelview_rewards_promos WHERE hotelview_rewards_promos.enabled = 1 LIMIT 1");
@@ -109,7 +109,7 @@ namespace Azure.Game.Browser
         /// </summary>
         private void List()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     "SELECT * from hotelview_promos WHERE hotelview_promos.enabled = '1' ORDER BY hotelview_promos.`index` DESC");
@@ -124,7 +124,7 @@ namespace Azure.Game.Browser
 
         private void LoadHvBadges()
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM hotelview_badges WHERE enabled = '1'");
                 var table = queryReactor.GetTable();

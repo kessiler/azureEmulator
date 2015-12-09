@@ -1,4 +1,4 @@
-namespace Azure.Game.Users.Figures
+namespace Yupi.Game.Users.Figures
 {
     /// <summary>
     ///     Struct AvatarFigureParts

@@ -1,8 +1,8 @@
-﻿using Azure.Game.Catalogs.Composers;
-using Azure.Game.Catalogs.Interfaces;
-using Azure.Messages;
+﻿using Yupi.Game.Catalogs.Composers;
+using Yupi.Game.Catalogs.Interfaces;
+using Yupi.Messages;
 
-namespace Azure.Game.Catalogs
+namespace Yupi.Game.Catalogs
 {
     internal class TargetedOfferManager
     {
@@ -17,7 +17,7 @@ namespace Azure.Game.Catalogs
         {
             CurrentOffer = null;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM catalog_targeted_offers WHERE enabled = '1' LIMIT 1");
 

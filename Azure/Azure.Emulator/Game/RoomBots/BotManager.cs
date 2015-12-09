@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.RoomBots.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.RoomBots.Interfaces;
 
-namespace Azure.Game.RoomBots
+namespace Yupi.Game.RoomBots
 {
     /// <summary>
     ///     Class BotManager.
@@ -35,9 +35,9 @@ namespace Azure.Game.RoomBots
         {
             Bots = new List<RoomBot>();
 
-            LoadCatalogBots(Azure.GetDatabaseManager().GetQueryReactor());
+            LoadCatalogBots(Yupi.GetDatabaseManager().GetQueryReactor());
 
-            LoadBotsCommands(Azure.GetDatabaseManager().GetQueryReactor());
+            LoadBotsCommands(Yupi.GetDatabaseManager().GetQueryReactor());
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Azure.Game.RoomBots
         /// <returns>RoomBot.</returns>
         internal static RoomBot CreateBotFromCatalog(string botType, uint userId)
         {
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 CatalogBot catalogBot = GetCatalogBot(botType);
 

@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class MassBadge. This class cannot be inherited.
@@ -24,13 +24,13 @@ namespace Azure.Game.Commands.Controllers
         {
             foreach (
                 var client in
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetClientManager()
                         .Clients.Values.Where(client => client != null && client.GetHabbo() != null))
                 client.GetHabbo().GetBadgeComponent().GiveBadge(pms[0], true, client);
 
-            session.SendNotif(Azure.GetLanguage().GetVar("command_badge_give_done"));
-            Azure.GetGame()
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_badge_give_done"));
+            Yupi.GetGame()
                 .GetModerationTool()
                 .LogStaffEntry(session.GetHabbo().UserName, "All",
                     "Badge", "Badge [" + pms[0] + "] given to all online users ATM");

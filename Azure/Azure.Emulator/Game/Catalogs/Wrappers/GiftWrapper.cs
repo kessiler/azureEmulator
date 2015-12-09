@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Azure.Game.Catalogs.Wrappers
+namespace Yupi.Game.Catalogs.Wrappers
 {
     /// <summary>
     ///     Class GiftWrapper.

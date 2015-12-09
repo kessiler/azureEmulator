@@ -1,4 +1,4 @@
-﻿namespace Azure.Data.Structs
+﻿namespace Yupi.Data.Structs
 {
     /// <summary>
     /// Description of IPlugin.

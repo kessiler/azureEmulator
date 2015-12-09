@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class HotelAlert. This class cannot be inherited.
@@ -25,7 +25,7 @@ namespace Azure.Game.Commands.Controllers
             var messageUrl = pms[0];
             var messageStr = string.Join(" ", pms.Skip(1));
 
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetClientManager()
                 .SendSuperNotif("${catalog.alert.external.link.title}", messageStr, "game_promo_small", session,
                     messageUrl, "${facebook.create_link_in_web}", true, false);

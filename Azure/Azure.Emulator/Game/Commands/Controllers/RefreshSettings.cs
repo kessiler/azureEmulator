@@ -1,8 +1,8 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Settings;
+﻿using Yupi.Core.Settings;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshSettings. This class cannot be inherited.
@@ -22,9 +22,9 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
-                Azure.ConfigData = new ServerDatabaseSettings(adapter);
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_settings"));
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
+                Yupi.ConfigData = new ServerDatabaseSettings(adapter);
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_settings"));
             return true;
         }
     }

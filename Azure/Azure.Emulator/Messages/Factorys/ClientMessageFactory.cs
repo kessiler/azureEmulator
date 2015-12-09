@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Azure.Messages.Factorys
+namespace Yupi.Messages.Factorys
 {
     internal class ClientMessageFactory
     {

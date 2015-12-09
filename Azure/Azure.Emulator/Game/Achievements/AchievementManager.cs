@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements.Composers;
-using Azure.Game.Achievements.Factories;
-using Azure.Game.Achievements.Structs;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Users;
-using Azure.Game.Users.Subscriptions;
-using Azure.Messages;
-using Azure.Messages.Handlers;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements.Composers;
+using Yupi.Game.Achievements.Factories;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Users;
+using Yupi.Game.Users.Subscriptions;
+using Yupi.Messages;
+using Yupi.Messages.Handlers;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Achievements
+namespace Yupi.Game.Achievements
 {
     /// <summary>
     ///     Class AchievementManager.
@@ -90,7 +90,7 @@ namespace Azure.Game.Achievements
 
             if (session.GetHabbo().Achievements.ContainsKey("ACH_Login"))
             {
-                int daysBtwLastLogin = Azure.GetUnixTimeStamp() - session.GetHabbo().PreviousOnline;
+                int daysBtwLastLogin = Yupi.GetUnixTimeStamp() - session.GetHabbo().PreviousOnline;
 
                 if (daysBtwLastLogin >= 51840 && daysBtwLastLogin <= 112320)
                     ProgressUserAchievement(session, "ACH_Login", 1, true);
@@ -117,7 +117,7 @@ namespace Azure.Game.Achievements
                 if (regAch.Level == 5)
                     return;
 
-                double sinceMember = Azure.GetUnixTimeStamp() - (int)session.GetHabbo().CreateDate;
+                double sinceMember = Yupi.GetUnixTimeStamp() - (int)session.GetHabbo().CreateDate;
 
                 int daysSinceMember = Convert.ToInt32(Math.Round(sinceMember / 86400));
 
@@ -155,7 +155,7 @@ namespace Azure.Game.Achievements
 
                 Subscription subscription = session.GetHabbo().GetSubscriptionManager().GetSubscription();
 
-                int sinceActivation = Azure.GetUnixTimeStamp() - subscription.ActivateTime;
+                int sinceActivation = Yupi.GetUnixTimeStamp() - subscription.ActivateTime;
 
                 if (sinceActivation < 31556926)
                     return;
@@ -285,7 +285,7 @@ namespace Azure.Game.Achievements
                     user.GetBadgeComponent().GiveBadge($"{achievementGroup}{achievementNextLevel}", true, session);
 
                     // Update in Database
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery($"REPLACE INTO users_achievements VALUES ('{user.Id}', '{achievementGroup}', '{achievementNextLevel}', '{achievementProgress}')");
 
                     // Send Unlocked Composer
@@ -298,8 +298,8 @@ namespace Azure.Game.Achievements
                     session.SendMessage(AchievementProgressComposer.Compose(achievement, achievementNextLevel, achievementNextLevelData, achievementLevelsCount, userAchievement));
 
                     // Set Talent
-                    if (Azure.GetGame().GetTalentManager().Talents.Values.Any(talent => talent.AchievementGroup == achievementGroup))
-                        Azure.GetGame().GetTalentManager().CompleteUserTalent(session, Azure.GetGame().GetTalentManager().GetTalentData(achievementGroup));
+                    if (Yupi.GetGame().GetTalentManager().Talents.Values.Any(talent => talent.AchievementGroup == achievementGroup))
+                        Yupi.GetGame().GetTalentManager().CompleteUserTalent(session, Yupi.GetGame().GetTalentManager().GetTalentData(achievementGroup));
                 }
                 else
                 {
@@ -313,7 +313,7 @@ namespace Azure.Game.Achievements
                     userAchievement.SetProgress(achievementProgress);
 
                     // Update in Database
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery($"REPLACE INTO users_achievements VALUES ('{user.Id}', '{achievementGroup}', '{achievementCurrentLevel}', '{achievementProgress}')");
 
                     // Compose Current Data

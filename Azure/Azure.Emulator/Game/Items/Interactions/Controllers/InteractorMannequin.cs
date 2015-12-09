@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorMannequin : FurniInteractorModel
     {
@@ -57,7 +57,7 @@ namespace Azure.Game.Items.Interactions.Controllers
 
             session.GetHabbo().Look = text3.TrimEnd('.');
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(
                     $"UPDATE users SET look = @look, gender = @gender WHERE id = {session.GetHabbo().Id}");

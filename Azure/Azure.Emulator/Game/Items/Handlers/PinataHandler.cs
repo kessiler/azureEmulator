@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Handlers
+namespace Yupi.Game.Items.Handlers
 {
     /// <summary>
     ///     Class PinataHandler.
@@ -67,7 +67,7 @@ namespace Azure.Game.Items.Handlers
             item.ExtraData = string.Empty;
             room.GetRoomItemHandler().RemoveFurniture(user.GetClient(), item.Id, false);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE items_rooms SET item_name='{item.BaseName}', extra_data='' WHERE id='{item.Id}'");
 
             if (!room.GetRoomItemHandler().SetFloorItem(user.GetClient(), item, item.X, item.Y, 0, true, false, true))

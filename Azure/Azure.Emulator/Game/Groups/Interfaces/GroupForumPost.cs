@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Azure.Game.Groups.Interfaces
+namespace Yupi.Game.Groups.Interfaces
 {
     /// <summary>
     ///     Class GroupForumPost.
@@ -99,7 +99,7 @@ namespace Azure.Game.Groups.Interfaces
             MessageCount = 0;
 
             if (ParentId == 0)
-                MessageCount = Azure.GetGame().GetGroupManager().GetMessageCountForThread(Id);
+                MessageCount = Yupi.GetGame().GetGroupManager().GetMessageCountForThread(Id);
         }
     }
 }

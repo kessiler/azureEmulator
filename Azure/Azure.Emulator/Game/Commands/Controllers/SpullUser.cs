@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class PullUser. This class cannot be inherited.
@@ -25,22 +25,22 @@ namespace Azure.Game.Commands.Controllers
             var user = room.GetRoomUserManager().GetRoomUserByHabbo(session.GetHabbo().Id);
             if (user == null) return true;
 
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (client.GetHabbo().Id == session.GetHabbo().Id)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_pull_error_own"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_pull_error_own"));
                 return true;
             }
             var user2 = room.GetRoomUserManager().GetRoomUserByHabbo(client.GetHabbo().Id);
             if (user2 == null) return true;
             if (user2.TeleportEnabled)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_error_teleport_enable"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_error_teleport_enable"));
                 return true;
             }
 

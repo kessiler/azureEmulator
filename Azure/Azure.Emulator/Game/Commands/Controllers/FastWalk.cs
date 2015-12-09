@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class FastWalk. This class cannot be inherited.
@@ -22,7 +22,7 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             var user =
-                Azure.GetGame()
+                Yupi.GetGame()
                     .GetRoomManager()
                     .GetRoom(session.GetHabbo().CurrentRoomId)
                     .GetRoomUserManager()

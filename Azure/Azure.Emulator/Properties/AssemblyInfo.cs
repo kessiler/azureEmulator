@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Azure Emulator")]
+[assembly: AssemblyTitle("Yupi")]
 [assembly: AssemblyDescription("Habbo Hotel Private Emulating Environment")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Azure")]
-[assembly: AssemblyProduct("Azure Emulator")]
-[assembly: AssemblyCopyright("Copyright Azure 2015")]
+[assembly: AssemblyCompany("UIoT")]
+[assembly: AssemblyProduct("Yupi Emulator")]
+[assembly: AssemblyCopyright("Claudio A. Santoro W., Kessiler R.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // Setting ComVisible to false makes the types in this assembly not visible

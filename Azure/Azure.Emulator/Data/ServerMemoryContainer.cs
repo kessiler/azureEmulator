@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Azure.Data
+namespace Yupi.Data
 {
     /// <summary>
     /// Class ServerMemoryContainer.

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Quests.Composers
+namespace Yupi.Game.Quests.Composers
 {
     /// <summary>
     ///     Class QuestListComposer.
@@ -85,7 +85,7 @@ namespace Azure.Game.Quests.Composers
             {
                 return;
             }
-            var amountOfQuestsInCategory = Azure.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(category);
+            var amountOfQuestsInCategory = Yupi.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(category);
 
             {
                 var num = (quest == null) ? amountOfQuestsInCategory : (quest.Number - 1);

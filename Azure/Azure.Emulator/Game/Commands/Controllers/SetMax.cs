@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class SetMax. This class cannot be inherited.
@@ -24,18 +24,18 @@ namespace Azure.Game.Commands.Controllers
             ushort maxUsers;
             if (!ushort.TryParse(pms[0], out maxUsers) || maxUsers == 0 || maxUsers > 200)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_setmax_error_number"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_setmax_error_number"));
                 return true;
             }
 
             if (maxUsers > 100 && !(session.GetHabbo().Vip || session.GetHabbo().HasFuse("fuse_vip_commands")))
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_setmax_error_max"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_setmax_error_max"));
                 return true;
             }
             if (maxUsers < 10 && !(session.GetHabbo().Vip || session.GetHabbo().HasFuse("fuse_vip_commands")))
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_setmax_error_min"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_setmax_error_min"));
                 return true;
             }
 

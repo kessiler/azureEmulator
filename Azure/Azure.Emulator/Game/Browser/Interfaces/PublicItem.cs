@@ -1,9 +1,9 @@
 using System;
-using Azure.Game.Browser.Enums;
-using Azure.Game.Rooms.Data;
-using Azure.Messages;
+using Yupi.Game.Browser.Enums;
+using Yupi.Game.Rooms.Data;
+using Yupi.Messages;
 
-namespace Azure.Game.Browser.Interfaces
+namespace Yupi.Game.Browser.Interfaces
 {
     /// <summary>
     ///     Class PublicItem.
@@ -141,10 +141,10 @@ namespace Azure.Game.Browser.Interfaces
             {
                 if (RoomId == 0u) return new RoomData();
 
-                if (Azure.GetGame() == null || Azure.GetGame().GetRoomManager() == null)
+                if (Yupi.GetGame() == null || Yupi.GetGame().GetRoomManager() == null)
                     throw new NullReferenceException();
 
-                return Azure.GetGame().GetRoomManager().GenerateRoomData(RoomId);
+                return Yupi.GetGame().GetRoomManager().GenerateRoomData(RoomId);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Azure.Game.Browser.Interfaces
 
                 try
                 {
-                    result = RoomId > 0u ? Azure.GetGame().GetRoomManager().GenerateRoomData(RoomId) : null;
+                    result = RoomId > 0u ? Yupi.GetGame().GetRoomManager().GenerateRoomData(RoomId) : null;
                 }
                 catch
                 {

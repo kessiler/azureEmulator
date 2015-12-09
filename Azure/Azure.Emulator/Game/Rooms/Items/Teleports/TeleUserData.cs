@@ -1,7 +1,7 @@
-using Azure.Game.Users;
-using Azure.Messages.Handlers;
+using Yupi.Game.Users;
+using Yupi.Messages.Handlers;
 
-namespace Azure.Game.Rooms.Items.Teleports
+namespace Yupi.Game.Rooms.Items.Teleports
 {
     /// <summary>
     ///     Class TeleUserData.

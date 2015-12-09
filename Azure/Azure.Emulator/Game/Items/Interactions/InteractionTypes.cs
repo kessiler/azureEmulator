@@ -1,6 +1,6 @@
-using Azure.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interactions.Enums;
 
-namespace Azure.Game.Items.Interactions
+namespace Yupi.Game.Items.Interactions
 {
     /// <summary>
     ///     Class InterractionTypes.

@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class GiveDuckets. This class cannot be inherited.
@@ -21,21 +21,21 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             int amount;
             if (!int.TryParse(pms[1], out amount))
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("enter_numbers"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("enter_numbers"));
                 return true;
             }
             client.GetHabbo().ActivityPoints += amount;
             client.GetHabbo().UpdateActivityPointsBalance();
-            client.SendNotif(string.Format(Azure.GetLanguage().GetVar("staff_gives_duckets"),
+            client.SendNotif(string.Format(Yupi.GetLanguage().GetVar("staff_gives_duckets"),
                 session.GetHabbo().UserName, amount));
             return true;
         }

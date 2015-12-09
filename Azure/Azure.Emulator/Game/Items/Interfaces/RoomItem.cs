@@ -2,31 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Azure.Data;
-using Azure.Game.Items.Datas;
-using Azure.Game.Items.Handlers;
-using Azure.Game.Items.Interactions;
-using Azure.Game.Items.Interactions.Controllers;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interactions.Interfaces;
-using Azure.Game.Items.Wired.Handlers;
-using Azure.Game.Pathfinding;
-using Azure.Game.Pets;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Items;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Freeze.Enum;
-using Azure.Game.Rooms.Items.Games.Types.Soccer.Enums;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
-using Azure.Game.SoundMachine;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Settings;
-using Azure.Util.Math;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Core.Settings;
+using Yupi.Core.Util.Math;
+using Yupi.Data;
+using Yupi.Game.Items.Datas;
+using Yupi.Game.Items.Handlers;
+using Yupi.Game.Items.Interactions;
+using Yupi.Game.Items.Interactions.Controllers;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interactions.Interfaces;
+using Yupi.Game.Items.Wired.Handlers;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Pets;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Items;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Freeze.Enum;
+using Yupi.Game.Rooms.Items.Games.Types.Soccer.Enums;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
+using Yupi.Game.SoundMachine;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Interfaces
+namespace Yupi.Game.Items.Interfaces
 {
     /// <summary>
     ///     Class RoomItem.
@@ -251,13 +251,13 @@ namespace Azure.Game.Items.Interfaces
             SongCode = songCode;
             IsBuilder = isBuilder;
 
-            _mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
+            _mBaseItem = Yupi.GetGame().GetItemManager().GetItemByName(baseName);
             _mRoom = pRoom;
 
             if (GetBaseItem() == null)
                 ServerLogManager.LogException(string.Format("Unknown Base Item (By Name): {0}", baseName));
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Format("SELECT * FROM items_limited WHERE item_id='{0}' LIMIT 1", id));
                 var row = queryReactor.GetRow();
@@ -390,7 +390,7 @@ namespace Azure.Game.Items.Interfaces
         {
             BaseName = baseName;
 
-            _mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(baseName);
+            _mBaseItem = Yupi.GetGame().GetItemManager().GetItemByName(baseName);
             _mRoom = pRoom;
 
             if (GetBaseItem() == null)
@@ -853,7 +853,7 @@ namespace Azure.Game.Items.Interfaces
 
                                 var drink =
                                     GetBaseItem().VendingIds[
-                                        Azure.GetRandomNumber(0, (GetBaseItem().VendingIds.Count - 1))];
+                                        Yupi.GetRandomNumber(0, (GetBaseItem().VendingIds.Count - 1))];
                                 user.CarryItem(drink);
 
                                 /*if (GetBaseItem().VendingIds.Count > 0)
@@ -1279,7 +1279,7 @@ namespace Azure.Game.Items.Interfaces
                             ExtraData = "1";
                             UpdateState();
                             var text = string.Empty;
-                            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(InteractingUser);
+                            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(InteractingUser);
                             {
                                 if (!clientByUserId.GetHabbo().Look.Contains("ha"))
                                     text = string.Format("{0}.ha-1006-1326", clientByUserId.GetHabbo().Look);
@@ -1417,7 +1417,7 @@ namespace Azure.Game.Items.Interfaces
             var s = ExtraData;
             if (GetBaseItem().InteractionType == Interaction.MysteryBox)
             {
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery(string.Format("SELECT extra_data FROM items_rooms WHERE id={0} LIMIT 1", Id));
                     ExtraData = queryReactor.GetString();
@@ -1484,7 +1484,7 @@ namespace Azure.Game.Items.Interfaces
                         break;
 
                     case Interaction.CrackableEgg:
-                        Azure.GetGame().GetCrackableEggHandler().GetServerMessage(serverMessage, this);
+                        Yupi.GetGame().GetCrackableEggHandler().GetServerMessage(serverMessage, this);
                         break;
 
                     case Interaction.YoutubeTv:
@@ -1531,7 +1531,7 @@ namespace Azure.Game.Items.Interfaces
                     case Interaction.GroupForumTerminal:
                     case Interaction.GuildForum:
                         {
-                            var group2 = Azure.GetGame().GetGroupManager().GetGroup((int) GroupId);
+                            var group2 = Yupi.GetGame().GetGroupManager().GetGroup((int) GroupId);
                             if (group2 == null)
                             {
                                 message.AppendInteger(1);
@@ -1546,10 +1546,10 @@ namespace Azure.Game.Items.Interfaces
                                 message.AppendString(ExtraData);
                                 message.AppendString(GroupId.ToString());
                                 message.AppendString(group2.Badge);
-                                message.AppendString(Azure.GetGame()
+                                message.AppendString(Yupi.GetGame()
                                     .GetGroupManager()
                                     .GetGroupColour(group2.Colour1, true));
-                                message.AppendString(Azure.GetGame()
+                                message.AppendString(Yupi.GetGame()
                                     .GetGroupManager()
                                     .GetGroupColour(group2.Colour2, false));
                             }
@@ -1606,7 +1606,7 @@ namespace Azure.Game.Items.Interfaces
                                 giftMessage = split[1];
                                 giftRibbon = int.Parse(split[2]);
                                 giftColor = int.Parse(split[3]);
-                                showGiver = Azure.EnumToBool(split[4]);
+                                showGiver = Yupi.EnumToBool(split[4]);
                                 giverName = split[5];
                                 giverLook = split[6];
                                 product = split[7];
@@ -1746,7 +1746,7 @@ namespace Azure.Game.Items.Interfaces
 
                     case Interaction.CrackableEgg:
                         message.AppendInteger(0);
-                        Azure.GetGame().GetCrackableEggHandler().GetServerMessage(message, this);
+                        Yupi.GetGame().GetCrackableEggHandler().GetServerMessage(message, this);
                         break;
 
                     default:
@@ -1810,13 +1810,13 @@ namespace Azure.Game.Items.Interfaces
         ///     Gets the base item.
         /// </summary>
         /// <returns>Item.</returns>
-        internal Item GetBaseItem() => _mBaseItem ?? (_mBaseItem = Azure.GetGame().GetItemManager().GetItemByName(BaseName));
+        internal Item GetBaseItem() => _mBaseItem ?? (_mBaseItem = Yupi.GetGame().GetItemManager().GetItemByName(BaseName));
 
         /// <summary>
         ///     Gets the room.
         /// </summary>
         /// <returns>Room.</returns>
-        internal Room GetRoom() => _mRoom ?? (_mRoom = Azure.GetGame().GetRoomManager().GetRoom(RoomId));
+        internal Room GetRoom() => _mRoom ?? (_mRoom = Yupi.GetGame().GetRoomManager().GetRoom(RoomId));
 
         /// <summary>
         ///     Users the walks on furni.

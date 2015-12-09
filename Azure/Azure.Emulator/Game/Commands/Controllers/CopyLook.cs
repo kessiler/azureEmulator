@@ -1,9 +1,9 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class CopyLook. This class cannot be inherited.
@@ -28,7 +28,7 @@ namespace Azure.Game.Commands.Controllers
             var user = room.GetRoomUserManager().GetRoomUserByHabbo(pms[0]);
             if (user == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
 
@@ -36,7 +36,7 @@ namespace Azure.Game.Commands.Controllers
             var look = user.GetClient().GetHabbo().Look;
             session.GetHabbo().Gender = gender;
             session.GetHabbo().Look = look;
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery(
                     "UPDATE users SET gender = @gender, look = @look WHERE id = " + session.GetHabbo().Id);

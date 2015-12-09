@@ -1,13 +1,13 @@
 using System;
 using System.Threading;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Models;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pathfinding;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Models;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Interactions.Controllers
+namespace Yupi.Game.Items.Interactions.Controllers
 {
     internal class InteractorFxBox : FurniInteractorModel
     {
@@ -58,7 +58,7 @@ namespace Azure.Game.Items.Interactions.Controllers
 
                     room.GetRoomItemHandler().RemoveFurniture(session, item.Id, false);
 
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery("DELETE FROM items_rooms WHERE id = " + item.Id);
                 }
             }

@@ -1,8 +1,8 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.SoundMachine;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.SoundMachine;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshSongs. This class cannot be inherited.
@@ -23,7 +23,7 @@ namespace Azure.Game.Commands.Controllers
         public override bool Execute(GameClient session, string[] pms)
         {
             SoundMachineSongManager.Initialize();
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_songs"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_songs"));
             return true;
         }
     }

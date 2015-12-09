@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
+using Yupi.Data.Base.Sessions.Interfaces;
 
-namespace Azure.Game.Users.Messenger.Structs
+namespace Yupi.Game.Users.Messenger.Structs
 {
     /// <summary>
     ///     Class OfflineMessage.
@@ -53,10 +53,10 @@ namespace Azure.Game.Users.Messenger.Structs
                 var msg = dataRow[3].ToString();
                 var ts = (double) dataRow[4];
 
-                if (!Azure.OfflineMessages.ContainsKey(key))
-                    Azure.OfflineMessages.Add(key, new List<OfflineMessage>());
+                if (!Yupi.OfflineMessages.ContainsKey(key))
+                    Yupi.OfflineMessages.Add(key, new List<OfflineMessage>());
 
-                Azure.OfflineMessages[key].Add(new OfflineMessage(id, msg, ts));
+                Yupi.OfflineMessages[key].Add(new OfflineMessage(id, msg, ts));
             }
         }
 

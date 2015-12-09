@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 using System.Linq;
-using Azure.Collections;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.User;
+using Yupi.Data.Collections;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Items.Games.Handlers
+namespace Yupi.Game.Rooms.Items.Games.Handlers
 {
     /// <summary>
     ///     Class GameItemHandler.
@@ -107,7 +107,7 @@ namespace Azure.Game.Rooms.Items.Games.Handlers
             if (!items.Any())
                 return;
 
-            var countId = Azure.GetRandomNumber(0, items.Count());
+            var countId = Yupi.GetRandomNumber(0, items.Count());
             var countAmount = 0;
 
             foreach (var current in items.Where(current => current != null))
@@ -162,7 +162,7 @@ namespace Azure.Game.Rooms.Items.Games.Handlers
                 if (string.IsNullOrEmpty(item.ExtraData))
                     item.ExtraData = "0";
 
-                var randomNumber = Azure.GetRandomNumber(0, 30);
+                var randomNumber = Yupi.GetRandomNumber(0, 30);
                 if (randomNumber <= 26)
                     continue;
                 if (item.ExtraData == "0")

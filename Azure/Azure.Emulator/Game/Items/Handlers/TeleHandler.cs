@@ -1,8 +1,8 @@
 using System;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Rooms;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Rooms;
 
-namespace Azure.Game.Items.Handlers
+namespace Yupi.Game.Items.Handlers
 {
     /// <summary>
     ///     Class TeleHandler.
@@ -19,7 +19,7 @@ namespace Azure.Game.Items.Handlers
         {
             uint result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT tele_two_id FROM items_teleports WHERE tele_one_id = {teleId}");
                 var row = queryReactor.GetRow();
@@ -43,7 +43,7 @@ namespace Azure.Game.Items.Handlers
 
             uint result;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"SELECT room_id FROM items_rooms WHERE id = {teleId} LIMIT 1");
                 var row = queryReactor.GetRow();

@@ -1,4 +1,4 @@
-namespace Azure.Game.Browser.Enums
+namespace Yupi.Game.Browser.Enums
 {
     /// <summary>
     ///     Enum PublicImageType

@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Events.Interfaces;
-using Azure.Game.Rooms.Data;
+using Yupi.Game.Events.Interfaces;
+using Yupi.Game.Rooms.Data;
 
-namespace Azure.Game.Events
+namespace Yupi.Game.Events
 {
     /// <summary>
     ///     Class EventManager.

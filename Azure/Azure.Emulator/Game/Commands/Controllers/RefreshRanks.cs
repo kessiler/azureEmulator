@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshRanks. This class cannot be inherited.
@@ -21,10 +21,10 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
-                Azure.GetGame().GetRoleManager().LoadRights(adapter);
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
+                Yupi.GetGame().GetRoleManager().LoadRights(adapter);
             CommandsManager.UpdateInfo();
-            session.SendNotif(Azure.GetLanguage().GetVar("command_refresh_ranks"));
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_refresh_ranks"));
             return true;
         }
     }

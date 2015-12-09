@@ -1,8 +1,8 @@
-using Azure.Game.Achievements.Structs;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Achievements.Structs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Achievements.Composers
+namespace Yupi.Game.Achievements.Composers
 {
     /// <summary>
     ///     Class AchievementUnlockedComposer.

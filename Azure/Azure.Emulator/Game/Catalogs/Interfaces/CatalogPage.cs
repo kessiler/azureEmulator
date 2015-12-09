@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using Azure.Game.Catalogs.Composers;
-using Azure.Messages;
+using Yupi.Game.Catalogs.Composers;
+using Yupi.Messages;
 
-namespace Azure.Game.Catalogs.Interfaces
+namespace Yupi.Game.Catalogs.Interfaces
 {
     /// <summary>
     ///     Class CatalogPage.

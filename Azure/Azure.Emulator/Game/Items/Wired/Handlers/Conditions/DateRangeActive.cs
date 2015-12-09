@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
 
-namespace Azure.Game.Items.Wired.Handlers.Conditions
+namespace Yupi.Game.Items.Wired.Handlers.Conditions
 {
     internal class DateRangeActive : IWiredItem
     {
@@ -68,7 +68,7 @@ namespace Azure.Game.Items.Wired.Handlers.Conditions
             if (date1 == 0)
                 return false;
 
-            var currentTimestamp = Azure.GetUnixTimeStamp();
+            var currentTimestamp = Yupi.GetUnixTimeStamp();
 
             return date2 < 1 ? currentTimestamp >= date1 : currentTimestamp >= date1 && currentTimestamp <= date2;
         }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Users.Guides
+namespace Yupi.Game.Users.Guides
 {
     /// <summary>
     /// Class GuideManager.

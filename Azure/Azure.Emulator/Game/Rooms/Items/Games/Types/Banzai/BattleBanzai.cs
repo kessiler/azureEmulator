@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
-using Azure.Collections;
-using Azure.Enclosure;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.User;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Algorithms.GameField;
+using Yupi.Core.Io;
+using Yupi.Data.Collections;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Items.Games.Types.Banzai
+namespace Yupi.Game.Rooms.Items.Games.Types.Banzai
 {
     internal class BattleBanzai
     {
@@ -102,7 +102,7 @@ namespace Azure.Game.Rooms.Items.Games.Types.Banzai
             _room.GetGameManager().StartGame();
             _floorMap = new byte[_room.GetGameMap().Model.MapSizeY, _room.GetGameMap().Model.MapSizeX];
             _field = new GameField(_floorMap, true);
-            _timestarted = Azure.GetUnixTimeStamp();
+            _timestarted = Yupi.GetUnixTimeStamp();
             _room.GetGameManager().LockGates();
 
             for (var i = 1; i < 5; i++)
@@ -171,13 +171,13 @@ namespace Azure.Game.Rooms.Items.Games.Types.Banzai
 
             foreach (var avatar in _room.GetRoomUserManager().GetRoomUsers())
             {
-                if (avatar.Team != Team.None && Azure.GetUnixTimeStamp() - _timestarted > 5.0)
+                if (avatar.Team != Team.None && Yupi.GetUnixTimeStamp() - _timestarted > 5.0)
                 {
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetAchievementManager()
                         .ProgressUserAchievement(avatar.GetClient(), "ACH_BattleBallTilesLocked",
                             avatar.LockedTilesCount);
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetAchievementManager()
                         .ProgressUserAchievement(avatar.GetClient(), "ACH_BattleBallPlayer", 1);
                 }
@@ -189,9 +189,9 @@ namespace Azure.Game.Rooms.Items.Games.Types.Banzai
                     continue;
                 //todo: clean this up not sure yet.
 
-                if (Azure.GetUnixTimeStamp() - _timestarted > 5.0)
+                if (Yupi.GetUnixTimeStamp() - _timestarted > 5.0)
                 {
-                    Azure.GetGame()
+                    Yupi.GetGame()
                         .GetAchievementManager()
                         .ProgressUserAchievement(avatar.GetClient(), "ACH_BattleBallWinner", 1);
                 }

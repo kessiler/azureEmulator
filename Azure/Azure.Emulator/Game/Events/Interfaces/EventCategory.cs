@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Rooms.Data;
+using Yupi.Game.Rooms.Data;
 
-namespace Azure.Game.Events.Interfaces
+namespace Yupi.Game.Events.Interfaces
 {
     /// <summary>
     ///     Class EventCategory.

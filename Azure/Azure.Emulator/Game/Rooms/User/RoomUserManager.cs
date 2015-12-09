@@ -5,27 +5,28 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using Azure.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Browser.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Pathfinding;
-using Azure.Game.Pets;
-using Azure.Game.Pets.Enums;
-using Azure.Game.Quests;
-using Azure.Game.RoomBots;
-using Azure.Game.RoomBots.Enumerators;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.Items;
-using Azure.Game.Rooms.Items.Enums;
-using Azure.Game.Rooms.Items.Games.Teams.Enums;
-using Azure.Game.Rooms.Items.Games.Types.Freeze;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Data.Base.Queries;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Browser.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Pathfinding;
+using Yupi.Game.Pets;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.Quests;
+using Yupi.Game.RoomBots;
+using Yupi.Game.RoomBots.Enumerators;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.Items;
+using Yupi.Game.Rooms.Items.Enums;
+using Yupi.Game.Rooms.Items.Games.Teams.Enums;
+using Yupi.Game.Rooms.Items.Games.Types.Freeze;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.User
+namespace Yupi.Game.Rooms.User
 {
     /// <summary>
     ///     Class RoomUserManager.
@@ -324,8 +325,8 @@ namespace Azure.Game.Rooms.User
 
             session.GetHabbo().LoadingRoom = 0;
 
-            if (Azure.GetGame().GetNavigator().PrivateCategories.Contains(_userRoom.RoomData.Category))
-                ((PublicCategory) Azure.GetGame().GetNavigator().PrivateCategories[_userRoom.RoomData.Category]).UsersNow++;
+            if (Yupi.GetGame().GetNavigator().PrivateCategories.Contains(_userRoom.RoomData.Category))
+                ((PublicCategory) Yupi.GetGame().GetNavigator().PrivateCategories[_userRoom.RoomData.Category]).UsersNow++;
         }
 
         /// <summary>
@@ -343,7 +344,7 @@ namespace Azure.Game.Rooms.User
             UsersByUserName.Add(newName, UsersByUserName[oldName]);
             UsersByUserName.Remove(oldName);
             //
-            Azure.GetGame().GetClientManager().UpdateClient(oldName, newName);
+            Yupi.GetGame().GetClientManager().UpdateClient(oldName, newName);
         }
 
         /// <summary>
@@ -369,7 +370,7 @@ namespace Azure.Game.Rooms.User
                     return;
                 if (notifyKick)
                 {
-                    var room = Azure.GetGame().GetRoomManager().GetRoom(roomUserByHabbo.RoomId);
+                    var room = Yupi.GetGame().GetRoomManager().GetRoom(roomUserByHabbo.RoomId);
                     var model = room.GetGameMap().Model;
                     roomUserByHabbo.MoveTo(model.DoorX, model.DoorY);
                     roomUserByHabbo.CanWalk = false;
@@ -431,10 +432,10 @@ namespace Azure.Game.Rooms.User
                             session.GetHabbo().GetMessenger().OnStatusChanged(true);
                     }
 
-                    using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                         if (session.GetHabbo() != null)
                             queryreactor2.RunFastQuery(string.Concat(
-                                "UPDATE users_rooms_visits SET exit_timestamp = '", Azure.GetUnixTimeStamp(),
+                                "UPDATE users_rooms_visits SET exit_timestamp = '", Yupi.GetUnixTimeStamp(),
                                 "' WHERE room_id = '", _userRoom.RoomId, "' AND user_id = '", userId,
                                 "' ORDER BY exit_timestamp DESC LIMIT 1"));
                 }
@@ -507,10 +508,10 @@ namespace Azure.Game.Rooms.User
         {
             _roomUserCount = count;
             _userRoom.RoomData.UsersNow = count;
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("UPDATE rooms_data SET users_now = " + count + " WHERE id = " +
                                           _userRoom.RoomId + " LIMIT 1");
-            Azure.GetGame().GetRoomManager().QueueActiveRoomUpdate(_userRoom.RoomData);
+            Yupi.GetGame().GetRoomManager().QueueActiveRoomUpdate(_userRoom.RoomData);
         }
 
         /// <summary>
@@ -866,13 +867,13 @@ namespace Azure.Game.Rooms.User
                             var num6 = num5 + 1;
                             item.ExtraData = num6.ToString();
                             item.UpdateState();
-                            Azure.GetGame()
+                            Yupi.GetGame()
                                 .GetAchievementManager()
                                 .ProgressUserAchievement(user.GetClient(), "ACH_PinataWhacker", 1);
                             if (num6 == 100)
                             {
-                                Azure.GetGame().GetPinataHandler().DeliverRandomPinataItem(user, _userRoom, item);
-                                Azure.GetGame()
+                                Yupi.GetGame().GetPinataHandler().DeliverRandomPinataItem(user, _userRoom, item);
+                                Yupi.GetGame()
                                     .GetAchievementManager()
                                     .ProgressUserAchievement(user.GetClient(), "ACH_PinataBreaker", 1);
                             }
@@ -1016,10 +1017,10 @@ namespace Azure.Game.Rooms.User
                 try
                 {
                     var ownerAchievementMessage =
-                        Azure.GetGame().GetClientManager().GetClientByUserId((uint) _userRoom.RoomData.OwnerId);
+                        Yupi.GetGame().GetClientManager().GetClientByUserId((uint) _userRoom.RoomData.OwnerId);
 
                     if (ownerAchievementMessage != null)
-                        Azure.GetGame()
+                        Yupi.GetGame()
                             .GetAchievementManager()
                             .ProgressUserAchievement(ownerAchievementMessage, "ACH_RoomDecoHosting", 1, true);
                 }
@@ -1047,7 +1048,7 @@ namespace Azure.Game.Rooms.User
                                 .PetsList.Count == 2)
                         {
                             var petBreedOwner =
-                                Azure.GetGame().GetClientManager().GetClientByUserId(roomUsers.PetData.OwnerId);
+                                Yupi.GetGame().GetClientManager().GetClientByUserId(roomUsers.PetData.OwnerId);
 
                             if (petBreedOwner != null)
                             {
@@ -1066,7 +1067,7 @@ namespace Azure.Game.Rooms.User
                                 .Count == 2)
                         {
                             var petBreedOwner =
-                                Azure.GetGame().GetClientManager().GetClientByUserId(roomUsers.PetData.OwnerId);
+                                Yupi.GetGame().GetClientManager().GetClientByUserId(roomUsers.PetData.OwnerId);
 
                             if (petBreedOwner != null)
                             {
@@ -1518,9 +1519,9 @@ namespace Azure.Game.Rooms.User
 
                     if (tonerItem != null)
                     {
-                        _userRoom.TonerData.Data1 = Azure.GetRandomNumber(0, 255);
-                        _userRoom.TonerData.Data2 = Azure.GetRandomNumber(0, 255);
-                        _userRoom.TonerData.Data3 = Azure.GetRandomNumber(0, 255);
+                        _userRoom.TonerData.Data1 = Yupi.GetRandomNumber(0, 255);
+                        _userRoom.TonerData.Data2 = Yupi.GetRandomNumber(0, 255);
+                        _userRoom.TonerData.Data3 = Yupi.GetRandomNumber(0, 255);
 
                         var tonerComposingMessage =
                             new ServerMessage(LibraryParser.OutgoingRequest("UpdateRoomItemMessageComposer"));
@@ -1553,7 +1554,7 @@ namespace Azure.Game.Rooms.User
                 // Check Users to be Removed from Room
                 foreach (var userToRemove in _removeUsers)
                 {
-                    var userRemovableClient = Azure.GetGame().GetClientManager().GetClientByUserId(userToRemove.HabboId);
+                    var userRemovableClient = Yupi.GetGame().GetClientManager().GetClientByUserId(userToRemove.HabboId);
 
                     // Remove User from Room..
                     if (userRemovableClient != null)
@@ -1754,10 +1755,10 @@ namespace Azure.Game.Rooms.User
                     }
                     if (_userRoom.RoomData.Owner != client.GetHabbo().UserName)
                     {
-                        Azure.GetGame()
+                        Yupi.GetGame()
                             .GetQuestManager()
                             .ProgressUserQuest(client, QuestType.SocialVisit);
-                        Azure.GetGame()
+                        Yupi.GetGame()
                             .GetAchievementManager()
                             .ProgressUserAchievement(client, "ACH_RoomEntry", 1);
                     }

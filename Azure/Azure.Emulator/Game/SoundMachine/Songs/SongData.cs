@@ -1,4 +1,4 @@
-namespace Azure.Game.SoundMachine.Songs
+namespace Yupi.Game.SoundMachine.Songs
 {
     /// <summary>
     ///     Class SongData.

@@ -1,8 +1,8 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Rooms.RoomInvokedItems;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Rooms.RoomInvokedItems;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RoomKickUsers. This class cannot be inherited.
@@ -26,7 +26,7 @@ namespace Azure.Game.Commands.Controllers
 
             var alert = string.Join(" ", pms);
             var kick = new RoomKick(alert, (int)session.GetHabbo().Rank);
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetModerationTool().LogStaffEntry(session.GetHabbo().UserName, string.Empty,
                     "Room kick", "Kicked the whole room");
             room.QueueRoomKick(kick);

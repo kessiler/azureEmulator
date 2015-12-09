@@ -1,4 +1,4 @@
-namespace Azure.Game.Quests
+namespace Yupi.Game.Quests
 {
     /// <summary>
     ///     Class QuestTypeUtillity.

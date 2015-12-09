@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RoomBadge. This class cannot be inherited.
@@ -40,7 +40,7 @@ namespace Azure.Game.Commands.Controllers
                 {
                 }
             }
-            Azure.GetGame().GetModerationTool()
+            Yupi.GetGame().GetModerationTool()
                 .LogStaffEntry(session.GetHabbo().UserName,
                     string.Empty, "Badge",
                     string.Concat("Roombadge in room [", room.RoomId, "] with badge [", pms[0], "]"));

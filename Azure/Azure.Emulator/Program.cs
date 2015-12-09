@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using Azure.Settings;
-using Azure.Data;
+using Yupi.Core.Settings;
+using Yupi.Data;
 
-namespace Azure
+namespace Yupi
 {
     internal class Program
     {
@@ -17,7 +17,7 @@ namespace Azure
         {
             StartEverything();
 
-            while (Azure.IsLive)
+            while (Yupi.IsLive)
             {
                 Console.CursorVisible = true;
                 ConsoleCommandHandler.InvokeCommand(Console.ReadLine());
@@ -37,14 +37,21 @@ namespace Azure
             Console.Clear();
             //Console.SetWindowSize(Console.LargestWindowWidth > 149 ? 150 : Console.WindowWidth, Console.LargestWindowHeight > 49 ? 50 : Console.WindowHeight);
             Console.SetCursorPosition(0, 0);
+
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
-            Console.WriteLine(@"     " + @"                                            |         |              ");
-            Console.WriteLine(@"     " + @",---.,---,.   .,---.,---.    ,---.,-.-..   .|    ,---.|--- ,---.,---.");
-            Console.WriteLine(@"     " + @",---| .-' |   ||    |---'    |---'| | ||   ||    ,---||    |   ||    ");
-            Console.WriteLine(@"     " + @"`---^'---'`---'`    `---'    `---'` ' '`---'`---'`---^`---'`---'`    ");
+            Console.WriteLine(@"     " + @"                                    88 88");
+            Console.WriteLine(@"     " + "                                    \"\" 88");
+            Console.WriteLine(@"     " + @"                                       88");
+            Console.WriteLine(@"     " + @"8b       d8 88       88 8b,dPPYba,  88 88");
+            Console.WriteLine(@"     " + "`8b     d8' 88       88 88P'    \"8a 88 88 ");
+            Console.WriteLine(@"     " + " `8b   d8'  88       88 88       d8 88 \"\"");
+            Console.WriteLine(@"     " + "  `8b,d8'   \"8a,   ,a88 88b,   ,a8\" 88 aa");
+            Console.WriteLine(@"     " + "    Y88'     `\"YbbdP'Y8 88`YbbdP\"'  88 88");
+            Console.WriteLine(@"     " + @"    d8'                 88               ");
+            Console.WriteLine(@"     " + @"   d8'                  88               ");
             Console.WriteLine();
-            Console.WriteLine(@"     " + @"  BUILD " + Azure.Version + "." + Azure.Build + " RELEASE 63B CRYPTO BOTH SIDE");
+            Console.WriteLine(@"     " + @"  BUILD " + Yupi.Version + "." + Yupi.Build + " RELEASE 63B CRYPTO BOTH SIDE");
             Console.WriteLine(@"     " + @"  .NET Framework " + Environment.Version + "     C# 6 Roslyn");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
@@ -52,17 +59,17 @@ namespace Azure
         }
 
         /// <summary>
-        /// Initialize the Azure Environment
+        /// Initialize the Yupi Environment
         /// </summary>
         public static void InitEnvironment()
         {
-            if (Azure.IsLive)
+            if (Yupi.IsLive)
                 return;
 
             Console.CursorVisible = false;
             var currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += ExceptionHandler;
-            Azure.Initialize();
+            Yupi.Initialize();
         }
 
         /// <summary>

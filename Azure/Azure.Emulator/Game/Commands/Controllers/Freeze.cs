@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Freeze. This class cannot be inherited.
@@ -24,7 +24,7 @@ namespace Azure.Game.Commands.Controllers
             var user = session.GetHabbo()
                 .CurrentRoom.GetRoomUserManager()
                 .GetRoomUserByHabbo(pms[0]);
-            if (user == null) session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+            if (user == null) session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
             else user.Frozen = !user.Frozen;
 
             return true;

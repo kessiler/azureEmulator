@@ -1,4 +1,4 @@
-namespace Azure.Game.Achievements.Structs
+namespace Yupi.Game.Achievements.Structs
 {
     /// <summary>
     ///     Struct AchievementLevel

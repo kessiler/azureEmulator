@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Catalogs.Composers;
-using Azure.Game.Groups.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.Data;
-using Azure.Game.Rooms.User;
-using Azure.Game.Users;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Catalogs.Composers;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.Data;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Users;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -58,34 +58,34 @@ namespace Azure.Messages.Handlers
         internal void SerializeGroupPurchaseParts()
         {
             Response.Init(LibraryParser.OutgoingRequest("GroupPurchasePartsMessageComposer"));
-            Response.AppendInteger(Azure.GetGame().GetGroupManager().Bases.Count);
-            foreach (GroupBases current in Azure.GetGame().GetGroupManager().Bases)
+            Response.AppendInteger(Yupi.GetGame().GetGroupManager().Bases.Count);
+            foreach (GroupBases current in Yupi.GetGame().GetGroupManager().Bases)
             {
                 Response.AppendInteger(current.Id);
                 Response.AppendString(current.Value1);
                 Response.AppendString(current.Value2);
             }
-            Response.AppendInteger(Azure.GetGame().GetGroupManager().Symbols.Count);
-            foreach (GroupSymbols current2 in Azure.GetGame().GetGroupManager().Symbols)
+            Response.AppendInteger(Yupi.GetGame().GetGroupManager().Symbols.Count);
+            foreach (GroupSymbols current2 in Yupi.GetGame().GetGroupManager().Symbols)
             {
                 Response.AppendInteger(current2.Id);
                 Response.AppendString(current2.Value1);
                 Response.AppendString(current2.Value2);
             }
-            Response.AppendInteger(Azure.GetGame().GetGroupManager().BaseColours.Count);
-            foreach (GroupBaseColours current3 in Azure.GetGame().GetGroupManager().BaseColours)
+            Response.AppendInteger(Yupi.GetGame().GetGroupManager().BaseColours.Count);
+            foreach (GroupBaseColours current3 in Yupi.GetGame().GetGroupManager().BaseColours)
             {
                 Response.AppendInteger(current3.Id);
                 Response.AppendString(current3.Colour);
             }
-            Response.AppendInteger(Azure.GetGame().GetGroupManager().SymbolColours.Count);
-            foreach (GroupSymbolColours current4 in Azure.GetGame().GetGroupManager().SymbolColours.Values)
+            Response.AppendInteger(Yupi.GetGame().GetGroupManager().SymbolColours.Count);
+            foreach (GroupSymbolColours current4 in Yupi.GetGame().GetGroupManager().SymbolColours.Values)
             {
                 Response.AppendInteger(current4.Id);
                 Response.AppendString(current4.Colour);
             }
-            Response.AppendInteger(Azure.GetGame().GetGroupManager().BackGroundColours.Count);
-            foreach (GroupBackGroundColours current5 in Azure.GetGame().GetGroupManager().BackGroundColours.Values)
+            Response.AppendInteger(Yupi.GetGame().GetGroupManager().BackGroundColours.Count);
+            foreach (GroupBackGroundColours current5 in Yupi.GetGame().GetGroupManager().BackGroundColours.Values)
             {
                 Response.AppendInteger(current5.Id);
                 Response.AppendString(current5.Colour);
@@ -113,7 +113,7 @@ namespace Azure.Messages.Handlers
             var guildBase = Request.GetInteger();
             var guildBaseColor = Request.GetInteger();
             var num6 = Request.GetInteger();
-            var roomData = Azure.GetGame().GetRoomManager().GenerateRoomData(roomid);
+            var roomData = Yupi.GetGame().GetRoomManager().GenerateRoomData(roomid);
 
             if (roomData.Owner != Session.GetHabbo().UserName)
                 return;
@@ -121,11 +121,11 @@ namespace Azure.Messages.Handlers
             for (var i = 0; i < (num6 * 3); i++)
                 gStates.Add(Request.GetInteger());
 
-            var image = Azure.GetGame().GetGroupManager().GenerateGuildImage(guildBase, guildBaseColor, gStates);
+            var image = Yupi.GetGame().GetGroupManager().GenerateGuildImage(guildBase, guildBaseColor, gStates);
 
             Guild theGroup;
 
-            Azure.GetGame().GetGroupManager().CreateGroup(name, description, roomid, image, Session, (!Azure.GetGame().GetGroupManager().SymbolColours.Contains(color)) ? 1 : color, (!Azure.GetGame().GetGroupManager().BackGroundColours.Contains(num3)) ? 1 : num3, out theGroup);
+            Yupi.GetGame().GetGroupManager().CreateGroup(name, description, roomid, image, Session, (!Yupi.GetGame().GetGroupManager().SymbolColours.Contains(color)) ? 1 : color, (!Yupi.GetGame().GetGroupManager().BackGroundColours.Contains(num3)) ? 1 : num3, out theGroup);
 
             Session.SendMessage(CatalogPageComposer.PurchaseOk(0u, "CREATE_GUILD", 10));
             Response.Init(LibraryParser.OutgoingRequest("GroupRoomMessageComposer"));
@@ -184,12 +184,12 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             bool newWindow = Request.GetBool();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (group == null)
                 return;
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, newWindow);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session, newWindow);
         }
 
         /// <summary>
@@ -202,11 +202,11 @@ namespace Azure.Messages.Handlers
             string searchVal = Request.GetString();
             uint reqType = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
 
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, reqType, Session, searchVal, page);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, reqType, Session, searchVal, page);
 
             SendResponse();
         }
@@ -219,7 +219,7 @@ namespace Azure.Messages.Handlers
             int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup(num);
 
             if (Session.GetHabbo().Id != group.CreatorId || !group.Members.ContainsKey(num2) || group.Admins.ContainsKey(num2))
                 return;
@@ -229,13 +229,13 @@ namespace Azure.Messages.Handlers
             group.Admins.Add(num2, group.Members[num2]);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 1u, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 1u, Session);
 
             SendResponse();
 
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(group.RoomId);
 
-            RoomUser roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(num2).UserName);
+            RoomUser roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Yupi.GetHabboById(num2).UserName);
 
             if (roomUserByHabbo != null)
             {
@@ -248,7 +248,7 @@ namespace Azure.Messages.Handlers
                 roomUserByHabbo.UpdateNeeded = true;
             }
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE groups_members SET rank='1' WHERE group_id=", num, " AND user_id=", num2, " LIMIT 1;"));
         }
 
@@ -260,7 +260,7 @@ namespace Azure.Messages.Handlers
             int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup(num);
 
             if (Session.GetHabbo().Id != group.CreatorId || !group.Members.ContainsKey(num2) || !group.Admins.ContainsKey(num2))
                 return;
@@ -269,11 +269,11 @@ namespace Azure.Messages.Handlers
             group.Admins.Remove(num2);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
 
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
-            RoomUser roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(num2).UserName);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(group.RoomId);
+            RoomUser roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Yupi.GetHabboById(num2).UserName);
 
             if (roomUserByHabbo != null)
             {
@@ -286,7 +286,7 @@ namespace Azure.Messages.Handlers
                 roomUserByHabbo.UpdateNeeded = true;
             }
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE groups_members SET rank='0' WHERE group_id=", num, " AND user_id=", num2, " LIMIT 1;"));
         }
 
@@ -298,7 +298,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             uint userId = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(userId))
                 return;
@@ -307,28 +307,28 @@ namespace Azure.Messages.Handlers
             {
                 group.Requests.Remove(userId);
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery($"DELETE FROM groups_requests WHERE group_id = '{groupId}' AND user_id = '{userId}' LIMIT 1");
                 return;
             }
 
             GroupMember memberGroup = group.Requests[userId];
 
-            memberGroup.DateJoin = Azure.GetUnixTimeStamp();
+            memberGroup.DateJoin = Yupi.GetUnixTimeStamp();
             group.Members.Add(userId, memberGroup);
             group.Requests.Remove(userId);
             group.Admins.Add(userId, group.Members[userId]);
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"DELETE FROM groups_requests WHERE group_id = '{groupId}' AND user_id = '{userId}' LIMIT 1");
 
-            using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
-                queryreactor2.RunFastQuery($"INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{groupId}','{userId}','0','{Azure.GetUnixTimeStamp()}')");
+            using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
+                queryreactor2.RunFastQuery($"INSERT INTO groups_members (group_id, user_id, rank, date_join) VALUES ('{groupId}','{userId}','0','{Yupi.GetUnixTimeStamp()}')");
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace Azure.Messages.Handlers
             var groupId = Request.GetUInteger();
             var userId = Request.GetUInteger();
 
-            var group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            var group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (Session.GetHabbo().Id != group.CreatorId && !group.Admins.ContainsKey(Session.GetHabbo().Id) && !group.Requests.ContainsKey(userId))
                 return;
@@ -347,12 +347,12 @@ namespace Azure.Messages.Handlers
             group.Requests.Remove(userId);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 2u, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 2u, Session);
             SendResponse();
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(group.RoomId);
 
-            var roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(userId).UserName);
+            var roomUserByHabbo = room?.GetRoomUserManager().GetRoomUserByHabbo(Yupi.GetHabboById(userId).UserName);
 
             if (roomUserByHabbo != null)
             {
@@ -362,9 +362,9 @@ namespace Azure.Messages.Handlers
                 roomUserByHabbo.UpdateNeeded = true;
             }
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery("DELETE FROM groups_requests WHERE group_id=" + groupId + " AND user_id=" + userId);
         }
 
@@ -375,20 +375,20 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
             Habbo user = Session.GetHabbo();
 
             if (!group.Members.ContainsKey(user.Id))
             {
                 if (group.State == 0)
                 {
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
-                        queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", user.Id, ",", groupId, ",", Azure.GetUnixTimeStamp(), ")"));
+                        queryReactor.RunFastQuery(string.Concat("INSERT INTO groups_members (user_id, group_id, date_join) VALUES (", user.Id, ",", groupId, ",", Yupi.GetUnixTimeStamp(), ")"));
                         queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group=", groupId, " WHERE id= ", user.Id, " LIMIT 1"));
                     }
 
-                    group.Members.Add(user.Id, new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp()));
+                    group.Members.Add(user.Id, new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Yupi.GetUnixTimeStamp()));
 
                     Session.GetHabbo().UserGroups.Add(group.Members[user.Id]);
                 }
@@ -396,16 +396,16 @@ namespace Azure.Messages.Handlers
                 {
                     if (!group.Requests.ContainsKey(user.Id))
                     {
-                        using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                        using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                             queryreactor2.RunFastQuery(string.Concat("INSERT INTO groups_requests (user_id, group_id) VALUES (", Session.GetHabbo().Id, ",", groupId, ")"));
 
-                        GroupMember groupRequest = new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Azure.GetUnixTimeStamp());
+                        GroupMember groupRequest = new GroupMember(user.Id, user.UserName, user.Look, group.Id, 0, Yupi.GetUnixTimeStamp());
 
                         group.Requests.Add(user.Id, groupRequest);
                     }
                 }
 
-                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
+                Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             }
         }
 
@@ -417,7 +417,7 @@ namespace Azure.Messages.Handlers
             int num = Request.GetInteger();
             uint num2 = Request.GetUInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(num);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup(num);
 
             if (num2 == Session.GetHabbo().Id)
             {
@@ -427,16 +427,16 @@ namespace Azure.Messages.Handlers
                 if (group.Admins.ContainsKey(num2))
                     group.Admins.Remove(num2);
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE user_id=", num2, " AND group_id=", num, " LIMIT 1"));
 
-                Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
+                Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
 
                 if (Session.GetHabbo().FavouriteGroup == num)
                 {
                     Session.GetHabbo().FavouriteGroup = 0;
 
-                    using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryreactor2.RunFastQuery($"UPDATE users_stats SET favourite_group=0 WHERE id={num2} LIMIT 1");
 
                     Response.Init(LibraryParser.OutgoingRequest("FavouriteGroupMessageComposer"));
@@ -451,7 +451,7 @@ namespace Azure.Messages.Handlers
 
                     if (group.AdminOnlyDeco == 0u)
                     {
-                        RoomUser roomUserByHabbo = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId).GetRoomUserManager().GetRoomUserByHabbo(Azure.GetHabboById(num2).UserName);
+                        RoomUser roomUserByHabbo = Yupi.GetGame().GetRoomManager().GetRoom(group.RoomId).GetRoomUserManager().GetRoomUserByHabbo(Yupi.GetHabboById(num2).UserName);
 
                         if (roomUserByHabbo == null)
                             return;
@@ -475,12 +475,12 @@ namespace Azure.Messages.Handlers
             if (group.Admins.ContainsKey(num2))
                 group.Admins.Remove(num2);
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(group, Response, Session);
             Response.Init(LibraryParser.OutgoingRequest("GroupMembersMessageComposer"));
-            Azure.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupMembers(Response, group, 0u, Session);
             SendResponse();
 
-            using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryreactor3 = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryreactor3.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE group_id=", num, " AND user_id=", num2, " LIMIT 1;"));
         }
 
@@ -491,7 +491,7 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null)
                 return;
@@ -500,9 +500,9 @@ namespace Azure.Messages.Handlers
                 return;
 
             Session.GetHabbo().FavouriteGroup = theGroup.Id;
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session);
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE users_stats SET favourite_group =", theGroup.Id, " WHERE id=", Session.GetHabbo().Id, " LIMIT 1;"));
 
             Response.Init(LibraryParser.OutgoingRequest("FavouriteGroupMessageComposer"));
@@ -544,7 +544,7 @@ namespace Azure.Messages.Handlers
             Request.GetUInteger();
             Session.GetHabbo().FavouriteGroup = 0;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery($"UPDATE users_stats SET favourite_group=0 WHERE id={Session.GetHabbo().Id} LIMIT 1;");
 
             Response.Init(LibraryParser.OutgoingRequest("FavouriteGroupMessageComposer"));
@@ -564,7 +564,7 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void PublishForumThread()
         {
-            if ((Azure.GetUnixTimeStamp() - Session.GetHabbo().LastSqlQuery) < 20)
+            if ((Yupi.GetUnixTimeStamp() - Session.GetHabbo().LastSqlQuery) < 20)
                 return;
 
             uint groupId = Request.GetUInteger();
@@ -572,14 +572,14 @@ namespace Azure.Messages.Handlers
             string subject = Request.GetString();
             string content = Request.GetString();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (group == null || !group.HasForum)
                 return;
 
-            int timestamp = Azure.GetUnixTimeStamp();
+            int timestamp = Yupi.GetUnixTimeStamp();
 
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 if (threadId != 0)
                 {
@@ -590,12 +590,12 @@ namespace Azure.Messages.Handlers
 
                     if (post.Locked || post.Hidden)
                     {
-                        Session.SendNotif(Azure.GetLanguage().GetVar("forums_cancel"));
+                        Session.SendNotif(Yupi.GetLanguage().GetVar("forums_cancel"));
                         return;
                     }
                 }
 
-                Session.GetHabbo().LastSqlQuery = Azure.GetUnixTimeStamp();
+                Session.GetHabbo().LastSqlQuery = Yupi.GetUnixTimeStamp();
                 dbClient.SetQuery("INSERT INTO groups_forums_posts (group_id, parent_id, timestamp, poster_id, poster_name, poster_look, subject, post_content) VALUES (@gid, @pard, @ts, @pid, @pnm, @plk, @subjc, @content)");
                 dbClient.AddParameter("gid", groupId);
                 dbClient.AddParameter("pard", threadId);
@@ -626,13 +626,13 @@ namespace Azure.Messages.Handlers
                 message.AppendString(content);
                 message.AppendBool(false);
                 message.AppendBool(false);
-                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - timestamp));
                 message.AppendInteger(1);
                 message.AppendInteger(0);
                 message.AppendInteger(0);
                 message.AppendInteger(1);
                 message.AppendString("");
-                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - timestamp));
                 message.AppendByte(1);
                 message.AppendInteger(1);
                 message.AppendString("");
@@ -649,7 +649,7 @@ namespace Azure.Messages.Handlers
                 message.AppendInteger(Session.GetHabbo().Id);
                 message.AppendString(Session.GetHabbo().UserName);
                 message.AppendString(Session.GetHabbo().Look);
-                message.AppendInteger((Azure.GetUnixTimeStamp() - timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - timestamp));
                 message.AppendString(content);
                 message.AppendByte(0);
                 message.AppendInteger(0);
@@ -669,12 +669,12 @@ namespace Azure.Messages.Handlers
             bool pin = Request.GetBool();
             bool Lock = Request.GetBool();
 
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery($"SELECT * FROM groups_forums_posts WHERE group_id = '{groupId}' AND id = '{threadId}' LIMIT 1;");
                 DataRow row = dbClient.GetRow();
 
-                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+                Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                 if (row != null)
                 {
@@ -718,13 +718,13 @@ namespace Azure.Messages.Handlers
                 message.AppendString(thread.Subject);
                 message.AppendBool(pin);
                 message.AppendBool(Lock);
-                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                 message.AppendInteger(thread.MessageCount + 1);
                 message.AppendInteger(0);
                 message.AppendInteger(0);
                 message.AppendInteger(1);
                 message.AppendString("");
-                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                 message.AppendByte((thread.Hidden) ? 10 : 1);
                 message.AppendInteger(1);
                 message.AppendString(thread.Hider);
@@ -743,12 +743,12 @@ namespace Azure.Messages.Handlers
             uint threadId = Request.GetUInteger();
             int stateToSet = Request.GetInteger();
 
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery($"SELECT * FROM groups_forums_posts WHERE group_id = '{groupId}' AND id = '{threadId}' LIMIT 1;");
 
                 DataRow row = dbClient.GetRow();
-                Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+                Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                 if (row != null)
                 {
@@ -778,13 +778,13 @@ namespace Azure.Messages.Handlers
                 message.AppendString(thread.Subject);
                 message.AppendBool(thread.Pinned);
                 message.AppendBool(thread.Locked);
-                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                 message.AppendInteger(thread.MessageCount + 1);
                 message.AppendInteger(0);
                 message.AppendInteger(0);
                 message.AppendInteger(0);
                 message.AppendString(string.Empty);
-                message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                 message.AppendByte(stateToSet);
                 message.AppendInteger(0);
                 message.AppendString(thread.Hider);
@@ -805,12 +805,12 @@ namespace Azure.Messages.Handlers
 
             Request.GetInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null || !theGroup.HasForum)
                 return;
 
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery($"SELECT * FROM groups_forums_posts WHERE group_id = '{groupId}' AND parent_id = '{threadId}' OR id = '{threadId}' ORDER BY timestamp ASC;");
 
@@ -861,7 +861,7 @@ namespace Azure.Messages.Handlers
                     message.AppendInteger(post.PosterId);
                     message.AppendString(post.PosterName);
                     message.AppendString(post.PosterLook);
-                    message.AppendInteger(Azure.GetUnixTimeStamp() - post.Timestamp);
+                    message.AppendInteger(Yupi.GetUnixTimeStamp() - post.Timestamp);
                     message.AppendString(post.PostContent);
                     message.AppendByte(0);
                     message.AppendInteger(0);
@@ -881,7 +881,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             int startIndex = Request.GetInteger();
 
-            using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery($"SELECT count(id) FROM groups_forums_posts WHERE group_id = '{groupId}' AND parent_id = 0");
 
@@ -910,13 +910,13 @@ namespace Azure.Messages.Handlers
                     message.AppendString(thread.Subject);
                     message.AppendBool(thread.Pinned);
                     message.AppendBool(thread.Locked);
-                    message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                    message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                     message.AppendInteger(thread.MessageCount + 1);
                     message.AppendInteger(0);
                     message.AppendInteger(0);
                     message.AppendInteger(0);
                     message.AppendString(string.Empty);
-                    message.AppendInteger((Azure.GetUnixTimeStamp() - thread.Timestamp));
+                    message.AppendInteger((Yupi.GetUnixTimeStamp() - thread.Timestamp));
                     message.AppendByte((thread.Hidden) ? 10 : 1);
                     message.AppendInteger(0);
                     message.AppendString(thread.Hider);
@@ -934,7 +934,7 @@ namespace Azure.Messages.Handlers
         {
             uint groupId = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup != null && theGroup.HasForum)
                 Session.SendMessage(theGroup.ForumDataMessage(Session.GetHabbo().Id));
@@ -956,7 +956,7 @@ namespace Azure.Messages.Handlers
             {
                 case 0:
                 case 1:
-                    using (IQueryAdapter dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         dbClient.SetQuery("SELECT count(id) FROM groups_data WHERE has_forum = '1' AND forum_Messages_count > 0");
 
@@ -972,7 +972,7 @@ namespace Azure.Messages.Handlers
                         message.AppendInteger(qtdForums == 0 ? 1 : qtdForums);
                         message.AppendInteger(startIndex);
 
-                        groupList.AddRange(from DataRow rowGroupData in table.Rows select uint.Parse(rowGroupData["id"].ToString()) into groupId select Azure.GetGame().GetGroupManager().GetGroup((int) groupId));
+                        groupList.AddRange(from DataRow rowGroupData in table.Rows select uint.Parse(rowGroupData["id"].ToString()) into groupId select Yupi.GetGame().GetGroupManager().GetGroup((int) groupId));
 
                         message.AppendInteger(table.Rows.Count);
 
@@ -984,7 +984,7 @@ namespace Azure.Messages.Handlers
                     break;
 
                 case 2:
-                    groupList.AddRange(Session.GetHabbo().UserGroups.Select(groupUser => Azure.GetGame().GetGroupManager().GetGroup(groupUser.GroupId)).Where(aGroup => aGroup != null && aGroup.HasForum));
+                    groupList.AddRange(Session.GetHabbo().UserGroups.Select(groupUser => Yupi.GetGame().GetGroupManager().GetGroup(groupUser.GroupId)).Where(aGroup => aGroup != null && aGroup.HasForum));
 
                     message.AppendInteger(groupList.Count == 0 ? 1 : groupList.Count);
 
@@ -1014,7 +1014,7 @@ namespace Azure.Messages.Handlers
         internal void ManageGroup()
         {
             var groupId = Request.GetUInteger();
-            var theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            var theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup == null)
                 return;
@@ -1081,12 +1081,12 @@ namespace Azure.Messages.Handlers
             string text = Request.GetString();
             string text2 = Request.GetString();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup(num);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup(num);
 
             if (theGroup?.CreatorId != Session.GetHabbo().Id)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"UPDATE groups_data SET `name`=@name, `desc`=@desc WHERE id={num} LIMIT 1");
                 queryReactor.AddParameter("name", text);
@@ -1098,7 +1098,7 @@ namespace Azure.Messages.Handlers
             theGroup.Name = text;
             theGroup.Description = text2;
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1108,11 +1108,11 @@ namespace Azure.Messages.Handlers
         {
             uint guildId = Request.GetUInteger();
 
-            Guild guild = Azure.GetGame().GetGroupManager().GetGroup((int) guildId);
+            Guild guild = Yupi.GetGame().GetGroupManager().GetGroup((int) guildId);
 
             if (guild != null)
             {
-                Room room = Azure.GetGame().GetRoomManager().GetRoom(guild.RoomId);
+                Room room = Yupi.GetGame().GetRoomManager().GetRoom(guild.RoomId);
 
                 if (room != null)
                 {
@@ -1128,7 +1128,7 @@ namespace Azure.Messages.Handlers
                     for (int i = 0; i < 12; i++)
                         guildStates.Add(Request.GetInteger());
 
-                    string badge = Azure.GetGame().GetGroupManager().GenerateGuildImage(Base, baseColor, guildStates);
+                    string badge = Yupi.GetGame().GetGroupManager().GenerateGuildImage(Base, baseColor, guildStates);
 
                     guild.Badge = badge;
 
@@ -1143,9 +1143,9 @@ namespace Azure.Messages.Handlers
 
                     room.SendMessage(Response);
 
-                    Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, room);
+                    Yupi.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, room);
 
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery($"UPDATE groups_data SET badge = @badgi WHERE id = {guildId}");
                         queryReactor.AddParameter("badgi", badge);
@@ -1167,7 +1167,7 @@ namespace Azure.Messages.Handlers
 
                         Session.GetHabbo().CurrentRoom.SendMessage(Response);
 
-                        Azure.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, Session.GetHabbo().CurrentRoom);
+                        Yupi.GetGame().GetGroupManager().SerializeGroupInfo(guild, Response, Session, Session.GetHabbo().CurrentRoom);
                     }
                 }
             }
@@ -1182,18 +1182,18 @@ namespace Azure.Messages.Handlers
             int num = Request.GetInteger();
             int num2 = Request.GetInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup?.CreatorId != Session.GetHabbo().Id)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE groups_data SET colour1= ", num, ", colour2=", num2, " WHERE id=", theGroup.Id, " LIMIT 1"));
 
             theGroup.Colour1 = num;
             theGroup.Colour2 = num2;
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1205,18 +1205,18 @@ namespace Azure.Messages.Handlers
             uint num = Request.GetUInteger();
             uint num2 = Request.GetUInteger();
 
-            Guild theGroup = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild theGroup = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (theGroup?.CreatorId != Session.GetHabbo().Id)
                 return;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.RunFastQuery(string.Concat("UPDATE groups_data SET state='", num, "', admindeco='", num2, "' WHERE id=", theGroup.Id, " LIMIT 1"));
 
             theGroup.State = num;
             theGroup.AdminOnlyDeco = num2;
 
-            Room room = Azure.GetGame().GetRoomManager().GetRoom(theGroup.RoomId);
+            Room room = Yupi.GetGame().GetRoomManager().GetRoom(theGroup.RoomId);
 
             if (room != null)
             {
@@ -1247,7 +1247,7 @@ namespace Azure.Messages.Handlers
                 }
             }
 
-            Azure.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
+            Yupi.GetGame().GetGroupManager().SerializeGroupInfo(theGroup, Response, Session, Session.GetHabbo().CurrentRoom);
         }
 
         /// <summary>
@@ -1258,7 +1258,7 @@ namespace Azure.Messages.Handlers
             uint groupId = Request.GetUInteger();
             uint userId = Request.GetUInteger();
 
-            Guild guild = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+            Guild guild = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
             if (guild == null || guild.CreatorId == userId)
                 return;
@@ -1280,14 +1280,14 @@ namespace Azure.Messages.Handlers
             int guild = Request.GetInteger();
             uint userId = Request.GetUInteger();
 
-            Guild byeGuild = Azure.GetGame().GetGroupManager().GetGroup(guild);
+            Guild byeGuild = Yupi.GetGame().GetGroupManager().GetGroup(guild);
 
             if (byeGuild == null)
                 return;
 
             if (byeGuild.CreatorId == userId)
             {
-                Session.SendNotif(Azure.GetLanguage().GetVar("user_room_video_true"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("user_room_video_true"));
                 return;
             }
 
@@ -1314,10 +1314,10 @@ namespace Azure.Messages.Handlers
                 else
                     return;
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     queryReactor.RunFastQuery(string.Concat("DELETE FROM groups_members WHERE user_id=", userId, " AND group_id=", guild, " LIMIT 1"));
 
-                Habbo byeUser = Azure.GetHabboById(userId);
+                Habbo byeUser = Yupi.GetHabboById(userId);
 
                 if (byeUser != null)
                 {
@@ -1336,7 +1336,7 @@ namespace Azure.Messages.Handlers
                 {
                     byeUser.FavouriteGroup = 0;
 
-                    using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryreactor2.RunFastQuery($"UPDATE users_stats SET favourite_group=0 WHERE id={userId} LIMIT 1");
 
                     Room room = Session.GetHabbo().CurrentRoom;
@@ -1376,7 +1376,7 @@ namespace Azure.Messages.Handlers
             int whoCanThread = Request.GetInteger();
             int whoCanMod = Request.GetInteger();
 
-            Guild group = Azure.GetGame().GetGroupManager().GetGroup(guild);
+            Guild group = Yupi.GetGame().GetGroupManager().GetGroup(guild);
 
             if (group == null)
                 return;
@@ -1386,7 +1386,7 @@ namespace Azure.Messages.Handlers
             group.WhoCanThread = whoCanThread;
             group.WhoCanMod = whoCanMod;
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("UPDATE groups_data SET who_can_read = @who_can_read, who_can_post = @who_can_post, who_can_thread = @who_can_thread, who_can_mod = @who_can_mod WHERE id = @group_id");
                 queryReactor.AddParameter("group_id", group.Id);
@@ -1403,16 +1403,16 @@ namespace Azure.Messages.Handlers
         internal void DeleteGroup()
         {
             uint groupId = Request.GetUInteger();
-            var group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
-            var room = Azure.GetGame().GetRoomManager().GetRoom(group.RoomId);
+            var group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(group.RoomId);
 
             if (room?.RoomData?.Group == null)
-                Session.SendNotif(Azure.GetLanguage().GetVar("command_group_has_no_room"));
+                Session.SendNotif(Yupi.GetLanguage().GetVar("command_group_has_no_room"));
             else
             {
                 foreach (var user in group.Members.Values)
                 {
-                    var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(user.Id);
+                    var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(user.Id);
 
                     if (clientByUserId == null)
                         continue;
@@ -1426,7 +1426,7 @@ namespace Azure.Messages.Handlers
                 room.RoomData.Group = null;
                 room.RoomData.GroupId = 0;
 
-                Azure.GetGame().GetGroupManager().DeleteGroup((uint) @group.Id);
+                Yupi.GetGame().GetGroupManager().DeleteGroup((uint) @group.Id);
 
                 var deleteGroup = new ServerMessage(LibraryParser.OutgoingRequest("GroupDeletedMessageComposer"));
 
@@ -1438,10 +1438,10 @@ namespace Azure.Messages.Handlers
                 var roomData = room.RoomData;
                 var roomId = room.RoomData.Id;
 
-                Azure.GetGame().GetRoomManager().UnloadRoom(room, "Delete room");
-                Azure.GetGame().GetRoomManager().QueueVoteRemove(roomData);
+                Yupi.GetGame().GetRoomManager().UnloadRoom(room, "Delete room");
+                Yupi.GetGame().GetRoomManager().QueueVoteRemove(roomData);
 
-                using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.RunFastQuery($"DELETE FROM rooms_data WHERE id = {roomId}");
                     queryReactor.RunFastQuery($"DELETE FROM users_favorites WHERE room_id = {roomId}");

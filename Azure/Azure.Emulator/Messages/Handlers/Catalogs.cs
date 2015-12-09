@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Catalogs;
-using Azure.Game.Catalogs.Composers;
-using Azure.Game.Catalogs.Wrappers;
-using Azure.Game.Groups.Interfaces;
-using Azure.Messages.Enums;
-using Azure.Messages.Parsers;
+using Yupi.Game.Catalogs;
+using Yupi.Game.Catalogs.Composers;
+using Yupi.Game.Catalogs.Wrappers;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Messages.Enums;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -37,7 +37,7 @@ namespace Azure.Messages.Handlers
 
             Request.GetInteger();
 
-            var cPage = Azure.GetGame().GetCatalog().GetPage(pageId);
+            var cPage = Yupi.GetGame().GetCatalog().GetPage(pageId);
 
             if (cPage == null || !cPage.Enabled || !cPage.Visible || cPage.MinRank > Session.GetHabbo().Rank)
                 return;
@@ -104,7 +104,7 @@ namespace Azure.Messages.Handlers
         {
             Response.Init(LibraryParser.OutgoingRequest("RecyclerRewardsMessageComposer"));
 
-            var ecotronRewardsLevels = Azure.GetGame().GetCatalog().GetEcotronRewardsLevels();
+            var ecotronRewardsLevels = Yupi.GetGame().GetCatalog().GetEcotronRewardsLevels();
 
             Response.AppendInteger(ecotronRewardsLevels.Count);
 
@@ -113,7 +113,7 @@ namespace Azure.Messages.Handlers
                 Response.AppendInteger(current);
                 Response.AppendInteger(current);
 
-                var ecotronRewardsForLevel = Azure.GetGame().GetCatalog().GetEcotronRewardsForLevel(uint.Parse(current.ToString()));
+                var ecotronRewardsForLevel = Yupi.GetGame().GetCatalog().GetEcotronRewardsForLevel(uint.Parse(current.ToString()));
 
                 Response.AppendInteger(ecotronRewardsForLevel.Count);
 
@@ -148,7 +148,7 @@ namespace Azure.Messages.Handlers
             uint itemId = Request.GetUInteger();
             string extraData = Request.GetString();
             int priceAmount = Request.GetInteger();
-            Azure.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, priceAmount, false, string.Empty, string.Empty, 0, 0, 0, false, 0u);
+            Yupi.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, priceAmount, false, string.Empty, string.Empty, 0, 0, 0, false, 0u);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace Azure.Messages.Handlers
             int giftColor = Request.GetInteger();
             var undef = Request.GetBool();
 
-            Azure.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, 1, true, giftUser, giftMessage, giftSpriteId, giftLazo, giftColor, undef, 0u);
+            Yupi.GetGame().GetCatalog().HandlePurchase(Session, pageId, itemId, extraData, 1, true, giftUser, giftMessage, giftSpriteId, giftLazo, giftColor, undef, 0u);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Azure.Messages.Handlers
                 i = 1;
             else if (petName.Length < 3)
                 i = 2;
-            else if (!Azure.IsValidAlphaNumeric(petName))
+            else if (!Yupi.IsValidAlphaNumeric(petName))
                 i = 3;
 
             Response.Init(LibraryParser.OutgoingRequest("CheckPetNameMessageComposer"));
@@ -196,7 +196,7 @@ namespace Azure.Messages.Handlers
         public void CatalogueOffer()
         {
             var num = Request.GetInteger();
-            var catalogItem = Azure.GetGame().GetCatalog().GetItemFromOffer(num);
+            var catalogItem = Yupi.GetGame().GetCatalog().GetItemFromOffer(num);
 
             if (catalogItem == null || CatalogManager.LastSentOffer == num)
                 return;
@@ -230,13 +230,13 @@ namespace Azure.Messages.Handlers
         /// </summary>
         internal void SerializeGroupFurniPage()
         {
-            var userGroups = Azure.GetGame().GetGroupManager().GetUserGroups(Session.GetHabbo().Id);
+            var userGroups = Yupi.GetGame().GetGroupManager().GetUserGroups(Session.GetHabbo().Id);
 
             Response.Init(LibraryParser.OutgoingRequest("GroupFurniturePageMessageComposer"));
 
             var responseList = new List<ServerMessage>();
 
-            foreach (var habboGroup in userGroups.Where(current => current != null).Select(current => Azure.GetGame().GetGroupManager().GetGroup(current.GroupId)))
+            foreach (var habboGroup in userGroups.Where(current => current != null).Select(current => Yupi.GetGame().GetGroupManager().GetGroup(current.GroupId)))
             {
                 if (habboGroup == null)
                     continue;
@@ -245,14 +245,14 @@ namespace Azure.Messages.Handlers
                 subResponse.AppendInteger(habboGroup.Id);
                 subResponse.AppendString(habboGroup.Name);
                 subResponse.AppendString(habboGroup.Badge);
-                subResponse.AppendString(Azure.GetGame().GetGroupManager().SymbolColours.Contains(habboGroup.Colour1)
+                subResponse.AppendString(Yupi.GetGame().GetGroupManager().SymbolColours.Contains(habboGroup.Colour1)
                     ? ((GroupSymbolColours)
-                    Azure.GetGame().GetGroupManager().SymbolColours[habboGroup.Colour1]).Colour
+                    Yupi.GetGame().GetGroupManager().SymbolColours[habboGroup.Colour1]).Colour
                     : "4f8a00");
                 subResponse.AppendString(
-                    Azure.GetGame().GetGroupManager().BackGroundColours.Contains(habboGroup.Colour2)
+                    Yupi.GetGame().GetGroupManager().BackGroundColours.Contains(habboGroup.Colour2)
                     ? ((GroupBackGroundColours)
-                    Azure.GetGame().GetGroupManager().BackGroundColours[habboGroup.Colour2]).Colour
+                    Yupi.GetGame().GetGroupManager().BackGroundColours[habboGroup.Colour2]).Colour
                     : "4f8a00");
                 subResponse.AppendBool(habboGroup.CreatorId == Session.GetHabbo().Id);
                 subResponse.AppendInteger(habboGroup.CreatorId);

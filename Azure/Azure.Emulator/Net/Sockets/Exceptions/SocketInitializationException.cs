@@ -1,6 +1,6 @@
 using System;
 
-namespace Azure.Net.Sockets.Exceptions
+namespace Yupi.Net.Sockets.Exceptions
 {
     /// <summary>
     /// Class SocketInitializationException.

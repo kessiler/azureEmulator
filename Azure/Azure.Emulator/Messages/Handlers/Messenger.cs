@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Quests;
-using Azure.Messages.Parsers;
+using Yupi.Game.Quests;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Messages.Handlers
+namespace Yupi.Messages.Handlers
 {
     /// <summary>
     /// Class GameClientMessageHandler.
@@ -38,7 +38,7 @@ namespace Azure.Messages.Handlers
                 var num2 = Request.GetUInteger();
                 if (Session.GetHabbo().Relationships.ContainsKey(Convert.ToInt32(num2)))
                 {
-                    Session.SendNotif(Azure.GetLanguage().GetVar("buddy_error_1"));
+                    Session.SendNotif(Yupi.GetLanguage().GetVar("buddy_error_1"));
                     return;
                 }
                 Session.GetHabbo().GetMessenger().DestroyFriendship(num2);
@@ -95,7 +95,7 @@ namespace Azure.Messages.Handlers
         internal void RequestBuddy()
         {
             if (Session.GetHabbo().GetMessenger() == null) return;
-            if (Session.GetHabbo().GetMessenger().RequestBuddy(Request.GetString())) Azure.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialFriend);
+            if (Session.GetHabbo().GetMessenger().RequestBuddy(Request.GetString())) Yupi.GetGame().GetQuestManager().ProgressUserQuest(Session, QuestType.SocialFriend);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Azure.Messages.Handlers
         internal void FollowBuddy()
         {
             var userId = Request.GetUInteger();
-            var clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            var clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId == null || clientByUserId.GetHabbo() == null) return;
             if (clientByUserId.GetHabbo().GetMessenger() == null || clientByUserId.GetHabbo().CurrentRoom == null)
@@ -154,7 +154,7 @@ namespace Azure.Messages.Handlers
             serverMessage.AppendString(s);
             foreach (var clientByUserId in (from current in list
                                             where Session.GetHabbo().GetMessenger().FriendshipExists(current)
-                                            select Azure.GetGame().GetClientManager().GetClientByUserId(current))
+                                            select Yupi.GetGame().GetClientManager().GetClientByUserId(current))
                 .TakeWhile(
                     clientByUserId => clientByUserId != null))
                 clientByUserId.SendMessage(serverMessage);

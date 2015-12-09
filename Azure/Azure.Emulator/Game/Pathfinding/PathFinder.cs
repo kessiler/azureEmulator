@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
 
-namespace Azure.Game.Pathfinding
+namespace Yupi.Game.Pathfinding
 {
     /// <summary>
     ///     Class PathFinder.

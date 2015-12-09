@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Achievements.Structs;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Achievements.Structs;
 
-namespace Azure.Game.Achievements.Factories
+namespace Yupi.Game.Achievements.Factories
 {
     /// <summary>
     ///     Class AchievementLevelFactory.
@@ -35,7 +35,7 @@ namespace Azure.Game.Achievements.Factories
                 if (!achievements[achievementName].CheckLevel(level))
                     achievements[achievementName].AddLevel(level);
                 else
-                    Writer.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "[Azure.Achievements]", ConsoleColor.Cyan);
+                    Writer.WriteLine("Was Found a Duplicated Level for: " + achievementName + ", Level: " + level.Level, "Yupi.Achievements", ConsoleColor.Cyan);
             }
         }
     }

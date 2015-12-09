@@ -1,4 +1,4 @@
-﻿namespace Azure.Game.Catalogs.Interfaces
+﻿namespace Yupi.Game.Catalogs.Interfaces
 {
     internal class TargetedOffer
     {

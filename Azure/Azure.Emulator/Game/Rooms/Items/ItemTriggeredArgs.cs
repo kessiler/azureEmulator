@@ -1,8 +1,8 @@
 using System;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Items
+namespace Yupi.Game.Rooms.Items
 {
     /// <summary>
     ///     Class ItemTriggeredArgs.

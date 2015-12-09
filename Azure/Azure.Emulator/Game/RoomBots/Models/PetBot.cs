@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Azure.Data;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pets;
-using Azure.Game.Pets.Enums;
-using Azure.Game.Rooms.User;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pets;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.RoomBots.Models
+namespace Yupi.Game.RoomBots.Models
 {
     /// <summary>
     ///     Class PetBot.
@@ -461,7 +461,7 @@ namespace Azure.Game.RoomBots.Models
                     if (GetRoom() != null && !GetRoom().MutedPets) roomUser.Chat(null, text, false, 0);
                     else roomUser.Statusses.Add(text, ServerUserChatTextHandler.GetString(roomUser.Z));
                 }
-                _speechTimer = Azure.GetRandomNumber(20, 120);
+                _speechTimer = Yupi.GetRandomNumber(20, 120);
             }
             else _speechTimer--;
             if (_actionTimer <= 0 && GetRoomUser() != null)
@@ -470,9 +470,9 @@ namespace Azure.Game.RoomBots.Models
                 {
                     _actionTimer = GetRoomUser().FollowingOwner != null
                         ? 2
-                        : Azure.GetRandomNumber(15, 40 + GetRoomUser().PetData.VirtualId);
+                        : Yupi.GetRandomNumber(15, 40 + GetRoomUser().PetData.VirtualId);
                     RemovePetStatus();
-                    _actionTimer = Azure.GetRandomNumber(15, 40 + GetRoomUser().PetData.VirtualId);
+                    _actionTimer = Yupi.GetRandomNumber(15, 40 + GetRoomUser().PetData.VirtualId);
                     if (GetRoomUser().RidingHorse != true)
                     {
                         RemovePetStatus();
@@ -525,7 +525,7 @@ namespace Azure.Game.RoomBots.Models
                 RemovePetStatus();
                 var roomUser2 = GetRoomUser();
                 if (roomUser2 != null) roomUser2.PetData.PetEnergy(true);
-                _energyTimer = Azure.GetRandomNumber(30, 120);
+                _energyTimer = Yupi.GetRandomNumber(30, 120);
                 return;
             }
             _energyTimer--;

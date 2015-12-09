@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Azure.Game.RoomBots.Interfaces
+namespace Yupi.Game.RoomBots.Interfaces
 {
     /// <summary>
     /// Class CatalogBot.

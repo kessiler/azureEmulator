@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RemoveBadge. This class cannot be inherited.
@@ -21,20 +21,20 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (!client.GetHabbo().GetBadgeComponent().HasBadge(pms[1]))
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("command_badge_remove_error"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("command_badge_remove_error"));
                 return true;
             }
             client.GetHabbo().GetBadgeComponent().RemoveBadge(pms[1], client);
-            session.SendNotif(Azure.GetLanguage().GetVar("command_badge_remove_done"));
-            Azure.GetGame()
+            session.SendNotif(Yupi.GetLanguage().GetVar("command_badge_remove_done"));
+            Yupi.GetGame()
                 .GetModerationTool()
                 .LogStaffEntry(session.GetHabbo().UserName, client.GetHabbo().UserName,
                     "Badge Taken", string.Format("Badge taken from user [{0}]", pms[1]));

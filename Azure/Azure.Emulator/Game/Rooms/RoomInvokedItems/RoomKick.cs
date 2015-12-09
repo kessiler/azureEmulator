@@ -1,4 +1,4 @@
-namespace Azure.Game.Rooms.RoomInvokedItems
+namespace Yupi.Game.Rooms.RoomInvokedItems
 {
     internal struct RoomKick
     {

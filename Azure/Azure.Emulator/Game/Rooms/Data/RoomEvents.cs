@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Rooms.Data
+namespace Yupi.Game.Rooms.Data
 {
     /// <summary>
     ///     Class RoomEvents.
@@ -23,7 +23,7 @@ namespace Azure.Game.Rooms.Data
         internal RoomEvents()
         {
             _events = new Dictionary<uint, RoomEvent>();
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT * FROM rooms_events WHERE `expire` > UNIX_TIMESTAMP()");
                 var table = queryReactor.GetTable();
@@ -56,13 +56,13 @@ namespace Azure.Game.Rooms.Data
                     roomEvent.Description = eventDesc;
                     if (roomEvent.HasExpired)
                     {
-                        roomEvent.Time = Azure.GetUnixTimeStamp() + time;
+                        roomEvent.Time = Yupi.GetUnixTimeStamp() + time;
                     }
                     else
                     {
                         roomEvent.Time += time;
                     }
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery(
                             "REPLACE INTO rooms_events VALUES ('@id','@name','@desc','@time','@category')");
@@ -75,10 +75,10 @@ namespace Azure.Game.Rooms.Data
                         goto IL_17C;
                     }
                 }
-                using (var queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                using (var queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryreactor2.SetQuery(string.Concat("REPLACE INTO rooms_events VALUES (", roomId,
-                        ", @name, @desc, ", Azure.GetUnixTimeStamp() + 7200, ", @category)"));
+                        ", @name, @desc, ", Yupi.GetUnixTimeStamp() + 7200, ", @category)"));
                     queryreactor2.AddParameter("name", eventName);
                     queryreactor2.AddParameter("desc", eventDesc);
                     queryreactor2.AddParameter("category", category);
@@ -86,8 +86,8 @@ namespace Azure.Game.Rooms.Data
                 }
                 _events.Add(roomId, new RoomEvent(roomId, eventName, eventDesc));
                 IL_17C:
-                Azure.GetGame().GetRoomManager().GenerateRoomData(roomId).Event = _events[roomId];
-                var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
+                Yupi.GetGame().GetRoomManager().GenerateRoomData(roomId).Event = _events[roomId];
+                var room = Yupi.GetGame().GetRoomManager().GetRoom(roomId);
                 if (room != null)
                 {
                     room.RoomData.Event = _events[roomId];
@@ -144,7 +144,7 @@ namespace Azure.Game.Rooms.Data
         /// <param name="roomId">The room identifier.</param>
         internal void SerializeEventInfo(uint roomId)
         {
-            var room = Azure.GetGame().GetRoomManager().GetRoom(roomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(roomId);
             if (room == null)
             {
                 return;
@@ -169,7 +169,7 @@ namespace Azure.Game.Rooms.Data
             serverMessage.AppendString(@event.Description);
             serverMessage.AppendInteger(0);
             serverMessage.AppendInteger(
-                ((int) Math.Floor((@event.Time - Azure.GetUnixTimeStamp())/60.0)));
+                ((int) Math.Floor((@event.Time - Yupi.GetUnixTimeStamp())/60.0)));
 
             serverMessage.AppendInteger(@event.Category);
             room.SendMessage(serverMessage);
@@ -181,7 +181,7 @@ namespace Azure.Game.Rooms.Data
         /// <param name="Event">The event.</param>
         internal void UpdateEvent(RoomEvent Event)
         {
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery(string.Concat("REPLACE INTO rooms_events VALUES (", Event.RoomId,
                     ", @name, @desc, ", Event.Time, ")"));

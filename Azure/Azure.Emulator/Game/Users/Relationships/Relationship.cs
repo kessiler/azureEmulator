@@ -1,4 +1,4 @@
-namespace Azure.Game.Users.Relationships
+namespace Yupi.Game.Users.Relationships
 {
     /// <summary>
     ///     Class Relationship.

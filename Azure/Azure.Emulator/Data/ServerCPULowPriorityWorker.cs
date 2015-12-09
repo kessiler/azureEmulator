@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Data.Base.Sessions.Interfaces;
 
-namespace Azure.Data
+namespace Yupi.Data
 {
     /// <summary>
     ///     Class ServerCpuLowPriorityWorker.
@@ -41,23 +41,23 @@ namespace Azure.Data
                 _lowPriorityStopWatch.Restart();
                 try
                 {
-                    var clientCount = Azure.GetGame().GetClientManager().ClientCount();
-                    var loadedRoomsCount = Azure.GetGame().GetRoomManager().LoadedRoomsCount;
-                    var dateTime = new DateTime((DateTime.Now - Azure.ServerStarted).Ticks);
+                    var clientCount = Yupi.GetGame().GetClientManager().ClientCount();
+                    var loadedRoomsCount = Yupi.GetGame().GetRoomManager().LoadedRoomsCount;
+                    var dateTime = new DateTime((DateTime.Now - Yupi.ServerStarted).Ticks);
 
-                    Console.Title = string.Concat("AzureEmulator v" + Azure.Version + "." + Azure.Build + " | TIME: ",
+                    Console.Title = string.Concat("YupiEmulator v" + Yupi.Version + "." + Yupi.Build + " | TIME: ",
                         int.Parse(dateTime.ToString("dd")) - 1 + dateTime.ToString(":HH:mm:ss"), " | ONLINE COUNT: ",
                         clientCount, " | ROOM COUNT: ", loadedRoomsCount);
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         if (clientCount > _userPeak)
                             _userPeak = clientCount;
 
                         queryReactor.RunFastQuery(string.Concat("UPDATE server_status SET stamp = '",
-                            Azure.GetUnixTimeStamp(), "', users_online = ", clientCount, ", rooms_loaded = ",
-                            loadedRoomsCount, ", server_ver = 'Azure Emulator', userpeak = ", _userPeak));
+                            Yupi.GetUnixTimeStamp(), "', users_online = ", clientCount, ", rooms_loaded = ",
+                            loadedRoomsCount, ", server_ver = 'Yupi Emulator', userpeak = ", _userPeak));
                     }
-                    Azure.GetGame().GetNavigator().LoadNewPublicRooms();
+                    Yupi.GetGame().GetNavigator().LoadNewPublicRooms();
                 }
                 catch (Exception e)
                 {

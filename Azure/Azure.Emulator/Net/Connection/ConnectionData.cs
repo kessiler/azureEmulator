@@ -1,12 +1,12 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using Azure.Data;
-using Azure.Encryption.Encryption.Hurlant.Crypto.Prng;
-using Azure.Messages.Parsers;
-using Azure.Net.Sockets;
+using Yupi.Core.Encryption.Hurlant.Crypto.Prng;
+using Yupi.Data;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Sockets;
 
-namespace Azure.Net.Connection
+namespace Yupi.Net.Connection
 {
     /// <summary>
     /// Class ConnectionData.
@@ -60,12 +60,12 @@ namespace Azure.Net.Connection
         /// <summary>
         /// The ar c4 server side
         /// </summary>
-        internal ARC4 Arc4ServerSide;
+        internal Arc4 Arc4ServerSide;
 
         /// <summary>
         /// The ar c4 client side
         /// </summary>
-        internal ARC4 Arc4ClientSide;
+        internal Arc4 Arc4ClientSide;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionData" /> class.
@@ -148,7 +148,7 @@ namespace Azure.Net.Connection
             catch (Exception ex)
             {
                 ServerLogManager.LogException(ex.ToString());
-                ServerLogManager.HandleException(ex, "Azure.Connection.Connection.ConnectionInformation");
+                ServerLogManager.HandleException(ex, "Yupi.Connection.Connection.ConnectionInformation");
             }
         }
 

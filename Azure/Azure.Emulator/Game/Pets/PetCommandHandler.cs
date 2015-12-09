@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Pets.Structs;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Pets.Structs;
 
-namespace Azure.Game.Pets
+namespace Yupi.Game.Pets
 {
     /// <summary>
     ///     Class PetCommandHandler.

@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
 
-namespace Azure.Game.Items.Wired.Handlers.Effects
+namespace Yupi.Game.Items.Wired.Handlers.Effects
 {
     internal class MoveToDir : IWiredItem
     {

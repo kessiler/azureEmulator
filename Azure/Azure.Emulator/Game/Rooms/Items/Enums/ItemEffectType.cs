@@ -1,4 +1,4 @@
-namespace Azure.Game.Rooms.Items.Enums
+namespace Yupi.Game.Rooms.Items.Enums
 {
     /// <summary>
     ///     Enum ItemEffectType

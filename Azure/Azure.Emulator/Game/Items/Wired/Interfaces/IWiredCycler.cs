@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Concurrent;
-using Azure.Game.Rooms.User;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Items.Wired.Interfaces
+namespace Yupi.Game.Items.Wired.Interfaces
 {
     public interface IWiredCycler
     {

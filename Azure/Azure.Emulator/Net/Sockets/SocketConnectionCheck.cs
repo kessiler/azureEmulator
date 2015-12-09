@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
-using Azure.IO;
+using Yupi.Core.Io;
 
-namespace Azure.Net.Sockets
+namespace Yupi.Net.Sockets
 {
     /// <summary>
     /// Class SocketConnectionCheck.
@@ -38,7 +38,7 @@ namespace Azure.Net.Sockets
 
             if ((GetConnectionAmount(iP) > maxIpConnectionCount))
             {
-                Writer.WriteLine(iP + " was banned by Anti-DDoS system.", "Azure.Security", ConsoleColor.Blue);
+                Writer.WriteLine(iP + " was banned by Anti-DDoS system.", "Yupi.Security", ConsoleColor.Blue);
 
                 _mLastIpBlocked = iP;
 

@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class MassEnable. This class cannot be inherited.
@@ -25,7 +25,7 @@ namespace Azure.Game.Commands.Controllers
             ushort effectId;
             if (!ushort.TryParse(pms[0], out effectId)) return true;
 
-            var room = Azure.GetGame().GetRoomManager().GetRoom(session.GetHabbo().CurrentRoomId);
+            var room = Yupi.GetGame().GetRoomManager().GetRoom(session.GetHabbo().CurrentRoomId);
             room.GetRoomUserManager().GetRoomUserByHabbo(session.GetHabbo().Id);
             foreach (var user in room.GetRoomUserManager().GetRoomUsers().Where(user => !user.RidingHorse))
                 user.ApplyEffect(effectId);

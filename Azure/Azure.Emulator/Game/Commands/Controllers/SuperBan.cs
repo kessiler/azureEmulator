@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class SuperBan. This class cannot be inherited.
@@ -22,23 +22,23 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
 
             if (client.GetHabbo().Rank >= session.GetHabbo().Rank)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
                 return true;
             }
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetModerationTool()
                 .LogStaffEntry(session.GetHabbo().UserName, client.GetHabbo().UserName, "Ban",
                     "User has received a Super ban.");
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetBanManager()
                 .BanUser(client, session.GetHabbo().UserName, 788922000.0, string.Join(" ", pms.Skip(1)),
                     false, false);

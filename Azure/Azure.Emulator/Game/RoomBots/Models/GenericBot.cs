@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Azure.Game.Commands;
-using Azure.Game.RoomBots.Interfaces;
-using Azure.Game.Rooms.User;
-using Azure.Game.Rooms.User.Path;
-using Azure.IO;
+using Yupi.Core.Io;
+using Yupi.Game.Commands;
+using Yupi.Game.RoomBots.Interfaces;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.Rooms.User.Path;
 
-namespace Azure.Game.RoomBots.Models
+namespace Yupi.Game.RoomBots.Models
 {
     /// <summary>
     ///     Class GenericBot.

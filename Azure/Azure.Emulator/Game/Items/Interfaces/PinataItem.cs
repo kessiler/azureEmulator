@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Azure.Game.Items.Interfaces
+namespace Yupi.Game.Items.Interfaces
 {
     /// <summary>
     ///     Class PinataItem.

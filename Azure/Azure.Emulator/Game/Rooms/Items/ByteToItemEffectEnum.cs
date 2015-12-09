@@ -1,6 +1,6 @@
-using Azure.Game.Rooms.Items.Enums;
+using Yupi.Game.Rooms.Items.Enums;
 
-namespace Azure.Game.Rooms.Items
+namespace Yupi.Game.Rooms.Items
 {
     /// <summary>
     ///     Class ByteToItemEffectEnum.

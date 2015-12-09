@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Mute. This class cannot be inherited.
@@ -21,17 +21,17 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            var client = Azure.GetGame().GetClientManager().GetClientByUserName(pms[0]);
+            var client = Yupi.GetGame().GetClientManager().GetClientByUserName(pms[0]);
             if (client == null || client.GetHabbo() == null)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("user_not_found"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("user_not_found"));
                 return true;
             }
             if (client.GetHabbo().Rank >= 4)
             {
-                session.SendNotif(Azure.GetLanguage().GetVar("user_is_higher_rank"));
+                session.SendNotif(Yupi.GetLanguage().GetVar("user_is_higher_rank"));
             }
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetModerationTool().LogStaffEntry(session.GetHabbo().UserName, client.GetHabbo().UserName,
                     "Mute", "Muted user");
             client.GetHabbo().Mute();

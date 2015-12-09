@@ -1,4 +1,4 @@
-namespace Azure.Game.Rooms.Data
+namespace Yupi.Game.Rooms.Data
 {
     /// <summary>
     ///     Class RoomEvent.
@@ -43,7 +43,7 @@ namespace Azure.Game.Rooms.Data
             RoomId = roomId;
             Name = name;
             Description = description;
-            Time = ((time == 0) ? (Azure.GetUnixTimeStamp() + 7200) : time);
+            Time = ((time == 0) ? (Yupi.GetUnixTimeStamp() + 7200) : time);
 
             Category = category;
         }
@@ -52,6 +52,6 @@ namespace Azure.Game.Rooms.Data
         ///     Gets a value indicating whether this instance has expired.
         /// </summary>
         /// <value><c>true</c> if this instance has expired; otherwise, <c>false</c>.</value>
-        internal bool HasExpired => Azure.GetUnixTimeStamp() > Time;
+        internal bool HasExpired => Yupi.GetUnixTimeStamp() > Time;
     }
 }

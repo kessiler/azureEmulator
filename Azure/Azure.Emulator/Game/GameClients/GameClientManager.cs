@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using Azure.Data;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Users.Messenger.Structs;
-using Azure.IO;
-using Azure.Messages;
-using Azure.Messages.Parsers;
-using Azure.Net.Connection;
+using Yupi.Core.Io;
+using Yupi.Data;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Users.Messenger.Structs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
+using Yupi.Net.Connection;
 
-namespace Azure.Game.GameClients
+namespace Yupi.Game.GameClients
 {
     /// <summary>
     ///     Class GameClientManager..
@@ -119,7 +119,7 @@ namespace Azure.Game.GameClients
 
             string String;
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery("SELECT username FROM users WHERE id = " + id);
                 String = queryReactor.GetString();
@@ -159,15 +159,15 @@ namespace Azure.Game.GameClients
             if (broadCast)
                 if (Event)
                 {
-                    var text1 = Azure.GetLanguage().GetVar("ha_event_one");
-                    var text2 = Azure.GetLanguage().GetVar("ha_event_two");
-                    var text3 = Azure.GetLanguage().GetVar("ha_event_three");
+                    var text1 = Yupi.GetLanguage().GetVar("ha_event_one");
+                    var text2 = Yupi.GetLanguage().GetVar("ha_event_two");
+                    var text3 = Yupi.GetLanguage().GetVar("ha_event_three");
                     serverMessage.AppendString(
                         $"<b>{text1} {client.GetHabbo().CurrentRoom.RoomData.Owner}!</b>\r\n {text2} .\r\n<b>{text3}</b>\r\n{notice}");
                 }
                 else
                 {
-                    var text4 = Azure.GetLanguage().GetVar("ha_title");
+                    var text4 = Yupi.GetLanguage().GetVar("ha_title");
                     serverMessage.AppendString(string.Concat("<b>" + text4 + "</b>\r\n", notice, "\r\n- <i>",
                         client.GetHabbo().UserName, "</i>"));
                 }
@@ -209,7 +209,7 @@ namespace Azure.Game.GameClients
                 RemoveClients();
                 GiveBadges();
                 BroadcastPackets();
-                Azure.GetGame().ClientManagerCycleEnded = true;
+                Yupi.GetGame().ClientManagerCycleEnded = true;
             }
             catch (Exception ex)
             {
@@ -224,7 +224,7 @@ namespace Azure.Game.GameClients
         /// <param name="exclude">The exclude.</param>
         internal void StaffAlert(ServerMessage message, uint exclude = 0u)
         {
-            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Azure.StaffAlertMinRank && x.GetHabbo().Id != exclude);
+            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Yupi.StaffAlertMinRank && x.GetHabbo().Id != exclude);
 
             foreach (var current in gameClients)
                 current.SendMessage(message);
@@ -237,7 +237,7 @@ namespace Azure.Game.GameClients
         /// <param name="exclude">The exclude.</param>
         internal void AmbassadorAlert(ServerMessage message, uint exclude = 0u)
         {
-            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Convert.ToUInt32(Azure.GetDbConfig().DbData["ambassador.minrank"]) && x.GetHabbo().Id != exclude);
+            var gameClients = Clients.Values.Where(x => x.GetHabbo() != null && x.GetHabbo().Rank >= Convert.ToUInt32(Yupi.GetDbConfig().DbData["ambassador.minrank"]) && x.GetHabbo().Id != exclude);
 
             foreach (var current in gameClients)
                 current.SendMessage(message);
@@ -330,7 +330,7 @@ namespace Azure.Game.GameClients
             if (!_idUserNameRegister.Contains(userId))
                 _idUserNameRegister.Add(userId, userName);
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.SetQuery($"UPDATE users SET online='1' WHERE id={userId} LIMIT 1");
         }
 
@@ -344,7 +344,7 @@ namespace Azure.Game.GameClients
             _userIdRegister.Remove(userid);
             _userNameRegister.Remove(userName.ToLower());
 
-            using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 queryReactor.SetQuery($"UPDATE users SET online='0' WHERE id={userid} LIMIT 1");
         }
 
@@ -356,30 +356,30 @@ namespace Azure.Game.GameClients
             var stringBuilder = new StringBuilder();
             var flag = false;
 
-            Writer.WriteLine("Saving Inventary Content....", "Azure.Boot", ConsoleColor.DarkCyan);
+            Writer.WriteLine("Saving Inventary Content....", "Yupi.Boot", ConsoleColor.DarkCyan);
 
             foreach (var current2 in Clients.Values.Where(current2 => current2.GetHabbo() != null))
             {
                 current2.GetHabbo().GetInventoryComponent().RunDbUpdate();
-                current2.GetHabbo().RunDbUpdate(Azure.GetDatabaseManager().GetQueryReactor());
+                current2.GetHabbo().RunDbUpdate(Yupi.GetDatabaseManager().GetQueryReactor());
                 stringBuilder.Append(current2.GetHabbo().GetQueryString);
                 flag = true;
                 Console.ForegroundColor = ConsoleColor.DarkMagenta;
             }
 
-            Writer.WriteLine("Inventary Content Saved!", "Azure.Boot", ConsoleColor.DarkCyan);
+            Writer.WriteLine("Inventary Content Saved!", "Yupi.Boot", ConsoleColor.DarkCyan);
 
             if (flag)
             {
                 if (stringBuilder.Length > 0)
                 {
-                    using (var queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (var queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                         queryReactor.RunFastQuery(stringBuilder.ToString());
                 }
             }
             try
             {
-                Writer.WriteLine("Closing Connection Manager...", "Azure.Boot", ConsoleColor.DarkMagenta);
+                Writer.WriteLine("Closing Connection Manager...", "Yupi.Boot", ConsoleColor.DarkMagenta);
 
                 foreach (var current3 in Clients.Values.Where(current3 => current3.GetConnection() != null))
                 {
@@ -387,7 +387,7 @@ namespace Azure.Game.GameClients
 
                     Console.ForegroundColor = ConsoleColor.DarkMagenta;
 
-                    Writer.WriteLine("Connection Manager Closed!", "Azure.Boot", ConsoleColor.DarkMagenta);
+                    Writer.WriteLine("Connection Manager Closed!", "Yupi.Boot", ConsoleColor.DarkMagenta);
                 }
             }
             catch (Exception ex)
@@ -396,7 +396,7 @@ namespace Azure.Game.GameClients
             }
 
             Clients.Clear();
-            Writer.WriteLine("Connections closed", "Azure.Conn", ConsoleColor.DarkYellow);
+            Writer.WriteLine("Connections closed", "Yupi.Conn", ConsoleColor.DarkYellow);
         }
 
         /// <summary>
@@ -462,7 +462,7 @@ namespace Azure.Game.GameClients
                             foreach (var current in Clients.Values.Where(current => current.GetHabbo() != null))
                             {
                                 current.GetHabbo().GetBadgeComponent().GiveBadge(badge, true, current);
-                                current.SendNotif(Azure.GetLanguage().GetVar("user_earn_badge"));
+                                current.SendNotif(Yupi.GetLanguage().GetVar("user_earn_badge"));
                             }
                         }
                     }

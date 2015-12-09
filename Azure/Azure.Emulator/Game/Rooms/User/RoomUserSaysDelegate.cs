@@ -1,6 +1,6 @@
-using Azure.Game.Rooms.Chat;
+using Yupi.Game.Rooms.Chat;
 
-namespace Azure.Game.Rooms.User
+namespace Yupi.Game.Rooms.User
 {
     /// <summary>
     ///     Delegate RoomUserSaysDelegate

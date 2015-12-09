@@ -1,9 +1,9 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class Dance. This class cannot be inherited.
@@ -28,7 +28,7 @@ namespace Azure.Game.Commands.Controllers
 
             if (result > 4)
             {
-                session.SendWhisper(Azure.GetLanguage().GetVar("command_dance_false"));
+                session.SendWhisper(Yupi.GetLanguage().GetVar("command_dance_false"));
                 result = 0;
             }
             var message = new ServerMessage();

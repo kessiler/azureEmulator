@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
-using Azure.Game.SoundMachine.Composers;
-using Azure.Game.SoundMachine.Songs;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
+using Yupi.Game.SoundMachine.Composers;
+using Yupi.Game.SoundMachine.Songs;
 
-namespace Azure.Game.SoundMachine
+namespace Yupi.Game.SoundMachine
 {
     /// <summary>
     ///     Class RoomMusicController.
@@ -63,7 +63,7 @@ namespace Azure.Game.SoundMachine
         ///     Gets the time playing.
         /// </summary>
         /// <value>The time playing.</value>
-        public double TimePlaying => Azure.GetUnixTimeStamp() - _mStartedPlayingTimestamp;
+        public double TimePlaying => Yupi.GetUnixTimeStamp() - _mStartedPlayingTimestamp;
 
         /// <summary>
         ///     Gets the song synchronize timestamp.
@@ -282,7 +282,7 @@ namespace Azure.Game.SoundMachine
             lock (_mPlaylist)
                 CurrentSong = _mPlaylist[SongQueuePosition];
 
-            _mStartedPlayingTimestamp = Azure.GetUnixTimeStamp();
+            _mStartedPlayingTimestamp = Yupi.GetUnixTimeStamp();
             _mBroadcastNeeded = true;
         }
 

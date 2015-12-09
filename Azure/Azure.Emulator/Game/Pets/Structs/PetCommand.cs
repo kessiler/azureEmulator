@@ -1,4 +1,4 @@
-﻿namespace Azure.Game.Pets.Structs
+﻿namespace Yupi.Game.Pets.Structs
 {
     /// <summary>
     ///     Struct PetCommand

@@ -1,10 +1,10 @@
-﻿using Azure.Data;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+﻿using Yupi.Data;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class RefreshCatalogue. This class cannot be inherited.
@@ -24,14 +24,14 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 FurnitureDataManager.SetCache();
-                Azure.GetGame().GetItemManager().LoadItems(adapter);
-                Azure.GetGame().GetCatalog().Initialize(adapter);
+                Yupi.GetGame().GetItemManager().LoadItems(adapter);
+                Yupi.GetGame().GetCatalog().Initialize(adapter);
                 FurnitureDataManager.Clear();
             }
-            Azure.GetGame()
+            Yupi.GetGame()
                 .GetClientManager()
                 .QueueBroadcaseMessage(
                     new ServerMessage(LibraryParser.OutgoingRequest("PublishShopMessageComposer")));

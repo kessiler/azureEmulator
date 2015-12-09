@@ -1,4 +1,4 @@
-namespace Azure.Game.Users.Badges.Models
+namespace Yupi.Game.Users.Badges.Models
 {
     /// <summary>
     ///     Class Badge.

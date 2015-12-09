@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Wired.Handlers.Effects
+namespace Yupi.Game.Items.Wired.Handlers.Effects
 {
     public class ResetPosition : IWiredItem
     {
@@ -89,8 +89,8 @@ namespace Azure.Game.Items.Wired.Handlers.Effects
                 serverMessage.AppendInteger(yToSet);
                 serverMessage.AppendInteger(1);
                 serverMessage.AppendInteger(fItem.Id);
-                serverMessage.AppendString(fItem.Z.ToString(Azure.CultureInfo));
-                serverMessage.AppendString(zToSet.ToString(Azure.CultureInfo));
+                serverMessage.AppendString(fItem.Z.ToString(Yupi.CultureInfo));
+                serverMessage.AppendString(zToSet.ToString(Yupi.CultureInfo));
                 serverMessage.AppendInteger(0);
                 Room.SendMessage(serverMessage);
 

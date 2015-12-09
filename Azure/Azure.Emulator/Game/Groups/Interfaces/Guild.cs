@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Groups.Interfaces
+namespace Yupi.Game.Groups.Interfaces
 {
     /// <summary>
     ///     Class Guild.
@@ -191,7 +191,7 @@ namespace Azure.Game.Groups.Interfaces
         ///     Gets the forum last post time.
         /// </summary>
         /// <value>The forum last post time.</value>
-        internal int ForumLastPostTime => (Azure.GetUnixTimeStamp() - ForumLastPosterTimestamp);
+        internal int ForumLastPostTime => (Yupi.GetUnixTimeStamp() - ForumLastPosterTimestamp);
 
         /// <summary>
         ///     Forums the data message.
@@ -281,7 +281,7 @@ namespace Azure.Game.Groups.Interfaces
             if (!HasForum)
                 return;
 
-            using (var adapter = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var adapter = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 adapter.SetQuery($"UPDATE groups_data SET has_forum = '1', forum_name = @name , forum_description = @desc , forum_messages_count = @msgcount , forum_score = @score , forum_lastposter_id = @lastposterid , forum_lastposter_name = @lastpostername , forum_lastposter_timestamp = @lasttimestamp WHERE id ={Id}");
                 adapter.AddParameter("name", ForumName);

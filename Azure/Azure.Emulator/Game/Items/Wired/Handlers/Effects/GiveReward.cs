@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Items.Wired.Interfaces;
-using Azure.Game.Rooms;
-using Azure.Game.Rooms.User;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Items.Wired.Interfaces;
+using Yupi.Game.Rooms;
+using Yupi.Game.Rooms.User;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Items.Wired.Handlers.Effects
+namespace Yupi.Game.Items.Wired.Handlers.Effects
 {
     public class GiveReward : IWiredItem
     {
@@ -95,7 +95,7 @@ namespace Azure.Game.Items.Wired.Handlers.Effects
                 var code = dataArray[1];
                 var percentage = int.Parse(dataArray[2]);
 
-                var random = Azure.GetRandomNumber(0, 100);
+                var random = Yupi.GetRandomNumber(0, 100);
 
                 var message =new ServerMessage(LibraryParser.OutgoingRequest("WiredRewardAlertMessageComposer"));
 
@@ -124,7 +124,7 @@ namespace Azure.Game.Items.Wired.Handlers.Effects
                 }
                 else //item or effect
                 {
-                    var roomItem = Azure.GetGame().GetItemManager().GetItem(uint.Parse(code));
+                    var roomItem = Yupi.GetGame().GetItemManager().GetItem(uint.Parse(code));
 
                     if (roomItem == null)
                         continue;

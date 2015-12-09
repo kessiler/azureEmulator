@@ -4,24 +4,24 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using Azure.Database.Manager.Database.Session_Details.Interfaces;
-using Azure.Game.Catalogs.Composers;
-using Azure.Game.Catalogs.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Game.Groups.Interfaces;
-using Azure.Game.Items.Interactions;
-using Azure.Game.Items.Interactions.Enums;
-using Azure.Game.Items.Interfaces;
-using Azure.Game.Pets;
-using Azure.Game.Pets.Enums;
-using Azure.Game.Quests;
-using Azure.Game.RoomBots;
-using Azure.Game.SoundMachine;
-using Azure.Game.SoundMachine.Songs;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Data.Base.Sessions.Interfaces;
+using Yupi.Game.Catalogs.Composers;
+using Yupi.Game.Catalogs.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Game.Groups.Interfaces;
+using Yupi.Game.Items.Interactions;
+using Yupi.Game.Items.Interactions.Enums;
+using Yupi.Game.Items.Interfaces;
+using Yupi.Game.Pets;
+using Yupi.Game.Pets.Enums;
+using Yupi.Game.Quests;
+using Yupi.Game.RoomBots;
+using Yupi.Game.SoundMachine;
+using Yupi.Game.SoundMachine.Songs;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Catalogs
+namespace Yupi.Game.Catalogs
 {
     /// <summary>
     ///     Class Catalog.
@@ -68,7 +68,7 @@ namespace Azure.Game.Catalogs
         /// </summary>
         /// <param name="petName">Name of the pet.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal static bool CheckPetName(string petName) => petName.Length >= 3 && petName.Length <= 15 && Azure.IsValidAlphaNumeric(petName);
+        internal static bool CheckPetName(string petName) => petName.Length >= 3 && petName.Length <= 15 && Yupi.IsValidAlphaNumeric(petName);
 
         /// <summary>
         ///     Creates the pet.
@@ -82,12 +82,12 @@ namespace Azure.Game.Catalogs
         /// <returns>Pet.</returns>
         internal static Pet CreatePet(uint userId, string name, int type, string race, string color, int rarity = 0)
         {
-            Pet pet = new Pet(404u, userId, 0u, name, (uint) type, race, color, 0, 100, 150, 0, Azure.GetUnixTimeStamp(), 0, 0, 0.0, false, 0, 0, -1, rarity, DateTime.Now.AddHours(36.0), DateTime.Now.AddHours(48.0), null)
+            Pet pet = new Pet(404u, userId, 0u, name, (uint) type, race, color, 0, 100, 150, 0, Yupi.GetUnixTimeStamp(), 0, 0, 0.0, false, 0, 0, -1, rarity, DateTime.Now.AddHours(36.0), DateTime.Now.AddHours(48.0), null)
             {
                 DbState = DatabaseUpdateState.NeedsUpdate
             };
 
-            using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+            using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 queryReactor.SetQuery($"INSERT INTO bots_data (user_id, name, ai_type) VALUES ('{pet.OwnerId}', @{$"{pet.PetId}name"}, 'pet')");
 
@@ -109,10 +109,10 @@ namespace Azure.Game.Catalogs
                 pet.DbState = DatabaseUpdateState.NeedsUpdate;
             }
 
-            GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(userId);
+            GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(userId);
 
             if (clientByUserId != null)
-                Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_PetLover", 1);
+                Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_PetLover", 1);
 
             return pet;
         }
@@ -132,7 +132,7 @@ namespace Azure.Game.Catalogs
 
             if (Convert.ToUInt32(mRow["type"]) == 16u)
             {
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.SetQuery($"SELECT * FROM pets_plants WHERE pet_id = {Convert.ToUInt32(Row["id"])}");
 
@@ -148,8 +148,8 @@ namespace Azure.Game.Catalogs
                 (int)mRow["nutrition"], (int)mRow["respect"], Convert.ToDouble(mRow["createstamp"]), (int)Row["x"],
                 (int)Row["y"], Convert.ToDouble(Row["z"]), (int)mRow["have_saddle"] == 1, (int)mRow["anyone_ride"],
                 (int)mRow["hairdye"], (int)mRow["pethair"], (int)mRow["rarity"],
-                Azure.UnixToDateTime((int)mRow["lasthealth_stamp"]),
-                Azure.UnixToDateTime((int)mRow["untilgrown_stamp"]), moplaBreed);
+                Yupi.UnixToDateTime((int)mRow["lasthealth_stamp"]),
+                Yupi.UnixToDateTime((int)mRow["untilgrown_stamp"]), moplaBreed);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Azure.Game.Catalogs
             if (FlatOffers.ContainsKey(offerId))
                 result = (CatalogItem)Offers[FlatOffers[offerId]];
 
-            return result ?? (Azure.GetGame().GetCatalog().GetItem(Convert.ToUInt32(offerId)));
+            return result ?? (Yupi.GetGame().GetCatalog().GetItem(Convert.ToUInt32(offerId)));
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace Azure.Game.Catalogs
 
                     Item item;
 
-                    if (!Azure.GetGame().GetItemManager().GetItem(firstItem, out item))
+                    if (!Yupi.GetGame().GetItemManager().GetItem(firstItem, out item))
                         continue;
 
                     int num = !source.Contains(';') ? item.FlatId : -1;
@@ -413,7 +413,7 @@ namespace Azure.Game.Catalogs
 
                 item.LimitedSelled++;
 
-                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                 {
                     queryReactor.RunFastQuery(string.Concat("UPDATE catalog_items SET limited_sells = ", item.LimitedSelled, " WHERE id = ", item.Id));
 
@@ -462,7 +462,7 @@ namespace Azure.Game.Catalogs
                 {
                     if ((DateTime.Now - session.GetHabbo().LastGiftPurchaseTime).TotalSeconds <= 15.0)
                     {
-                        session.SendNotif(Azure.GetLanguage().GetVar("user_send_gift"));
+                        session.SendNotif(Yupi.GetLanguage().GetVar("user_send_gift"));
                         return;
                     }
 
@@ -471,7 +471,7 @@ namespace Azure.Game.Catalogs
 
                     DataRow row;
 
-                    using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryreactor3 = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryreactor3.SetQuery("SELECT id FROM users WHERE username = @gift_user");
                         queryreactor3.AddParameter("gift_user", giftUser);
@@ -518,7 +518,7 @@ namespace Azure.Game.Catalogs
                 }
                 if (isGift && baseItem.Type == 'e')
                 {
-                    session.SendNotif(Azure.GetLanguage().GetVar("user_send_gift_effect"));
+                    session.SendNotif(Yupi.GetLanguage().GetVar("user_send_gift_effect"));
                     return;
                 }
 
@@ -535,7 +535,7 @@ namespace Azure.Game.Catalogs
                     update.AppendInteger(2);
                     session.SendMessage(update);
 
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("UPDATE users SET builders_items_max = @max WHERE id = @userId");
                         queryReactor.AddParameter("max", session.GetHabbo().BuildersItemsMax);
@@ -562,7 +562,7 @@ namespace Azure.Game.Catalogs
                     update.AppendInteger(2);
                     session.SendMessage(update);
 
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("UPDATE users SET builders_expire = @max WHERE id = @userId");
                         queryReactor.AddParameter("max", session.GetHabbo().BuildersExpire);
@@ -608,7 +608,7 @@ namespace Azure.Game.Catalogs
                         break;
 
                     case Interaction.RoomEffect:
-                        double number = string.IsNullOrEmpty(extraData) ? 0.0 : double.Parse(extraData, Azure.CultureInfo);
+                        double number = string.IsNullOrEmpty(extraData) ? 0.0 : double.Parse(extraData, Yupi.CultureInfo);
                         extraData = number.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
                         break;
 
@@ -673,7 +673,7 @@ namespace Azure.Game.Catalogs
                         if (color.Length != 6)
                             return;
 
-                        Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_PetLover", 1);
+                        Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_PetLover", 1);
                         break;
 
                     case Interaction.Mannequin:
@@ -752,14 +752,14 @@ namespace Azure.Game.Catalogs
 
                 if (isGift)
                 {
-                    Item itemBySprite = Azure.GetGame().GetItemManager().GetItemBySpriteId(giftSpriteId);
+                    Item itemBySprite = Yupi.GetGame().GetItemManager().GetItemBySpriteId(giftSpriteId);
 
                     if (itemBySprite == null)
                         return;
 
                     uint insertId;
 
-                    using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                    using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                     {
                         queryReactor.SetQuery("INSERT INTO items_rooms (item_name,user_id) VALUES (" + itemBySprite.Name + ", " + toUserId + ")");
 
@@ -772,21 +772,21 @@ namespace Azure.Game.Catalogs
 
                         if (session.GetHabbo().Id != toUserId)
                         {
-                            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_GiftGiver", 1, true);
-                            Azure.GetGame().GetQuestManager().ProgressUserQuest(session, QuestType.GiftOthers);
+                            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(session, "ACH_GiftGiver", 1, true);
+                            Yupi.GetGame().GetQuestManager().ProgressUserQuest(session, QuestType.GiftOthers);
 
                             queryReactor.RunFastQuery("UPDATE users_stats SET gifts_given = gifts_given + 1 WHERE id = " + session.GetHabbo().Id + ";UPDATE users_stats SET gifts_received = gifts_received + 1 WHERE id = " + toUserId);
                         }
                     }
 
-                    GameClient clientByUserId = Azure.GetGame().GetClientManager().GetClientByUserId(toUserId);
+                    GameClient clientByUserId = Yupi.GetGame().GetClientManager().GetClientByUserId(toUserId);
 
                     if (clientByUserId != null)
                     {
                         clientByUserId.GetHabbo().GetInventoryComponent().AddNewItem(insertId, itemBySprite.Name,  string.Concat(session.GetHabbo().Id, (char)9, giftMessage, (char)9, giftLazo, (char)9, giftColor, (char)9, ((undef) ? "1" : "0"), (char)9, session.GetHabbo().UserName, (char)9, session.GetHabbo().Look, (char)9, item.Name), 0u, false, false, 0, 0);
 
                         if (clientByUserId.GetHabbo().Id != session.GetHabbo().Id)
-                            Azure.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, true);
+                            Yupi.GetGame().GetAchievementManager().ProgressUserAchievement(clientByUserId, "ACH_GiftReceiver", 1, true);
                     }
 
                     session.GetHabbo().LastGiftPurchaseTime = DateTime.Now;
@@ -860,7 +860,7 @@ namespace Azure.Game.Catalogs
 
                                 list.Add(userItem33);
 
-                                using (IQueryAdapter queryreactor2 = Azure.GetDatabaseManager().GetQueryReactor())
+                                using (IQueryAdapter queryreactor2 = Yupi.GetDatabaseManager().GetQueryReactor())
                                     queryreactor2.RunFastQuery(
                                         $"INSERT INTO items_moodlight (item_id,enabled,current_preset,preset_one,preset_two,preset_three) VALUES ({id33},'0',1,'#000000,255,0','#000000,255,0','#000000,255,0')");
 
@@ -897,7 +897,7 @@ namespace Azure.Game.Catalogs
                                 list.Add(userItem);
                                 list.Add(userItem2);
 
-                                using (IQueryAdapter queryReactor = Azure.GetDatabaseManager().GetQueryReactor())
+                                using (IQueryAdapter queryReactor = Yupi.GetDatabaseManager().GetQueryReactor())
                                     queryReactor.RunFastQuery($"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id}','{id2}');" + $"INSERT INTO items_teleports (tele_one_id,tele_two_id) VALUES ('{id2}','{id}')");
 
                                 break;
@@ -960,7 +960,7 @@ namespace Azure.Game.Catalogs
 
                                 list.Add(userItem44);
 
-                                using (IQueryAdapter queryreactor3 = Azure.GetDatabaseManager().GetQueryReactor())
+                                using (IQueryAdapter queryreactor3 = Yupi.GetDatabaseManager().GetQueryReactor())
                                     queryreactor3.RunFastQuery($"INSERT INTO items_toners VALUES ({id44},'0',0,0,0)");
 
                                 break;
@@ -976,7 +976,7 @@ namespace Azure.Game.Catalogs
 
                                 int.TryParse(extraData, out groupId);
 
-                                Guild group = Azure.GetGame().GetGroupManager().GetGroup((int) groupId);
+                                Guild group = Yupi.GetGame().GetGroupManager().GetGroup((int) groupId);
 
                                 if (@group != null)
                                 {
@@ -998,7 +998,7 @@ namespace Azure.Game.Catalogs
                                         }
                                     }
                                     else
-                                        session.SendNotif(Azure.GetLanguage().GetVar("user_group_owner_error"));
+                                        session.SendNotif(Yupi.GetLanguage().GetVar("user_group_owner_error"));
                                 }
 
                                 list.Add(session.GetHabbo().GetInventoryComponent().AddNewItem(0u, item.Name, "0", Convert.ToUInt32(extraData), true, false, 0, 0, string.Empty));
@@ -1035,18 +1035,18 @@ namespace Azure.Game.Catalogs
         {
             uint level = 1u;
 
-            if (Azure.GetRandomNumber(1, 2000) == 2000)
+            if (Yupi.GetRandomNumber(1, 2000) == 2000)
                 level = 5u;
-            else if (Azure.GetRandomNumber(1, 200) == 200)
+            else if (Yupi.GetRandomNumber(1, 200) == 200)
                 level = 4u;
-            else if (Azure.GetRandomNumber(1, 40) == 40)
+            else if (Yupi.GetRandomNumber(1, 40) == 40)
                 level = 3u;
-            else if (Azure.GetRandomNumber(1, 4) == 4)
+            else if (Yupi.GetRandomNumber(1, 4) == 4)
                 level = 2u;
 
             List<EcotronReward> ecotronRewardsForLevel = GetEcotronRewardsForLevel(level);
 
-            return ecotronRewardsForLevel[Azure.GetRandomNumber(0, (ecotronRewardsForLevel.Count - 1))];
+            return ecotronRewardsForLevel[Yupi.GetRandomNumber(0, (ecotronRewardsForLevel.Count - 1))];
         }
 
         /// <summary>

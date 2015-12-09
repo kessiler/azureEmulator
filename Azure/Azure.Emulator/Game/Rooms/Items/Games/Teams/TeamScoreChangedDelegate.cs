@@ -1,4 +1,4 @@
-namespace Azure.Game.Rooms.Items.Games.Teams
+namespace Yupi.Game.Rooms.Items.Games.Teams
 {
     /// <summary>
     ///     Delegate TeamScoreChangedDelegate

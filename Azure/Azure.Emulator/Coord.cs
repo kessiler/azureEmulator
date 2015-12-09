@@ -1,4 +1,4 @@
-namespace Azure
+namespace Yupi
 {
     public struct Coord
     {

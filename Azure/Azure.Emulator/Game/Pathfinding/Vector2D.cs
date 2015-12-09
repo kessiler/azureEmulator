@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azure.Game.Pathfinding
+namespace Yupi.Game.Pathfinding
 {
     /// <summary>
     ///     Class Vector2D.

@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class SummonAll. This class cannot be inherited.
@@ -26,7 +26,7 @@ namespace Azure.Game.Commands.Controllers
             var messageBytes =
                 GameClient.GetBytesNotif(string.Format("You have all been summoned by\r- {0}:\r\n{1}",
                     session.GetHabbo().UserName, reason));
-            foreach (var client in Azure.GetGame().GetClientManager().Clients.Values)
+            foreach (var client in Yupi.GetGame().GetClientManager().Clients.Values)
             {
                 if (session.GetHabbo().CurrentRoom == null ||
                     session.GetHabbo().CurrentRoomId == client.GetHabbo().CurrentRoomId)

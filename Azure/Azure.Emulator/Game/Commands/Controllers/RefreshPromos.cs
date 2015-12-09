@@ -1,7 +1,7 @@
-﻿using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
+﻿using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class HotelAlert. This class cannot be inherited.
@@ -21,7 +21,7 @@ namespace Azure.Game.Commands.Controllers
 
         public override bool Execute(GameClient session, string[] pms)
         {
-            Azure.GetGame().GetHotelView().RefreshPromoList();
+            Yupi.GetGame().GetHotelView().RefreshPromoList();
             return true;
         }
     }

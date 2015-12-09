@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using Azure.Game.Commands.Interfaces;
-using Azure.Game.GameClients.Interfaces;
-using Azure.Messages;
-using Azure.Messages.Parsers;
+using Yupi.Game.Commands.Interfaces;
+using Yupi.Game.GameClients.Interfaces;
+using Yupi.Messages;
+using Yupi.Messages.Parsers;
 
-namespace Azure.Game.Commands.Controllers
+namespace Yupi.Game.Commands.Controllers
 {
     /// <summary>
     ///     Class FaceLess. This class cannot be inherited.
@@ -36,7 +36,7 @@ namespace Azure.Game.Commands.Controllers
             }
             session.GetHabbo().Look += ".hd-99999-" + color;
 
-            using (var dbClient = Azure.GetDatabaseManager().GetQueryReactor())
+            using (var dbClient = Yupi.GetDatabaseManager().GetQueryReactor())
             {
                 dbClient.SetQuery(
                     "UPDATE users SET look = @look WHERE id = " + session.GetHabbo().Id);

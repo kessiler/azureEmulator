@@ -1,4 +1,4 @@
-namespace Azure.Game.Support
+namespace Yupi.Game.Support
 {
     /// <summary>
     ///     Struct ModerationBan
@@ -44,6 +44,6 @@ namespace Azure.Game.Support
         ///     Gets a value indicating whether this <see cref="ModerationBan" /> is expired.
         /// </summary>
         /// <value><c>true</c> if expired; otherwise, <c>false</c>.</value>
-        internal bool Expired => Azure.GetUnixTimeStamp() >= Expire;
+        internal bool Expired => Yupi.GetUnixTimeStamp() >= Expire;
     }
 }

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Azure.Game.Items.Interfaces;
+using Yupi.Game.Items.Interfaces;
 
-namespace Azure.Game.Catalogs.Interfaces
+namespace Yupi.Game.Catalogs.Interfaces
 {
     /// <summary>
     ///     Class CatalogItem.
@@ -129,7 +129,7 @@ namespace Azure.Game.Catalogs.Interfaces
                 uint amount;
                 Item item;
 
-                if (!Azure.GetGame().GetItemManager().GetItem(itemNames[i], out item))
+                if (!Yupi.GetGame().GetItemManager().GetItem(itemNames[i], out item))
                     continue;
 
                 uint.TryParse(amounts[i], out amount);
@@ -161,7 +161,7 @@ namespace Azure.Game.Catalogs.Interfaces
         /// </summary>
         /// <param name="itemId">The item ids.</param>
         /// <returns>Item.</returns>
-        internal Item GetBaseItem(uint itemId) => Azure.GetGame().GetItemManager().GetItem(itemId);
+        internal Item GetBaseItem(uint itemId) => Yupi.GetGame().GetItemManager().GetItem(itemId);
 
         /// <summary>
         ///     Gets the first base item.

@@ -1,6 +1,6 @@
-using Azure.Game.Rooms.User;
+using Yupi.Game.Rooms.User;
 
-namespace Azure.Game.Rooms.Chat.Interfaces
+namespace Yupi.Game.Rooms.Chat.Interfaces
 {
     /// <summary>
     ///     Struct InvokedChatMessage
